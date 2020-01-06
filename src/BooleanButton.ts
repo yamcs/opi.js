@@ -1,5 +1,6 @@
 import { Bounds } from './Bounds';
 import { Color } from './Color';
+import { Display } from './Display';
 import { Font } from './Font';
 import * as utils from './utils';
 import { Widget } from './Widget';
@@ -25,8 +26,8 @@ export class BooleanButton extends Widget {
 
     private toggled = false;
 
-    constructor(node: Element) {
-        super(node);
+    constructor(display: Display, node: Element) {
+        super(display, node);
         this.squareButton = utils.parseBooleanChild(node, 'square_button');
         this.showLed = utils.parseBooleanChild(node, 'show_led');
         this.showBooleanLabel = utils.parseBooleanChild(node, 'show_boolean_label');

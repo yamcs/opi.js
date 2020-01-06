@@ -31,7 +31,7 @@
             const displayEl = document.getElementById('mydisplay');
             const display = new Display(displayEl);
 
-            fetch('supervisor-controls.opi.xml').then(response => {
+            fetch('top-bar.opi').then(response => {
                 response.text().then(text => {
                     display.setSource(text);
                 });

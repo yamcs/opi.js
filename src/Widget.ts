@@ -2,6 +2,7 @@ import { Action, ExecuteJavaScriptAction, OpenDisplayAction } from './actions';
 import { toBorderBox } from './Bounds';
 import { Color } from './Color';
 import * as constants from './constants';
+import { Display } from './Display';
 import * as utils from './utils';
 
 export abstract class Widget {
@@ -35,9 +36,6 @@ export abstract class Widget {
 
     pvName?: string;
 
-    // Marks if the model was updated since the last UI render
-    dirty = false;
-
     backgroundColor = 'transparent';
     foregroundColor: Color;
 
@@ -46,7 +44,7 @@ export abstract class Widget {
 
     actions: Action[] = [];
 
-    constructor(node: Element) {
+    constructor(readonly display: Display, node: Element) {
         this.wuid = utils.parseStringChild(node, 'wuid');
 
         this.typeId = utils.parseStringAttribute(node, 'typeId');
@@ -190,6 +188,10 @@ export abstract class Widget {
         } else {
             console.warn(`Unsupported border style: ${this.borderStyle}`);
         }
+    }
+
+    requestRepaint() {
+        this.display.requestRepaint();
     }
 
     abstract draw(ctx: CanvasRenderingContext2D): void;

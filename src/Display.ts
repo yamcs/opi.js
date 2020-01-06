@@ -3,6 +3,7 @@ declare var FontFaceObserver: any;
 import { BooleanButton } from './BooleanButton';
 import { Color } from './Color';
 import * as constants from './constants';
+import { ImageWidget } from './ImageWidget';
 import { Label } from './Label';
 import * as utils from './utils';
 import { Widget } from './Widget';
@@ -132,13 +133,15 @@ export class Display {
         const typeId = utils.parseStringAttribute(node, 'typeId');
         switch (typeId) {
             case constants.TYPE_BOOLEAN_BUTTON:
-                this.widgets.push(new BooleanButton(node));
+                this.widgets.push(new BooleanButton(this, node));
+                break;
+            case constants.TYPE_IMAGE:
+                this.widgets.push(new ImageWidget(this, node));
                 break;
             case constants.TYPE_LABEL:
-                this.widgets.push(new Label(node));
+                this.widgets.push(new Label(this, node));
                 break;
             default:
-                // tslint:disable-next-line:no-console
                 console.warn(`Unsupported widget type: ${typeId}`);
         }
     }

@@ -1,3 +1,4 @@
+import { Display } from './Display';
 import { Font } from './Font';
 import * as utils from './utils';
 import { Widget } from './Widget';
@@ -8,8 +9,8 @@ export class Label extends Widget {
     private horizAlignment: number;
     private vertAlignment: number;
 
-    constructor(node: Element) {
-        super(node);
+    constructor(display: Display, node: Element) {
+        super(display, node);
         const fontNode = utils.findChild(node, 'font');
         this.font = utils.parseFontNode(fontNode);
 
