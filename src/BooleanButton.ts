@@ -208,7 +208,7 @@ export class BooleanButton extends Widget {
             if (this.effect3d) {
                 const gradient = ctx.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
-                gradient.addColorStop(0, 'white');
+                gradient.addColorStop(0, Color.WHITE.toString());
                 gradient.addColorStop(1, this.offColorOpaque);
                 ctx.beginPath();
                 ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);

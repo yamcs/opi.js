@@ -1,20 +1,43 @@
 <!doctype html>
 <html>
 
+<head>
+    <title>webopi</title>
+    <style>
+        body {
+            margin: 0;
+            margin-top: 10em;
+            background-color: lightseagreen;
+            text-align: center;
+        }
+
+        #mydisplay {
+            display: inline-block;
+        }
+    </style>
+</head>
+
 <body>
+    <p>
+        <button onclick="toggleGrid()">Toggle Grid</button>
+    </p>
     <div id="mydisplay"></div>
 
-    <script src="webopi.umd.js"></script>
-    <script>
+    <script type="module">
+        import { Display } from './webopi.js';
         window.addEventListener('load', () => {
             const displayEl = document.getElementById('mydisplay');
-            const display = new OPI.Display(displayEl);
+            const display = new Display(displayEl);
 
             fetch('supervisor-controls.opi.xml').then(response => {
                 response.text().then(text => {
                     display.setSource(text);
                 });
             })
+
+            window.toggleGrid = () => {
+                display.showGrid = !display.showGrid;
+            };
         });
     </script>
 </body>

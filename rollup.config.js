@@ -29,9 +29,8 @@ export default {
       format: 'esm',
       sourcemap: true
     }, {
-      file: 'example/webopi.umd.js',
-      name: 'OPI',
-      format: 'umd',
+      file: 'example/webopi.js',
+      format: 'esm',
       sourcemap: true
     }
   ],

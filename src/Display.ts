@@ -13,7 +13,7 @@ export class Display {
 
     private title = 'Untitled';
     private backgroundColor = 'white';
-    private showGrid = true;
+    private _showGrid = true;
 
     private widgets: Widget[] = [];
 
@@ -56,7 +56,7 @@ export class Display {
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-        if (this.showGrid && this.gridPattern) {
+        if (this._showGrid && this.gridPattern) {
             this.ctx.fillStyle = this.gridPattern;
             this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         }
@@ -101,7 +101,7 @@ export class Display {
         patternContext.fillRect(0, 0, 2, 1);
         this.gridPattern = this.ctx.createPattern(patternCanvas, 'repeat')!;
 
-        this.showGrid = utils.parseBooleanChild(displayEl, 'show_grid', false);
+        this._showGrid = utils.parseBooleanChild(displayEl, 'show_grid', false);
 
         this.widgets = [];
         for (const widgetNode of utils.findChildren(displayEl, 'widget')) {
@@ -121,5 +121,11 @@ export class Display {
                 // tslint:disable-next-line:no-console
                 console.warn(`Unsupported widget type: ${typeId}`);
         }
+    }
+
+    get showGrid() { return this._showGrid; }
+    set showGrid(showGrid: boolean) {
+        this._showGrid = showGrid;
+        this.requestRepaint();
     }
 }
