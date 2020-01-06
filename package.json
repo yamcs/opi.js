@@ -1,0 +1,27 @@
+{
+    "name": "@yamcs/webopi",
+    "version": "1.0.0",
+    "description": "OPI Display Renderer",
+    "author": "Yamcs Team",
+    "license": "MIT",
+    "scripts": {
+        "build": "rollup -c",
+        "clean": "rm -rf dist",
+        "prepublishOnly": "npm run build",
+        "watch": "rollup -cw"
+    },
+    "main": "dist/webopi.umd.js",
+    "module": "dist/webopi.js",
+    "types": "dist/types/index.d.ts",
+    "files": [
+        "dist/"
+    ],
+    "devDependencies": {
+        "@types/node": "^12.12.17",
+        "rollup": "^1.27.13",
+        "rollup-plugin-serve": "^1.0.1",
+        "rollup-plugin-terser": "^5.1.3",
+        "rollup-plugin-typescript2": "^0.25.3",
+        "typescript": "^3.7.3"
+    }
+}

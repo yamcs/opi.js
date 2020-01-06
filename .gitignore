@@ -1,0 +1,5 @@
+.rpt2_cache/
+dist/
+node_modules/
+example/webopi.umd.js
+example/webopi.umd.js.map

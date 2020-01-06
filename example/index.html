@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+
+<body>
+    <div id="mydisplay"></div>
+
+    <script src="webopi.umd.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            const displayEl = document.getElementById('mydisplay');
+            const display = new OPI.Display(displayEl);
+
+            fetch('supervisor-controls.opi.xml').then(response => {
+                response.text().then(text => {
+                    display.setSource(text);
+                });
+            })
+        });
+    </script>
+</body>
+
+</html>
