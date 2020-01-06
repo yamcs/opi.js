@@ -1,6 +1,9 @@
+declare var FontFaceObserver: any;
+
 import { BooleanButton } from './BooleanButton';
 import { Color } from './Color';
 import * as constants from './constants';
+import { Label } from './Label';
 import * as utils from './utils';
 import { Widget } from './Widget';
 
@@ -34,6 +37,20 @@ export class Display {
         this.ctx = canvas.getContext('2d')!;
 
         window.requestAnimationFrame(() => this.step());
+
+        // Preload the default Liberation font for correct text measurements
+        // Probably can be done without external library in about 5 years from now.
+        // Follow browser support of this spec: https://www.w3.org/TR/css-font-loading-3/
+        this.preloadFont('Liberation Sans', 'normal', 'normal');
+        this.preloadFont('Liberation Sans', 'normal', 'italic');
+        this.preloadFont('Liberation Sans', 'bold', 'normal');
+        this.preloadFont('Liberation Sans', 'bold', 'italic');
+    }
+
+    preloadFont(fontFace: string, weight: string, style: string) {
+        new FontFaceObserver(fontFace, { weight, style }).load()
+            .then(() => this.requestRepaint())
+            .catch(() => console.warn(`Failed to load font '${fontFace}'. Font metrics may not be accurate.`));
     }
 
     private step() {
@@ -116,6 +133,9 @@ export class Display {
         switch (typeId) {
             case constants.TYPE_BOOLEAN_BUTTON:
                 this.widgets.push(new BooleanButton(node));
+                break;
+            case constants.TYPE_LABEL:
+                this.widgets.push(new Label(node));
                 break;
             default:
                 // tslint:disable-next-line:no-console

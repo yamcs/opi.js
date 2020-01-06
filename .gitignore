@@ -1,5 +1,3 @@
 .rpt2_cache/
 dist/
 node_modules/
-example/webopi.js
-example/webopi.js.map

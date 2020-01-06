@@ -1,6 +1,7 @@
 import { Action, ExecuteJavaScriptAction, OpenDisplayAction } from './actions';
 import { toBorderBox } from './Bounds';
 import { Color } from './Color';
+import * as constants from './constants';
 import * as utils from './utils';
 
 export abstract class Widget {
@@ -170,10 +171,22 @@ export abstract class Widget {
         } else if (this.borderStyle === 1) { // Line
             ctx.strokeStyle = this.borderColor.toString();
             ctx.lineWidth = this.borderWidth;
-
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-
             ctx.strokeRect(box.x, box.y, box.width, box.height);
+        } else if (this.borderStyle === 14) { // Round Rectangle Background
+            let fillOpacity = 1;
+            if (this.typeId === constants.TYPE_RECTANGLE || this.typeId === constants.TYPE_ROUNDED_RECTANGLE) {
+                fillOpacity = 0; // Then nested widget appears to decide
+            }
+
+            ctx.globalAlpha = fillOpacity;
+            ctx.fillStyle = this.backgroundColor;
+            ctx.strokeStyle = this.borderColor.toString();
+            ctx.lineWidth = this.borderWidth;
+            const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
+            utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
         } else {
             console.warn(`Unsupported border style: ${this.borderStyle}`);
         }

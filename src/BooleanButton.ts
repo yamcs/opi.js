@@ -130,6 +130,14 @@ export class BooleanButton extends Widget {
         } else {
             this.drawVertical(ctx);
         }
+
+        if (this.showBooleanLabel) {
+            ctx.font = this.font.getFontString();
+            ctx.fillStyle = this.foregroundColor.toString();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.offLabel, this.x + (this.width / 2), this.y + (this.height / 2))
+        }
     }
 
     private drawHorizontal(ctx: CanvasRenderingContext2D) {

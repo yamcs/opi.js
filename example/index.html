@@ -2,7 +2,9 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
     <title>webopi</title>
+    <link rel="stylesheet" type="text/css" href="../dist/fonts/stylesheet.css">
     <style>
         body {
             margin: 0;
@@ -24,7 +26,7 @@
     <div id="mydisplay"></div>
 
     <script type="module">
-        import { Display } from './webopi.js';
+        import { Display } from '../dist/webopi.js';
         window.addEventListener('load', () => {
             const displayEl = document.getElementById('mydisplay');
             const display = new Display(displayEl);
