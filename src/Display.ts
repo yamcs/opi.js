@@ -6,6 +6,8 @@ import * as constants from './constants';
 import { ImageWidget } from './ImageWidget';
 import { Label } from './Label';
 import { LED } from './LED';
+import { Rectangle } from './Rectangle';
+import { RoundedRectangle } from './RoundedRectangle';
 import * as utils from './utils';
 import { Widget } from './Widget';
 
@@ -139,11 +141,17 @@ export class Display {
             case constants.TYPE_IMAGE:
                 this.widgets.push(new ImageWidget(this, node));
                 break;
+            case constants.TYPE_LABEL:
+                this.widgets.push(new Label(this, node));
+                break;
             case constants.TYPE_LED:
                 this.widgets.push(new LED(this, node));
                 break;
-            case constants.TYPE_LABEL:
-                this.widgets.push(new Label(this, node));
+            case constants.TYPE_RECTANGLE:
+                this.widgets.push(new Rectangle(this, node));
+                break;
+            case constants.TYPE_ROUNDED_RECTANGLE:
+                this.widgets.push(new RoundedRectangle(this, node));
                 break;
             default:
                 console.warn(`Unsupported widget type: ${typeId}`);

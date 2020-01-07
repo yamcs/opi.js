@@ -12,24 +12,27 @@ export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: n
     }
 }
 
-export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, rx: number, ry: number) {
     ctx.beginPath();
-    if (r === 0) {
+    if (!rx && !ry) {
         ctx.rect(x, y, w, h);
     } else {
-        if (w < 2 * r) {
-            r = w / 2;
+        if (w < 2 * rx) {
+            rx = w / 2;
         }
-        if (h < 2 * r) {
-            r = h / 2;
+        if (h < 2 * ry) {
+            ry = h / 2;
         }
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
+        ctx.moveTo(x + rx, y);
+        ctx.lineTo(x + w - rx, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+        ctx.lineTo(x + w, y + h - ry);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+        ctx.lineTo(x + rx, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+        ctx.lineTo(x, y + ry);
+        ctx.quadraticCurveTo(x, y, x + rx, y);
     }
-    ctx.closePath();
 }
 
 /**

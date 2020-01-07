@@ -182,7 +182,7 @@ export abstract class Widget {
             ctx.strokeStyle = this.borderColor.toString();
             ctx.lineWidth = this.borderWidth;
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-            utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4);
+            utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
             ctx.stroke();
             ctx.globalAlpha = 1;
         } else {

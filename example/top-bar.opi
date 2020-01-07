@@ -3333,7 +3333,7 @@ $(pv_value)</tooltip>
     <fg_gradient_color>
       <color red="255" green="255" blue="255" />
     </fg_gradient_color>
-    <fill_level>0.0</fill_level>
+    <fill_level>70.0</fill_level>
     <font>
       <opifont.name fontName="Liberation Sans" height="11" style="0" pixels="false">Default</opifont.name>
     </font>
@@ -3341,7 +3341,7 @@ $(pv_value)</tooltip>
     <foreground_color>
       <color red="255" green="0" blue="0" />
     </foreground_color>
-    <gradient>false</gradient>
+    <gradient>true</gradient>
     <height>100</height>
     <horizontal_fill>true</horizontal_fill>
     <line_color>
@@ -3789,8 +3789,8 @@ $(pv_value)</tooltip>
     </border_color>
     <border_style>0</border_style>
     <border_width>1</border_width>
-    <corner_height>200</corner_height>
-    <corner_width>100</corner_width>
+    <corner_height>50</corner_height>
+    <corner_width>200</corner_width>
     <enabled>true</enabled>
     <fg_gradient_color>
       <color red="255" green="255" blue="255" />
