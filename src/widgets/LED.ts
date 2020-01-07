@@ -1,8 +1,8 @@
-import { toBorderBox } from './Bounds';
-import { Color } from './Color';
-import { Display } from './Display';
-import * as utils from './utils';
-import { Widget } from './Widget';
+import { toBorderBox } from '../Bounds';
+import { Color } from '../Color';
+import { Display } from '../Display';
+import * as utils from '../utils';
+import { Widget } from '../Widget';
 
 interface State {
     label: string;

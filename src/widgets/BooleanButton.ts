@@ -1,9 +1,9 @@
-import { Bounds } from './Bounds';
-import { Color } from './Color';
-import { Display } from './Display';
-import { Font } from './Font';
-import * as utils from './utils';
-import { Widget } from './Widget';
+import { Bounds } from '../Bounds';
+import { Color } from '../Color';
+import { Display } from '../Display';
+import { Font } from '../Font';
+import * as utils from '../utils';
+import { Widget } from '../Widget';
 
 export class BooleanButton extends Widget {
 

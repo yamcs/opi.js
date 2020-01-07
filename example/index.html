@@ -31,7 +31,7 @@
             const displayEl = document.getElementById('mydisplay');
             const display = new Display(displayEl);
 
-            fetch('top-bar.opi').then(response => {
+            fetch('switch.opi').then(response => {
                 response.text().then(text => {
                     display.setSource(text);
                 });

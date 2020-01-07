@@ -1,6 +1,6 @@
-import { Display } from './Display';
-import * as utils from './utils';
-import { Widget } from './Widget';
+import { Display } from '../Display';
+import * as utils from '../utils';
+import { Widget } from '../Widget';
 
 export class Arc extends Widget {
 

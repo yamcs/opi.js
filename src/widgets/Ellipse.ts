@@ -1,9 +1,9 @@
-import { Color } from './Color';
-import { Display } from './Display';
-import * as utils from './utils';
-import { Widget } from './Widget';
+import { Color } from '../Color';
+import { Display } from '../Display';
+import * as utils from '../utils';
+import { Widget } from '../Widget';
 
-export class Rectangle extends Widget {
+export class Ellipse extends Widget {
 
     private alpha: number;
     private lineWidth: number;
@@ -13,9 +13,6 @@ export class Rectangle extends Widget {
     private foregroundGradientStartColor: Color;
     private backgroundGradientStartColor: Color;
     private gradient: boolean;
-
-    protected cornerWidth = 0;
-    protected cornerHeight = 0;
 
     constructor(display: Display, node: Element) {
         super(display, node);
@@ -37,7 +34,6 @@ export class Rectangle extends Widget {
         if (this.transparent) {
             ctx.globalAlpha = 0;
         }
-
         this.drawBackground(ctx);
         if (this.fillLevel) {
             this.drawFill(ctx);
@@ -46,7 +42,7 @@ export class Rectangle extends Widget {
         ctx.globalAlpha = 1;
     }
 
-    drawBackground(ctx: CanvasRenderingContext2D) {
+    private drawBackground(ctx: CanvasRenderingContext2D) {
         if (this.gradient) {
             const x2 = this.horizontalFill ? this.x : this.x + this.width;
             const y2 = this.horizontalFill ? this.y + this.height : this.y;
@@ -58,22 +54,20 @@ export class Rectangle extends Widget {
             ctx.fillStyle = this.backgroundColor.toString();
         }
 
-        const rx = this.cornerWidth / 2;
-        const ry = this.cornerHeight / 2
-        utils.roundRect(ctx, this.x, this.y, this.width, this.height, rx, ry);
+        const x = this.x + (this.width / 2);
+        const y = this.y + (this.height / 2);
+        const rx = this.width / 2;
+        const ry = this.height / 2;
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         ctx.fill();
 
-        if (this.lineWidth) {
-            ctx.lineWidth = this.lineWidth;
-            ctx.strokeStyle = this.lineColor.toString();
-            ctx.stroke();
-        }
+        ctx.lineWidth = this.lineWidth;
+        ctx.strokeStyle = this.lineColor.toString();
+        ctx.stroke();
     }
 
-    drawFill(ctx: CanvasRenderingContext2D) {
-        const rx = this.cornerWidth / 2;
-        const ry = this.cornerHeight / 2
-
+    private drawFill(ctx: CanvasRenderingContext2D) {
         let fillY = this.y;
         let fillWidth = this.width;
         let fillHeight = this.height;
@@ -85,12 +79,11 @@ export class Rectangle extends Widget {
         }
 
         // Create a clip for the fill level
-        // (makes it easier dealing with partially filled rounded corners)
         ctx.save();
-        let x = this.x + (this.lineWidth / 2);
+        let x = this.x - (this.lineWidth / 2);
         let y = fillY - (this.lineWidth / 2);
-        let width = fillWidth - this.lineWidth;
-        let height = fillHeight - this.lineWidth;
+        let width = fillWidth + this.lineWidth;
+        let height = fillHeight + this.lineWidth;
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.clip();
@@ -107,14 +100,15 @@ export class Rectangle extends Widget {
             ctx.fillStyle = this.foregroundColor.toString();
         }
 
-        x = this.x + (this.lineWidth / 2);
-        y = this.y + (this.lineWidth / 2);
-        width = this.width - this.lineWidth;
-        height = this.height - this.lineWidth;
-        utils.roundRect(ctx, x, y, width, height, rx, ry);
+        x = this.x + (this.width / 2);
+        y = this.y + (this.height / 2);
+        const rx = this.width / 2;
+        const ry = this.height / 2;
+        ctx.beginPath();
+        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         ctx.fill();
 
-        // Apparently the only way to get rid of a clip...
+        // Reset clip
         ctx.restore();
     }
 }

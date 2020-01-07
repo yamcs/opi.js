@@ -1,19 +1,23 @@
 declare var FontFaceObserver: any;
 
-import { Arc } from './Arc';
-import { BooleanButton } from './BooleanButton';
 import { Color } from './Color';
+import { Connection } from './Connection';
 import * as constants from './constants';
-import { Ellipse } from './Ellipse';
 import { ImageWidget } from './ImageWidget';
-import { Label } from './Label';
-import { LED } from './LED';
-import { Polygon } from './Polygon';
-import { Polyline } from './Polyline';
-import { Rectangle } from './Rectangle';
-import { RoundedRectangle } from './RoundedRectangle';
 import * as utils from './utils';
 import { Widget } from './Widget';
+import { ActionButton } from './widgets/ActionButton';
+import { Arc } from './widgets/Arc';
+import { BooleanButton } from './widgets/BooleanButton';
+import { BooleanSwitch } from './widgets/BooleanSwitch';
+import { Ellipse } from './widgets/Ellipse';
+import { Label } from './widgets/Label';
+import { LED } from './widgets/LED';
+import { Polygon } from './widgets/Polygon';
+import { Polyline } from './widgets/Polyline';
+import { Rectangle } from './widgets/Rectangle';
+import { RoundedRectangle } from './widgets/RoundedRectangle';
+import { TextUpdate } from './widgets/TextUpdate';
 
 export class Display {
 
@@ -27,6 +31,7 @@ export class Display {
     private _showGrid = true;
 
     private widgets: Widget[] = [];
+    private connections: Connection[] = [];
 
     private gridPattern: CanvasPattern | undefined;
 
@@ -90,6 +95,9 @@ export class Display {
             widget.drawBorder(this.ctx);
             widget.draw(this.ctx);
         }
+        for (const connection of this.connections) {
+            connection.draw(this.ctx);
+        }
     }
 
     /**
@@ -132,6 +140,10 @@ export class Display {
         for (const widgetNode of utils.findChildren(displayEl, 'widget')) {
             this.addWidget(widgetNode);
         }
+        this.connections = [];
+        for (const connectionNode of utils.findChildren(displayEl, 'connection')) {
+            this.connections.push(new Connection(connectionNode, this));
+        }
 
         this.requestRepaint();
     }
@@ -139,11 +151,17 @@ export class Display {
     private addWidget(node: Element) {
         const typeId = utils.parseStringAttribute(node, 'typeId');
         switch (typeId) {
+            case constants.TYPE_ACTION_BUTTON:
+                this.widgets.push(new ActionButton(this, node));
+                break;
             case constants.TYPE_ARC:
                 this.widgets.push(new Arc(this, node));
                 break;
             case constants.TYPE_BOOLEAN_BUTTON:
                 this.widgets.push(new BooleanButton(this, node));
+                break;
+            case constants.TYPE_BOOLEAN_SWITCH:
+                this.widgets.push(new BooleanSwitch(this, node));
                 break;
             case constants.TYPE_ELLIPSE:
                 this.widgets.push(new Ellipse(this, node));
@@ -169,6 +187,9 @@ export class Display {
             case constants.TYPE_ROUNDED_RECTANGLE:
                 this.widgets.push(new RoundedRectangle(this, node));
                 break;
+            case constants.TYPE_TEXT_UPDATE:
+                this.widgets.push(new TextUpdate(this, node));
+                break;
             default:
                 console.warn(`Unsupported widget type: ${typeId}`);
         }
@@ -178,5 +199,13 @@ export class Display {
     set showGrid(showGrid: boolean) {
         this._showGrid = showGrid;
         this.requestRepaint();
+    }
+
+    findWidget(wuid: string) {
+        for (const widget of this.widgets) {
+            if (widget.wuid === wuid) {
+                return widget;
+            }
+        }
     }
 }

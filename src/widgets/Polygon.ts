@@ -1,8 +1,8 @@
-import { Color } from './Color';
-import { Display } from './Display';
-import { Point } from './Point';
-import * as utils from './utils';
-import { Widget } from './Widget';
+import { Color } from '../Color';
+import { Display } from '../Display';
+import { Point } from '../Point';
+import * as utils from '../utils';
+import { Widget } from '../Widget';
 
 export class Polygon extends Widget {
 

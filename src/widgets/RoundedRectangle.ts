@@ -1,6 +1,6 @@
-import { Display } from './Display';
+import { Display } from '../Display';
+import * as utils from '../utils';
 import { Rectangle } from './Rectangle';
-import * as utils from './utils';
 
 export class RoundedRectangle extends Rectangle {
 

@@ -1,21 +1,22 @@
-import { Display } from './Display';
-import { Font } from './Font';
-import * as utils from './utils';
-import { Widget } from './Widget';
+import { Display } from '../Display';
+import { Font } from '../Font';
+import * as utils from '../utils';
+import { Widget } from '../Widget';
 
-export class Label extends Widget {
+export class TextUpdate extends Widget {
 
     private font: Font;
     private horizAlignment: number;
     private vertAlignment: number;
+    // private text: string;
 
     constructor(display: Display, node: Element) {
         super(display, node);
         const fontNode = utils.findChild(node, 'font');
         this.font = utils.parseFontNode(fontNode);
-
         this.horizAlignment = utils.parseIntChild(node, 'horizontal_alignment');
         this.vertAlignment = utils.parseIntChild(node, 'vertical_alignment');
+        // this.text = utils.parseStringChild(node, 'text');
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -24,9 +25,6 @@ export class Label extends Widget {
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        const lines = this.text.split('\n');
-
-        ctx.textBaseline = 'hanging';
         ctx.fillStyle = this.foregroundColor.toString();
         ctx.font = this.font.getFontString();
 
@@ -41,8 +39,17 @@ export class Label extends Widget {
             ctx.textAlign = 'end';
         }
 
-        for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], x, this.y);
+        let y = this.y;
+        if (this.vertAlignment === 0) { // TOP
+            ctx.textBaseline = 'top';
+        } else if (this.vertAlignment === 1) { // MIDDLE
+            y = y + (this.height / 2);
+            ctx.textBaseline = 'middle';
+        } else if (this.vertAlignment === 2) { // BOTTOM
+            y = y + this.height;
+            ctx.textBaseline = 'bottom';
         }
+
+        ctx.fillText(this.text, x, y);
     }
 }
