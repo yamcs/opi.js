@@ -16,11 +16,9 @@ export class BooleanButton extends Widget {
     private showBooleanLabel: boolean;
 
     private effect3d: boolean;
-    private onColor: string;
-    private onColorOpaque: string;
+    private onColor: Color;
     private onLabel: string;
-    private offColor: string;
-    private offColorOpaque: string;
+    private offColor: Color;
     private offLabel: string;
     private font: Font;
 
@@ -34,15 +32,11 @@ export class BooleanButton extends Widget {
         this.effect3d = utils.parseBooleanChild(node, 'effect_3d');
 
         const onColorNode = utils.findChild(node, 'on_color');
-        const onColorObject = utils.parseColorChild(onColorNode);
-        this.onColor = onColorObject.toString();
-        this.onColorOpaque = onColorObject.withAlpha(0).toString();
+        this.onColor = utils.parseColorChild(onColorNode);
         this.onLabel = utils.parseStringChild(node, 'on_label');
 
         const offColorNode = utils.findChild(node, 'off_color');
-        const offColorObject = utils.parseColorChild(offColorNode);
-        this.offColor = offColorObject.toString();
-        this.offColorOpaque = offColorObject.withAlpha(0).toString();
+        this.offColor = utils.parseColorChild(offColorNode);
         this.offLabel = utils.parseStringChild(node, 'off_label');
 
         const fontNode = utils.findChild(node, 'font');
@@ -89,7 +83,7 @@ export class BooleanButton extends Widget {
             }
 
             ctx.beginPath();
-            ctx.fillStyle = this.backgroundColor;
+            ctx.fillStyle = this.backgroundColor.toString();
             ctx.fillRect(this.x + 2, this.y + 2, this.width - 2 - 2, this.height - 2 - 2);
         } else {
             if (this.effect3d) {
@@ -119,7 +113,7 @@ export class BooleanButton extends Widget {
             ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
             ctx.fill();
 
-            ctx.fillStyle = this.backgroundColor;
+            ctx.fillStyle = this.backgroundColor.toString();
             ctx.beginPath();
             ctx.ellipse(x, y, rx - 2, ry - 2, 0, 0, 2 * Math.PI);
             ctx.fill();
@@ -168,14 +162,14 @@ export class BooleanButton extends Widget {
             const ry = ledArea.height / 2;
             ctx.beginPath();
             ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = this.offColor;
+            ctx.fillStyle = this.offColor.toString();
             ctx.fill();
 
             if (this.effect3d) {
                 const gradient = ctx.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
                 gradient.addColorStop(0, 'white');
-                gradient.addColorStop(1, this.offColorOpaque);
+                gradient.addColorStop(1, this.offColor.withAlpha(0).toString());
                 ctx.beginPath();
                 ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
                 ctx.fillStyle = gradient;
@@ -211,14 +205,14 @@ export class BooleanButton extends Widget {
             const ry = ledArea.height / 2;
             ctx.beginPath();
             ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = this.offColor;
+            ctx.fillStyle = this.offColor.toString();
             ctx.fill();
 
             if (this.effect3d) {
                 const gradient = ctx.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
                 gradient.addColorStop(0, Color.WHITE.toString());
-                gradient.addColorStop(1, this.offColorOpaque);
+                gradient.addColorStop(1, this.offColor.withAlpha(0).toString());
                 ctx.beginPath();
                 ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
                 ctx.fillStyle = gradient;

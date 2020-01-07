@@ -1,5 +1,7 @@
 export class Color {
 
+  static TRANSPARENT = new Color(0, 0, 0, 0);
+
   static BLACK = new Color(0, 0, 0);
   static WHITE = new Color(255, 255, 255);
   static DARK_GRAY = new Color(150, 150, 150);
@@ -35,7 +37,7 @@ export class Color {
 
     const i = Math.floor(1.0 / (1.0 - 0.7));
     if (r === 0 && g === 0 && b === 0) {
-        return new Color(i, i, i);
+      return new Color(i, i, i);
     }
     if (r > 0 && r < i) {
       r = i;
@@ -48,8 +50,8 @@ export class Color {
     }
 
     return new Color(Math.min(Math.floor(this.red / 0.7), 255),
-                     Math.min(Math.floor(this.green / 0.7), 255),
-                     Math.min(Math.floor(this.blue / 0.7), 255));
+      Math.min(Math.floor(this.green / 0.7), 255),
+      Math.min(Math.floor(this.blue / 0.7), 255));
   }
 
   darker() {

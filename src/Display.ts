@@ -1,5 +1,6 @@
 declare var FontFaceObserver: any;
 
+import { Arc } from './Arc';
 import { BooleanButton } from './BooleanButton';
 import { Color } from './Color';
 import * as constants from './constants';
@@ -8,6 +9,7 @@ import { ImageWidget } from './ImageWidget';
 import { Label } from './Label';
 import { LED } from './LED';
 import { Polygon } from './Polygon';
+import { Polyline } from './Polyline';
 import { Rectangle } from './Rectangle';
 import { RoundedRectangle } from './RoundedRectangle';
 import * as utils from './utils';
@@ -137,6 +139,9 @@ export class Display {
     private addWidget(node: Element) {
         const typeId = utils.parseStringAttribute(node, 'typeId');
         switch (typeId) {
+            case constants.TYPE_ARC:
+                this.widgets.push(new Arc(this, node));
+                break;
             case constants.TYPE_BOOLEAN_BUTTON:
                 this.widgets.push(new BooleanButton(this, node));
                 break;
@@ -154,6 +159,9 @@ export class Display {
                 break;
             case constants.TYPE_POLYGON:
                 this.widgets.push(new Polygon(this, node));
+                break;
+            case constants.TYPE_POLYLINE:
+                this.widgets.push(new Polyline(this, node));
                 break;
             case constants.TYPE_RECTANGLE:
                 this.widgets.push(new Rectangle(this, node));

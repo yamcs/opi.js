@@ -24,9 +24,8 @@ export class ImageWidget extends Widget {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        if (true) return;
         if (!this.transparency) {
-            ctx.fillStyle = this.backgroundColor;
+            ctx.fillStyle = this.backgroundColor.toString();
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 

@@ -55,7 +55,7 @@ export class Rectangle extends Widget {
             gradient.addColorStop(1, this.backgroundColor.toString());
             ctx.fillStyle = gradient;
         } else {
-            ctx.fillStyle = this.backgroundColor;
+            ctx.fillStyle = this.backgroundColor.toString();
         }
 
         const rx = this.cornerWidth / 2;

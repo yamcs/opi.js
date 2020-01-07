@@ -36,7 +36,7 @@ export abstract class Widget {
 
     pvName?: string;
 
-    backgroundColor = 'transparent';
+    backgroundColor = Color.TRANSPARENT;
     foregroundColor: Color;
 
     transparent: boolean;
@@ -113,7 +113,7 @@ export abstract class Widget {
 
         if (utils.hasChild(node, 'background_color')) {
             const backgroundColorNode = utils.findChild(node, 'background_color');
-            this.backgroundColor = utils.parseColorChild(backgroundColorNode).toString();
+            this.backgroundColor = utils.parseColorChild(backgroundColorNode);
         }
 
         const foregroundColorNode = utils.findChild(node, 'foreground_color');
@@ -178,7 +178,7 @@ export abstract class Widget {
             }
 
             ctx.globalAlpha = fillOpacity;
-            ctx.fillStyle = this.backgroundColor;
+            ctx.fillStyle = this.backgroundColor.toString();
             ctx.strokeStyle = this.borderColor.toString();
             ctx.lineWidth = this.borderWidth;
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);

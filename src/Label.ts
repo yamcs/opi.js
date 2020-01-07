@@ -20,7 +20,7 @@ export class Label extends Widget {
 
     draw(ctx: CanvasRenderingContext2D) {
         if (!this.transparent) {
-            ctx.fillStyle = this.backgroundColor;
+            ctx.fillStyle = this.backgroundColor.toString();
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 

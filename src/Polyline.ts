@@ -4,13 +4,13 @@ import { Point } from './Point';
 import * as utils from './utils';
 import { Widget } from './Widget';
 
-export class Polygon extends Widget {
+
+export class Polyline extends Widget {
 
     private alpha: number;
     private lineWidth: number;
     private fillLevel: number;
     private horizontalFill: boolean;
-    private lineColor: Color;
     private points: Point[] = [];
 
     constructor(display: Display, node: Element) {
@@ -19,8 +19,6 @@ export class Polygon extends Widget {
         this.lineWidth = utils.parseIntChild(node, 'line_width');
         this.fillLevel = utils.parseFloatChild(node, 'fill_level');
         this.horizontalFill = utils.parseBooleanChild(node, 'horizontal_fill');
-        const lineColorNode = utils.findChild(node, 'line_color');
-        this.lineColor = utils.parseColorChild(lineColorNode);
 
         const pointsNode = utils.findChild(node, 'points');
         for (const pointNode of utils.findChildren(pointsNode, 'point')) {
@@ -36,32 +34,12 @@ export class Polygon extends Widget {
         if (this.transparent) {
             ctx.globalAlpha = 0;
         }
-
         this.drawShape(ctx, this.backgroundColor);
-        if (this.lineWidth) {
-            ctx.strokeStyle = this.lineColor.toString();
-            ctx.stroke();
-        }
-
         if (this.fillLevel) {
             this.drawFill(ctx);
         }
 
         ctx.globalAlpha = 1;
-    }
-
-    private drawShape(ctx: CanvasRenderingContext2D, color: Color) {
-        ctx.fillStyle = color.toString();
-        ctx.beginPath();
-        for (let i = 0; i < this.points.length; i++) {
-            if (i == 0) {
-                ctx.moveTo(this.points[i].x, this.points[i].y);
-            } else {
-                ctx.lineTo(this.points[i].x, this.points[i].y);
-            }
-        }
-        ctx.closePath();
-        ctx.fill();
     }
 
     private drawFill(ctx: CanvasRenderingContext2D) {
@@ -90,5 +68,19 @@ export class Polygon extends Widget {
 
         // Reset clip
         ctx.restore();
+    }
+
+    private drawShape(ctx: CanvasRenderingContext2D, color: Color) {
+        ctx.strokeStyle = color.toString();
+        ctx.lineWidth = this.lineWidth;
+        ctx.beginPath();
+        for (let i = 0; i < this.points.length; i++) {
+            if (i == 0) {
+                ctx.moveTo(this.points[i].x, this.points[i].y);
+            } else {
+                ctx.lineTo(this.points[i].x, this.points[i].y);
+            }
+        }
+        ctx.stroke();
     }
 }
