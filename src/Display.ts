@@ -5,6 +5,7 @@ import { Color } from './Color';
 import * as constants from './constants';
 import { ImageWidget } from './ImageWidget';
 import { Label } from './Label';
+import { LED } from './LED';
 import * as utils from './utils';
 import { Widget } from './Widget';
 
@@ -137,6 +138,9 @@ export class Display {
                 break;
             case constants.TYPE_IMAGE:
                 this.widgets.push(new ImageWidget(this, node));
+                break;
+            case constants.TYPE_LED:
+                this.widgets.push(new LED(this, node));
                 break;
             case constants.TYPE_LABEL:
                 this.widgets.push(new Label(this, node));
