@@ -3626,7 +3626,7 @@ $(pv_value)</tooltip>
     <fg_gradient_color>
       <color red="255" green="255" blue="255" />
     </fg_gradient_color>
-    <fill_level>0.0</fill_level>
+    <fill_level>70.0</fill_level>
     <font>
       <opifont.name fontName="Liberation Sans" height="11" style="0" pixels="false">Default</opifont.name>
     </font>
@@ -3726,7 +3726,7 @@ $(pv_value)</tooltip>
     <border_style>0</border_style>
     <border_width>1</border_width>
     <enabled>true</enabled>
-    <fill_level>0.0</fill_level>
+    <fill_level>70.0</fill_level>
     <font>
       <opifont.name fontName="Liberation Sans" height="11" style="0" pixels="false">Default</opifont.name>
     </font>
@@ -3740,7 +3740,7 @@ $(pv_value)</tooltip>
       <color red="128" green="0" blue="255" />
     </line_color>
     <line_style>0</line_style>
-    <line_width>0</line_width>
+    <line_width>1</line_width>
     <name>Polygon</name>
     <points>
       <point x="376" y="286" />

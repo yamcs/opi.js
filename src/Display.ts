@@ -3,9 +3,11 @@ declare var FontFaceObserver: any;
 import { BooleanButton } from './BooleanButton';
 import { Color } from './Color';
 import * as constants from './constants';
+import { Ellipse } from './Ellipse';
 import { ImageWidget } from './ImageWidget';
 import { Label } from './Label';
 import { LED } from './LED';
+import { Polygon } from './Polygon';
 import { Rectangle } from './Rectangle';
 import { RoundedRectangle } from './RoundedRectangle';
 import * as utils from './utils';
@@ -138,6 +140,9 @@ export class Display {
             case constants.TYPE_BOOLEAN_BUTTON:
                 this.widgets.push(new BooleanButton(this, node));
                 break;
+            case constants.TYPE_ELLIPSE:
+                this.widgets.push(new Ellipse(this, node));
+                break;
             case constants.TYPE_IMAGE:
                 this.widgets.push(new ImageWidget(this, node));
                 break;
@@ -146,6 +151,9 @@ export class Display {
                 break;
             case constants.TYPE_LED:
                 this.widgets.push(new LED(this, node));
+                break;
+            case constants.TYPE_POLYGON:
+                this.widgets.push(new Polygon(this, node));
                 break;
             case constants.TYPE_RECTANGLE:
                 this.widgets.push(new Rectangle(this, node));
