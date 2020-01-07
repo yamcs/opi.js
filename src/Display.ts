@@ -28,12 +28,17 @@ export class Display {
 
     private title = 'Untitled';
     private backgroundColor = 'white';
-    private _showGrid = true;
+    private _showGrid = false;
+    private _showOutline = false;
+    private _showRuler = false;
 
-    private widgets: Widget[] = [];
+    widgets: Widget[] = [];
     private connections: Connection[] = [];
 
     private gridPattern: CanvasPattern | undefined;
+
+    private preferredWidth = 0;
+    private preferredHeight = 0;
 
     constructor(private readonly targetElement: HTMLElement) {
 
@@ -78,6 +83,7 @@ export class Display {
 
     private drawScreen() {
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
+        this.rootPanel.style.width = this.targetElement.clientWidth + 'px';
 
         const width = this.rootPanel.clientWidth;
         const height = this.rootPanel.clientHeight;
@@ -86,9 +92,61 @@ export class Display {
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
-        if (this._showGrid && this.gridPattern) {
+        if (this.showGrid && this.gridPattern) {
             this.ctx.fillStyle = this.gridPattern;
             this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        }
+
+        if (this.showRuler) {
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeStyle = 'grey';
+            this.ctx.textBaseline = 'top';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillStyle = 'grey';
+            this.ctx.font = '12px Arial';
+
+            let x = 100;
+            while (x <= this.ctx.canvas.width) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x - 75 + 0.5, 0);
+                this.ctx.lineTo(x - 75 + 0.5, 4);
+                this.ctx.moveTo(x - 50 + 0.5, 0);
+                this.ctx.lineTo(x - 50 + 0.5, 6);
+                this.ctx.moveTo(x - 25 + 0.5, 0);
+                this.ctx.lineTo(x - 25 + 0.5, 4);
+                this.ctx.moveTo(x + 0.5, 0);
+                this.ctx.lineTo(x + 0.5, 8);
+                this.ctx.stroke();
+                this.ctx.fillText(String(x), x, 8);
+                x += 100;
+            }
+
+            this.ctx.textAlign = 'left';
+            this.ctx.textBaseline = 'middle';
+            let y = 100;
+            while (y <= this.ctx.canvas.height) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, y - 75 + 0.5);
+                this.ctx.lineTo(4, y - 75 + 0.5);
+                this.ctx.moveTo(0, y - 50 + 0.5);
+                this.ctx.lineTo(6, y - 50 + 0.5);
+                this.ctx.moveTo(0, y - 25 + 0.5);
+                this.ctx.lineTo(4, y - 25 + 0.5);
+                this.ctx.moveTo(0, y + 0.5);
+                this.ctx.lineTo(8, y + 0.5);
+                this.ctx.stroke();
+                this.ctx.fillText(String(y), 8, y);
+                y += 100;
+            }
+        }
+
+        if (this.showOutline) {
+            this.ctx.lineWidth = 1;
+            this.ctx.setLineDash([10, 5]);
+            this.ctx.strokeStyle = 'black';
+            this.ctx.beginPath();
+            this.ctx.strokeRect(0.5, 0.5, this.preferredWidth - 1, this.preferredHeight - 1);
+            this.ctx.setLineDash([]);
         }
 
         for (const widget of this.widgets) {
@@ -114,10 +172,8 @@ export class Display {
 
         const displayEl = doc.getElementsByTagName('display')[0];
         this.title = utils.parseStringChild(displayEl, 'name', 'Untitled');
-        const width = utils.parseFloatChild(displayEl, 'width');
-        const height = utils.parseFloatChild(displayEl, 'height');
-        this.rootPanel.style.width = `${width}px`;
-        this.rootPanel.style.height = `${height}px`;
+        this.preferredWidth = utils.parseFloatChild(displayEl, 'width');
+        this.preferredHeight = utils.parseFloatChild(displayEl, 'height');
 
         const bgNode = utils.findChild(displayEl, 'background_color');
         this.backgroundColor = utils.parseColorChild(bgNode, Color.WHITE).toString();
@@ -198,6 +254,18 @@ export class Display {
     get showGrid() { return this._showGrid; }
     set showGrid(showGrid: boolean) {
         this._showGrid = showGrid;
+        this.requestRepaint();
+    }
+
+    get showOutline() { return this._showOutline; }
+    set showOutline(showOutline: boolean) {
+        this._showOutline = showOutline;
+        this.requestRepaint();
+    }
+
+    get showRuler() { return this._showRuler; }
+    set showRuler(showRuler: boolean) {
+        this._showRuler = showRuler;
         this.requestRepaint();
     }
 

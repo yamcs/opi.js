@@ -8,21 +8,61 @@
     <style>
         body {
             margin: 0;
-            margin-top: 10em;
-            background-color: lightseagreen;
-            text-align: center;
+        }
+
+        #outline {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+            background-color: #fcfcfc;
+            border-right: 1px solid #d3d3d3;
+            box-sizing: border-box;
+        }
+
+        #properties {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 300px;
+            border-left: 1px solid #d3d3d3;
+            box-sizing: border-box;
+        }
+
+        #toolbar {
+            position: absolute;
+            top: 0;
+            left: 300px;
+            right: 300px;
+            height: 64px;
+            border-bottom: 1px solid #d3d3d3;
+            box-sizing: border-box;
         }
 
         #mydisplay {
-            display: inline-block;
+            position: absolute;
+            left: 300px;
+            top: 64px;
+            right: 300px;
+            bottom: 0;
         }
     </style>
 </head>
 
 <body>
-    <p>
+    <div id="outline">
+        <h2>Outline</h2>
+    </div>
+    <div id="properties">
+        <h2>Properties</h2>
+    </div>
+    <div id="toolbar">
         <button onclick="toggleGrid()">Toggle Grid</button>
-    </p>
+        <button onclick="toggleOutline()">Toggle Outline</button>
+        <button onclick="toggleRuler()">Toggle Ruler</button>
+    </div>
     <div id="mydisplay"></div>
 
     <script type="module">
@@ -30,15 +70,27 @@
         window.addEventListener('load', () => {
             const displayEl = document.getElementById('mydisplay');
             const display = new Display(displayEl);
+            display.showGrid = true;
+            display.showOutline = true;
+            display.showRuler = true;
 
             fetch('switch.opi').then(response => {
                 response.text().then(text => {
                     display.setSource(text);
+                    for (const widget of display.widgets) {
+                        console.log('have', widget.name);
+                    }
                 });
             })
 
             window.toggleGrid = () => {
                 display.showGrid = !display.showGrid;
+            };
+            window.toggleOutline = () => {
+                display.showOutline = !display.showOutline;
+            };
+            window.toggleRuler = () => {
+                display.showRuler = !display.showRuler;
             };
         });
     </script>
