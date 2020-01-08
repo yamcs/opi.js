@@ -3,6 +3,7 @@ declare var FontFaceObserver: any;
 import { Color } from './Color';
 import { Connection } from './Connection';
 import * as constants from './constants';
+import { EventHandler } from './EventHandler';
 import { ImageWidget } from './ImageWidget';
 import * as utils from './utils';
 import { Widget } from './Widget';
@@ -27,6 +28,8 @@ export class Display {
     private repaintRequested = false;
 
     private backgroundColor = 'white';
+
+    private _activeTool: 'run' | 'edit' = 'run';
     private _showGrid = false;
     private _showOutline = false;
     private _showRuler = false;
@@ -63,6 +66,8 @@ export class Display {
         this.preloadFont('Liberation Sans', 'normal', 'italic');
         this.preloadFont('Liberation Sans', 'bold', 'normal');
         this.preloadFont('Liberation Sans', 'bold', 'italic');
+
+        new EventHandler(this, canvas);
     }
 
     preloadFont(fontFace: string, weight: string, style: string) {
@@ -144,7 +149,6 @@ export class Display {
             this.ctx.lineWidth = 1;
             this.ctx.setLineDash([10, 5]);
             this.ctx.strokeStyle = 'black';
-            this.ctx.beginPath();
             this.ctx.strokeRect(-0.5, -0.5, this.preferredWidth + 1, this.preferredHeight + 1);
             this.ctx.setLineDash([]);
         }
@@ -197,8 +201,6 @@ export class Display {
         patternContext.fillStyle = gridColor;
         patternContext.fillRect(0, 0, 2, 1);
         this.gridPattern = this.ctx.createPattern(patternCanvas, 'repeat')!;
-
-        this._showGrid = utils.parseBooleanChild(displayEl, 'show_grid', false);
 
         this.widgets = [];
         for (const widgetNode of utils.findChildren(displayEl, 'widget')) {
@@ -281,6 +283,16 @@ export class Display {
     set selection(selection: string[]) {
         this._selection = selection;
         this.requestRepaint();
+    }
+
+    get activeTool() { return this._activeTool; }
+    set activeTool(activeTool: 'run' | 'edit') {
+        this._activeTool = activeTool;
+        this.requestRepaint();
+    }
+
+    clearSelection() {
+        this.selection = [];
     }
 
     findWidget(wuid: string) {

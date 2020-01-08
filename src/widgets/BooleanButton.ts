@@ -50,7 +50,6 @@ export class BooleanButton extends Widget {
 
     draw(ctx: CanvasRenderingContext2D) {
         if (this.squareButton) {
-            ctx.beginPath();
             ctx.fillStyle = Color.DARK_GRAY.toString();
             ctx.fillRect(this.x, this.y, this.width, this.height);
 
@@ -82,7 +81,6 @@ export class BooleanButton extends Widget {
                 ctx.fill();
             }
 
-            ctx.beginPath();
             ctx.fillStyle = this.backgroundColor.toString();
             ctx.fillRect(this.x + 2, this.y + 2, this.width - 2 - 2, this.height - 2 - 2);
         } else {

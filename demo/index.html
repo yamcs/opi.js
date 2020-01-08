@@ -16,6 +16,9 @@
             BROWSE
         </h2>
         <ul class="menu">
+            <li onclick="changeSource('boolbutton.opi')">
+                <i class="far fa-fw fa-file"></i> boolbutton.opi
+            </li>
             <li onclick="changeSource('supervisor-controls.opi')">
                 <i class="far fa-fw fa-file"></i> supervisor-controls.opi
             </li>
@@ -51,6 +54,11 @@
             <i class="fas fa-fw fa-ruler-combined fa-rotate-270"></i>
             Toggle Ruler
         </button>
+
+        <button onclick="toggleEdit()">
+            <i class="fas fa-fw fa-edit"></i>
+            Toggle Edit
+        </button>
     </div>
     <div id="mydisplay"></div>
 
@@ -61,9 +69,6 @@
             const widgetsEl = document.getElementById('widgets');
 
             const display = new Display(displayEl);
-            display.showGrid = true;
-            display.showOutline = true;
-            display.showRuler = true;
 
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('file')) {
@@ -88,6 +93,20 @@
             };
             window.toggleRuler = () => {
                 display.showRuler = !display.showRuler;
+            };
+            window.toggleEdit = () => {
+                if (display.activeTool === 'run') {
+                    display.showGrid = true;
+                    display.showOutline = true;
+                    display.showRuler = true;
+                    display.activeTool = 'edit';
+                } else {
+                    display.clearSelection();
+                    display.showGrid = false;
+                    display.showOutline = false;
+                    display.showRuler = false;
+                    display.activeTool = 'run';
+                }
             };
             window.changeSource = (src) => {
                 urlParams.set('file', src);

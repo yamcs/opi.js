@@ -195,7 +195,6 @@ export abstract class Widget {
         ctx.strokeStyle = 'black';
         ctx.strokeRect(this.holderX + 0.5, this.holderY + 0.5, this.holderWidth - 1, this.holderHeight - 1);
         ctx.fillStyle = 'black';
-        ctx.beginPath();
         let r = 2;
         ctx.fillRect(this.holderX - r, this.holderY - r, r + r, r + r);
         ctx.fillRect(this.holderX + this.holderWidth / 2 - r, this.holderY - r, r + r, r + r);
