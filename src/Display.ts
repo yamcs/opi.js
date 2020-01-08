@@ -26,11 +26,11 @@ export class Display {
 
     private repaintRequested = false;
 
-    private title = 'Untitled';
     private backgroundColor = 'white';
     private _showGrid = false;
     private _showOutline = false;
     private _showRuler = false;
+    private _selection: string[] = [];
 
     widgets: Widget[] = [];
     private connections: Connection[] = [];
@@ -100,43 +100,43 @@ export class Display {
         if (this.showRuler) {
             this.ctx.lineWidth = 1;
             this.ctx.strokeStyle = 'grey';
-            this.ctx.textBaseline = 'top';
+            this.ctx.textBaseline = 'bottom';
             this.ctx.textAlign = 'center';
             this.ctx.fillStyle = 'grey';
             this.ctx.font = '12px Arial';
 
-            let x = 100;
+            let x = 0;
             while (x <= this.ctx.canvas.width) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(x - 75 + 0.5, 0);
-                this.ctx.lineTo(x - 75 + 0.5, 4);
-                this.ctx.moveTo(x - 50 + 0.5, 0);
-                this.ctx.lineTo(x - 50 + 0.5, 6);
-                this.ctx.moveTo(x - 25 + 0.5, 0);
-                this.ctx.lineTo(x - 25 + 0.5, 4);
-                this.ctx.moveTo(x + 0.5, 0);
-                this.ctx.lineTo(x + 0.5, 8);
-                this.ctx.stroke();
-                this.ctx.fillText(String(x), x, 8);
                 x += 100;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x - 75 + 0.5, this.ctx.canvas.height);
+                this.ctx.lineTo(x - 75 + 0.5, this.ctx.canvas.height - 4);
+                this.ctx.moveTo(x - 50 + 0.5, this.ctx.canvas.height);
+                this.ctx.lineTo(x - 50 + 0.5, this.ctx.canvas.height - 6);
+                this.ctx.moveTo(x - 25 + 0.5, this.ctx.canvas.height);
+                this.ctx.lineTo(x - 25 + 0.5, this.ctx.canvas.height - 4);
+                this.ctx.moveTo(x + 0.5, this.ctx.canvas.height);
+                this.ctx.lineTo(x + 0.5, this.ctx.canvas.height - 8);
+                this.ctx.stroke();
+                this.ctx.fillText(String(x), x, this.ctx.canvas.height - 8);
             }
 
-            this.ctx.textAlign = 'left';
+            this.ctx.textAlign = 'right';
             this.ctx.textBaseline = 'middle';
-            let y = 100;
+            let y = 0;
             while (y <= this.ctx.canvas.height) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(0, y - 75 + 0.5);
-                this.ctx.lineTo(4, y - 75 + 0.5);
-                this.ctx.moveTo(0, y - 50 + 0.5);
-                this.ctx.lineTo(6, y - 50 + 0.5);
-                this.ctx.moveTo(0, y - 25 + 0.5);
-                this.ctx.lineTo(4, y - 25 + 0.5);
-                this.ctx.moveTo(0, y + 0.5);
-                this.ctx.lineTo(8, y + 0.5);
-                this.ctx.stroke();
-                this.ctx.fillText(String(y), 8, y);
                 y += 100;
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.ctx.canvas.width, y - 75 + 0.5);
+                this.ctx.lineTo(this.ctx.canvas.width - 4, y - 75 + 0.5);
+                this.ctx.moveTo(this.ctx.canvas.width, y - 50 + 0.5);
+                this.ctx.lineTo(this.ctx.canvas.width - 6, y - 50 + 0.5);
+                this.ctx.moveTo(this.ctx.canvas.width, y - 25 + 0.5);
+                this.ctx.lineTo(this.ctx.canvas.width - 4, y - 25 + 0.5);
+                this.ctx.moveTo(this.ctx.canvas.width, y + 0.5);
+                this.ctx.lineTo(this.ctx.canvas.width - 8, y + 0.5);
+                this.ctx.stroke();
+                this.ctx.fillText(String(y), this.ctx.canvas.width - 8, y);
             }
         }
 
@@ -145,7 +145,7 @@ export class Display {
             this.ctx.setLineDash([10, 5]);
             this.ctx.strokeStyle = 'black';
             this.ctx.beginPath();
-            this.ctx.strokeRect(0.5, 0.5, this.preferredWidth - 1, this.preferredHeight - 1);
+            this.ctx.strokeRect(-0.5, -0.5, this.preferredWidth + 1, this.preferredHeight + 1);
             this.ctx.setLineDash([]);
         }
 
@@ -153,8 +153,17 @@ export class Display {
             widget.drawBorder(this.ctx);
             widget.draw(this.ctx);
         }
+
         for (const connection of this.connections) {
             connection.draw(this.ctx);
+        }
+
+        // Selection on top of everything
+        for (const wuid of this.selection) {
+            const widget = this.findWidget(wuid);
+            if (widget) {
+                widget.drawSelection(this.ctx);
+            }
         }
     }
 
@@ -171,7 +180,6 @@ export class Display {
         const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
 
         const displayEl = doc.getElementsByTagName('display')[0];
-        this.title = utils.parseStringChild(displayEl, 'name', 'Untitled');
         this.preferredWidth = utils.parseFloatChild(displayEl, 'width');
         this.preferredHeight = utils.parseFloatChild(displayEl, 'height');
 
@@ -266,6 +274,12 @@ export class Display {
     get showRuler() { return this._showRuler; }
     set showRuler(showRuler: boolean) {
         this._showRuler = showRuler;
+        this.requestRepaint();
+    }
+
+    get selection() { return this._selection; }
+    set selection(selection: string[]) {
+        this._selection = selection;
         this.requestRepaint();
     }
 

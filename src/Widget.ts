@@ -8,7 +8,7 @@ import * as utils from './utils';
 export abstract class Widget {
 
     // Long ID as contained in the display
-    wuid: string;
+    readonly wuid: string;
 
     // bbox around the widget and its border
     holderX: number;
@@ -188,6 +188,38 @@ export abstract class Widget {
         } else {
             console.warn(`Unsupported border style: ${this.borderStyle}`);
         }
+    }
+
+    drawSelection(ctx: CanvasRenderingContext2D) {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'black';
+        ctx.strokeRect(this.holderX + 0.5, this.holderY + 0.5, this.holderWidth - 1, this.holderHeight - 1);
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        let r = 2;
+        ctx.fillRect(this.holderX - r, this.holderY - r, r + r, r + r);
+        ctx.fillRect(this.holderX + this.holderWidth / 2 - r, this.holderY - r, r + r, r + r);
+        ctx.fillRect(this.holderX + this.holderWidth - r, this.holderY - r, r + r, r + r);
+
+        ctx.fillRect(this.holderX - r, this.holderY + this.holderHeight / 2 - r, r + r, r + r);
+        ctx.fillRect(this.holderX + this.holderWidth - r, this.holderY + this.holderHeight / 2 - r, r + r, r + r);
+
+        ctx.fillRect(this.holderX - r, this.holderY + this.holderHeight - r, r + r, r + r);
+        ctx.fillRect(this.holderX + this.holderWidth / 2 - r, this.holderY + this.holderHeight - r, r + r, r + r);
+        ctx.fillRect(this.holderX + this.holderWidth - r, this.holderY + this.holderHeight - r, r + r, r + r);
+
+        ctx.strokeStyle = 'white';
+        r = 3;
+        ctx.strokeRect(this.holderX - r + 0.5, this.holderY - r + 0.5, r + r - 1, r + r - 1);
+        ctx.strokeRect(this.holderX + this.holderWidth / 2 - r + 0.5, this.holderY - r + 0.5, r + r - 1, r + r - 1);
+        ctx.strokeRect(this.holderX + this.holderWidth - r + 0.5, this.holderY - r + 0.5, r + r - 1, r + r - 1);
+
+        ctx.strokeRect(this.holderX - r + 0.5, this.holderY + this.holderHeight / 2 - r + 0.5, r + r - 1, r + r - 1);
+        ctx.strokeRect(this.holderX + this.holderWidth - r + 0.5, this.holderY + this.holderHeight / 2 - r + 0.5, r + r - 1, r + r - 1);
+
+        ctx.strokeRect(this.holderX - r + 0.5, this.holderY + this.holderHeight - r + 0.5, r + r - 1, r + r - 1);
+        ctx.strokeRect(this.holderX + this.holderWidth / 2 - r + 0.5, this.holderY + this.holderHeight - r + 0.5, r + r - 1, r + r - 1);
+        ctx.strokeRect(this.holderX + this.holderWidth - r + 0.5, this.holderY + this.holderHeight - r + 0.5, r + r - 1, r + r - 1);
     }
 
     requestRepaint() {

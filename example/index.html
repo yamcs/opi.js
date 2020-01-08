@@ -4,64 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <title>webopi</title>
-    <link rel="stylesheet" type="text/css" href="../dist/fonts/stylesheet.css">
-    <style>
-        body {
-            margin: 0;
-        }
-
-        #outline {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 300px;
-            background-color: #fcfcfc;
-            border-right: 1px solid #d3d3d3;
-            box-sizing: border-box;
-        }
-
-        #properties {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 300px;
-            border-left: 1px solid #d3d3d3;
-            box-sizing: border-box;
-        }
-
-        #toolbar {
-            position: absolute;
-            top: 0;
-            left: 300px;
-            right: 300px;
-            height: 64px;
-            border-bottom: 1px solid #d3d3d3;
-            box-sizing: border-box;
-        }
-
-        #mydisplay {
-            position: absolute;
-            left: 300px;
-            top: 64px;
-            right: 300px;
-            bottom: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="../dist/fonts/stylesheet.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
 </head>
 
 <body>
-    <div id="outline">
-        <h2>Outline</h2>
+    <div id="sidebar">
+        <h2>
+            <i class="far fa-fw fa-folder-open"></i>
+            BROWSE
+        </h2>
+        <ul class="menu">
+            <li onclick="changeSource('supervisor-controls.opi')">
+                <i class="far fa-fw fa-file"></i> supervisor-controls.opi
+            </li>
+            <li onclick="changeSource('switch.opi')">
+                <i class="far fa-fw fa-file"></i> switch.opi
+            </li>
+            <li onclick="changeSource('top-bar.opi')">
+                <i class="far fa-fw fa-file"></i> top-bar.opi
+            </li>
+        </ul>
+
+        <h2 style="margin-top: 2em">
+            <i class="fab fa-fw fa-buffer"></i>
+            WIDGETS
+        </h2>
+
+        <ul id="widgets" class="menu">
+        </ul>
     </div>
     <div id="properties">
         <h2>Properties</h2>
     </div>
     <div id="toolbar">
-        <button onclick="toggleGrid()">Toggle Grid</button>
-        <button onclick="toggleOutline()">Toggle Outline</button>
-        <button onclick="toggleRuler()">Toggle Ruler</button>
+        <button onclick="toggleGrid()">
+            <i class="fas fa-fw fa-border-none"></i>
+            Toggle Grid
+        </button>
+        <button onclick="toggleOutline()">
+            <i class="far fa-fw fa-square"></i>
+            Toggle Outline
+        </button>
+        <button onclick="toggleRuler()">
+            <i class="fas fa-fw fa-ruler-combined fa-rotate-270"></i>
+            Toggle Ruler
+        </button>
     </div>
     <div id="mydisplay"></div>
 
@@ -69,19 +58,27 @@
         import { Display } from '../dist/webopi.js';
         window.addEventListener('load', () => {
             const displayEl = document.getElementById('mydisplay');
+            const widgetsEl = document.getElementById('widgets');
+
             const display = new Display(displayEl);
             display.showGrid = true;
             display.showOutline = true;
             display.showRuler = true;
 
-            fetch('switch.opi').then(response => {
-                response.text().then(text => {
-                    display.setSource(text);
-                    for (const widget of display.widgets) {
-                        console.log('have', widget.name);
-                    }
-                });
-            })
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('file')) {
+                fetch(urlParams.get('file')).then(response => {
+                    response.text().then(text => {
+                        display.setSource(text);
+
+                        let html = '';
+                        for (const widget of display.widgets) {
+                            html += `<li data-wuid="${widget.wuid}">${widget.name}</li>`
+                        }
+                        widgetsEl.innerHTML = html;
+                    });
+                })
+            }
 
             window.toggleGrid = () => {
                 display.showGrid = !display.showGrid;
@@ -92,6 +89,17 @@
             window.toggleRuler = () => {
                 display.showRuler = !display.showRuler;
             };
+            window.changeSource = (src) => {
+                urlParams.set('file', src);
+                window.location.search = urlParams.toString();
+            };
+            widgetsEl.addEventListener('click', evt => {
+                const item = evt.target.closest('li');
+                if (item) {
+                    display.selection = [item.dataset.wuid];
+                    return false;
+                }
+            });
         });
     </script>
 </body>
