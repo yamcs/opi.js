@@ -1,6 +1,7 @@
 import { Bounds } from '../Bounds';
 import { Color } from '../Color';
 import { Display } from '../Display';
+import { HitCanvas, HitRegion } from '../HitCanvas';
 import * as utils from '../utils';
 import { Widget } from '../Widget';
 
@@ -15,6 +16,8 @@ export class BooleanSwitch extends Widget {
 
     private enabled = false;
 
+    private shaftRegion: HitRegion;
+
     constructor(display: Display, node: Element) {
         super(display, node);
         this.effect3d = utils.parseBooleanChild(node, 'effect_3d');
@@ -24,17 +27,28 @@ export class BooleanSwitch extends Widget {
         const offColorNode = utils.findChild(node, 'off_color');
         this.offColor = utils.parseColorChild(offColorNode);
         this.offLabel = utils.parseStringChild(node, 'off_label');
-    }
 
-    draw(ctx: CanvasRenderingContext2D) {
-        if (this.width > this.height) {
-            this.drawHorizontal(ctx);
-        } else {
-            this.drawVertical(ctx);
+        this.shaftRegion = {
+            id: `${this.wuid}-shaft`,
+            mouseDown: () => this.toggle(),
+            cursor: 'pointer'
         }
     }
 
-    private drawHorizontal(ctx: CanvasRenderingContext2D) {
+    private toggle() {
+        this.enabled = !this.enabled;
+        this.requestRepaint();
+    }
+
+    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+        if (this.width > this.height) {
+            this.drawHorizontal(ctx, hitCanvas);
+        } else {
+            this.drawVertical(ctx, hitCanvas);
+        }
+    }
+
+    private drawHorizontal(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
         let areaWidth = this.width;
         let areaHeight = this.height;
         if (areaHeight > areaWidth / 2) {
@@ -71,7 +85,7 @@ export class BooleanSwitch extends Widget {
                 width: smallWidth,
                 height: smallHeight,
             };
-            this.drawHorizontalBar(ctx, onSmallBounds, onLargeBounds, true);
+            this.drawHorizontalBar(ctx, hitCanvas, onSmallBounds, onLargeBounds, true);
         } else {
             const offLargeBounds: Bounds = {
                 x: 0,
@@ -85,11 +99,11 @@ export class BooleanSwitch extends Widget {
                 width: smallWidth,
                 height: smallHeight,
             };
-            this.drawHorizontalBar(ctx, offSmallBounds, offLargeBounds, false);
+            this.drawHorizontalBar(ctx, hitCanvas, offSmallBounds, offLargeBounds, false);
         }
     }
 
-    private drawVertical(ctx: CanvasRenderingContext2D) {
+    private drawVertical(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
         let areaWidth = this.width;
         let areaHeight = this.height;
         if (areaWidth > areaHeight / 2) {
@@ -125,7 +139,7 @@ export class BooleanSwitch extends Widget {
                 height: smallHeight,
             };
             onSmallBounds.y -= Math.floor((1.0 / 7.0) * pedBounds.height);
-            this.drawVerticalBar(ctx, onSmallBounds, onLargeBounds, true);
+            this.drawVerticalBar(ctx, hitCanvas, onSmallBounds, onLargeBounds, true);
         } else {
             const barHeight = pedBounds.y + pedBounds.height / 2 + smallHeight / 2 + 2;
             const offLargeBounds: Bounds = {
@@ -141,7 +155,7 @@ export class BooleanSwitch extends Widget {
                 height: smallHeight,
             };
             offSmallBounds.y += Math.floor((1.0 / 7.0) * pedBounds.height);
-            this.drawVerticalBar(ctx, offSmallBounds, offLargeBounds, false);
+            this.drawVerticalBar(ctx, hitCanvas, offSmallBounds, offLargeBounds, false);
         }
     }
 
@@ -171,13 +185,15 @@ export class BooleanSwitch extends Widget {
         }
     }
 
-    private drawHorizontalBar(ctx: CanvasRenderingContext2D, sm: Bounds, lg: Bounds, booleanValue: boolean) {
+    private drawHorizontalBar(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas, sm: Bounds, lg: Bounds, booleanValue: boolean) {
         let stopOpacity1 = (booleanValue ? 0 : 10) / 255;
         let stopOpacity2 = (booleanValue ? 150 : 220) / 255;
 
         const gradient = ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x, this.y + lg.y + lg.height);
         gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
         gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
+
+        hitCanvas.beginHitRegion(this.shaftRegion);
 
         /*
          * Small end
@@ -189,6 +205,10 @@ export class BooleanSwitch extends Widget {
         ctx.beginPath();
         ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
+        hitCanvas.ctx.beginPath();
+        hitCanvas.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        hitCanvas.ctx.fill();
+
         ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
         ctx.fill();
         if (this.effect3d) {
@@ -199,12 +219,26 @@ export class BooleanSwitch extends Widget {
         /*
          * Bar
          */
+        const points = [
+            Math.round(this.x + lg.x + lg.width / 2), Math.round(this.y + lg.y),
+            Math.round(this.x + lg.x + lg.width / 2), Math.round(this.y + lg.y + lg.height),
+            Math.round(this.x + sm.x + sm.width / 2), Math.round(this.y + sm.y + sm.height),
+            Math.round(this.x + sm.x + sm.width / 2), Math.round(this.y + sm.y),
+        ];
         ctx.beginPath();
-        ctx.moveTo(Math.round(this.x + lg.x + lg.width / 2), Math.round(this.y + lg.y));
-        ctx.lineTo(Math.round(this.x + lg.x + lg.width / 2), Math.round(this.y + lg.y + lg.height));
-        ctx.lineTo(Math.round(this.x + sm.x + sm.width / 2), Math.round(this.y + sm.y + sm.height));
-        ctx.lineTo(Math.round(this.x + sm.x + sm.width / 2), Math.round(this.y + sm.y));
+        ctx.moveTo(points[0], points[1]);
+        ctx.lineTo(points[2], points[3]);
+        ctx.lineTo(points[4], points[5]);
+        ctx.lineTo(points[6], points[7]);
         ctx.closePath();
+
+        hitCanvas.ctx.beginPath();
+        hitCanvas.ctx.moveTo(points[0], points[1]);
+        hitCanvas.ctx.lineTo(points[2], points[3]);
+        hitCanvas.ctx.lineTo(points[4], points[5]);
+        hitCanvas.ctx.lineTo(points[6], points[7]);
+        hitCanvas.ctx.closePath();
+        hitCanvas.ctx.fill();
 
         ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
         ctx.fill();
@@ -223,6 +257,10 @@ export class BooleanSwitch extends Widget {
         ctx.beginPath();
         ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
+        hitCanvas.ctx.beginPath();
+        hitCanvas.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        hitCanvas.ctx.fill();
+
         ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
         ctx.fill();
         if (this.effect3d) {
@@ -240,10 +278,12 @@ export class BooleanSwitch extends Widget {
         }
     }
 
-    private drawVerticalBar(ctx: CanvasRenderingContext2D, sm: Bounds, lg: Bounds, booleanValue: boolean) {
+    private drawVerticalBar(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas, sm: Bounds, lg: Bounds, booleanValue: boolean) {
         const gradient = ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x + lg.width, this.y + lg.y);
         gradient.addColorStop(0, `rgba(0,0,0,${10 / 255})`);
         gradient.addColorStop(1, `rgba(0,0,0,${booleanValue ? 210 / 255 : 160 / 255})`);
+
+        hitCanvas.beginHitRegion(this.shaftRegion);
 
         /*
          * Small end
@@ -252,6 +292,10 @@ export class BooleanSwitch extends Widget {
         let cy = this.y + sm.y + (sm.height / 2);
         ctx.beginPath();
         ctx.ellipse(cx, cy, sm.width / 2, sm.height / 2, 0, 0, 2 * Math.PI);
+
+        hitCanvas.ctx.beginPath();
+        hitCanvas.ctx.ellipse(cx, cy, sm.width / 2, sm.height / 2, 0, 0, 2 * Math.PI);
+        hitCanvas.ctx.fill();
 
         ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
         ctx.fill();
@@ -263,12 +307,26 @@ export class BooleanSwitch extends Widget {
         /*
          * Bar
          */
+        const points = [
+            Math.round(this.x + lg.x), Math.round(this.y + lg.y + lg.height / 2),
+            Math.round(this.x + lg.x + lg.width), Math.round(this.y + lg.y + lg.height / 2),
+            Math.round(this.x + sm.x + sm.width), Math.round(this.y + sm.y + sm.height / 2),
+            Math.round(this.x + sm.x), Math.round(this.y + sm.y + sm.height / 2)
+        ];
         ctx.beginPath();
-        ctx.moveTo(Math.round(this.x + lg.x), Math.round(this.y + lg.y + lg.height / 2));
-        ctx.lineTo(Math.round(this.x + lg.x + lg.width), Math.round(this.y + lg.y + lg.height / 2));
-        ctx.lineTo(Math.round(this.x + sm.x + sm.width), Math.round(this.y + sm.y + sm.height / 2));
-        ctx.lineTo(Math.round(this.x + sm.x), Math.round(this.y + sm.y + sm.height / 2));
+        ctx.moveTo(points[0], points[1]);
+        ctx.lineTo(points[2], points[3]);
+        ctx.lineTo(points[4], points[5]);
+        ctx.lineTo(points[6], points[7]);
         ctx.closePath();
+
+        hitCanvas.ctx.beginPath();
+        hitCanvas.ctx.moveTo(points[0], points[1]);
+        hitCanvas.ctx.lineTo(points[2], points[3]);
+        hitCanvas.ctx.lineTo(points[4], points[5]);
+        hitCanvas.ctx.lineTo(points[6], points[7]);
+        hitCanvas.ctx.closePath();
+        hitCanvas.ctx.fill();
 
         ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
         ctx.fill();
@@ -286,6 +344,10 @@ export class BooleanSwitch extends Widget {
         const ry = lg.height / 2;
         ctx.beginPath();
         ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+
+        hitCanvas.ctx.beginPath();
+        hitCanvas.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        hitCanvas.ctx.fill();
 
         ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
         ctx.fill();

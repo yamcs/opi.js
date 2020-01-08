@@ -1,9 +1,16 @@
 import { Display } from './Display';
 import { HitCanvas, HitRegion } from './HitCanvas';
+import { Point } from './Point';
+
+// Compare by id instead of references. HitRegions may be generated
+// on each draw, whereas the "id" can be more long-term.
+function regionMatches(region1?: HitRegion, region2?: HitRegion) {
+    return region1 && region2 && region1.id === region2.id;
+}
 
 export class EventHandler {
 
-    private lastMouseMoveRegion?: HitRegion;
+    private prevEnteredRegion?: HitRegion;
 
     constructor(private display: Display, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onClick(e), false);
@@ -13,52 +20,69 @@ export class EventHandler {
         canvas.addEventListener('mousemove', e => this.onMouseMove(e), false);
     }
 
+    private toPoint(event: MouseEvent): Point {
+        const bbox = this.canvas.getBoundingClientRect();
+        return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
+    }
+
     private onClick(event: MouseEvent) {
         this.display.clearSelection();
 
-        const bbox = this.canvas.getBoundingClientRect();
-        const x = event.clientX - bbox.left;
-        const y = event.clientY - bbox.top;
-
+        const point = this.toPoint(event);
         if (this.display.activeTool === 'edit') {
-            this.selectSingleWidget(x, y);
+            this.selectSingleWidget(point.x, point.y);
+        } else {
+            const region = this.hitCanvas.getActiveRegion(point.x, point.y);
+            if (region && region.click) {
+                region.click();
+            }
         }
     }
 
     private onMouseDown(event: MouseEvent) {
+        if (this.display.activeTool === 'edit') {
+            return;
+        }
+
+        const point = this.toPoint(event);
+        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
+        if (region && region.mouseDown) {
+            region.mouseDown();
+        }
     }
 
     private onMouseUp(event: MouseEvent) {
+        if (this.display.activeTool === 'edit') {
+            return;
+        }
+
+        const point = this.toPoint(event);
+        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
+        if (region && region.mouseUp) {
+            region.mouseUp();
+        }
     }
 
     private onMouseOut(event: MouseEvent) {
     }
 
     private onMouseMove(event: MouseEvent) {
-        const bbox = this.canvas.getBoundingClientRect();
-        const x = event.clientX - bbox.left;
-        const y = event.clientY - bbox.top;
+        const point = this.toPoint(event);
+        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
 
-        const region = this.hitCanvas.getActiveRegion(x, y);
-
-        let mouseMoveRegion = undefined;
-        if (region) {
-            if (region.mouseEnter) {
-                mouseMoveRegion = region;
-                if (!this.lastMouseMoveRegion || mouseMoveRegion.id !== this.lastMouseMoveRegion.id) {
-                    console.log('entered..', mouseMoveRegion.id);
-                    region.mouseEnter();
-                }
+        if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+            if (!regionMatches(this.prevEnteredRegion, region)) {
+                this.prevEnteredRegion.mouseOut();
             }
         }
 
-        if (this.lastMouseMoveRegion && (!mouseMoveRegion || mouseMoveRegion.id !== this.lastMouseMoveRegion.id)) {
-            if (this.lastMouseMoveRegion.mouseOut) {
-                this.lastMouseMoveRegion.mouseOut();
+        if (region && region.mouseEnter) {
+            if (!regionMatches(this.prevEnteredRegion, region)) {
+                region.mouseEnter();
             }
-            console.log('left', this.lastMouseMoveRegion.id);
         }
-        this.lastMouseMoveRegion = mouseMoveRegion;
+
+        this.prevEnteredRegion = region;
 
         const cursor = (region && region.cursor) ? region.cursor : 'auto';
         if (cursor != this.canvas.style.cursor) {

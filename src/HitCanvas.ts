@@ -4,6 +4,8 @@ export interface HitRegion {
     mouseEnter?: () => void;
     mouseMove?: () => void;
     mouseOut?: () => void;
+    mouseDown?: () => void;
+    mouseUp?: () => void;
     cursor?: string;
 }
 

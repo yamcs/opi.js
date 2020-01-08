@@ -4,6 +4,7 @@ import { Color } from './Color';
 import * as constants from './constants';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
+import { Script } from './scripting/Script';
 import * as utils from './utils';
 
 export abstract class Widget {
@@ -194,7 +195,7 @@ export abstract class Widget {
     drawSelection(ctx: CanvasRenderingContext2D) {
         ctx.lineWidth = 1;
         ctx.strokeStyle = 'black';
-        ctx.strokeRect(this.holderX + 0.5, this.holderY + 0.5, this.holderWidth - 1, this.holderHeight - 1);
+        ctx.strokeRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth + 1, this.holderHeight + 1);
         ctx.fillStyle = 'black';
         let r = 2;
         ctx.fillRect(this.holderX - r, this.holderY - r, r + r, r + r);
@@ -224,6 +225,39 @@ export abstract class Widget {
 
     requestRepaint() {
         this.display.requestRepaint();
+    }
+
+    protected executeAction(index: number) {
+        if (index >= this.actions.length) {
+            return;
+        }
+        const action = this.actions[index];
+
+        console.log('execute action of type', action.type);
+        if (action.type === 'OPEN_DISPLAY') {
+            const openDisplayAction = action as OpenDisplayAction;
+            /*const handler = this.display.navigationHandler;
+            if (handler) {
+                handler.openDisplay({
+                    target: this.display.resolve(openDisplayAction.path),
+                    openInNewWindow: openDisplayAction.mode !== 0,
+                });
+            }*/
+        } else if (action.type === 'EXECUTE_JAVASCRIPT') {
+            const executeJavascriptAction = action as ExecuteJavaScriptAction;
+            if (executeJavascriptAction.embedded) {
+                const script = new Script(this.display, executeJavascriptAction.text!);
+                script.run();
+            } else {
+                /*const path = this.display.resolve(executeJavascriptAction.path!);
+                this.display.displayCommunicator.getObject('displays', path).then(response => {
+                    response.text().then(text => {
+                        const script = new Script(this.display, text);
+                        script.run();
+                    });
+                });*/
+            }
+        }
     }
 
     abstract draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas): void;

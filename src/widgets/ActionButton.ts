@@ -1,6 +1,7 @@
 import { Color } from '../Color';
 import { Display } from '../Display';
 import { Font } from '../Font';
+import { HitCanvas, HitRegion } from '../HitCanvas';
 import * as utils from '../utils';
 import { Widget } from '../Widget';
 
@@ -11,6 +12,10 @@ export class ActionButton extends Widget {
     private pushActionIndex: number;
     private releaseActionIndex?: number;
 
+    private areaRegion: HitRegion;
+
+    private pushed = false;
+
     constructor(display: Display, node: Element) {
         super(display, node);
         const fontNode = utils.findChild(node, 'font');
@@ -20,20 +25,65 @@ export class ActionButton extends Widget {
         if (this.toggleButton) {
             this.releaseActionIndex = utils.parseIntChild(node, 'release_action_index');
         }
+
+        this.areaRegion = {
+            id: `${this.wuid}-area`,
+            mouseDown: () => this.onAreaMouseDown(),
+            mouseOut: () => this.onAreaMouseOut(),
+            mouseUp: () => this.onAreaMouseUp(),
+            click: () => this.onAreaClick(),
+            cursor: 'pointer'
+        };
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    private onAreaMouseDown() {
+        if (!this.toggleButton) {
+            this.pushed = true;
+            this.requestRepaint();
+        }
+    }
+
+    private onAreaMouseUp() {
+        if (!this.toggleButton) {
+            this.pushed = false;
+            this.requestRepaint();
+        }
+    }
+
+    private onAreaMouseOut() {
+        this.pushed = false;
+        this.requestRepaint();
+    }
+
+    private onAreaClick() {
+        this.executeAction(this.pushed ? this.releaseActionIndex! : this.pushActionIndex);
+        if (this.toggleButton) {
+            this.pushed = !this.pushed;
+        }
+    }
+
+    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
         ctx.fillStyle = (this.backgroundColor || Color.BUTTON).toString();
         ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        hitCanvas.beginHitRegion(this.areaRegion);
+        hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
 
         const top = this.holderY + 0.5;
         const left = this.holderX + 0.5;
         const bottom = this.holderY + this.holderHeight - 1 + 0.5;
         const right = this.holderX + this.holderWidth - 1 + 0.5;
-        const shadow1 = Color.BLACK;
-        const shadow2 = Color.BUTTON_DARKER;
-        const hl1 = Color.BUTTON_LIGHTEST;
-        const hl2 = this.backgroundColor || Color.BUTTON;
+
+        let shadow1 = Color.BLACK;
+        let shadow2 = Color.BUTTON_DARKER;
+        let hl1 = Color.BUTTON_LIGHTEST;
+        let hl2 = this.backgroundColor || Color.BUTTON;
+        if (this.pushed) {
+            shadow1 = hl1;
+            shadow2 = hl2;
+            hl1 = Color.BLACK;
+            hl2 = Color.BUTTON_DARKER;
+        }
 
         ctx.lineWidth = 1;
 
@@ -93,6 +143,13 @@ export class ActionButton extends Widget {
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
 
-        ctx.fillText(lines[0], this.x + (this.width / 2), this.y + (this.height / 2));
+        let x = this.x + (this.width / 2);
+        let y = this.y + (this.height / 2);
+        if (this.pushed) {
+            x += 1;
+            y += 1;
+        }
+
+        ctx.fillText(lines[0], x, y);
     }
 }
