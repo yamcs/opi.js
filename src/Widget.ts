@@ -4,6 +4,7 @@ import { Color } from './Color';
 import * as constants from './constants';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
+import { HitRegion } from './HitRegion';
 import { Script } from './scripting/Script';
 import * as utils from './utils';
 
@@ -45,6 +46,10 @@ export abstract class Widget {
     visible: boolean;
 
     actions: Action[] = [];
+    private hookFirstActionToClick = false;
+    private hookAllActionsToClick = false;
+
+    holderRegion?: HitRegion;
 
     constructor(readonly display: Display, node: Element) {
         this.wuid = utils.parseStringChild(node, 'wuid');
@@ -130,6 +135,8 @@ export abstract class Widget {
 
         if (utils.hasChild(node, 'actions')) {
             const actionsNode = utils.findChild(node, 'actions');
+            this.hookFirstActionToClick = utils.parseBooleanAttribute(actionsNode, 'hook');
+            this.hookAllActionsToClick = utils.parseBooleanAttribute(actionsNode, 'hook_all');
             for (const actionNode of utils.findChildren(actionsNode, 'action')) {
                 const actionType = utils.parseStringAttribute(actionNode, 'type');
                 if (actionType === 'OPEN_DISPLAY') {
@@ -157,10 +164,28 @@ export abstract class Widget {
                     this.actions.push({ type: actionType });
                 }
             }
+
+            if (this.actions.length && (this.hookFirstActionToClick || this.hookAllActionsToClick)) {
+                this.holderRegion = {
+                    id: `${this.wuid}-holder`,
+                    click: () => this.onHolderClick(),
+                    cursor: 'pointer'
+                }
+            }
         }
     }
 
-    drawBorder(ctx: CanvasRenderingContext2D) {
+    onHolderClick() {
+        if (this.hookFirstActionToClick) {
+            this.executeAction(0);
+        } else if (this.hookAllActionsToClick) {
+            for (let i = 0; i < this.actions.length; i++) {
+                this.executeAction(i);
+            }
+        }
+    }
+
+    drawHolder(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
         if (this.borderStyle === 0) { // No border
             // This is a weird one. When there is no border the widget
             // shrinks according to an inset of 2px. This only happens when
@@ -187,8 +212,15 @@ export abstract class Widget {
             utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
             ctx.stroke();
             ctx.globalAlpha = 1;
+        } else if (this.borderStyle === 15) { // Empty
+            // NOP
         } else {
             console.warn(`Unsupported border style: ${this.borderStyle}`);
+        }
+
+        if (this.holderRegion) {
+            hitCanvas.beginHitRegion(this.holderRegion);
+            hitCanvas.ctx.fillRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
         }
     }
 
@@ -236,19 +268,19 @@ export abstract class Widget {
         console.log('execute action of type', action.type);
         if (action.type === 'OPEN_DISPLAY') {
             const openDisplayAction = action as OpenDisplayAction;
-            /*const handler = this.display.navigationHandler;
-            if (handler) {
-                handler.openDisplay({
-                    target: this.display.resolve(openDisplayAction.path),
-                    openInNewWindow: openDisplayAction.mode !== 0,
-                });
-            }*/
+            if (openDisplayAction.mode === 0) { // Replace current display
+                this.display.setSource(openDisplayAction.path);
+            } else { // Open in new window
+                // TODO, just generate event?
+                console.warn('An action requested to open an external display');
+            }
         } else if (action.type === 'EXECUTE_JAVASCRIPT') {
             const executeJavascriptAction = action as ExecuteJavaScriptAction;
             if (executeJavascriptAction.embedded) {
                 const script = new Script(this.display, executeJavascriptAction.text!);
                 script.run();
             } else {
+                console.warn('An action requested to run an external script');
                 /*const path = this.display.resolve(executeJavascriptAction.path!);
                 this.display.displayCommunicator.getObject('displays', path).then(response => {
                     response.text().then(text => {

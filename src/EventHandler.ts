@@ -1,9 +1,10 @@
 import { Display } from './Display';
-import { HitCanvas, HitRegion } from './HitCanvas';
+import { HitCanvas } from './HitCanvas';
+import { HitRegion } from './HitRegion';
 import { Point } from './Point';
 
-// Compare by id instead of references. HitRegions may be generated
-// on each draw, whereas the "id" can be more long-term.
+// Compare by id instead of references. HitRegions are allowed to be generated
+// on each draw, whereas the "id" could be something more long-term.
 function regionMatches(region1?: HitRegion, region2?: HitRegion) {
     return region1 && region2 && region1.id === region2.id;
 }
@@ -18,6 +19,8 @@ export class EventHandler {
         canvas.addEventListener('mouseup', e => this.onMouseUp(e), false);
         canvas.addEventListener('mouseout', e => this.onMouseOut(e), false);
         canvas.addEventListener('mousemove', e => this.onMouseMove(e), false);
+
+        window.addEventListener('resize', () => display.requestRepaint());
     }
 
     private toPoint(event: MouseEvent): Point {
@@ -91,14 +94,17 @@ export class EventHandler {
     }
 
     private selectSingleWidget(x: number, y: number) {
-        for (const widget of this.display.widgets.slice().reverse()) {
-            const x1 = widget.holderX;
-            const y1 = widget.holderY;
-            const x2 = widget.holderX + widget.holderWidth;
-            const y2 = widget.holderY + widget.holderHeight;
-            if (x1 < x && x < x2 && y1 < y && y < y2) {
-                this.display.selection = [widget.wuid];
-                return false;
+        const instance = this.display.instance;
+        if (instance) {
+            for (const widget of instance.widgets.slice().reverse()) {
+                const x1 = widget.holderX;
+                const y1 = widget.holderY;
+                const x2 = widget.holderX + widget.holderWidth;
+                const y2 = widget.holderY + widget.holderHeight;
+                if (x1 < x && x < x2 && y1 < y && y < y2) {
+                    this.display.selection = [widget.wuid];
+                    return false;
+                }
             }
         }
     }

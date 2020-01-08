@@ -19,6 +19,9 @@
             <li onclick="changeSource('boolbutton.opi')">
                 <i class="far fa-fw fa-file"></i> boolbutton.opi
             </li>
+            <li onclick="changeSource('main.opi')">
+                <i class="far fa-fw fa-file"></i> main.opi
+            </li>
             <li onclick="changeSource('supervisor-controls.opi')">
                 <i class="far fa-fw fa-file"></i> supervisor-controls.opi
             </li>
@@ -72,17 +75,13 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('file')) {
-                fetch(urlParams.get('file')).then(response => {
-                    response.text().then(text => {
-                        display.setSource(text);
-
-                        let html = '';
-                        for (const widget of display.widgets) {
-                            html += `<li data-wuid="${widget.wuid}">${widget.name}</li>`
-                        }
-                        widgetsEl.innerHTML = html;
-                    });
-                })
+                display.setSource(urlParams.get('file')).then(() => {
+                    let html = '';
+                    for (const widget of display.widgets) {
+                        html += `<li data-wuid="${widget.wuid}">${widget.name}</li>`
+                    }
+                    widgetsEl.innerHTML = html;
+                });
             }
 
             window.toggleGrid = () => {

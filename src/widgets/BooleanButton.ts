@@ -2,7 +2,8 @@ import { Bounds } from '../Bounds';
 import { Color } from '../Color';
 import { Display } from '../Display';
 import { Font } from '../Font';
-import { HitCanvas, HitRegion } from '../HitCanvas';
+import { HitCanvas } from '../HitCanvas';
+import { HitRegion } from '../HitRegion';
 import * as utils from '../utils';
 import { Widget } from '../Widget';
 
