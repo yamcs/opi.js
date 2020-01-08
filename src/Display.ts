@@ -4,6 +4,7 @@ import { Color } from './Color';
 import { Connection } from './Connection';
 import * as constants from './constants';
 import { EventHandler } from './EventHandler';
+import { HitCanvas } from './HitCanvas';
 import { ImageWidget } from './ImageWidget';
 import * as utils from './utils';
 import { Widget } from './Widget';
@@ -24,6 +25,7 @@ export class Display {
 
     private rootPanel: HTMLDivElement;
     private ctx: CanvasRenderingContext2D;
+    private hitCanvas = new HitCanvas();
 
     private repaintRequested = false;
 
@@ -67,7 +69,7 @@ export class Display {
         this.preloadFont('Liberation Sans', 'bold', 'normal');
         this.preloadFont('Liberation Sans', 'bold', 'italic');
 
-        new EventHandler(this, canvas);
+        new EventHandler(this, canvas, this.hitCanvas);
     }
 
     preloadFont(fontFace: string, weight: string, style: string) {
@@ -81,6 +83,7 @@ export class Display {
 
         // Limit CPU usage to when we need it
         if (this.repaintRequested) {
+            this.hitCanvas.clear();
             this.drawScreen();
             this.repaintRequested = false;
         }
@@ -93,6 +96,7 @@ export class Display {
         const width = this.rootPanel.clientWidth;
         const height = this.rootPanel.clientHeight;
         utils.resizeCanvas(this.ctx.canvas, width, height);
+        utils.resizeCanvas(this.hitCanvas.ctx.canvas, width, height);
 
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -155,7 +159,7 @@ export class Display {
 
         for (const widget of this.widgets) {
             widget.drawBorder(this.ctx);
-            widget.draw(this.ctx);
+            widget.draw(this.ctx, this.hitCanvas);
         }
 
         for (const connection of this.connections) {

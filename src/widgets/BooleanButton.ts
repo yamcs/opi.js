@@ -2,6 +2,7 @@ import { Bounds } from '../Bounds';
 import { Color } from '../Color';
 import { Display } from '../Display';
 import { Font } from '../Font';
+import { HitCanvas, HitRegion } from '../HitCanvas';
 import * as utils from '../utils';
 import { Widget } from '../Widget';
 
@@ -22,6 +23,7 @@ export class BooleanButton extends Widget {
     private offLabel: string;
     private font: Font;
 
+    private hovered = false;
     private toggled = false;
 
     constructor(display: Display, node: Element) {
@@ -48,7 +50,20 @@ export class BooleanButton extends Widget {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+        const buttonArea: HitRegion = {
+            id: `${this.wuid}-area`,
+            mouseEnter: () => {
+                this.hovered = true;
+                this.requestRepaint();
+            },
+            mouseOut: () => {
+                this.hovered = false;
+                this.requestRepaint();
+            },
+            cursor: 'pointer'
+        }
+
         if (this.squareButton) {
             ctx.fillStyle = Color.DARK_GRAY.toString();
             ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -96,8 +111,6 @@ export class BooleanButton extends Widget {
                 const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
                 gradient.addColorStop(0, Color.WHITE.toString());
                 gradient.addColorStop(1, Color.DARK_GRAY.toString());
-
-                // Set the fill style and draw a rectangle
                 ctx.fillStyle = gradient;
             } else {
                 ctx.fillStyle = Color.DARK_GRAY.toString();
@@ -111,7 +124,15 @@ export class BooleanButton extends Widget {
             ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
             ctx.fill();
 
-            ctx.fillStyle = this.backgroundColor.toString();
+            hitCanvas.beginHitRegion(buttonArea);
+            hitCanvas.ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
+            hitCanvas.ctx.fill();
+
+            if (this.hovered) {
+                ctx.fillStyle = this.backgroundColor.mixWith(Color.WHITE, 0.5).toString();
+            } else {
+                ctx.fillStyle = this.backgroundColor.toString();
+            }
             ctx.beginPath();
             ctx.ellipse(x, y, rx - 2, ry - 2, 0, 0, 2 * Math.PI);
             ctx.fill();

@@ -3,6 +3,7 @@ import { toBorderBox } from './Bounds';
 import { Color } from './Color';
 import * as constants from './constants';
 import { Display } from './Display';
+import { HitCanvas } from './HitCanvas';
 import * as utils from './utils';
 
 export abstract class Widget {
@@ -225,5 +226,5 @@ export abstract class Widget {
         this.display.requestRepaint();
     }
 
-    abstract draw(ctx: CanvasRenderingContext2D): void;
+    abstract draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas): void;
 }

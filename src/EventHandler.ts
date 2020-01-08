@@ -1,8 +1,11 @@
 import { Display } from './Display';
+import { HitCanvas, HitRegion } from './HitCanvas';
 
 export class EventHandler {
 
-    constructor(private display: Display, private canvas: HTMLCanvasElement) {
+    private lastMouseMoveRegion?: HitRegion;
+
+    constructor(private display: Display, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onClick(e), false);
         canvas.addEventListener('mousedown', e => this.onMouseDown(e), false);
         canvas.addEventListener('mouseup', e => this.onMouseUp(e), false);
@@ -32,6 +35,35 @@ export class EventHandler {
     }
 
     private onMouseMove(event: MouseEvent) {
+        const bbox = this.canvas.getBoundingClientRect();
+        const x = event.clientX - bbox.left;
+        const y = event.clientY - bbox.top;
+
+        const region = this.hitCanvas.getActiveRegion(x, y);
+
+        let mouseMoveRegion = undefined;
+        if (region) {
+            if (region.mouseEnter) {
+                mouseMoveRegion = region;
+                if (!this.lastMouseMoveRegion || mouseMoveRegion.id !== this.lastMouseMoveRegion.id) {
+                    console.log('entered..', mouseMoveRegion.id);
+                    region.mouseEnter();
+                }
+            }
+        }
+
+        if (this.lastMouseMoveRegion && (!mouseMoveRegion || mouseMoveRegion.id !== this.lastMouseMoveRegion.id)) {
+            if (this.lastMouseMoveRegion.mouseOut) {
+                this.lastMouseMoveRegion.mouseOut();
+            }
+            console.log('left', this.lastMouseMoveRegion.id);
+        }
+        this.lastMouseMoveRegion = mouseMoveRegion;
+
+        const cursor = (region && region.cursor) ? region.cursor : 'auto';
+        if (cursor != this.canvas.style.cursor) {
+            this.canvas.style.cursor = cursor;
+        }
     }
 
     private selectSingleWidget(x: number, y: number) {
