@@ -1,32 +1,34 @@
-import { Color } from '../Color';
-import { Display } from '../Display';
-import { Font } from '../Font';
-import { HitCanvas } from '../HitCanvas';
-import { HitRegion } from '../HitRegion';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import { Color } from '../../Color';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { Font } from '../../Font';
+import { HitCanvas } from '../../HitCanvas';
+import { HitRegion } from '../../HitRegion';
+import { BooleanProperty, FontProperty, IntProperty } from '../../properties';
+import { Widget } from '../../Widget';
+
+const PROP_FONT = 'font';
+const PROP_PUSH_ACTION_INDEX = 'push_action_index';
+const PROP_RELEASE_ACTION_INDEX = 'release_action_index';
+const PROP_TOGGLE_BUTTON = 'toggle_button';
 
 export class ActionButton extends Widget {
 
-    private font: Font;
-    private toggleButton: boolean;
-    private pushActionIndex: number;
-    private releaseActionIndex?: number;
+    readonly kind = constants.TYPE_ACTION_BUTTON;
 
-    private areaRegion: HitRegion;
+    private areaRegion?: HitRegion;
 
     private pushed = false;
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        const fontNode = utils.findChild(node, 'font');
-        this.font = utils.parseFontNode(fontNode);
-        this.toggleButton = utils.parseBooleanChild(node, 'toggle_button');
-        this.pushActionIndex = utils.parseIntChild(node, 'push_action_index');
-        if (this.toggleButton) {
-            this.releaseActionIndex = utils.parseIntChild(node, 'release_action_index');
-        }
+    constructor(display: Display) {
+        super(display);
+        this.addProperty(new FontProperty(PROP_FONT));
+        this.addProperty(new BooleanProperty(PROP_TOGGLE_BUTTON));
+        this.addProperty(new IntProperty(PROP_PUSH_ACTION_INDEX));
+        this.addProperty(new IntProperty(PROP_RELEASE_ACTION_INDEX));
+    }
 
+    init() {
         this.areaRegion = {
             id: `${this.wuid}-area`,
             mouseDown: () => this.onAreaMouseDown(),
@@ -67,7 +69,7 @@ export class ActionButton extends Widget {
         ctx.fillStyle = (this.backgroundColor || Color.BUTTON).toString();
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        hitCanvas.beginHitRegion(this.areaRegion);
+        hitCanvas.beginHitRegion(this.areaRegion!);
         hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
 
         const top = this.holderY + 0.5;
@@ -153,4 +155,9 @@ export class ActionButton extends Widget {
 
         ctx.fillText(lines[0], x, y);
     }
+
+    get font(): Font { return this.getPropertyValue(PROP_FONT); }
+    get toggleButton(): boolean { return this.getPropertyValue(PROP_TOGGLE_BUTTON); }
+    get pushActionIndex(): number { return this.getPropertyValue(PROP_PUSH_ACTION_INDEX); }
+    get releaseActionIndex(): number { return this.getPropertyValue(PROP_RELEASE_ACTION_INDEX); }
 }

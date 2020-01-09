@@ -1,79 +1,74 @@
-import { Bounds } from '../Bounds';
-import { Color } from '../Color';
-import { Display } from '../Display';
-import { Font } from '../Font';
-import { HitCanvas } from '../HitCanvas';
-import { HitRegion } from '../HitRegion';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import { Bounds } from '../../Bounds';
+import { Color } from '../../Color';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { Font } from '../../Font';
+import { HitCanvas } from '../../HitCanvas';
+import { HitRegion } from '../../HitRegion';
+import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
+import { Widget } from '../../Widget';
+
+const PROP_EFFECT_3D = 'effect_3d';
+const PROP_FONT = 'font';
+const PROP_OFF_COLOR = 'off_color';
+const PROP_OFF_LABEL = 'off_label';
+const PROP_ON_COLOR = 'on_color';
+const PROP_ON_LABEL = 'on_label';
+const PROP_PUSH_ACTION_INDEX = 'push_action_index';
+const PROP_RELEASE_ACTION_INDEX = 'released_action_index'; // with 'd'
+const PROP_SHOW_LED = 'show_led';
+const PROP_SHOW_BOOLEAN_LABEL = 'show_boolean_label';
+const PROP_SQUARE_BUTTON = 'square_button';
+const PROP_TOGGLE_BUTTON = 'toggle_button';
 
 export class BooleanButton extends Widget {
 
-    private toggleButton: boolean;
-    private pushActionIndex: number;
-    private releaseActionIndex?: number;
-
-    private squareButton: boolean;
-    private showLed: boolean;
-    private showBooleanLabel: boolean;
-
-    private effect3d: boolean;
-    private onColor: Color;
-    private onLabel: string;
-    private offColor: Color;
-    private offLabel: string;
-    private font: Font;
+    readonly kind = constants.TYPE_BOOLEAN_BUTTON;
 
     private hovered = false;
     private enabled = false;
 
-    private areaRegion: HitRegion;
+    private areaRegion?: HitRegion;
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        this.squareButton = utils.parseBooleanChild(node, 'square_button');
-        this.showLed = utils.parseBooleanChild(node, 'show_led');
-        this.showBooleanLabel = utils.parseBooleanChild(node, 'show_boolean_label');
-        this.effect3d = utils.parseBooleanChild(node, 'effect_3d');
+    constructor(display: Display) {
+        super(display);
 
-        const onColorNode = utils.findChild(node, 'on_color');
-        this.onColor = utils.parseColorChild(onColorNode);
-        this.onLabel = utils.parseStringChild(node, 'on_label');
+        this.addProperty(new BooleanProperty(PROP_SQUARE_BUTTON));
+        this.addProperty(new BooleanProperty(PROP_SHOW_LED));
+        this.addProperty(new BooleanProperty(PROP_EFFECT_3D));
+        this.addProperty(new ColorProperty(PROP_ON_COLOR));
+        this.addProperty(new StringProperty(PROP_ON_LABEL));
+        this.addProperty(new ColorProperty(PROP_OFF_COLOR));
+        this.addProperty(new StringProperty(PROP_OFF_LABEL));
+        this.addProperty(new FontProperty(PROP_FONT));
+        this.addProperty(new BooleanProperty(PROP_TOGGLE_BUTTON));
+        this.addProperty(new IntProperty(PROP_PUSH_ACTION_INDEX));
+        this.addProperty(new IntProperty(PROP_RELEASE_ACTION_INDEX));
+        this.addProperty(new BooleanProperty(PROP_SHOW_BOOLEAN_LABEL));
+    }
 
-        const offColorNode = utils.findChild(node, 'off_color');
-        this.offColor = utils.parseColorChild(offColorNode);
-        this.offLabel = utils.parseStringChild(node, 'off_label');
-
-        const fontNode = utils.findChild(node, 'font');
-        this.font = utils.parseFontNode(fontNode);
-        this.toggleButton = utils.parseBooleanChild(node, 'toggle_button');
-        this.pushActionIndex = utils.parseIntChild(node, 'push_action_index');
-        if (this.toggleButton) {
-            this.releaseActionIndex = utils.parseIntChild(node, 'released_action_index');
-        }
-
+    init() {
         this.areaRegion = {
             id: `${this.wuid}-area`,
-            mouseDown: () => this.onAreaClick(),
-            mouseEnter: () => this.onAreaEnter(),
-            mouseOut: () => this.onAreaLeave(),
+            mouseDown: () => {
+                this.enabled = !this.enabled;
+                if (this.enabled) {
+                    this.executeAction(this.pushActionIndex);
+                } else if (this.releaseActionIndex !== undefined) {
+                    this.executeAction(this.releaseActionIndex);
+                }
+                this.requestRepaint();
+            },
+            mouseEnter: () => {
+                this.hovered = true;
+                this.requestRepaint();
+            },
+            mouseOut: () => {
+                this.hovered = false;
+                this.requestRepaint();
+            },
             cursor: 'pointer'
         };
-    }
-
-    private onAreaClick() {
-        this.enabled = !this.enabled;
-        this.requestRepaint();
-    }
-
-    private onAreaEnter() {
-        this.hovered = true;
-        this.requestRepaint();
-    }
-
-    private onAreaLeave() {
-        this.hovered = false;
-        this.requestRepaint();
     }
 
     draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
@@ -104,7 +99,7 @@ export class BooleanButton extends Widget {
         ctx.fillStyle = Color.DARK_GRAY.toString();
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        hitCanvas.beginHitRegion(this.areaRegion);
+        hitCanvas.beginHitRegion(this.areaRegion!);
         hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
 
         const tlColor = this.enabled ? Color.DARK_GRAY : Color.WHITE;
@@ -174,7 +169,7 @@ export class BooleanButton extends Widget {
         ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         ctx.fill();
 
-        hitCanvas.beginHitRegion(this.areaRegion);
+        hitCanvas.beginHitRegion(this.areaRegion!);
         hitCanvas.ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         hitCanvas.ctx.fill();
 
@@ -275,4 +270,17 @@ export class BooleanButton extends Widget {
             }
         }
     }
+
+    get toggleButton(): boolean { return this.getPropertyValue(PROP_TOGGLE_BUTTON); }
+    get pushActionIndex(): number { return this.getPropertyValue(PROP_PUSH_ACTION_INDEX); }
+    get releaseActionIndex(): number { return this.getPropertyValue(PROP_RELEASE_ACTION_INDEX); }
+    get squareButton(): boolean { return this.getPropertyValue(PROP_SQUARE_BUTTON); }
+    get showLed(): boolean { return this.getPropertyValue(PROP_SHOW_LED); }
+    get showBooleanLabel(): boolean { return this.getPropertyValue(PROP_SHOW_BOOLEAN_LABEL); }
+    get effect3d(): boolean { return this.getPropertyValue(PROP_EFFECT_3D); }
+    get onColor(): Color { return this.getPropertyValue(PROP_ON_COLOR); }
+    get onLabel(): string { return this.getPropertyValue(PROP_ON_LABEL); }
+    get offColor(): Color { return this.getPropertyValue(PROP_OFF_COLOR); }
+    get offLabel(): string { return this.getPropertyValue(PROP_OFF_LABEL); }
+    get font(): Font { return this.getPropertyValue(PROP_FONT); }
 }

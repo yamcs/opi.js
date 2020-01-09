@@ -11,10 +11,10 @@ export class Connection {
   private lineWidth: number;
   private router: number;
 
-  private sourceWidget: Widget;
+  private sourceWidget?: Widget;
   private sourceTerm: string;
 
-  private targetWidget: Widget;
+  private targetWidget?: Widget;
   private targetTerm: string;
 
   private points: Point[] = [];
@@ -27,11 +27,17 @@ export class Connection {
     this.lineWidth = utils.parseIntChild(node, 'line_width');
 
     const srcWuid = utils.parseStringChild(node, 'src_wuid');
-    this.sourceWidget = display.findWidget(srcWuid)!;
+    this.sourceWidget = display.findWidget(srcWuid);
+    if (!this.sourceWidget) {
+      console.warn(`Can't find source widget ${srcWuid}`);
+    }
     this.sourceTerm = utils.parseStringChild(node, 'src_term');
 
     const tgtWuid = utils.parseStringChild(node, 'tgt_wuid');
-    this.targetWidget = display.findWidget(tgtWuid)!;
+    this.targetWidget = display.findWidget(tgtWuid);
+    if (!this.targetWidget) {
+      console.warn(`Can't find target widget ${tgtWuid}`);
+    }
     this.targetTerm = utils.parseStringChild(node, 'tgt_term');
 
     this.router = utils.parseIntChild(node, 'router');
@@ -46,6 +52,10 @@ export class Connection {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    if (!this.sourceWidget || !this.targetWidget) {
+      return;
+    }
+
     if (this.points.length) { // Only present if the user has manually repositioned a mid-point.
       this.drawPath(ctx);
     } else if (this.router === 0) {
@@ -55,9 +65,9 @@ export class Connection {
     }
   }
 
-  drawPath(ctx: CanvasRenderingContext2D) {
-    const from = this.getPosition(this.sourceWidget, this.sourceTerm);
-    const to = this.getPosition(this.targetWidget, this.targetTerm);
+  private drawPath(ctx: CanvasRenderingContext2D) {
+    const from = this.getPosition(this.sourceWidget!, this.sourceTerm);
+    const to = this.getPosition(this.targetWidget!, this.targetTerm);
 
     ctx.beginPath();
     ctx.moveTo(from.x + 0.5, from.y + 0.5);
@@ -71,17 +81,17 @@ export class Connection {
     ctx.stroke();
   }
 
-  drawManhattanConnection(ctx: CanvasRenderingContext2D) {
+  private drawManhattanConnection(ctx: CanvasRenderingContext2D) {
     // TODO
     this.drawDirectConnection(ctx);
   }
 
-  drawDirectConnection(ctx: CanvasRenderingContext2D) {
-    const from = this.getPosition(this.sourceWidget, this.sourceTerm);
+  private drawDirectConnection(ctx: CanvasRenderingContext2D) {
+    const from = this.getPosition(this.sourceWidget!, this.sourceTerm);
     const x1 = from.x;
     const y1 = from.y;
 
-    const to = this.getPosition(this.targetWidget, this.targetTerm);
+    const to = this.getPosition(this.targetWidget!, this.targetTerm);
     const x2 = to.x;
     const y2 = to.y;
 

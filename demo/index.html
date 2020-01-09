@@ -19,6 +19,9 @@
             <li onclick="changeSource('boolbutton.opi')">
                 <i class="far fa-fw fa-file"></i> boolbutton.opi
             </li>
+            <li onclick="changeSource('FlightData.opi')">
+                <i class="far fa-fw fa-file"></i> FlightData.opi
+            </li>
             <li onclick="changeSource('main.opi')">
                 <i class="far fa-fw fa-file"></i> main.opi
             </li>
@@ -75,7 +78,9 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('file')) {
+                console.log('try');
                 display.setSource(urlParams.get('file')).then(() => {
+                    console.log('ow eyah', display.widgets);
                     let html = '';
                     for (const widget of display.widgets) {
                         html += `<li data-wuid="${widget.wuid}">${widget.name}</li>`

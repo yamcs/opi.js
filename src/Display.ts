@@ -3,6 +3,7 @@ declare var FontFaceObserver: any;
 import { DisplayInstance } from './DisplayInstance';
 import { EventHandler } from './EventHandler';
 import { HitCanvas } from './HitCanvas';
+import { PVEngine } from './PVEngine';
 import * as utils from './utils';
 
 export class Display {
@@ -10,6 +11,7 @@ export class Display {
     private rootPanel: HTMLDivElement;
     private ctx: CanvasRenderingContext2D;
     private hitCanvas = new HitCanvas();
+    pvEngine = new PVEngine();
 
     private repaintRequested = false;
 
@@ -80,12 +82,12 @@ export class Display {
         if (this.showGrid && this.instance) {
             const patternCanvas = document.createElement('canvas');
             const patternContext = patternCanvas.getContext('2d')!;
-            patternCanvas.width = this.instance.gridSpace;
-            patternCanvas.height = this.instance.gridSpace;
+            patternCanvas.width = 25;
+            patternCanvas.height = 25;
             patternContext.fillStyle = this.instance.gridColor.toString();
-            patternContext.fillRect(0, 0, 2, 1);
+            patternContext.fillRect(0, 0, 1, 1);
             this.ctx.fillStyle = this.ctx.createPattern(patternCanvas, 'repeat')!;
-            this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+            this.ctx.fillRect(25, 25, this.ctx.canvas.width - 50, this.ctx.canvas.height - 50);
         }
 
         if (this.showRuler) {

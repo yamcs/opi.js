@@ -34,7 +34,7 @@ export default {
     }, {
       file: 'dist/webopi.js',
       format: 'esm',
-      sourcemap: true
+      sourcemap: false
     }
   ],
   watch: {

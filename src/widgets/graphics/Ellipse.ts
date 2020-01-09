@@ -1,32 +1,32 @@
-import { Color } from '../Color';
-import { Display } from '../Display';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import { Color } from '../../Color';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
+import { Widget } from '../../Widget';
+
+const PROP_ALPHA = 'alpha';
+const PROP_BG_GRADIENT_COLOR = 'bg_gradient_color';
+const PROP_FG_GRADIENT_COLOR = 'fg_gradient_color';
+const PROP_FILL_LEVEL = 'fill_level';
+const PROP_GRADIENT = 'gradient';
+const PROP_HORIZONTAL_FILL = 'horizontal_fill';
+const PROP_LINE_COLOR = 'line_color';
+const PROP_LINE_WIDTH = 'line_width';
 
 export class Ellipse extends Widget {
 
-    private alpha: number;
-    private lineWidth: number;
-    private fillLevel: number;
-    private horizontalFill: boolean;
-    private lineColor: Color;
-    private foregroundGradientStartColor: Color;
-    private backgroundGradientStartColor: Color;
-    private gradient: boolean;
+    readonly kind = constants.TYPE_ELLIPSE;
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        this.alpha = utils.parseIntChild(node, 'alpha');
-        this.lineWidth = utils.parseIntChild(node, 'line_width');
-        this.fillLevel = utils.parseFloatChild(node, 'fill_level');
-        this.horizontalFill = utils.parseBooleanChild(node, 'horizontal_fill');
-        const lineColorNode = utils.findChild(node, 'line_color');
-        this.lineColor = utils.parseColorChild(lineColorNode);
-        const backgroundGradientStartColorNode = utils.findChild(node, 'bg_gradient_color');
-        this.backgroundGradientStartColor = utils.parseColorChild(backgroundGradientStartColorNode);
-        const foregroundGradientStartColorNode = utils.findChild(node, 'fg_gradient_color');
-        this.foregroundGradientStartColor = utils.parseColorChild(foregroundGradientStartColorNode);
-        this.gradient = utils.parseBooleanChild(node, 'gradient');
+    constructor(display: Display) {
+        super(display);
+        this.addProperty(new IntProperty(PROP_ALPHA))
+        this.addProperty(new ColorProperty(PROP_BG_GRADIENT_COLOR));
+        this.addProperty(new ColorProperty(PROP_FG_GRADIENT_COLOR));
+        this.addProperty(new BooleanProperty(PROP_GRADIENT));
+        this.addProperty(new IntProperty(PROP_LINE_WIDTH))
+        this.addProperty(new FloatProperty(PROP_FILL_LEVEL))
+        this.addProperty(new BooleanProperty(PROP_HORIZONTAL_FILL))
+        this.addProperty(new ColorProperty(PROP_LINE_COLOR))
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -110,5 +110,18 @@ export class Ellipse extends Widget {
 
         // Reset clip
         ctx.restore();
+    }
+
+    get alpha(): number { return this.getPropertyValue(PROP_ALPHA); }
+    get lineWidth(): number { return this.getPropertyValue(PROP_LINE_WIDTH); }
+    get fillLevel(): number { return this.getPropertyValue(PROP_FILL_LEVEL); }
+    get horizontalFill(): boolean { return this.getPropertyValue(PROP_HORIZONTAL_FILL); }
+    get lineColor(): Color { return this.getPropertyValue(PROP_LINE_COLOR); }
+    get gradient(): boolean { return this.getPropertyValue(PROP_GRADIENT); }
+    get backgroundGradientStartColor(): Color {
+        return this.getPropertyValue(PROP_BG_GRADIENT_COLOR);
+    }
+    get foregroundGradientStartColor(): Color {
+        return this.getPropertyValue(PROP_FG_GRADIENT_COLOR);
     }
 }

@@ -1,8 +1,10 @@
-import { toBorderBox } from '../Bounds';
-import { Color } from '../Color';
-import { Display } from '../Display';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import { toBorderBox } from '../../Bounds';
+import { Color } from '../../Color';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
+import * as utils from '../../utils';
+import { Widget } from '../../Widget';
 
 interface State {
     label: string;
@@ -10,66 +12,96 @@ interface State {
     value?: number;
 }
 
+const PROP_EFFECT_3D = 'effect_3d';
+const PROP_STATE_COUNT = 'state_count';
+const PROP_SQUARE_LED = 'square_led';
+const PROP_OFF_COLOR = 'off_color';
+const PROP_OFF_LABEL = 'off_label';
+const PROP_ON_COLOR = 'on_color';
+const PROP_ON_LABEL = 'on_label';
+const PROP_BULB_BORDER = 'bulb_border';
+const PROP_BULB_BORDER_COLOR = 'bulb_border_color';
+const PROP_STATE_COLOR_FALLBACK = 'state_color_fallback';
+const PROP_STATE_LABEL_FALLBACK = 'state_label_fallback';
+
 export class LED extends Widget {
 
-    private squareLed: boolean;
-    private effect3d: boolean;
+    readonly kind = constants.TYPE_LED;
 
     private states: State[] = [];
     private fallback?: State;
 
-    private bulbColor: Color;
-    private bulbBorderColor: Color;
-    private bulbBorder: number;
+    constructor(display: Display) {
+        super(display);
+        this.addProperty(new BooleanProperty(PROP_EFFECT_3D));
+        this.addProperty(new BooleanProperty(PROP_SQUARE_LED));
+        this.addProperty(new IntProperty(PROP_STATE_COUNT, 2));
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        const stateCount = utils.parseIntChild(node, 'state_count', 2);
-        if (stateCount === 2) {
-            const offColorNode = utils.findChild(node, 'off_color');
+        this.addProperty(new ColorProperty(PROP_OFF_COLOR));
+        this.addProperty(new StringProperty(PROP_OFF_LABEL));
+
+        this.addProperty(new ColorProperty(PROP_ON_COLOR));
+        this.addProperty(new StringProperty(PROP_ON_LABEL));
+
+        this.addProperty(new ColorProperty(PROP_STATE_COLOR_FALLBACK));
+        this.addProperty(new StringProperty(PROP_STATE_LABEL_FALLBACK));
+
+        // Old displays don't have these properties
+        this.addProperty(new IntProperty(PROP_BULB_BORDER, 3));
+        this.addProperty(new ColorProperty(PROP_BULB_BORDER_COLOR, Color.DARK_GRAY));
+    }
+
+    parseNode(node: Element) {
+        super.parseNode(node);
+        if (this.stateCount === 2) {
             this.states.push({
-                label: utils.parseStringChild(node, 'off_label'),
-                color: utils.parseColorChild(offColorNode),
+                label: this.offLabel,
+                color: this.offColor,
             });
-            const onColorNode = utils.findChild(node, 'on_color');
             this.states.push({
-                label: utils.parseStringChild(node, 'on_label'),
-                color: utils.parseColorChild(onColorNode),
+                label: this.onLabel,
+                color: this.onColor,
             });
         } else {
-            for (let i = 0; i < stateCount; i++) {
+            console.log('got statec', this.stateCount);
+            for (let i = 0; i < this.stateCount; i++) {
+                const colorProperty = new ColorProperty(`state_color_${i}`);
                 const colorNode = utils.findChild(node, `state_color_${i}`);
+                colorProperty.parseValue(colorNode);
+                this.addProperty(colorProperty);
+
+
+                const labelProperty = new StringProperty(`state_label_${i}`);
+                const labelNode = utils.findChild(node, `state_label_${i}`);
+                labelProperty.parseValue(labelNode);
+                this.addProperty(labelProperty);
+
+                const valueProperty = new FloatProperty(`state_value_${i}`);
+                const valueNode = utils.findChild(node, `state_value_${i}`);
+                valueProperty.parseValue(valueNode);
+                this.addProperty(valueProperty);
+
                 this.states.push({
-                    label: utils.parseStringChild(node, `state_label_${i}`),
-                    color: utils.parseColorChild(colorNode),
-                    value: utils.parseFloatChild(node, `state_value_${i}`),
+                    label: this.getPropertyValue(labelProperty.name),
+                    color: this.getPropertyValue(colorProperty.name),
+                    value: this.getPropertyValue(valueProperty.name),
                 });
-                const fallbackColorNode = utils.findChild(node, 'state_color_fallback');
                 this.fallback = {
-                    label: utils.parseStringChild(node, 'state_label_fallback'),
-                    color: utils.parseColorChild(fallbackColorNode),
+                    label: this.stateLabelFallback,
+                    color: this.stateColorFallback,
                 };
             }
         }
+    }
 
-        // Initial state
-        this.bulbColor = this.fallback ? this.fallback.color : this.states[0].color;
+    get bulbColor(): Color {
+        let color = this.fallback ? this.fallback.color : this.states[0].color;
         for (const state of this.states) {
             if (state.value === 0) {
-                this.bulbColor = state.color;
+                color = state.color;
             }
         }
-
-        // Old displays don't have these properties
-        this.bulbBorder = utils.parseIntChild(node, 'bulb_border', 3);
-        this.bulbBorderColor = Color.DARK_GRAY;
-        if (utils.hasChild(node, 'bulb_border_color')) {
-            const bulbBorderColorNode = utils.findChild(node, 'bulb_border_color');
-            this.bulbBorderColor = utils.parseColorChild(bulbBorderColorNode);
-        }
-
-        this.squareLed = utils.parseBooleanChild(node, 'square_led');
-        this.effect3d = utils.parseBooleanChild(node, 'effect_3d');
+        return color;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -222,4 +254,16 @@ export class LED extends Widget {
         ctx.fillStyle = gradient;
         ctx.fillRect(x, y, width, height);
     }
+
+    get squareLed(): boolean { return this.getPropertyValue(PROP_SQUARE_LED); }
+    get effect3d(): boolean { return this.getPropertyValue(PROP_EFFECT_3D); }
+    get stateCount(): number { return this.getPropertyValue(PROP_STATE_COUNT); }
+    get bulbBorder(): number { return this.getPropertyValue(PROP_BULB_BORDER); }
+    get bulbBorderColor(): Color { return this.getPropertyValue(PROP_BULB_BORDER_COLOR); }
+    get offLabel(): string { return this.getPropertyValue(PROP_OFF_LABEL); }
+    get offColor(): Color { return this.getPropertyValue(PROP_OFF_COLOR); }
+    get onLabel(): string { return this.getPropertyValue(PROP_ON_LABEL); }
+    get onColor(): Color { return this.getPropertyValue(PROP_ON_COLOR); }
+    get stateLabelFallback(): string { return this.getPropertyValue(PROP_STATE_LABEL_FALLBACK); }
+    get stateColorFallback(): Color { return this.getPropertyValue(PROP_STATE_COLOR_FALLBACK); }
 }

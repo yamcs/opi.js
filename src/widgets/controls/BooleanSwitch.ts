@@ -1,34 +1,36 @@
-import { Bounds } from '../Bounds';
-import { Color } from '../Color';
-import { Display } from '../Display';
-import { HitCanvas } from '../HitCanvas';
-import { HitRegion } from '../HitRegion';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import { Bounds } from '../../Bounds';
+import { Color } from '../../Color';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { HitCanvas } from '../../HitCanvas';
+import { HitRegion } from '../../HitRegion';
+import { BooleanProperty, ColorProperty, StringProperty } from '../../properties';
+import { Widget } from '../../Widget';
 
+const PROP_EFFECT_3D = 'effect_3d';
+const PROP_OFF_COLOR = 'off_color';
+const PROP_OFF_LABEL = 'off_label';
+const PROP_ON_COLOR = 'on_color';
+const PROP_ON_LABEL = 'on_label';
 
 export class BooleanSwitch extends Widget {
 
-    private effect3d: boolean;
-    private onColor: Color;
-    private onLabel: string;
-    private offColor: Color;
-    private offLabel: string;
+    readonly kind = constants.TYPE_BOOLEAN_SWITCH;
 
     private enabled = false;
 
-    private shaftRegion: HitRegion;
+    private shaftRegion?: HitRegion;
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        this.effect3d = utils.parseBooleanChild(node, 'effect_3d');
-        const onColorNode = utils.findChild(node, 'on_color');
-        this.onColor = utils.parseColorChild(onColorNode);
-        this.onLabel = utils.parseStringChild(node, 'on_label');
-        const offColorNode = utils.findChild(node, 'off_color');
-        this.offColor = utils.parseColorChild(offColorNode);
-        this.offLabel = utils.parseStringChild(node, 'off_label');
+    constructor(display: Display) {
+        super(display);
+        this.addProperty(new BooleanProperty(PROP_EFFECT_3D));
+        this.addProperty(new ColorProperty(PROP_ON_COLOR));
+        this.addProperty(new StringProperty(PROP_ON_LABEL));
+        this.addProperty(new ColorProperty(PROP_OFF_COLOR));
+        this.addProperty(new StringProperty(PROP_OFF_LABEL));
+    }
 
+    init() {
         this.shaftRegion = {
             id: `${this.wuid}-shaft`,
             mouseDown: () => this.toggle(),
@@ -194,7 +196,7 @@ export class BooleanSwitch extends Widget {
         gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
         gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
 
-        hitCanvas.beginHitRegion(this.shaftRegion);
+        hitCanvas.beginHitRegion(this.shaftRegion!);
 
         /*
          * Small end
@@ -284,7 +286,7 @@ export class BooleanSwitch extends Widget {
         gradient.addColorStop(0, `rgba(0,0,0,${10 / 255})`);
         gradient.addColorStop(1, `rgba(0,0,0,${booleanValue ? 210 / 255 : 160 / 255})`);
 
-        hitCanvas.beginHitRegion(this.shaftRegion);
+        hitCanvas.beginHitRegion(this.shaftRegion!);
 
         /*
          * Small end
@@ -360,4 +362,10 @@ export class BooleanSwitch extends Widget {
             ctx.fill();
         }
     }
+
+    get effect3d(): boolean { return this.getPropertyValue(PROP_EFFECT_3D); }
+    get onColor(): Color { return this.getPropertyValue(PROP_ON_COLOR); }
+    get onLabel(): string { return this.getPropertyValue(PROP_ON_LABEL); }
+    get offColor(): Color { return this.getPropertyValue(PROP_OFF_COLOR); }
+    get offLabel(): string { return this.getPropertyValue(PROP_OFF_LABEL); }
 }

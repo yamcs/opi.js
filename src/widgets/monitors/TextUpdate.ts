@@ -1,21 +1,24 @@
-import { Display } from '../Display';
-import { Font } from '../Font';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { Font } from '../../Font';
+import { FontProperty, IntProperty } from '../../properties';
+import { Widget } from '../../Widget';
+
+const PROP_FONT = 'font';
+const PROP_HORIZONTAL_ALIGNMENT = 'horizontal_alignment';
+const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextUpdate extends Widget {
 
-    private font: Font;
-    private horizAlignment: number;
-    private vertAlignment: number;
+    readonly kind = constants.TYPE_TEXT_UPDATE;
+
     // private text: string;
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        const fontNode = utils.findChild(node, 'font');
-        this.font = utils.parseFontNode(fontNode);
-        this.horizAlignment = utils.parseIntChild(node, 'horizontal_alignment');
-        this.vertAlignment = utils.parseIntChild(node, 'vertical_alignment');
+    constructor(display: Display) {
+        super(display);
+        this.addProperty(new FontProperty(PROP_FONT));
+        this.addProperty(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
+        this.addProperty(new IntProperty(PROP_VERTICAL_ALIGNMENT));
         // this.text = utils.parseStringChild(node, 'text');
     }
 
@@ -52,4 +55,8 @@ export class TextUpdate extends Widget {
 
         ctx.fillText(this.text, x, y);
     }
+
+    get font(): Font { return this.getPropertyValue(PROP_FONT); }
+    get horizAlignment(): number { return this.getPropertyValue(PROP_HORIZONTAL_ALIGNMENT); }
+    get vertAlignment(): number { return this.getPropertyValue(PROP_VERTICAL_ALIGNMENT); }
 }

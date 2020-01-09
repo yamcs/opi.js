@@ -1,73 +1,76 @@
-import { Action, ExecuteJavaScriptAction, OpenDisplayAction } from './actions';
+import { ActionSet } from './actions';
 import { toBorderBox } from './Bounds';
 import { Color } from './Color';
 import * as constants from './constants';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
+import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, Property, StringProperty } from './properties';
 import { Script } from './scripting/Script';
 import * as utils from './utils';
 
+const PROP_ACTIONS = 'actions';
+const PROP_BACKGROUND_COLOR = 'background_color';
+const PROP_BORDER_ALARM_SENSITIVE = 'border_alarm_sensitive';
+const PROP_BORDER_COLOR = 'border_color';
+const PROP_BORDER_WIDTH = 'border_width';
+const PROP_BORDER_STYLE = 'border_style';
+const PROP_FOREGROUND_COLOR = 'foreground_color';
+const PROP_HEIGHT = 'height';
+const PROP_NAME = 'name';
+const PROP_PV_NAME = 'pv_name';
+const PROP_TEXT = 'text';
+const PROP_TRANSPARENT = 'transparent';
+const PROP_VISIBLE = 'visible';
+const PROP_WIDGET_TYPE = 'widget_type';
+const PROP_WIDTH = 'width';
+const PROP_WUID = 'wuid';
+const PROP_X = 'x';
+const PROP_Y = 'y';
+
 export abstract class Widget {
 
-    // Long ID as contained in the display
-    readonly wuid: string;
-
-    // bbox around the widget and its border
-    holderX: number;
-    holderY: number;
-    holderWidth: number;
-    holderHeight: number;
-
-    borderStyle: number;
-    borderColor: Color;
-    borderWidth: number;
-    borderAlarmSensitive: boolean;
-
-    insets: [number, number, number, number]; // T L B R
+    insets: [number, number, number, number] = [0, 0, 0, 0]; // T L B R
 
     // bbox around the widget (excluding border)
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x = 0;
+    y = 0;
+    width = 0;
+    height = 0;
 
-    typeId: string;
-    type: string;
-    name: string;
-    text: string;
-
-    pvName?: string;
-
-    backgroundColor = Color.TRANSPARENT;
-    foregroundColor: Color;
-
-    transparent: boolean;
-    visible: boolean;
-
-    actions: Action[] = [];
-    private hookFirstActionToClick = false;
-    private hookAllActionsToClick = false;
+    private properties = new Map<string, Property>();
 
     holderRegion?: HitRegion;
 
-    constructor(readonly display: Display, node: Element) {
-        this.wuid = utils.parseStringChild(node, 'wuid');
+    constructor(readonly display: Display) {
+        this.addProperty(new ActionsProperty(PROP_ACTIONS, new ActionSet()));
+        this.addProperty(new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT));
+        this.addProperty(new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false));
+        this.addProperty(new ColorProperty(PROP_BORDER_COLOR));
+        this.addProperty(new IntProperty(PROP_BORDER_STYLE));
+        this.addProperty(new IntProperty(PROP_BORDER_WIDTH));
+        this.addProperty(new ColorProperty(PROP_FOREGROUND_COLOR));
+        this.addProperty(new IntProperty(PROP_HEIGHT));
+        this.addProperty(new StringProperty(PROP_NAME));
+        this.addProperty(new StringProperty(PROP_PV_NAME));
+        this.addProperty(new StringProperty(PROP_TEXT, ''));
+        this.addProperty(new BooleanProperty(PROP_TRANSPARENT, false));
+        this.addProperty(new BooleanProperty(PROP_VISIBLE));
+        this.addProperty(new StringProperty(PROP_WIDGET_TYPE));
+        this.addProperty(new IntProperty(PROP_WIDTH));
+        this.addProperty(new StringProperty(PROP_WUID));
+        this.addProperty(new IntProperty(PROP_X));
+        this.addProperty(new IntProperty(PROP_Y));
+    }
 
-        this.typeId = utils.parseStringAttribute(node, 'typeId');
-        this.type = utils.parseStringChild(node, 'widget_type');
-        this.name = utils.parseStringChild(node, 'name');
-
-        this.holderX = utils.parseIntChild(node, 'x');
-        this.holderY = utils.parseIntChild(node, 'y');
-        this.holderWidth = utils.parseIntChild(node, 'width');
-        this.holderHeight = utils.parseIntChild(node, 'height');
-
-        const borderColorNode = utils.findChild(node, 'border_color');
-        this.borderColor = utils.parseColorChild(borderColorNode);
-        this.borderWidth = utils.parseIntChild(node, 'border_width');
-        this.borderStyle = utils.parseIntChild(node, 'border_style');
-        this.borderAlarmSensitive = utils.parseBooleanChild(node, 'border_alarm_sensitive', false);
+    parseNode(node: Element) {
+        for (let i = 0; i < node.childNodes.length; i++) {
+            const child = node.childNodes[i] as Element;
+            const prop = this.properties.get(child.nodeName);
+            if (prop) {
+                prop.parseValue(child);
+            }
+        }
 
         this.insets = [0, 0, 0, 0];
         switch (this.borderStyle) {
@@ -115,73 +118,23 @@ export abstract class Widget {
         this.width = this.holderWidth - this.insets[1] - this.insets[3];
         this.height = this.holderHeight - this.insets[0] - this.insets[2];
 
-        this.text = utils.parseStringChild(node, 'text', '');
-        this.text = this.text.split(' ').join('\u00a0'); // Preserve whitespace
-
-        if (utils.hasChild(node, 'background_color')) {
-            const backgroundColorNode = utils.findChild(node, 'background_color');
-            this.backgroundColor = utils.parseColorChild(backgroundColorNode);
-        }
-
-        const foregroundColorNode = utils.findChild(node, 'foreground_color');
-        this.foregroundColor = utils.parseColorChild(foregroundColorNode);
-
-        this.transparent = utils.parseBooleanChild(node, 'transparent', false);
-        this.visible = utils.parseBooleanChild(node, 'visible');
-
-        if (utils.hasChild(node, 'pv_name')) {
-            this.pvName = utils.parseStringChild(node, 'pv_name');
-        }
-
-        if (utils.hasChild(node, 'actions')) {
-            const actionsNode = utils.findChild(node, 'actions');
-            this.hookFirstActionToClick = utils.parseBooleanAttribute(actionsNode, 'hook');
-            this.hookAllActionsToClick = utils.parseBooleanAttribute(actionsNode, 'hook_all');
-            for (const actionNode of utils.findChildren(actionsNode, 'action')) {
-                const actionType = utils.parseStringAttribute(actionNode, 'type');
-                if (actionType === 'OPEN_DISPLAY') {
-                    const action: OpenDisplayAction = {
-                        type: actionType,
-                        path: utils.parseStringChild(actionNode, 'path'),
-                    };
-                    if (utils.hasChild(actionNode, 'mode')) {
-                        action['mode'] = utils.parseIntChild(actionNode, 'mode');
-                    }
-                    this.actions.push(action);
-                } else if (actionType === 'EXECUTE_JAVASCRIPT') {
-                    const action: ExecuteJavaScriptAction = {
-                        type: actionType,
-                        embedded: utils.parseBooleanChild(actionNode, 'embedded'),
-                    };
-                    if (action.embedded) {
-                        action.text = utils.parseStringChild(actionNode, 'scriptText');
-                    } else {
-                        action.path = utils.parseStringChild(actionNode, 'path');
-                    }
-                    this.actions.push(action);
-                } else {
-                    console.warn(`Unsupported action type ${actionType}`);
-                    this.actions.push({ type: actionType });
-                }
-            }
-
-            if (this.actions.length && (this.hookFirstActionToClick || this.hookAllActionsToClick)) {
-                this.holderRegion = {
-                    id: `${this.wuid}-holder`,
-                    click: () => this.onHolderClick(),
-                    cursor: 'pointer'
-                }
+        if (this.actions.isClickable()) {
+            this.holderRegion = {
+                id: `${this.wuid}-holder`,
+                click: () => this.onHolderClick(),
+                cursor: 'pointer'
             }
         }
+        this.init();
+    }
+
+    protected addProperty(property: Property) {
+        this.properties.set(property.name, property);
     }
 
     onHolderClick() {
-        if (this.hookFirstActionToClick) {
-            this.executeAction(0);
-        } else if (this.hookAllActionsToClick) {
-            for (let i = 0; i < this.actions.length; i++) {
-                this.executeAction(i);
-            }
+        for (const idx of this.actions.getClickActions()) {
+            this.executeAction(idx);
         }
     }
 
@@ -200,7 +153,7 @@ export abstract class Widget {
             ctx.strokeRect(box.x, box.y, box.width, box.height);
         } else if (this.borderStyle === 14) { // Round Rectangle Background
             let fillOpacity = 1;
-            if (this.typeId === constants.TYPE_RECTANGLE || this.typeId === constants.TYPE_ROUNDED_RECTANGLE) {
+            if (this.kind === constants.TYPE_RECTANGLE || this.kind === constants.TYPE_ROUNDED_RECTANGLE) {
                 fillOpacity = 0; // Then nested widget appears to decide
             }
 
@@ -260,37 +213,78 @@ export abstract class Widget {
     }
 
     protected executeAction(index: number) {
-        if (index >= this.actions.length) {
+        const action = this.actions.getAction(index);
+        if (!action) {
             return;
         }
-        const action = this.actions[index];
 
-        console.log('execute action of type', action.type);
-        if (action.type === 'OPEN_DISPLAY') {
-            const openDisplayAction = action as OpenDisplayAction;
-            if (openDisplayAction.mode === 0) { // Replace current display
-                this.display.setSource(openDisplayAction.path);
-            } else { // Open in new window
-                // TODO, just generate event?
-                console.warn('An action requested to open an external display');
-            }
-        } else if (action.type === 'EXECUTE_JAVASCRIPT') {
-            const executeJavascriptAction = action as ExecuteJavaScriptAction;
-            if (executeJavascriptAction.embedded) {
-                const script = new Script(this.display, executeJavascriptAction.text!);
-                script.run();
-            } else {
-                console.warn('An action requested to run an external script');
-                /*const path = this.display.resolve(executeJavascriptAction.path!);
-                this.display.displayCommunicator.getObject('displays', path).then(response => {
-                    response.text().then(text => {
-                        const script = new Script(this.display, text);
-                        script.run();
-                    });
-                });*/
+        switch (action.type) {
+            case 'OPEN_DISPLAY':
+                if (action.mode === 0) { // Replace current display
+                    this.display.setSource(action.path);
+                } else { // Open in new window
+                    // TODO, just generate event?
+                    console.warn('An action requested to open an external display');
+                }
+                break;
+            case 'EXECUTE_JAVASCRIPT':
+                if (action.embedded) {
+                    const script = new Script(this.display, action.text!);
+                    script.run();
+                } else {
+                    console.warn('An action requested to run an external script');
+                    /*const path = this.display.resolve(action.path!);
+                    this.display.displayCommunicator.getObject('displays', path).then(response => {
+                        response.text().then(text => {
+                            const script = new Script(this.display, text);
+                            script.run();
+                        });
+                    });*/
+                }
+                break;
+            case 'WRITE_PV':
+                if (action.pvName) {
+                    this.display.pvEngine.setValue(action.pvName, action.value);
+                }
+                break;
+        }
+    }
+
+    get wuid(): string { return this.getPropertyValue(PROP_WUID); }
+    get name(): string { return this.getPropertyValue(PROP_NAME); }
+    get holderX(): number { return this.getPropertyValue(PROP_X); }
+    get holderY(): number { return this.getPropertyValue(PROP_Y); }
+    get holderWidth(): number { return this.getPropertyValue(PROP_WIDTH); }
+    get holderHeight(): number { return this.getPropertyValue(PROP_HEIGHT); }
+    get borderAlarmSensitive(): boolean {
+        return this.getPropertyValue(PROP_BORDER_ALARM_SENSITIVE);
+    }
+    get borderColor(): Color { return this.getPropertyValue(PROP_BORDER_COLOR); }
+    get borderStyle(): number { return this.getPropertyValue(PROP_BORDER_STYLE); }
+    get borderWidth(): number { return this.getPropertyValue(PROP_BORDER_WIDTH); }
+    get backgroundColor(): Color { return this.getPropertyValue(PROP_BACKGROUND_COLOR); }
+    get foregroundColor(): Color { return this.getPropertyValue(PROP_FOREGROUND_COLOR); }
+    get transparent(): boolean { return this.getPropertyValue(PROP_TRANSPARENT); }
+    get visible(): boolean { return this.getPropertyValue(PROP_VISIBLE); }
+    get actions(): ActionSet { return this.getPropertyValue(PROP_ACTIONS); }
+
+    get text(): string {
+        const rawText = this.getPropertyValue(PROP_TEXT);
+        return rawText.split(' ').join('\u00a0'); // Preserve whitespace
+    }
+
+    protected getPropertyValue(propertyName: string, optional = false) {
+        const prop = this.properties.get(propertyName);
+        if (prop && prop.value !== undefined) {
+            return prop.value;
+        } else {
+            if (!optional) {
+                throw new Error(`Missing property ${propertyName} for widget of type ${this.kind}`);
             }
         }
     }
 
+    init(): void { };
+    abstract kind: string;
     abstract draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas): void;
 }

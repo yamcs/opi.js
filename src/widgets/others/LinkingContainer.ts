@@ -1,26 +1,31 @@
-import { Display } from '../Display';
-import { DisplayInstance } from '../DisplayInstance';
-import { HitCanvas } from '../HitCanvas';
-import * as utils from '../utils';
-import { Widget } from '../Widget';
+import * as constants from '../../constants';
+import { Display } from '../../Display';
+import { DisplayInstance } from '../../DisplayInstance';
+import { HitCanvas } from '../../HitCanvas';
+import { IntProperty, StringProperty } from '../../properties';
+import { Widget } from '../../Widget';
+
+const PROP_OPI_FILE = 'opi_file';
+const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
 
 export class LinkingContainer extends Widget {
 
-    private opiFile: string;
-    private resizeBehavior: number;
+    readonly kind = constants.TYPE_LINKING_CONTAINER;
 
     private instance?: DisplayInstance;
 
-    constructor(display: Display, node: Element) {
-        super(display, node);
-        this.opiFile = utils.parseStringChild(node, 'opi_file');
-        this.resizeBehavior = utils.parseIntChild(node, 'resize_behaviour');
+    constructor(display: Display) {
+        super(display);
+        this.addProperty(new StringProperty(PROP_OPI_FILE));
+        this.addProperty(new IntProperty(PROP_RESIZE_BEHAVIOR));
+    }
 
+    init() {
         if (this.opiFile) {
             fetch(this.opiFile).then(response => {
                 if (response.ok) {
                     response.text().then(source => {
-                        this.instance = new DisplayInstance(display, source);
+                        this.instance = new DisplayInstance(this.display, source);
                         this.requestRepaint();
                     });
                 }
@@ -82,4 +87,7 @@ export class LinkingContainer extends Widget {
 
         return canvas;
     }
+
+    get opiFile(): string { return this.getPropertyValue(PROP_OPI_FILE); }
+    get resizeBehavior(): number { return this.getPropertyValue(PROP_RESIZE_BEHAVIOR); }
 }
