@@ -1,9 +1,10 @@
 import * as constants from '../../constants';
 import { Display } from '../../Display';
-import { DisplayInstance } from '../../DisplayInstance';
 import { HitCanvas } from '../../HitCanvas';
 import { IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { XMLNode } from '../../XMLParser';
+import { DisplayWidget } from './DisplayWidget';
 
 const PROP_OPI_FILE = 'opi_file';
 const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
@@ -12,7 +13,7 @@ export class LinkingContainer extends Widget {
 
     readonly kind = constants.TYPE_LINKING_CONTAINER;
 
-    private instance?: DisplayInstance;
+    private instance?: DisplayWidget;
 
     constructor(display: Display) {
         super(display);
@@ -25,7 +26,11 @@ export class LinkingContainer extends Widget {
             fetch(this.opiFile).then(response => {
                 if (response.ok) {
                     response.text().then(source => {
-                        this.instance = new DisplayInstance(this.display, source);
+                        this.instance = new DisplayWidget(this.display);
+                        const xmlParser = new DOMParser();
+                        const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
+                        const displayNode = new XMLNode(doc.getElementsByTagName('display')[0]);
+                        this.instance.parseNode(displayNode);
                         this.requestRepaint();
                     });
                 }

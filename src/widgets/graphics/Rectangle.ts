@@ -2,7 +2,6 @@ import { Color } from '../../Color';
 import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
-import * as utils from '../../utils';
 import { Widget } from '../../Widget';
 
 const PROP_ALPHA = 'alpha';
@@ -16,11 +15,7 @@ const PROP_LINE_WIDTH = 'line_width';
 
 export class Rectangle extends Widget {
 
-    kind = constants.TYPE_RECTANGLE;
-
-    // Set by RoundedRectangle, hoisted to avoid duplications
-    protected cornerWidth = 0;
-    protected cornerHeight = 0;
+    readonly kind = constants.TYPE_RECTANGLE;
 
     constructor(display: Display) {
         super(display);
@@ -60,10 +55,7 @@ export class Rectangle extends Widget {
             ctx.fillStyle = this.backgroundColor.toString();
         }
 
-        const rx = this.cornerWidth / 2;
-        const ry = this.cornerHeight / 2
-        utils.roundRect(ctx, this.x, this.y, this.width, this.height, rx, ry);
-        ctx.fill();
+        ctx.fillRect(this.x, this.y, this.width, this.height);
 
         if (this.lineWidth) {
             ctx.lineWidth = this.lineWidth;
@@ -73,9 +65,6 @@ export class Rectangle extends Widget {
     }
 
     private drawFill(ctx: CanvasRenderingContext2D) {
-        const rx = this.cornerWidth / 2;
-        const ry = this.cornerHeight / 2
-
         let fillY = this.y;
         let fillWidth = this.width;
         let fillHeight = this.height;
@@ -87,7 +76,6 @@ export class Rectangle extends Widget {
         }
 
         // Create a clip for the fill level
-        // (makes it easier dealing with partially filled rounded corners)
         ctx.save();
         let x = this.x + (this.lineWidth / 2);
         let y = fillY - (this.lineWidth / 2);
@@ -113,10 +101,9 @@ export class Rectangle extends Widget {
         y = this.y + (this.lineWidth / 2);
         width = this.width - this.lineWidth;
         height = this.height - this.lineWidth;
-        utils.roundRect(ctx, x, y, width, height, rx, ry);
-        ctx.fill();
+        ctx.fillRect(x, y, width, height);
 
-        // Apparently the only way to get rid of a clip...
+        // Reset clip
         ctx.restore();
     }
 

@@ -1,10 +1,26 @@
 declare var FontFaceObserver: any;
 
-import { DisplayInstance } from './DisplayInstance';
+import * as constants from './constants';
 import { EventHandler } from './EventHandler';
 import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './PVEngine';
 import * as utils from './utils';
+import { ActionButton } from './widgets/controls/ActionButton';
+import { BooleanButton } from './widgets/controls/BooleanButton';
+import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
+import { Arc } from './widgets/graphics/Arc';
+import { Ellipse } from './widgets/graphics/Ellipse';
+import { ImageWidget } from './widgets/graphics/ImageWidget';
+import { Label } from './widgets/graphics/Label';
+import { Polygon } from './widgets/graphics/Polygon';
+import { Polyline } from './widgets/graphics/Polyline';
+import { Rectangle } from './widgets/graphics/Rectangle';
+import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
+import { LED } from './widgets/monitors/LED';
+import { TextUpdate } from './widgets/monitors/TextUpdate';
+import { DisplayWidget } from './widgets/others/DisplayWidget';
+import { LinkingContainer } from './widgets/others/LinkingContainer';
+import { XMLNode } from './XMLParser';
 
 export class Display {
 
@@ -21,7 +37,7 @@ export class Display {
     private _showRuler = false;
     private _selection: string[] = [];
 
-    instance?: DisplayInstance;
+    instance?: DisplayWidget;
 
     constructor(private readonly targetElement: HTMLElement) {
 
@@ -84,7 +100,7 @@ export class Display {
             const patternContext = patternCanvas.getContext('2d')!;
             patternCanvas.width = 25;
             patternCanvas.height = 25;
-            patternContext.fillStyle = this.instance.gridColor.toString();
+            patternContext.fillStyle = this.instance.foregroundColor.toString();
             patternContext.fillRect(0, 0, 1, 1);
             this.ctx.fillStyle = this.ctx.createPattern(patternCanvas, 'repeat')!;
             this.ctx.fillRect(25, 25, this.ctx.canvas.width - 50, this.ctx.canvas.height - 50);
@@ -162,6 +178,41 @@ export class Display {
         this.repaintRequested = true;
     }
 
+    createWidget(kind: string) {
+        switch (kind) {
+            case constants.TYPE_ACTION_BUTTON:
+                return new ActionButton(this);
+            case constants.TYPE_ARC:
+                return new Arc(this);
+            case constants.TYPE_BOOLEAN_BUTTON:
+                return new BooleanButton(this);
+            case constants.TYPE_BOOLEAN_SWITCH:
+                return new BooleanSwitch(this);
+            case constants.TYPE_ELLIPSE:
+                return new Ellipse(this);
+            case constants.TYPE_IMAGE:
+                return new ImageWidget(this);
+            case constants.TYPE_LABEL:
+                return new Label(this);
+            case constants.TYPE_LED:
+                return new LED(this);
+            case constants.TYPE_LINKING_CONTAINER:
+                return new LinkingContainer(this);
+            case constants.TYPE_POLYGON:
+                return new Polygon(this);
+            case constants.TYPE_POLYLINE:
+                return new Polyline(this);
+            case constants.TYPE_RECTANGLE:
+                return new Rectangle(this);
+            case constants.TYPE_ROUNDED_RECTANGLE:
+                return new RoundedRectangle(this);
+            case constants.TYPE_TEXT_UPDATE:
+                return new TextUpdate(this);
+            default:
+                console.warn(`Unsupported widget type: ${kind}`);
+        }
+    }
+
     setSource(href: string) {
         return fetch(href).then(response => {
             if (response.ok) {
@@ -173,7 +224,11 @@ export class Display {
     }
 
     setSourceString(source: string) {
-        this.instance = new DisplayInstance(this, source);
+        this.instance = new DisplayWidget(this);
+        const xmlParser = new DOMParser();
+        const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
+        const displayNode = new XMLNode(doc.getElementsByTagName('display')[0]);
+        this.instance.parseNode(displayNode);
         this.requestRepaint();
     }
 

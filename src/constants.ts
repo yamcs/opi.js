@@ -2,6 +2,7 @@ export const TYPE_ACTION_BUTTON = 'org.csstudio.opibuilder.widgets.ActionButton'
 export const TYPE_ARC = 'org.csstudio.opibuilder.widgets.arc';
 export const TYPE_BOOLEAN_BUTTON = 'org.csstudio.opibuilder.widgets.BoolButton';
 export const TYPE_BOOLEAN_SWITCH = 'org.csstudio.opibuilder.widgets.BoolSwitch';
+export const TYPE_DISPLAY = 'org.csstudio.opibuilder.Display';
 export const TYPE_ELLIPSE = 'org.csstudio.opibuilder.widgets.Ellipse';
 export const TYPE_GAUGE = 'org.csstudio.opibuilder.widgets.gauge';
 export const TYPE_GROUPING_CONTAINER = 'org.csstudio.opibuilder.widgets.groupingContainer';

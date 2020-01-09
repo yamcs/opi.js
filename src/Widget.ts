@@ -43,28 +43,30 @@ export abstract class Widget {
 
     holderRegion?: HitRegion;
 
-    constructor(readonly display: Display) {
-        this.addProperty(new ActionsProperty(PROP_ACTIONS, new ActionSet()));
-        this.addProperty(new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT));
-        this.addProperty(new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false));
-        this.addProperty(new ColorProperty(PROP_BORDER_COLOR));
-        this.addProperty(new IntProperty(PROP_BORDER_STYLE));
-        this.addProperty(new IntProperty(PROP_BORDER_WIDTH));
-        this.addProperty(new ColorProperty(PROP_FOREGROUND_COLOR));
-        this.addProperty(new IntProperty(PROP_HEIGHT));
-        this.addProperty(new StringProperty(PROP_NAME));
-        this.addProperty(new StringProperty(PROP_PV_NAME));
-        this.addProperty(new StringProperty(PROP_TEXT, ''));
-        this.addProperty(new BooleanProperty(PROP_TRANSPARENT, false));
-        this.addProperty(new BooleanProperty(PROP_VISIBLE));
-        this.addProperty(new StringProperty(PROP_WIDGET_TYPE));
-        this.addProperty(new IntProperty(PROP_WIDTH));
-        this.addProperty(new StringProperty(PROP_WUID));
-        this.addProperty(new IntProperty(PROP_X));
-        this.addProperty(new IntProperty(PROP_Y));
+    constructor(readonly display: Display, addCommonProperties = true) {
+        if (addCommonProperties) {
+            this.addProperty(new ActionsProperty(PROP_ACTIONS, new ActionSet()));
+            this.addProperty(new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT));
+            this.addProperty(new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false));
+            this.addProperty(new ColorProperty(PROP_BORDER_COLOR));
+            this.addProperty(new IntProperty(PROP_BORDER_STYLE));
+            this.addProperty(new IntProperty(PROP_BORDER_WIDTH));
+            this.addProperty(new ColorProperty(PROP_FOREGROUND_COLOR));
+            this.addProperty(new IntProperty(PROP_HEIGHT));
+            this.addProperty(new StringProperty(PROP_NAME));
+            this.addProperty(new StringProperty(PROP_PV_NAME));
+            this.addProperty(new StringProperty(PROP_TEXT, ''));
+            this.addProperty(new BooleanProperty(PROP_TRANSPARENT, false));
+            this.addProperty(new BooleanProperty(PROP_VISIBLE));
+            this.addProperty(new StringProperty(PROP_WIDGET_TYPE));
+            this.addProperty(new IntProperty(PROP_WIDTH));
+            this.addProperty(new StringProperty(PROP_WUID));
+            this.addProperty(new IntProperty(PROP_X));
+            this.addProperty(new IntProperty(PROP_Y));
+        }
     }
 
-    parseNode(node: XMLNode) {
+    protected readPropertyValues(node: XMLNode) {
         this.properties.forEach(property => {
             if (node.hasNode(property.name)) {
                 if (property instanceof StringProperty) {
@@ -88,6 +90,10 @@ export abstract class Widget {
                 }
             }
         });
+    }
+
+    parseNode(node: XMLNode) {
+        this.readPropertyValues(node);
 
         this.insets = [0, 0, 0, 0];
         switch (this.borderStyle) {
@@ -129,7 +135,7 @@ export abstract class Widget {
                 break;
         }
 
-        // Shrink the availabe widget area
+        // Shrink the available widget area
         this.x = this.holderX + this.insets[1];
         this.y = this.holderY + this.insets[0];
         this.width = this.holderWidth - this.insets[1] - this.insets[3];
