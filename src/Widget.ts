@@ -5,9 +5,10 @@ import * as constants from './constants';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
-import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, Property, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, PointsProperty, Property, StringProperty } from './properties';
 import { Script } from './scripting/Script';
 import * as utils from './utils';
+import { XMLNode } from './XMLParser';
 
 const PROP_ACTIONS = 'actions';
 const PROP_BACKGROUND_COLOR = 'background_color';
@@ -38,7 +39,7 @@ export abstract class Widget {
     width = 0;
     height = 0;
 
-    private properties = new Map<string, Property>();
+    private properties = new Map<string, Property<any>>();
 
     holderRegion?: HitRegion;
 
@@ -63,14 +64,30 @@ export abstract class Widget {
         this.addProperty(new IntProperty(PROP_Y));
     }
 
-    parseNode(node: Element) {
-        for (let i = 0; i < node.childNodes.length; i++) {
-            const child = node.childNodes[i] as Element;
-            const prop = this.properties.get(child.nodeName);
-            if (prop) {
-                prop.parseValue(child);
+    parseNode(node: XMLNode) {
+        this.properties.forEach(property => {
+            if (node.hasNode(property.name)) {
+                if (property instanceof StringProperty) {
+                    property.value = node.getString(property.name);
+                } else if (property instanceof IntProperty) {
+                    property.value = node.getInt(property.name);
+                } else if (property instanceof FloatProperty) {
+                    property.value = node.getFloat(property.name);
+                } else if (property instanceof BooleanProperty) {
+                    property.value = node.getBoolean(property.name);
+                } else if (property instanceof ColorProperty) {
+                    property.value = node.getColor(property.name);
+                } else if (property instanceof FontProperty) {
+                    property.value = node.getFont(property.name);
+                } else if (property instanceof ActionsProperty) {
+                    property.value = node.getActions(property.name);
+                } else if (property instanceof PointsProperty) {
+                    property.value = node.getPoints(property.name);
+                } else {
+                    throw new Error(`Property ${property.name} has an unexpected type`);
+                }
             }
-        }
+        });
 
         this.insets = [0, 0, 0, 0];
         switch (this.borderStyle) {
@@ -128,7 +145,7 @@ export abstract class Widget {
         this.init();
     }
 
-    protected addProperty(property: Property) {
+    protected addProperty(property: Property<any>) {
         this.properties.set(property.name, property);
     }
 

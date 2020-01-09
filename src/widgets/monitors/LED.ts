@@ -3,8 +3,8 @@ import { Color } from '../../Color';
 import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
-import * as utils from '../../utils';
 import { Widget } from '../../Widget';
+import { XMLNode } from '../../XMLParser';
 
 interface State {
     label: string;
@@ -51,7 +51,7 @@ export class LED extends Widget {
         this.addProperty(new ColorProperty(PROP_BULB_BORDER_COLOR, Color.DARK_GRAY));
     }
 
-    parseNode(node: Element) {
+    parseNode(node: XMLNode) {
         super.parseNode(node);
         if (this.stateCount === 2) {
             this.states.push({
@@ -63,22 +63,17 @@ export class LED extends Widget {
                 color: this.onColor,
             });
         } else {
-            console.log('got statec', this.stateCount);
             for (let i = 0; i < this.stateCount; i++) {
                 const colorProperty = new ColorProperty(`state_color_${i}`);
-                const colorNode = utils.findChild(node, `state_color_${i}`);
-                colorProperty.parseValue(colorNode);
+                colorProperty.value = node.getColor(`state_color_${i}`);
                 this.addProperty(colorProperty);
 
-
                 const labelProperty = new StringProperty(`state_label_${i}`);
-                const labelNode = utils.findChild(node, `state_label_${i}`);
-                labelProperty.parseValue(labelNode);
+                labelProperty.value = node.getString(`state_label_${i}`);
                 this.addProperty(labelProperty);
 
                 const valueProperty = new FloatProperty(`state_value_${i}`);
-                const valueNode = utils.findChild(node, `state_value_${i}`);
-                valueProperty.parseValue(valueNode);
+                valueProperty.value = node.getFloat(`state_value_${i}`);
                 this.addProperty(valueProperty);
 
                 this.states.push({

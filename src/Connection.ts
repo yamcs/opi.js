@@ -1,8 +1,8 @@
 import { Color } from './Color';
 import { Display } from './Display';
 import { Point } from './Point';
-import * as utils from './utils';
 import { Widget } from './Widget';
+import { XMLNode } from './XMLParser';
 
 export class Connection {
 
@@ -19,34 +19,32 @@ export class Connection {
 
   private points: Point[] = [];
 
-  constructor(protected node: Element, protected display: Display) {
-    this.name = utils.parseStringChild(node, 'name');
+  constructor(protected node: XMLNode, protected display: Display) {
+    this.name = node.getString('name');
+    this.lineColor = node.getColor('line_color');
+    this.lineWidth = node.getInt('line_width');
 
-    const lineColorNode = utils.findChild(node, 'line_color');
-    this.lineColor = utils.parseColorChild(lineColorNode);
-    this.lineWidth = utils.parseIntChild(node, 'line_width');
-
-    const srcWuid = utils.parseStringChild(node, 'src_wuid');
+    const srcWuid = node.getString('src_wuid');
     this.sourceWidget = display.findWidget(srcWuid);
     if (!this.sourceWidget) {
       console.warn(`Can't find source widget ${srcWuid}`);
     }
-    this.sourceTerm = utils.parseStringChild(node, 'src_term');
+    this.sourceTerm = node.getString('src_term');
 
-    const tgtWuid = utils.parseStringChild(node, 'tgt_wuid');
+    const tgtWuid = node.getString('tgt_wuid');
     this.targetWidget = display.findWidget(tgtWuid);
     if (!this.targetWidget) {
       console.warn(`Can't find target widget ${tgtWuid}`);
     }
-    this.targetTerm = utils.parseStringChild(node, 'tgt_term');
+    this.targetTerm = node.getString('tgt_term');
 
-    this.router = utils.parseIntChild(node, 'router');
+    this.router = node.getInt('router');
 
-    const pointsNode = utils.findChild(node, 'points');
-    for (const pointNode of utils.findChildren(pointsNode, 'point')) {
+    const pointsNode = node.getNode('points');
+    for (const pointNode of pointsNode.getNodes('point')) {
       this.points.push({
-        x: utils.parseIntAttribute(pointNode, 'x'),
-        y: utils.parseIntAttribute(pointNode, 'y'),
+        x: pointNode.getIntAttribute('x'),
+        y: pointNode.getIntAttribute('y'),
       });
     }
   }

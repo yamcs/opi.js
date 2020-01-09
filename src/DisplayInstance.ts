@@ -3,7 +3,6 @@ import { Connection } from './Connection';
 import * as constants from './constants';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
-import * as utils from './utils';
 import { Widget } from './Widget';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
@@ -19,6 +18,7 @@ import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
 import { LED } from './widgets/monitors/LED';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
+import { XMLNode } from './XMLParser';
 
 export class DisplayInstance {
 
@@ -34,26 +34,23 @@ export class DisplayInstance {
         const xmlParser = new DOMParser();
         const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
 
-        const displayEl = doc.getElementsByTagName('display')[0];
-        this.preferredWidth = utils.parseFloatChild(displayEl, 'width');
-        this.preferredHeight = utils.parseFloatChild(displayEl, 'height');
+        const displayEl = new XMLNode(doc.getElementsByTagName('display')[0]);
+        this.preferredWidth = displayEl.getFloat('width');
+        this.preferredHeight = displayEl.getFloat('height');
 
-        const bgNode = utils.findChild(displayEl, 'background_color');
-        this.backgroundColor = utils.parseColorChild(bgNode, Color.WHITE);
+        this.backgroundColor = displayEl.getColor('background_color', Color.WHITE);
+        this.gridColor = displayEl.getColor('foreground_color');
 
-        const fgNode = utils.findChild(displayEl, 'foreground_color');
-        this.gridColor = utils.parseColorChild(fgNode);
-
-        for (const widgetNode of utils.findChildren(displayEl, 'widget')) {
-            const kind = utils.parseStringAttribute(widgetNode, 'typeId');
+        for (const node of displayEl.getNodes('widget')) {
+            const kind = node.getStringAttribute('typeId');
             const widget = this.createWidget(kind);
             if (widget) {
-                widget.parseNode(widgetNode);
+                widget.parseNode(node);
                 this.widgets.push(widget);
             }
         }
-        for (const connectionNode of utils.findChildren(displayEl, 'connection')) {
-            this.connections.push(new Connection(connectionNode, display));
+        for (const node of displayEl.getNodes('connection')) {
+            this.connections.push(new Connection(node, display));
         }
     }
 
