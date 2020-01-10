@@ -73,7 +73,7 @@ export class PropertySet {
             return prop.value;
         } else {
             if (!optional) {
-                throw new Error(`Missing property ${propertyName} for connection`);
+                throw new Error(`Missing property ${propertyName}`);
             }
         }
     }

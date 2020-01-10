@@ -2,7 +2,7 @@ import FontFaceObserver from 'fontfaceobserver';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { HitCanvas } from './HitCanvas';
-import { PVEngine } from './PVEngine';
+import { PVEngine } from './pv/PVEngine';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
@@ -80,7 +80,7 @@ export class Display {
         this.rootPanel.appendChild(canvas);
         this.ctx = canvas.getContext('2d')!;
 
-        window.requestAnimationFrame(() => this.step());
+        window.requestAnimationFrame(t => this.step(t));
 
         // Preload the default Liberation font for correct text measurements
         // Probably can be done without external library in about 5 years from now.
@@ -99,11 +99,13 @@ export class Display {
             .catch(() => console.warn(`Failed to load font '${fontFace}'. Font metrics may not be accurate.`));
     }
 
-    private step() {
-        window.requestAnimationFrame(() => this.step());
+    private step(t: number) {
+        window.requestAnimationFrame(t => this.step(t));
+
+        const pvChanged = this.pvEngine.step(t);
 
         // Limit CPU usage to when we need it
-        if (this.repaintRequested) {
+        if (this.repaintRequested || pvChanged) {
             this.hitCanvas.clear();
             this.drawScreen();
             this.repaintRequested = false;
@@ -331,5 +333,13 @@ export class Display {
         if (this.instance) {
             return this.instance.findWidget(wuid);
         }
+    }
+
+    getPVNames() {
+        this.pvEngine.getPVNames();
+    }
+
+    getPV(pvName: string) {
+        return this.pvEngine.getPV(pvName);
     }
 }

@@ -9,14 +9,11 @@ const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextUpdate extends Widget {
 
-    // private text: string;
-
     constructor(display: Display) {
         super(display);
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
-        // this.text = utils.parseStringChild(node, 'text');
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -50,7 +47,12 @@ export class TextUpdate extends Widget {
             ctx.textBaseline = 'bottom';
         }
 
-        ctx.fillText(this.text, x, y);
+        let text = this.text;
+        if (this.pv && this.pv.value !== undefined) {
+            text = String(this.pv.value);
+        }
+
+        ctx.fillText(text, x, y);
     }
 
     get font(): Font { return this.properties.getValue(PROP_FONT); }

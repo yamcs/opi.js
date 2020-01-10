@@ -5,6 +5,7 @@ import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
 import { toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, StringProperty } from './properties';
+import { PV } from './pv/PV';
 import { Script } from './scripting/Script';
 import * as utils from './utils';
 import { XMLNode } from './XMLNode';
@@ -124,6 +125,11 @@ export abstract class Widget {
                 cursor: 'pointer'
             }
         }
+
+        if (this.pvName) {
+            this.display.pvEngine.createPV(this.pvName);
+        }
+
         this.init();
     }
 
@@ -164,6 +170,18 @@ export abstract class Widget {
         if (this.holderRegion) {
             hitCanvas.beginHitRegion(this.holderRegion);
             hitCanvas.ctx.fillRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
+        }
+    }
+
+    drawDecoration(ctx: CanvasRenderingContext2D) {
+        if (!this.display.editMode && this.pv/* && this.pv.value === undefined*/) {
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = 'purple';
+            ctx.fillRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth, this.holderHeight);
+            ctx.globalAlpha = 1;
+
+            ctx.strokeStyle = 'purple';
+            ctx.strokeRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth, this.holderHeight);
         }
     }
 
@@ -241,6 +259,12 @@ export abstract class Widget {
         }
     }
 
+    get pv(): PV<any> | undefined {
+        if (this.pvName) {
+            return this.display.getPV(this.pvName);
+        }
+    }
+
     get wuid(): string { return this.properties.getValue(PROP_WUID); }
     get name(): string { return this.properties.getValue(PROP_NAME); }
     get holderX(): number { return this.properties.getValue(PROP_X); }
@@ -250,6 +274,7 @@ export abstract class Widget {
     get borderAlarmSensitive(): boolean {
         return this.properties.getValue(PROP_BORDER_ALARM_SENSITIVE);
     }
+    get pvName(): string | undefined { return this.properties.getValue(PROP_PV_NAME, true); }
     get borderColor(): Color { return this.properties.getValue(PROP_BORDER_COLOR); }
     get borderStyle(): number { return this.properties.getValue(PROP_BORDER_STYLE); }
     get borderWidth(): number { return this.properties.getValue(PROP_BORDER_WIDTH); }
