@@ -23,6 +23,9 @@
         "dist/"
     ],
     "devDependencies": {
+        "@rollup/plugin-commonjs": "^11.0.1",
+        "@rollup/plugin-node-resolve": "^7.0.0",
+        "@types/fontfaceobserver": "0.0.6",
         "@types/node": "^13.1.6",
         "@types/pegjs": "^0.10.0",
         "fontfaceobserver": "^2.0.13",

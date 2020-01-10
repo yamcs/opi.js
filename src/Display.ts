@@ -1,5 +1,4 @@
-declare var FontFaceObserver: any;
-
+import FontFaceObserver from 'fontfaceobserver';
 import { EventHandler } from './EventHandler';
 import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './PVEngine';
@@ -20,6 +19,7 @@ import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
 import { XMLNode } from './XMLParser';
+
 
 const TYPE_ACTION_BUTTON = 'org.csstudio.opibuilder.widgets.ActionButton';
 const TYPE_ARC = 'org.csstudio.opibuilder.widgets.arc';
