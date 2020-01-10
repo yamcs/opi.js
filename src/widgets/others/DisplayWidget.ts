@@ -1,10 +1,10 @@
 import { Color } from '../../Color';
-import { Connection } from '../../Connection';
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { ColorProperty, FloatProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
+import { Connection } from './Connection';
 
 const PROP_BACKGROUND_COLOR = 'background_color';
 const PROP_FOREGROUND_COLOR = 'foreground_color';

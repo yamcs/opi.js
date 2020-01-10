@@ -1,9 +1,9 @@
-import { Color } from './Color';
-import { Display } from './Display';
-import { Point } from './positioning';
-import { ColorProperty, IntProperty, PointsProperty, PropertySet, StringProperty } from './properties';
-import { Widget } from './Widget';
-import { XMLNode } from './XMLNode';
+import { Color } from '../../Color';
+import { Display } from '../../Display';
+import { Point } from '../../positioning';
+import { ColorProperty, IntProperty, PointsProperty, StringProperty } from '../../properties';
+import { Widget } from '../../Widget';
+import { XMLNode } from '../../XMLNode';
 
 export const PROP_NAME = 'name';
 export const PROP_LINE_COLOR = 'line_color';
@@ -15,24 +15,23 @@ export const PROP_TGT_TERM = 'tgt_term';
 export const PROP_ROUTER = 'router';
 export const PROP_POINTS = 'points';
 
-export class Connection {
-
-  private properties = new PropertySet([
-    new StringProperty('name'),
-    new ColorProperty('line_color'),
-    new IntProperty('line_width'),
-    new StringProperty('src_wuid'),
-    new StringProperty('src_term'),
-    new StringProperty('tgt_wuid'),
-    new StringProperty('tgt_term'),
-    new IntProperty('router'),
-    new PointsProperty('points')
-  ]);
+export class Connection extends Widget {
 
   private sourceWidget?: Widget;
   private targetWidget?: Widget;
 
-  constructor(protected display: Display) {
+  constructor(display: Display) {
+    super(display);
+    this.properties.clear();
+    this.properties.add(new StringProperty('name'));
+    this.properties.add(new ColorProperty('line_color'));
+    this.properties.add(new IntProperty('line_width'));
+    this.properties.add(new StringProperty('src_wuid'));
+    this.properties.add(new StringProperty('src_term'));
+    this.properties.add(new StringProperty('tgt_wuid'));
+    this.properties.add(new StringProperty('tgt_term'));
+    this.properties.add(new IntProperty('router'));
+    this.properties.add(new PointsProperty('points'));
   }
 
   parseNode(node: XMLNode) {

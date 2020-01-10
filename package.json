@@ -14,7 +14,8 @@
         "clean": "rm -rf dist",
         "prepublishOnly": "npm run build",
         "watch": "rollup -cw",
-        "pegjs": "cd src/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts grammar.pegjs"
+        "pegjs": "cd src/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts grammar.pegjs",
+        "start": "rollup -cw --environment DEMO"
     },
     "main": "dist/webopi.umd.js",
     "module": "dist/webopi.js",

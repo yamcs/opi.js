@@ -5,6 +5,7 @@ import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
+const demo = process.env.DEMO;
 
 export default {
   input: 'src/index.ts',
@@ -29,7 +30,7 @@ export default {
         { src: 'src/fonts', dest: 'dist' },
       ]
     }),
-    serve({
+    demo && serve({
       contentBase: '',
       port: 3000
     }),

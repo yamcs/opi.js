@@ -1,5 +1,5 @@
-import { Connection } from '../../Connection';
 import { Widget } from '../../Widget';
+import { Connection } from './Connection';
 
 export abstract class AbstractContainerWidget extends Widget {
 
