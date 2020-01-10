@@ -53,7 +53,7 @@ export class Display {
 
     private repaintRequested = false;
 
-    private _activeTool: 'run' | 'edit' = 'run';
+    private _editMode = false;
     private _showGrid = false;
     private _showOutline = false;
     private _showRuler = false;
@@ -282,9 +282,9 @@ export class Display {
         this.requestRepaint();
     }
 
-    get activeTool() { return this._activeTool; }
-    set activeTool(activeTool: 'run' | 'edit') {
-        this._activeTool = activeTool;
+    get editMode() { return this._editMode; }
+    set editMode(editMode: boolean) {
+        this._editMode = editMode;
         this.requestRepaint();
     }
 

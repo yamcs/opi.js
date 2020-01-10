@@ -32,7 +32,7 @@ export class EventHandler {
         this.display.clearSelection();
 
         const point = this.toPoint(event);
-        if (this.display.activeTool === 'edit') {
+        if (this.display.editMode) {
             this.selectSingleWidget(point.x, point.y);
         } else {
             const region = this.hitCanvas.getActiveRegion(point.x, point.y);
@@ -43,7 +43,7 @@ export class EventHandler {
     }
 
     private onMouseDown(event: MouseEvent) {
-        if (this.display.activeTool === 'edit') {
+        if (this.display.editMode) {
             return;
         }
 
@@ -55,7 +55,7 @@ export class EventHandler {
     }
 
     private onMouseUp(event: MouseEvent) {
-        if (this.display.activeTool === 'edit') {
+        if (this.display.editMode) {
             return;
         }
 

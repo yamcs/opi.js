@@ -42,7 +42,7 @@ export abstract class Widget {
     // (Rectangle, RoundedRectangle)
     protected hideRoundedHolderBorder = false;
 
-    protected properties = new PropertySet([
+    properties = new PropertySet([
         new ActionsProperty(PROP_ACTIONS, new ActionSet()),
         new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT),
         new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false),
@@ -234,7 +234,8 @@ export abstract class Widget {
                 break;
             case 'WRITE_PV':
                 if (action.pvName) {
-                    this.display.pvEngine.setValue(action.pvName, action.value);
+                    const pvName = this.properties.expandMacro(action.pvName);
+                    this.display.pvEngine.setValue(pvName, action.value);
                 }
                 break;
         }

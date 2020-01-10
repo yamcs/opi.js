@@ -97,17 +97,17 @@
                 display.showRuler = !display.showRuler;
             };
             window.toggleEdit = () => {
-                if (display.activeTool === 'run') {
-                    display.showGrid = true;
-                    display.showOutline = true;
-                    display.showRuler = true;
-                    display.activeTool = 'edit';
-                } else {
+                if (display.editMode) {
                     display.clearSelection();
                     display.showGrid = false;
                     display.showOutline = false;
                     display.showRuler = false;
-                    display.activeTool = 'run';
+                    display.editMode = false;
+                } else {
+                    display.showGrid = true;
+                    display.showOutline = true;
+                    display.showRuler = true;
+                    display.editMode = true;
                 }
             };
             window.changeSource = (src) => {
@@ -117,7 +117,9 @@
             widgetsEl.addEventListener('click', evt => {
                 const item = evt.target.closest('li');
                 if (item) {
-                    display.selection = [item.dataset.wuid];
+                    const widget = display.findWidget(item.dataset.wuid);
+                    display.selection = [widget.wuid];
+                    console.log('properties', widget.properties.all());
                     return false;
                 }
             });
