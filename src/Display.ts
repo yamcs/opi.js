@@ -2,7 +2,6 @@ import FontFaceObserver from 'fontfaceobserver';
 import { EventHandler } from './EventHandler';
 import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './PVEngine';
-import * as utils from './utils';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
@@ -18,7 +17,7 @@ import { LED } from './widgets/monitors/LED';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
-import { XMLNode } from './XMLParser';
+import { XMLNode } from './XMLNode';
 
 
 const TYPE_ACTION_BUTTON = 'org.csstudio.opibuilder.widgets.ActionButton';
@@ -112,8 +111,14 @@ export class Display {
 
         const width = this.rootPanel.clientWidth;
         const height = this.rootPanel.clientHeight;
-        utils.resizeCanvas(this.ctx.canvas, width, height);
-        utils.resizeCanvas(this.hitCanvas.ctx.canvas, width, height);
+
+        // Careful not to reset dimensions all the time (it does lots of stuff)
+        if (this.ctx.canvas.width != width || this.ctx.canvas.height != height) {
+            this.ctx.canvas.width = width;
+            this.ctx.canvas.height = height;
+            this.hitCanvas.ctx.canvas.width = width;
+            this.hitCanvas.ctx.canvas.height = height;
+        }
 
         this.ctx.fillStyle = this.instance ? this.instance.backgroundColor.toString() : 'white';
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -248,9 +253,7 @@ export class Display {
 
     setSourceString(source: string) {
         this.instance = new DisplayWidget(this);
-        const xmlParser = new DOMParser();
-        const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
-        const displayNode = new XMLNode(doc.getElementsByTagName('display')[0]);
+        const displayNode = XMLNode.parseFromXML(source);
         this.instance.parseNode(displayNode);
         this.requestRepaint();
     }

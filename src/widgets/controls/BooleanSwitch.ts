@@ -1,8 +1,8 @@
-import { Bounds } from '../../Bounds';
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
+import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 

@@ -11,6 +11,12 @@ export class XMLNode {
         return this.node.nodeName;
     }
 
+    static parseFromXML(xml: string): XMLNode {
+        const xmlParser = new DOMParser();
+        const doc = xmlParser.parseFromString(xml, 'text/xml') as XMLDocument;
+        return new XMLNode(doc.documentElement);
+    }
+
     /**
     * Searches for a direct child with the specified name.
     *

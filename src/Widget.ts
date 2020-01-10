@@ -1,13 +1,13 @@
 import { ActionSet } from './actions';
-import { toBorderBox } from './Bounds';
 import { Color } from './Color';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
+import { toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, StringProperty } from './properties';
 import { Script } from './scripting/Script';
 import * as utils from './utils';
-import { XMLNode } from './XMLParser';
+import { XMLNode } from './XMLNode';
 
 const PROP_ACTIONS = 'actions';
 const PROP_BACKGROUND_COLOR = 'background_color';

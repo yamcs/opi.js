@@ -1,6 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
-import { Point } from '../../Point';
+import { Point } from '../../positioning';
 import { BooleanProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
 

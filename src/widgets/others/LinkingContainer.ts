@@ -1,14 +1,14 @@
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { IntProperty, StringProperty } from '../../properties';
-import { Widget } from '../../Widget';
-import { XMLNode } from '../../XMLParser';
+import { XMLNode } from '../../XMLNode';
+import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { DisplayWidget } from './DisplayWidget';
 
 const PROP_OPI_FILE = 'opi_file';
 const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
 
-export class LinkingContainer extends Widget {
+export class LinkingContainer extends AbstractContainerWidget {
 
     private linkedDisplay?: DisplayWidget;
 
@@ -24,9 +24,7 @@ export class LinkingContainer extends Widget {
                 if (response.ok) {
                     response.text().then(source => {
                         this.linkedDisplay = new DisplayWidget(this.display);
-                        const xmlParser = new DOMParser();
-                        const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
-                        const displayNode = new XMLNode(doc.getElementsByTagName('display')[0]);
+                        const displayNode = XMLNode.parseFromXML(source);
                         this.linkedDisplay.parseNode(displayNode);
                         this.requestRepaint();
                     });
@@ -72,6 +70,9 @@ export class LinkingContainer extends Widget {
             }
         }
     }
+
+    get widgets() { return (this.linkedDisplay) ? this.linkedDisplay.widgets : [] };
+    get connections() { return (this.linkedDisplay) ? this.linkedDisplay.connections : [] };
 
     findWidget(wuid: string) {
         if (this.linkedDisplay) {

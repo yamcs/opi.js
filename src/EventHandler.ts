@@ -1,7 +1,7 @@
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
-import { Point } from './Point';
+import { Point } from './positioning';
 
 // Compare by id instead of references. HitRegions are allowed to be generated
 // on each draw, whereas the "id" could be something more long-term.

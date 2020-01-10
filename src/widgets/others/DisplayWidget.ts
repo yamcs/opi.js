@@ -3,7 +3,7 @@ import { Connection } from '../../Connection';
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { ColorProperty, FloatProperty } from '../../properties';
-import { XMLNode } from '../../XMLParser';
+import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 
 const PROP_BACKGROUND_COLOR = 'background_color';

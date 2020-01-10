@@ -1,9 +1,9 @@
 import { Color } from './Color';
 import { Display } from './Display';
-import { Point } from './Point';
+import { Point } from './positioning';
 import { ColorProperty, IntProperty, PointsProperty, PropertySet, StringProperty } from './properties';
 import { Widget } from './Widget';
-import { XMLNode } from './XMLParser';
+import { XMLNode } from './XMLNode';
 
 export const PROP_NAME = 'name';
 export const PROP_LINE_COLOR = 'line_color';

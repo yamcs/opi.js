@@ -1,8 +1,8 @@
 import { ActionSet } from './actions';
 import { Color } from './Color';
 import { Font } from './Font';
-import { Point } from './Point';
-import { XMLNode } from './XMLParser';
+import { Point } from './positioning';
+import { XMLNode } from './XMLNode';
 
 export class PropertySet {
 

@@ -1,9 +1,9 @@
-import { Bounds } from '../../Bounds';
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
+import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 

@@ -1,15 +1,3 @@
-import { Bounds } from './Bounds';
-
-/**
- * Resizes a canvas, but only if the new bounds are different.
- */
-export function resizeCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
-    if (canvas.width != width || canvas.height != height) { // Avoid performance hit when resetting width
-        canvas.width = width;
-        canvas.height = height;
-    }
-}
-
 export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, rx: number, ry: number) {
     ctx.beginPath();
     if (!rx && !ry) {
@@ -31,18 +19,6 @@ export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w
         ctx.lineTo(x, y + ry);
         ctx.quadraticCurveTo(x, y, x + rx, y);
     }
-}
-
-export function outline(x: number, y: number, width: number, height: number, strokeWidth: number): Bounds {
-    const inset = Math.max(1, strokeWidth) / 2.0;
-    const inset1 = Math.floor(inset);
-    const inset2 = Math.ceil(inset);
-    return {
-        x: x + inset1,
-        y: y + inset1,
-        width: width - inset1 - inset2,
-        height: height - inset1 - inset2,
-    };
 }
 
 export function normalizePath(base: string, relPath: string) {

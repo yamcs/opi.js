@@ -1,9 +1,9 @@
-import { toBorderBox } from '../../Bounds';
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { toBorderBox } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
-import { XMLNode } from '../../XMLParser';
+import { XMLNode } from '../../XMLNode';
 
 interface State {
     label: string;

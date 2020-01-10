@@ -55,7 +55,7 @@ export class HitCanvas {
         this.parent.ctx.drawImage(this.ctx.canvas, dx, dy, dw, dh);
     }
 
-    generateUniqueColor(): string {
+    private generateUniqueColor(): string {
         while (true) {
             const r = Math.round(Math.random() * 255);
             const g = Math.round(Math.random() * 255);
