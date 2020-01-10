@@ -59,7 +59,9 @@ export class PropertySet {
         } else {
             let expanded = macro;
             for (const prop of this.properties.values()) {
+                // Both ${pv_name} and $(pv_name) notations are accepted
                 expanded = expanded.replace(`$(${prop.name})`, prop.value || '');
+                expanded = expanded.replace(`\${${prop.name}}`, prop.value || '');
             }
             return expanded;
         }

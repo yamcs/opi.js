@@ -1,5 +1,6 @@
 import FontFaceObserver from 'fontfaceobserver';
 import { EventHandler } from './EventHandler';
+import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './PVEngine';
 import { ActionButton } from './widgets/controls/ActionButton';
@@ -60,6 +61,10 @@ export class Display {
     private _selection: string[] = [];
 
     instance?: DisplayWidget;
+
+    private eventListeners: OPIEventHandlers = {
+        selection: [],
+    };
 
     constructor(private readonly targetElement: HTMLElement) {
 
@@ -258,6 +263,28 @@ export class Display {
         this.requestRepaint();
     }
 
+    addEventListener<K extends keyof OPIEventMap>(type: K, listener: ((ev: OPIEventMap[K]) => void)): void;
+    addEventListener(type: string, listener: (ev: OPIEvent) => void): void {
+        if (!(type in this.eventListeners)) {
+            throw new Error(`Unknown event '${type}'`);
+        }
+        this.eventListeners[type].push(listener);
+    }
+
+    removeEventListener<K extends keyof OPIEventMap>(type: K, listener: ((ev: OPIEventMap[K]) => void)): void;
+    removeEventListener(type: string, listener: (ev: OPIEvent) => void): void {
+        if (!(type in this.eventListeners)) {
+            throw new Error(`Unknown event '${type}'`);
+        }
+        this.eventListeners[type] = this.eventListeners[type]
+            .filter((el: any) => (el !== listener));
+    }
+
+    fireEvent(type: string, event: OPIEvent) {
+        const listeners = this.eventListeners[type];
+        listeners.forEach(listener => listener(event));
+    }
+
     get showGrid() { return this._showGrid; }
     set showGrid(showGrid: boolean) {
         this._showGrid = showGrid;
@@ -280,6 +307,10 @@ export class Display {
     set selection(selection: string[]) {
         this._selection = selection;
         this.requestRepaint();
+        const selectionEvent: SelectionEvent = {
+            selected: this._selection.slice(),
+        };
+        this.fireEvent('selection', selectionEvent);
     }
 
     get editMode() { return this._editMode; }
@@ -291,7 +322,9 @@ export class Display {
     get widgets() { return this.instance ? this.instance.widgets : []; }
 
     clearSelection() {
-        this.selection = [];
+        if (this.selection.length) { // Avoids unnecessary selection events
+            this.selection = [];
+        }
     }
 
     findWidget(wuid: string) {

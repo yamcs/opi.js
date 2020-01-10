@@ -75,6 +75,13 @@
             const widgetsEl = document.getElementById('widgets');
 
             const display = new Display(displayEl);
+            display.addEventListener('selection', () => {
+                console.log('--- new selection');
+                for (const id of display.selection) {
+                    const widget = display.findWidget(id);
+                    console.log('properties', widget.properties.all());
+                }
+            });
 
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('file')) {
@@ -119,7 +126,6 @@
                 if (item) {
                     const widget = display.findWidget(item.dataset.wuid);
                     display.selection = [widget.wuid];
-                    console.log('properties', widget.properties.all());
                     return false;
                 }
             });
