@@ -1,4 +1,3 @@
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { FontProperty, IntProperty } from '../../properties';
@@ -10,13 +9,11 @@ const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class Label extends Widget {
 
-    readonly kind = constants.TYPE_LABEL;
-
     constructor(display: Display) {
         super(display);
-        this.addProperty(new FontProperty(PROP_FONT));
-        this.addProperty(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
-        this.addProperty(new IntProperty(PROP_VERTICAL_ALIGNMENT));
+        this.properties.add(new FontProperty(PROP_FONT));
+        this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
+        this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -57,7 +54,7 @@ export class Label extends Widget {
         }
     }
 
-    get font(): Font { return this.getPropertyValue(PROP_FONT); }
-    get horizAlignment(): number { return this.getPropertyValue(PROP_HORIZONTAL_ALIGNMENT); }
-    get vertAlignment(): number { return this.getPropertyValue(PROP_VERTICAL_ALIGNMENT); }
+    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
+    get vertAlignment(): number { return this.properties.getValue(PROP_VERTICAL_ALIGNMENT); }
 }

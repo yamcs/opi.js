@@ -1,11 +1,10 @@
 import { ActionSet } from './actions';
 import { toBorderBox } from './Bounds';
 import { Color } from './Color';
-import * as constants from './constants';
 import { Display } from './Display';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
-import { ActionsProperty, BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, PointsProperty, Property, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, StringProperty } from './properties';
 import { Script } from './scripting/Script';
 import * as utils from './utils';
 import { XMLNode } from './XMLParser';
@@ -39,61 +38,38 @@ export abstract class Widget {
     width = 0;
     height = 0;
 
-    private properties = new Map<string, Property<any>>();
+    // Some widgets disable this type of border
+    // (Rectangle, RoundedRectangle)
+    protected hideRoundedHolderBorder = false;
+
+    protected properties = new PropertySet([
+        new ActionsProperty(PROP_ACTIONS, new ActionSet()),
+        new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT),
+        new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false),
+        new ColorProperty(PROP_BORDER_COLOR),
+        new IntProperty(PROP_BORDER_STYLE),
+        new IntProperty(PROP_BORDER_WIDTH),
+        new ColorProperty(PROP_FOREGROUND_COLOR),
+        new IntProperty(PROP_HEIGHT),
+        new StringProperty(PROP_NAME),
+        new StringProperty(PROP_PV_NAME),
+        new StringProperty(PROP_TEXT, ''),
+        new BooleanProperty(PROP_TRANSPARENT, false),
+        new BooleanProperty(PROP_VISIBLE),
+        new StringProperty(PROP_WIDGET_TYPE),
+        new IntProperty(PROP_WIDTH),
+        new StringProperty(PROP_WUID),
+        new IntProperty(PROP_X),
+        new IntProperty(PROP_Y),
+    ]);
 
     holderRegion?: HitRegion;
 
-    constructor(readonly display: Display, addCommonProperties = true) {
-        if (addCommonProperties) {
-            this.addProperty(new ActionsProperty(PROP_ACTIONS, new ActionSet()));
-            this.addProperty(new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT));
-            this.addProperty(new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false));
-            this.addProperty(new ColorProperty(PROP_BORDER_COLOR));
-            this.addProperty(new IntProperty(PROP_BORDER_STYLE));
-            this.addProperty(new IntProperty(PROP_BORDER_WIDTH));
-            this.addProperty(new ColorProperty(PROP_FOREGROUND_COLOR));
-            this.addProperty(new IntProperty(PROP_HEIGHT));
-            this.addProperty(new StringProperty(PROP_NAME));
-            this.addProperty(new StringProperty(PROP_PV_NAME));
-            this.addProperty(new StringProperty(PROP_TEXT, ''));
-            this.addProperty(new BooleanProperty(PROP_TRANSPARENT, false));
-            this.addProperty(new BooleanProperty(PROP_VISIBLE));
-            this.addProperty(new StringProperty(PROP_WIDGET_TYPE));
-            this.addProperty(new IntProperty(PROP_WIDTH));
-            this.addProperty(new StringProperty(PROP_WUID));
-            this.addProperty(new IntProperty(PROP_X));
-            this.addProperty(new IntProperty(PROP_Y));
-        }
-    }
-
-    protected readPropertyValues(node: XMLNode) {
-        this.properties.forEach(property => {
-            if (node.hasNode(property.name)) {
-                if (property instanceof StringProperty) {
-                    property.value = node.getString(property.name);
-                } else if (property instanceof IntProperty) {
-                    property.value = node.getInt(property.name);
-                } else if (property instanceof FloatProperty) {
-                    property.value = node.getFloat(property.name);
-                } else if (property instanceof BooleanProperty) {
-                    property.value = node.getBoolean(property.name);
-                } else if (property instanceof ColorProperty) {
-                    property.value = node.getColor(property.name);
-                } else if (property instanceof FontProperty) {
-                    property.value = node.getFont(property.name);
-                } else if (property instanceof ActionsProperty) {
-                    property.value = node.getActions(property.name);
-                } else if (property instanceof PointsProperty) {
-                    property.value = node.getPoints(property.name);
-                } else {
-                    throw new Error(`Property ${property.name} has an unexpected type`);
-                }
-            }
-        });
+    constructor(readonly display: Display) {
     }
 
     parseNode(node: XMLNode) {
-        this.readPropertyValues(node);
+        this.properties.loadXMLValues(node);
 
         this.insets = [0, 0, 0, 0];
         switch (this.borderStyle) {
@@ -151,10 +127,6 @@ export abstract class Widget {
         this.init();
     }
 
-    protected addProperty(property: Property<any>) {
-        this.properties.set(property.name, property);
-    }
-
     onHolderClick() {
         for (const idx of this.actions.getClickActions()) {
             this.executeAction(idx);
@@ -175,19 +147,14 @@ export abstract class Widget {
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
             ctx.strokeRect(box.x, box.y, box.width, box.height);
         } else if (this.borderStyle === 14) { // Round Rectangle Background
-            let fillOpacity = 1;
-            if (this.kind === constants.TYPE_RECTANGLE || this.kind === constants.TYPE_ROUNDED_RECTANGLE) {
-                fillOpacity = 0; // Then nested widget appears to decide
+            if (!this.hideRoundedHolderBorder) {
+                ctx.fillStyle = this.backgroundColor.toString();
+                ctx.strokeStyle = this.borderColor.toString();
+                ctx.lineWidth = this.borderWidth;
+                const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
+                utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
+                ctx.stroke();
             }
-
-            ctx.globalAlpha = fillOpacity;
-            ctx.fillStyle = this.backgroundColor.toString();
-            ctx.strokeStyle = this.borderColor.toString();
-            ctx.lineWidth = this.borderWidth;
-            const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-            utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
-            ctx.stroke();
-            ctx.globalAlpha = 1;
         } else if (this.borderStyle === 15) { // Empty
             // NOP
         } else {
@@ -273,41 +240,29 @@ export abstract class Widget {
         }
     }
 
-    get wuid(): string { return this.getPropertyValue(PROP_WUID); }
-    get name(): string { return this.getPropertyValue(PROP_NAME); }
-    get holderX(): number { return this.getPropertyValue(PROP_X); }
-    get holderY(): number { return this.getPropertyValue(PROP_Y); }
-    get holderWidth(): number { return this.getPropertyValue(PROP_WIDTH); }
-    get holderHeight(): number { return this.getPropertyValue(PROP_HEIGHT); }
+    get wuid(): string { return this.properties.getValue(PROP_WUID); }
+    get name(): string { return this.properties.getValue(PROP_NAME); }
+    get holderX(): number { return this.properties.getValue(PROP_X); }
+    get holderY(): number { return this.properties.getValue(PROP_Y); }
+    get holderWidth(): number { return this.properties.getValue(PROP_WIDTH); }
+    get holderHeight(): number { return this.properties.getValue(PROP_HEIGHT); }
     get borderAlarmSensitive(): boolean {
-        return this.getPropertyValue(PROP_BORDER_ALARM_SENSITIVE);
+        return this.properties.getValue(PROP_BORDER_ALARM_SENSITIVE);
     }
-    get borderColor(): Color { return this.getPropertyValue(PROP_BORDER_COLOR); }
-    get borderStyle(): number { return this.getPropertyValue(PROP_BORDER_STYLE); }
-    get borderWidth(): number { return this.getPropertyValue(PROP_BORDER_WIDTH); }
-    get backgroundColor(): Color { return this.getPropertyValue(PROP_BACKGROUND_COLOR); }
-    get foregroundColor(): Color { return this.getPropertyValue(PROP_FOREGROUND_COLOR); }
-    get transparent(): boolean { return this.getPropertyValue(PROP_TRANSPARENT); }
-    get visible(): boolean { return this.getPropertyValue(PROP_VISIBLE); }
-    get actions(): ActionSet { return this.getPropertyValue(PROP_ACTIONS); }
+    get borderColor(): Color { return this.properties.getValue(PROP_BORDER_COLOR); }
+    get borderStyle(): number { return this.properties.getValue(PROP_BORDER_STYLE); }
+    get borderWidth(): number { return this.properties.getValue(PROP_BORDER_WIDTH); }
+    get backgroundColor(): Color { return this.properties.getValue(PROP_BACKGROUND_COLOR); }
+    get foregroundColor(): Color { return this.properties.getValue(PROP_FOREGROUND_COLOR); }
+    get transparent(): boolean { return this.properties.getValue(PROP_TRANSPARENT); }
+    get visible(): boolean { return this.properties.getValue(PROP_VISIBLE); }
+    get actions(): ActionSet { return this.properties.getValue(PROP_ACTIONS); }
 
     get text(): string {
-        const rawText = this.getPropertyValue(PROP_TEXT);
+        const rawText = this.properties.getValue(PROP_TEXT);
         return rawText.split(' ').join('\u00a0'); // Preserve whitespace
     }
 
-    protected getPropertyValue(propertyName: string, optional = false) {
-        const prop = this.properties.get(propertyName);
-        if (prop && prop.value !== undefined) {
-            return prop.value;
-        } else {
-            if (!optional) {
-                throw new Error(`Missing property ${propertyName} for widget of type ${this.kind}`);
-            }
-        }
-    }
-
     init(): void { };
-    abstract kind: string;
     abstract draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas): void;
 }

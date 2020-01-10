@@ -1,5 +1,4 @@
 import { Color } from '../../Color';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { HitCanvas } from '../../HitCanvas';
@@ -14,18 +13,16 @@ const PROP_TOGGLE_BUTTON = 'toggle_button';
 
 export class ActionButton extends Widget {
 
-    readonly kind = constants.TYPE_ACTION_BUTTON;
-
     private areaRegion?: HitRegion;
 
     private pushed = false;
 
     constructor(display: Display) {
         super(display);
-        this.addProperty(new FontProperty(PROP_FONT));
-        this.addProperty(new BooleanProperty(PROP_TOGGLE_BUTTON));
-        this.addProperty(new IntProperty(PROP_PUSH_ACTION_INDEX));
-        this.addProperty(new IntProperty(PROP_RELEASE_ACTION_INDEX));
+        this.properties.add(new FontProperty(PROP_FONT));
+        this.properties.add(new BooleanProperty(PROP_TOGGLE_BUTTON));
+        this.properties.add(new IntProperty(PROP_PUSH_ACTION_INDEX));
+        this.properties.add(new IntProperty(PROP_RELEASE_ACTION_INDEX));
     }
 
     init() {
@@ -156,8 +153,8 @@ export class ActionButton extends Widget {
         ctx.fillText(lines[0], x, y);
     }
 
-    get font(): Font { return this.getPropertyValue(PROP_FONT); }
-    get toggleButton(): boolean { return this.getPropertyValue(PROP_TOGGLE_BUTTON); }
-    get pushActionIndex(): number { return this.getPropertyValue(PROP_PUSH_ACTION_INDEX); }
-    get releaseActionIndex(): number { return this.getPropertyValue(PROP_RELEASE_ACTION_INDEX); }
+    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
+    get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }
+    get releaseActionIndex(): number { return this.properties.getValue(PROP_RELEASE_ACTION_INDEX); }
 }

@@ -1,6 +1,5 @@
 import { Bounds } from '../../Bounds';
 import { Color } from '../../Color';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { HitCanvas } from '../../HitCanvas';
@@ -23,8 +22,6 @@ const PROP_TOGGLE_BUTTON = 'toggle_button';
 
 export class BooleanButton extends Widget {
 
-    readonly kind = constants.TYPE_BOOLEAN_BUTTON;
-
     private hovered = false;
     private enabled = false;
 
@@ -33,18 +30,18 @@ export class BooleanButton extends Widget {
     constructor(display: Display) {
         super(display);
 
-        this.addProperty(new BooleanProperty(PROP_SQUARE_BUTTON));
-        this.addProperty(new BooleanProperty(PROP_SHOW_LED));
-        this.addProperty(new BooleanProperty(PROP_EFFECT_3D));
-        this.addProperty(new ColorProperty(PROP_ON_COLOR));
-        this.addProperty(new StringProperty(PROP_ON_LABEL));
-        this.addProperty(new ColorProperty(PROP_OFF_COLOR));
-        this.addProperty(new StringProperty(PROP_OFF_LABEL));
-        this.addProperty(new FontProperty(PROP_FONT));
-        this.addProperty(new BooleanProperty(PROP_TOGGLE_BUTTON));
-        this.addProperty(new IntProperty(PROP_PUSH_ACTION_INDEX));
-        this.addProperty(new IntProperty(PROP_RELEASE_ACTION_INDEX));
-        this.addProperty(new BooleanProperty(PROP_SHOW_BOOLEAN_LABEL));
+        this.properties.add(new BooleanProperty(PROP_SQUARE_BUTTON));
+        this.properties.add(new BooleanProperty(PROP_SHOW_LED));
+        this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
+        this.properties.add(new ColorProperty(PROP_ON_COLOR));
+        this.properties.add(new StringProperty(PROP_ON_LABEL));
+        this.properties.add(new ColorProperty(PROP_OFF_COLOR));
+        this.properties.add(new StringProperty(PROP_OFF_LABEL));
+        this.properties.add(new FontProperty(PROP_FONT));
+        this.properties.add(new BooleanProperty(PROP_TOGGLE_BUTTON));
+        this.properties.add(new IntProperty(PROP_PUSH_ACTION_INDEX));
+        this.properties.add(new IntProperty(PROP_RELEASE_ACTION_INDEX));
+        this.properties.add(new BooleanProperty(PROP_SHOW_BOOLEAN_LABEL));
     }
 
     init() {
@@ -271,16 +268,16 @@ export class BooleanButton extends Widget {
         }
     }
 
-    get toggleButton(): boolean { return this.getPropertyValue(PROP_TOGGLE_BUTTON); }
-    get pushActionIndex(): number { return this.getPropertyValue(PROP_PUSH_ACTION_INDEX); }
-    get releaseActionIndex(): number { return this.getPropertyValue(PROP_RELEASE_ACTION_INDEX); }
-    get squareButton(): boolean { return this.getPropertyValue(PROP_SQUARE_BUTTON); }
-    get showLed(): boolean { return this.getPropertyValue(PROP_SHOW_LED); }
-    get showBooleanLabel(): boolean { return this.getPropertyValue(PROP_SHOW_BOOLEAN_LABEL); }
-    get effect3d(): boolean { return this.getPropertyValue(PROP_EFFECT_3D); }
-    get onColor(): Color { return this.getPropertyValue(PROP_ON_COLOR); }
-    get onLabel(): string { return this.getPropertyValue(PROP_ON_LABEL); }
-    get offColor(): Color { return this.getPropertyValue(PROP_OFF_COLOR); }
-    get offLabel(): string { return this.getPropertyValue(PROP_OFF_LABEL); }
-    get font(): Font { return this.getPropertyValue(PROP_FONT); }
+    get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
+    get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }
+    get releaseActionIndex(): number { return this.properties.getValue(PROP_RELEASE_ACTION_INDEX); }
+    get squareButton(): boolean { return this.properties.getValue(PROP_SQUARE_BUTTON); }
+    get showLed(): boolean { return this.properties.getValue(PROP_SHOW_LED); }
+    get showBooleanLabel(): boolean { return this.properties.getValue(PROP_SHOW_BOOLEAN_LABEL); }
+    get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
+    get onColor(): Color { return this.properties.getValue(PROP_ON_COLOR); }
+    get onLabel(): string { return this.properties.getValue(PROP_ON_LABEL); }
+    get offColor(): Color { return this.properties.getValue(PROP_OFF_COLOR); }
+    get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
+    get font(): Font { return this.properties.getValue(PROP_FONT); }
 }

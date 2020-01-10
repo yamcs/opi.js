@@ -1,5 +1,4 @@
 import { Color } from '../../Color';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import * as utils from '../../utils';
@@ -18,20 +17,19 @@ const PROP_LINE_WIDTH = 'line_width';
 
 export class RoundedRectangle extends Widget {
 
-    readonly kind = constants.TYPE_ROUNDED_RECTANGLE;
-
     constructor(display: Display) {
         super(display);
-        this.addProperty(new IntProperty(PROP_ALPHA))
-        this.addProperty(new ColorProperty(PROP_BG_GRADIENT_COLOR));
-        this.addProperty(new ColorProperty(PROP_FG_GRADIENT_COLOR));
-        this.addProperty(new BooleanProperty(PROP_GRADIENT));
-        this.addProperty(new IntProperty(PROP_LINE_WIDTH));
-        this.addProperty(new FloatProperty(PROP_FILL_LEVEL));
-        this.addProperty(new BooleanProperty(PROP_HORIZONTAL_FILL));
-        this.addProperty(new ColorProperty(PROP_LINE_COLOR));
-        this.addProperty(new IntProperty(PROP_CORNER_WIDTH));
-        this.addProperty(new IntProperty(PROP_CORNER_HEIGHT));
+        this.hideRoundedHolderBorder = true;
+        this.properties.add(new IntProperty(PROP_ALPHA))
+        this.properties.add(new ColorProperty(PROP_BG_GRADIENT_COLOR));
+        this.properties.add(new ColorProperty(PROP_FG_GRADIENT_COLOR));
+        this.properties.add(new BooleanProperty(PROP_GRADIENT));
+        this.properties.add(new IntProperty(PROP_LINE_WIDTH));
+        this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
+        this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
+        this.properties.add(new ColorProperty(PROP_LINE_COLOR));
+        this.properties.add(new IntProperty(PROP_CORNER_WIDTH));
+        this.properties.add(new IntProperty(PROP_CORNER_HEIGHT));
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -119,18 +117,18 @@ export class RoundedRectangle extends Widget {
         ctx.restore();
     }
 
-    get alpha(): number { return this.getPropertyValue(PROP_ALPHA); }
-    get lineWidth(): number { return this.getPropertyValue(PROP_LINE_WIDTH); }
-    get fillLevel(): number { return this.getPropertyValue(PROP_FILL_LEVEL); }
-    get horizontalFill(): boolean { return this.getPropertyValue(PROP_HORIZONTAL_FILL); }
-    get lineColor(): Color { return this.getPropertyValue(PROP_LINE_COLOR); }
-    get gradient(): boolean { return this.getPropertyValue(PROP_GRADIENT); }
-    get cornerWidth(): number { return this.getPropertyValue(PROP_CORNER_WIDTH); }
-    get cornerHeight(): number { return this.getPropertyValue(PROP_CORNER_HEIGHT); }
+    get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
+    get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+    get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
+    get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
+    get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+    get gradient(): boolean { return this.properties.getValue(PROP_GRADIENT); }
+    get cornerWidth(): number { return this.properties.getValue(PROP_CORNER_WIDTH); }
+    get cornerHeight(): number { return this.properties.getValue(PROP_CORNER_HEIGHT); }
     get backgroundGradientStartColor(): Color {
-        return this.getPropertyValue(PROP_BG_GRADIENT_COLOR);
+        return this.properties.getValue(PROP_BG_GRADIENT_COLOR);
     }
     get foregroundGradientStartColor(): Color {
-        return this.getPropertyValue(PROP_FG_GRADIENT_COLOR);
+        return this.properties.getValue(PROP_FG_GRADIENT_COLOR);
     }
 }

@@ -1,6 +1,5 @@
 import { toBorderBox } from '../../Bounds';
 import { Color } from '../../Color';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -26,29 +25,27 @@ const PROP_STATE_LABEL_FALLBACK = 'state_label_fallback';
 
 export class LED extends Widget {
 
-    readonly kind = constants.TYPE_LED;
-
     private states: State[] = [];
     private fallback?: State;
 
     constructor(display: Display) {
         super(display);
-        this.addProperty(new BooleanProperty(PROP_EFFECT_3D));
-        this.addProperty(new BooleanProperty(PROP_SQUARE_LED));
-        this.addProperty(new IntProperty(PROP_STATE_COUNT, 2));
+        this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
+        this.properties.add(new BooleanProperty(PROP_SQUARE_LED));
+        this.properties.add(new IntProperty(PROP_STATE_COUNT, 2));
 
-        this.addProperty(new ColorProperty(PROP_OFF_COLOR));
-        this.addProperty(new StringProperty(PROP_OFF_LABEL));
+        this.properties.add(new ColorProperty(PROP_OFF_COLOR));
+        this.properties.add(new StringProperty(PROP_OFF_LABEL));
 
-        this.addProperty(new ColorProperty(PROP_ON_COLOR));
-        this.addProperty(new StringProperty(PROP_ON_LABEL));
+        this.properties.add(new ColorProperty(PROP_ON_COLOR));
+        this.properties.add(new StringProperty(PROP_ON_LABEL));
 
-        this.addProperty(new ColorProperty(PROP_STATE_COLOR_FALLBACK));
-        this.addProperty(new StringProperty(PROP_STATE_LABEL_FALLBACK));
+        this.properties.add(new ColorProperty(PROP_STATE_COLOR_FALLBACK));
+        this.properties.add(new StringProperty(PROP_STATE_LABEL_FALLBACK));
 
         // Old displays don't have these properties
-        this.addProperty(new IntProperty(PROP_BULB_BORDER, 3));
-        this.addProperty(new ColorProperty(PROP_BULB_BORDER_COLOR, Color.DARK_GRAY));
+        this.properties.add(new IntProperty(PROP_BULB_BORDER, 3));
+        this.properties.add(new ColorProperty(PROP_BULB_BORDER_COLOR, Color.DARK_GRAY));
     }
 
     parseNode(node: XMLNode) {
@@ -66,20 +63,20 @@ export class LED extends Widget {
             for (let i = 0; i < this.stateCount; i++) {
                 const colorProperty = new ColorProperty(`state_color_${i}`);
                 colorProperty.value = node.getColor(`state_color_${i}`);
-                this.addProperty(colorProperty);
+                this.properties.add(colorProperty);
 
                 const labelProperty = new StringProperty(`state_label_${i}`);
                 labelProperty.value = node.getString(`state_label_${i}`);
-                this.addProperty(labelProperty);
+                this.properties.add(labelProperty);
 
                 const valueProperty = new FloatProperty(`state_value_${i}`);
                 valueProperty.value = node.getFloat(`state_value_${i}`);
-                this.addProperty(valueProperty);
+                this.properties.add(valueProperty);
 
                 this.states.push({
-                    label: this.getPropertyValue(labelProperty.name),
-                    color: this.getPropertyValue(colorProperty.name),
-                    value: this.getPropertyValue(valueProperty.name),
+                    label: this.properties.getValue(labelProperty.name),
+                    color: this.properties.getValue(colorProperty.name),
+                    value: this.properties.getValue(valueProperty.name),
                 });
                 this.fallback = {
                     label: this.stateLabelFallback,
@@ -250,15 +247,15 @@ export class LED extends Widget {
         ctx.fillRect(x, y, width, height);
     }
 
-    get squareLed(): boolean { return this.getPropertyValue(PROP_SQUARE_LED); }
-    get effect3d(): boolean { return this.getPropertyValue(PROP_EFFECT_3D); }
-    get stateCount(): number { return this.getPropertyValue(PROP_STATE_COUNT); }
-    get bulbBorder(): number { return this.getPropertyValue(PROP_BULB_BORDER); }
-    get bulbBorderColor(): Color { return this.getPropertyValue(PROP_BULB_BORDER_COLOR); }
-    get offLabel(): string { return this.getPropertyValue(PROP_OFF_LABEL); }
-    get offColor(): Color { return this.getPropertyValue(PROP_OFF_COLOR); }
-    get onLabel(): string { return this.getPropertyValue(PROP_ON_LABEL); }
-    get onColor(): Color { return this.getPropertyValue(PROP_ON_COLOR); }
-    get stateLabelFallback(): string { return this.getPropertyValue(PROP_STATE_LABEL_FALLBACK); }
-    get stateColorFallback(): Color { return this.getPropertyValue(PROP_STATE_COLOR_FALLBACK); }
+    get squareLed(): boolean { return this.properties.getValue(PROP_SQUARE_LED); }
+    get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
+    get stateCount(): number { return this.properties.getValue(PROP_STATE_COUNT); }
+    get bulbBorder(): number { return this.properties.getValue(PROP_BULB_BORDER); }
+    get bulbBorderColor(): Color { return this.properties.getValue(PROP_BULB_BORDER_COLOR); }
+    get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
+    get offColor(): Color { return this.properties.getValue(PROP_OFF_COLOR); }
+    get onLabel(): string { return this.properties.getValue(PROP_ON_LABEL); }
+    get onColor(): Color { return this.properties.getValue(PROP_ON_COLOR); }
+    get stateLabelFallback(): string { return this.properties.getValue(PROP_STATE_LABEL_FALLBACK); }
+    get stateColorFallback(): Color { return this.properties.getValue(PROP_STATE_COLOR_FALLBACK); }
 }

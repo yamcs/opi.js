@@ -1,6 +1,5 @@
 import { Bounds } from '../../Bounds';
 import { Color } from '../../Color';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
@@ -15,19 +14,17 @@ const PROP_ON_LABEL = 'on_label';
 
 export class BooleanSwitch extends Widget {
 
-    readonly kind = constants.TYPE_BOOLEAN_SWITCH;
-
     private enabled = false;
 
     private shaftRegion?: HitRegion;
 
     constructor(display: Display) {
         super(display);
-        this.addProperty(new BooleanProperty(PROP_EFFECT_3D));
-        this.addProperty(new ColorProperty(PROP_ON_COLOR));
-        this.addProperty(new StringProperty(PROP_ON_LABEL));
-        this.addProperty(new ColorProperty(PROP_OFF_COLOR));
-        this.addProperty(new StringProperty(PROP_OFF_LABEL));
+        this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
+        this.properties.add(new ColorProperty(PROP_ON_COLOR));
+        this.properties.add(new StringProperty(PROP_ON_LABEL));
+        this.properties.add(new ColorProperty(PROP_OFF_COLOR));
+        this.properties.add(new StringProperty(PROP_OFF_LABEL));
     }
 
     init() {
@@ -363,9 +360,9 @@ export class BooleanSwitch extends Widget {
         }
     }
 
-    get effect3d(): boolean { return this.getPropertyValue(PROP_EFFECT_3D); }
-    get onColor(): Color { return this.getPropertyValue(PROP_ON_COLOR); }
-    get onLabel(): string { return this.getPropertyValue(PROP_ON_LABEL); }
-    get offColor(): Color { return this.getPropertyValue(PROP_OFF_COLOR); }
-    get offLabel(): string { return this.getPropertyValue(PROP_OFF_LABEL); }
+    get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
+    get onColor(): Color { return this.properties.getValue(PROP_ON_COLOR); }
+    get onLabel(): string { return this.properties.getValue(PROP_ON_LABEL); }
+    get offColor(): Color { return this.properties.getValue(PROP_OFF_COLOR); }
+    get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
 }

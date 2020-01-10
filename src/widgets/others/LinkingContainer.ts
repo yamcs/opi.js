@@ -1,4 +1,3 @@
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { IntProperty, StringProperty } from '../../properties';
@@ -11,14 +10,12 @@ const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
 
 export class LinkingContainer extends Widget {
 
-    readonly kind = constants.TYPE_LINKING_CONTAINER;
-
-    private instance?: DisplayWidget;
+    private linkedDisplay?: DisplayWidget;
 
     constructor(display: Display) {
         super(display);
-        this.addProperty(new StringProperty(PROP_OPI_FILE));
-        this.addProperty(new IntProperty(PROP_RESIZE_BEHAVIOR));
+        this.properties.add(new StringProperty(PROP_OPI_FILE));
+        this.properties.add(new IntProperty(PROP_RESIZE_BEHAVIOR));
     }
 
     init() {
@@ -26,11 +23,11 @@ export class LinkingContainer extends Widget {
             fetch(this.opiFile).then(response => {
                 if (response.ok) {
                     response.text().then(source => {
-                        this.instance = new DisplayWidget(this.display);
+                        this.linkedDisplay = new DisplayWidget(this.display);
                         const xmlParser = new DOMParser();
                         const doc = xmlParser.parseFromString(source, 'text/xml') as XMLDocument;
                         const displayNode = new XMLNode(doc.getElementsByTagName('display')[0]);
-                        this.instance.parseNode(displayNode);
+                        this.linkedDisplay.parseNode(displayNode);
                         this.requestRepaint();
                     });
                 }
@@ -44,14 +41,14 @@ export class LinkingContainer extends Widget {
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        if (this.instance) {
+        if (this.linkedDisplay) {
             // Copy the opi background over the full container area
-            ctx.fillStyle = this.instance.backgroundColor.toString();
+            ctx.fillStyle = this.linkedDisplay.backgroundColor.toString();
             ctx.fillRect(this.x, this.y, this.width, this.height);
 
             if (this.resizeBehavior === 0) { // FIT_OPI_TO_CONTAINER
-                const sw = this.instance.preferredWidth;
-                const sh = this.instance.preferredHeight;
+                const sw = this.linkedDisplay.preferredWidth;
+                const sh = this.linkedDisplay.preferredHeight;
                 const tmpHitCanvas = hitCanvas.createChild(sw, sh);
                 const tmpCanvas = this.drawOffscreen(tmpHitCanvas);
 
@@ -77,22 +74,22 @@ export class LinkingContainer extends Widget {
     }
 
     findWidget(wuid: string) {
-        if (this.instance) {
-            return this.instance.findWidget(wuid);
+        if (this.linkedDisplay) {
+            return this.linkedDisplay.findWidget(wuid);
         }
     }
 
     private drawOffscreen(hitCanvas: HitCanvas) {
         const canvas = document.createElement('canvas');
-        canvas.width = this.instance!.preferredWidth;
-        canvas.height = this.instance!.preferredHeight;
+        canvas.width = this.linkedDisplay!.preferredWidth;
+        canvas.height = this.linkedDisplay!.preferredHeight;
         const ctx = canvas.getContext('2d')!;
 
-        this.instance!.draw(ctx, hitCanvas);
+        this.linkedDisplay!.draw(ctx, hitCanvas);
 
         return canvas;
     }
 
-    get opiFile(): string { return this.getPropertyValue(PROP_OPI_FILE); }
-    get resizeBehavior(): number { return this.getPropertyValue(PROP_RESIZE_BEHAVIOR); }
+    get opiFile(): string { return this.properties.getValue(PROP_OPI_FILE); }
+    get resizeBehavior(): number { return this.properties.getValue(PROP_RESIZE_BEHAVIOR); }
 }

@@ -1,5 +1,4 @@
 import { Color } from '../../Color';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { Point } from '../../Point';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
@@ -14,16 +13,14 @@ const PROP_POINTS = 'points';
 
 export class Polygon extends Widget {
 
-    readonly kind = constants.TYPE_POLYGON;
-
     constructor(display: Display) {
         super(display);
-        this.addProperty(new IntProperty(PROP_ALPHA));
-        this.addProperty(new IntProperty(PROP_LINE_WIDTH));
-        this.addProperty(new FloatProperty(PROP_FILL_LEVEL));
-        this.addProperty(new BooleanProperty(PROP_HORIZONTAL_FILL));
-        this.addProperty(new ColorProperty(PROP_LINE_COLOR));
-        this.addProperty(new PointsProperty(PROP_POINTS, []));
+        this.properties.add(new IntProperty(PROP_ALPHA));
+        this.properties.add(new IntProperty(PROP_LINE_WIDTH));
+        this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
+        this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
+        this.properties.add(new ColorProperty(PROP_LINE_COLOR));
+        this.properties.add(new PointsProperty(PROP_POINTS, []));
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -87,10 +84,10 @@ export class Polygon extends Widget {
         ctx.restore();
     }
 
-    get alpha(): number { return this.getPropertyValue(PROP_ALPHA); }
-    get lineWidth(): number { return this.getPropertyValue(PROP_LINE_WIDTH); }
-    get fillLevel(): number { return this.getPropertyValue(PROP_FILL_LEVEL); }
-    get horizontalFill(): boolean { return this.getPropertyValue(PROP_HORIZONTAL_FILL); }
-    get lineColor(): Color { return this.getPropertyValue(PROP_LINE_COLOR); }
-    get points(): Point[] { return this.getPropertyValue(PROP_POINTS); }
+    get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
+    get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+    get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
+    get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
+    get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+    get points(): Point[] { return this.properties.getValue(PROP_POINTS); }
 }

@@ -1,6 +1,5 @@
 import { Color } from '../../Color';
 import { Connection } from '../../Connection';
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { HitCanvas } from '../../HitCanvas';
 import { ColorProperty, FloatProperty } from '../../properties';
@@ -14,18 +13,17 @@ const PROP_WIDTH = 'width';
 
 export class DisplayWidget extends AbstractContainerWidget {
 
-    readonly kind = constants.TYPE_DISPLAY;
-
     constructor(display: Display) {
-        super(display, false);
-        this.addProperty(new FloatProperty(PROP_WIDTH));
-        this.addProperty(new FloatProperty(PROP_HEIGHT));
-        this.addProperty(new ColorProperty(PROP_BACKGROUND_COLOR));
-        this.addProperty(new ColorProperty(PROP_FOREGROUND_COLOR));
+        super(display);
+        this.properties.clear();
+        this.properties.add(new FloatProperty(PROP_WIDTH));
+        this.properties.add(new FloatProperty(PROP_HEIGHT));
+        this.properties.add(new ColorProperty(PROP_BACKGROUND_COLOR));
+        this.properties.add(new ColorProperty(PROP_FOREGROUND_COLOR));
     }
 
     parseNode(node: XMLNode) {
-        this.readPropertyValues(node);
+        this.properties.loadXMLValues(node);
 
         for (const widgetNode of node.getNodes('widget')) {
             const kind = widgetNode.getStringAttribute('typeId');
@@ -36,7 +34,9 @@ export class DisplayWidget extends AbstractContainerWidget {
             }
         }
         for (const connectionNode of node.getNodes('connection')) {
-            this.connections.push(new Connection(connectionNode, this.display));
+            const connection = new Connection(this.display);
+            connection.parseNode(connectionNode);
+            this.connections.push(connection);
         }
     }
 
@@ -50,8 +50,8 @@ export class DisplayWidget extends AbstractContainerWidget {
         }
     }
 
-    get backgroundColor(): Color { return this.getPropertyValue(PROP_BACKGROUND_COLOR); }
-    get foregroundColor(): Color { return this.getPropertyValue(PROP_FOREGROUND_COLOR); }
-    get preferredWidth(): number { return this.getPropertyValue(PROP_WIDTH); }
-    get preferredHeight(): number { return this.getPropertyValue(PROP_HEIGHT); }
+    get backgroundColor(): Color { return this.properties.getValue(PROP_BACKGROUND_COLOR); }
+    get foregroundColor(): Color { return this.properties.getValue(PROP_FOREGROUND_COLOR); }
+    get preferredWidth(): number { return this.properties.getValue(PROP_WIDTH); }
+    get preferredHeight(): number { return this.properties.getValue(PROP_HEIGHT); }
 }

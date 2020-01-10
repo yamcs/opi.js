@@ -1,6 +1,5 @@
 declare var FontFaceObserver: any;
 
-import * as constants from './constants';
 import { EventHandler } from './EventHandler';
 import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './PVEngine';
@@ -21,6 +20,30 @@ import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
 import { XMLNode } from './XMLParser';
+
+const TYPE_ACTION_BUTTON = 'org.csstudio.opibuilder.widgets.ActionButton';
+const TYPE_ARC = 'org.csstudio.opibuilder.widgets.arc';
+const TYPE_BOOLEAN_BUTTON = 'org.csstudio.opibuilder.widgets.BoolButton';
+const TYPE_BOOLEAN_SWITCH = 'org.csstudio.opibuilder.widgets.BoolSwitch';
+const TYPE_DISPLAY = 'org.csstudio.opibuilder.Display';
+const TYPE_ELLIPSE = 'org.csstudio.opibuilder.widgets.Ellipse';
+const TYPE_GAUGE = 'org.csstudio.opibuilder.widgets.gauge';
+const TYPE_GROUPING_CONTAINER = 'org.csstudio.opibuilder.widgets.groupingContainer';
+const TYPE_IMAGE = 'org.csstudio.opibuilder.widgets.Image';
+const TYPE_IMAGE_BOOLEAN_BUTTON = 'org.csstudio.opibuilder.widgets.ImageBoolButton';
+const TYPE_IMAGE_BOOLEAN_INDICATOR = 'org.csstudio.opibuilder.widgets.ImageBoolIndicator';
+const TYPE_LABEL = 'org.csstudio.opibuilder.widgets.Label';
+const TYPE_LED = 'org.csstudio.opibuilder.widgets.LED';
+const TYPE_LINKING_CONTAINER = 'org.csstudio.opibuilder.widgets.linkingContainer';
+const TYPE_METER = 'org.csstudio.opibuilder.widgets.meter';
+const TYPE_POLYGON = 'org.csstudio.opibuilder.widgets.polygon';
+const TYPE_POLYLINE = 'org.csstudio.opibuilder.widgets.polyline';
+const TYPE_RECTANGLE = 'org.csstudio.opibuilder.widgets.Rectangle';
+const TYPE_ROUNDED_RECTANGLE = 'org.csstudio.opibuilder.widgets.RoundedRectangle';
+const TYPE_TABBED_CONTAINER = 'org.csstudio.opibuilder.widgets.tab';
+const TYPE_TEXT_INPUT = 'org.csstudio.opibuilder.widgets.TextInput';
+const TYPE_TEXT_UPDATE = 'org.csstudio.opibuilder.widgets.TextUpdate';
+const TYPE_XY_GRAPH = 'org.csstudio.opibuilder.widgets.xyGraph';
 
 export class Display {
 
@@ -180,33 +203,33 @@ export class Display {
 
     createWidget(kind: string) {
         switch (kind) {
-            case constants.TYPE_ACTION_BUTTON:
+            case TYPE_ACTION_BUTTON:
                 return new ActionButton(this);
-            case constants.TYPE_ARC:
+            case TYPE_ARC:
                 return new Arc(this);
-            case constants.TYPE_BOOLEAN_BUTTON:
+            case TYPE_BOOLEAN_BUTTON:
                 return new BooleanButton(this);
-            case constants.TYPE_BOOLEAN_SWITCH:
+            case TYPE_BOOLEAN_SWITCH:
                 return new BooleanSwitch(this);
-            case constants.TYPE_ELLIPSE:
+            case TYPE_ELLIPSE:
                 return new Ellipse(this);
-            case constants.TYPE_IMAGE:
+            case TYPE_IMAGE:
                 return new ImageWidget(this);
-            case constants.TYPE_LABEL:
+            case TYPE_LABEL:
                 return new Label(this);
-            case constants.TYPE_LED:
+            case TYPE_LED:
                 return new LED(this);
-            case constants.TYPE_LINKING_CONTAINER:
+            case TYPE_LINKING_CONTAINER:
                 return new LinkingContainer(this);
-            case constants.TYPE_POLYGON:
+            case TYPE_POLYGON:
                 return new Polygon(this);
-            case constants.TYPE_POLYLINE:
+            case TYPE_POLYLINE:
                 return new Polyline(this);
-            case constants.TYPE_RECTANGLE:
+            case TYPE_RECTANGLE:
                 return new Rectangle(this);
-            case constants.TYPE_ROUNDED_RECTANGLE:
+            case TYPE_ROUNDED_RECTANGLE:
                 return new RoundedRectangle(this);
-            case constants.TYPE_TEXT_UPDATE:
+            case TYPE_TEXT_UPDATE:
                 return new TextUpdate(this);
             default:
                 console.warn(`Unsupported widget type: ${kind}`);

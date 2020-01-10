@@ -1,51 +1,51 @@
 import { Color } from './Color';
 import { Display } from './Display';
 import { Point } from './Point';
+import { ColorProperty, IntProperty, PointsProperty, PropertySet, StringProperty } from './properties';
 import { Widget } from './Widget';
 import { XMLNode } from './XMLParser';
 
+export const PROP_NAME = 'name';
+export const PROP_LINE_COLOR = 'line_color';
+export const PROP_LINE_WIDTH = 'line_width';
+export const PROP_SRC_WUID = 'src_wuid';
+export const PROP_SRC_TERM = 'src_term';
+export const PROP_TGT_WUID = 'tgt_wuid';
+export const PROP_TGT_TERM = 'tgt_term';
+export const PROP_ROUTER = 'router';
+export const PROP_POINTS = 'points';
+
 export class Connection {
 
-  private name: string;
-  private lineColor: Color;
-  private lineWidth: number;
-  private router: number;
+  private properties = new PropertySet([
+    new StringProperty('name'),
+    new ColorProperty('line_color'),
+    new IntProperty('line_width'),
+    new StringProperty('src_wuid'),
+    new StringProperty('src_term'),
+    new StringProperty('tgt_wuid'),
+    new StringProperty('tgt_term'),
+    new IntProperty('router'),
+    new PointsProperty('points')
+  ]);
 
   private sourceWidget?: Widget;
-  private sourceTerm: string;
-
   private targetWidget?: Widget;
-  private targetTerm: string;
 
-  private points: Point[] = [];
+  constructor(protected display: Display) {
+  }
 
-  constructor(protected node: XMLNode, protected display: Display) {
-    this.name = node.getString('name');
-    this.lineColor = node.getColor('line_color');
-    this.lineWidth = node.getInt('line_width');
+  parseNode(node: XMLNode) {
+    this.properties.loadXMLValues(node);
 
-    const srcWuid = node.getString('src_wuid');
-    this.sourceWidget = display.findWidget(srcWuid);
+    this.sourceWidget = this.display.findWidget(this.sourceWuid);
     if (!this.sourceWidget) {
-      console.warn(`Can't find source widget ${srcWuid}`);
+      console.warn(`Can't find source widget ${this.sourceWuid}`);
     }
-    this.sourceTerm = node.getString('src_term');
 
-    const tgtWuid = node.getString('tgt_wuid');
-    this.targetWidget = display.findWidget(tgtWuid);
+    this.targetWidget = this.display.findWidget(this.targetWuid);
     if (!this.targetWidget) {
-      console.warn(`Can't find target widget ${tgtWuid}`);
-    }
-    this.targetTerm = node.getString('tgt_term');
-
-    this.router = node.getInt('router');
-
-    const pointsNode = node.getNode('points');
-    for (const pointNode of pointsNode.getNodes('point')) {
-      this.points.push({
-        x: pointNode.getIntAttribute('x'),
-        y: pointNode.getIntAttribute('y'),
-      });
+      console.warn(`Can't find target widget ${this.targetWuid}`);
     }
   }
 
@@ -147,4 +147,14 @@ export class Connection {
         throw Error(`Unexpected term ${term}`);
     }
   }
+
+  get name(): string { return this.properties.getValue(PROP_NAME); }
+  get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+  get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+  get router(): number { return this.properties.getValue(PROP_ROUTER); }
+  get sourceTerm(): string { return this.properties.getValue(PROP_SRC_TERM); }
+  get sourceWuid(): string { return this.properties.getValue(PROP_SRC_WUID); }
+  get targetTerm(): string { return this.properties.getValue(PROP_TGT_TERM); }
+  get targetWuid(): string { return this.properties.getValue(PROP_TGT_WUID); }
+  get points(): Point[] { return this.properties.getValue(PROP_POINTS); }
 }

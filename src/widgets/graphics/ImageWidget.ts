@@ -1,4 +1,3 @@
-import * as constants from '../../constants';
 import { Display } from '../../Display';
 import { BooleanProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -8,15 +7,13 @@ const PROP_TRANSPARENCY = 'transparency';
 
 export class ImageWidget extends Widget {
 
-    readonly kind = constants.TYPE_IMAGE;
-
     private image?: HTMLImageElement;
     private imageLoaded = false;
 
     constructor(display: Display) {
         super(display);
-        this.addProperty(new StringProperty(PROP_IMAGE_FILE));
-        this.addProperty(new BooleanProperty(PROP_TRANSPARENCY, true))
+        this.properties.add(new StringProperty(PROP_IMAGE_FILE));
+        this.properties.add(new BooleanProperty(PROP_TRANSPARENCY, true))
     }
 
     init() {
@@ -42,6 +39,6 @@ export class ImageWidget extends Widget {
         }
     }
 
-    get transparency(): boolean { return this.getPropertyValue(PROP_TRANSPARENCY); }
-    get imageFile(): string { return this.getPropertyValue(PROP_IMAGE_FILE); }
+    get transparency(): boolean { return this.properties.getValue(PROP_TRANSPARENCY); }
+    get imageFile(): string { return this.properties.getValue(PROP_IMAGE_FILE); }
 }
