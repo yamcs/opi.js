@@ -27,30 +27,38 @@ export class Label extends Widget {
         ctx.fillStyle = this.foregroundColor.toString();
         ctx.font = this.font.getFontString();
 
-        let x = this.x;
-        if (this.horizAlignment === 0) { // LEFT
-            ctx.textAlign = 'start';
-        } else if (this.horizAlignment === 1) { // CENTER
-            x += this.width / 2;
-            ctx.textAlign = 'center';
-        } else if (this.horizAlignment === 2) { // RIGHT
-            x += this.width;
-            ctx.textAlign = 'end';
+        // Canvas does not do multiline string. So
+        // we manually calculate each line position.
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'top';
+
+        // TODO should horizontal center not be line by line?
+        let maxWidth = 0;
+        for (const line of lines) {
+            const textWidth = ctx.measureText(line).width;
+            maxWidth = Math.max(0, textWidth);
         }
 
+        let x = this.x;
+        if (this.horizAlignment === 1) { // CENTER
+            x = this.x + (this.width - maxWidth) / 2;
+        } else if (this.horizAlignment === 2) { // RIGHT
+            x = this.x + (this.width - maxWidth);
+        }
+
+        const textHeight = lines.length * this.font.height
+            + ((lines.length - 1) * this.font.height * 0.2);
+
         let y = this.y;
-        if (this.vertAlignment === 0) { // TOP
-            ctx.textBaseline = 'top';
-        } else if (this.vertAlignment === 1) { // MIDDLE
-            y = y + (this.height / 2);
-            ctx.textBaseline = 'middle';
+        if (this.vertAlignment === 1) { // MIDDLE
+            y += ((this.height - textHeight) / 2);
         } else if (this.vertAlignment === 2) { // BOTTOM
-            y = y + this.height;
-            ctx.textBaseline = 'bottom';
+            y += this.height - textHeight;
         }
 
         for (let i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i], x, y);
+            y += this.font.height * 1.2; // Roughly
         }
     }
 
