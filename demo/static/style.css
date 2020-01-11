@@ -33,9 +33,14 @@ ul.menu, ul.menu li {
 }
 
 ul.menu li {
-    cursor: pointer;
     padding: 5px;
     font-size: 14px;
+}
+
+ul.menu li a, ul.menu li a:visited {
+    display: block;
+    text-decoration: none;
+    color: lightcyan;
 }
 
 ul.menu li:hover {
@@ -62,7 +67,7 @@ ul.menu li:hover {
     color: white;
 }
 
-#mydisplay {
+#page {
     position: absolute;
     left: 300px;
     top: 64px;

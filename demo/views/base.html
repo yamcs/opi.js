@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}webopi{% endblock %}</title>
+    <link rel="stylesheet" href="/dist/fonts/stylesheet.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
+</head>
+
+<body>
+    <div id="toolbar">
+        <a href="/">webopi</a>
+        {% block toolbar %}
+        {% endblock %}
+    </div>
+    <div id="sidebar">
+        <h2>
+            <i class="far fa-fw fa-folder-open"></i>
+            BROWSE
+        </h2>
+        <ul class="menu">
+            {% for dir in displays.dirs %}
+            <li>
+                <i class="far fa-fw fa-folder"></i> {{ dir.name }}/
+            </li>
+            {% endfor %}
+            {% for display in displays.files %}
+            <li>
+                <a href="/displays/{{ display.name }}">
+                    <i class="far fa-fw fa-file"></i> {{ display.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% block sidebaraddition %}{% endblock %}
+    </div>
+    <div id="page">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+
+</html>

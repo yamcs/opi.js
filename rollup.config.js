@@ -1,11 +1,8 @@
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import copy from 'rollup-plugin-copy';
-import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
-
-const demo = process.env.DEMO;
 
 export default {
   input: 'src/index.ts',
@@ -29,11 +26,7 @@ export default {
       targets: [
         { src: 'src/fonts', dest: 'dist' },
       ]
-    }),
-    demo && serve({
-      contentBase: '',
-      port: 3000
-    }),
+    })
   ],
   output: [
     {
