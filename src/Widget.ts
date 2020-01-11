@@ -277,14 +277,16 @@ export abstract class Widget {
             ctx.stroke();
         } else if (this.borderStyle === 14) { // Round Rectangle Background
             ctx.fillStyle = this.backgroundColor.toString();
-            ctx.strokeStyle = this.borderColor.toString();
-            ctx.lineWidth = this.borderWidth;
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
             utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
             if (this.fillRoundRectangleBackgroundBorder) {
                 ctx.fill();
             }
-            ctx.stroke();
+            if (this.borderWidth) {
+                ctx.lineWidth = this.borderWidth;
+                ctx.strokeStyle = this.borderColor.toString();
+                ctx.stroke();
+            }
         } else if (this.borderStyle === 15) { // Empty
             // NOP
         } else {

@@ -71,8 +71,8 @@ export class LinkingContainer extends AbstractContainerWidget {
         }
     }
 
-    get widgets() { return (this.linkedDisplay) ? this.linkedDisplay.widgets : [] };
-    get connections() { return (this.linkedDisplay) ? this.linkedDisplay.connections : [] };
+    get widgets() { return (this.linkedDisplay) ? this.linkedDisplay.widgets : [] }
+    get connections() { return (this.linkedDisplay) ? this.linkedDisplay.connections : [] }
 
     findWidget(wuid: string) {
         if (this.linkedDisplay) {

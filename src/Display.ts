@@ -17,6 +17,7 @@ import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
 import { LED } from './widgets/monitors/LED';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
+import { GroupingContainer } from './widgets/others/GroupingContainer';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
 import { XMLNode } from './XMLNode';
 
@@ -225,6 +226,8 @@ export class Display {
                 return new BooleanSwitch(this);
             case TYPE_ELLIPSE:
                 return new Ellipse(this);
+            case TYPE_GROUPING_CONTAINER:
+                return new GroupingContainer(this);
             case TYPE_IMAGE:
                 return new ImageWidget(this);
             case TYPE_LABEL:
