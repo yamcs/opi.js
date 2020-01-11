@@ -31,6 +31,7 @@ export class PropertySet {
             if (node.hasNode(property.name)) {
                 if (property instanceof StringProperty) {
                     const value = node.getString(property.name);
+                    property.rawValue = value;
                     property.value = this.expandMacro(value);
                 } else if (property instanceof IntProperty) {
                     property.value = node.getInt(property.name);
@@ -67,6 +68,10 @@ export class PropertySet {
         }
     }
 
+    getProperty(propertyName: string) {
+        return this.properties.get(propertyName);
+    }
+
     getValue(propertyName: string, optional = false) {
         const prop = this.properties.get(propertyName);
         if (prop && prop.value !== undefined) {
@@ -89,6 +94,10 @@ export abstract class Property<T> {
 }
 
 export class StringProperty extends Property<string> {
+    /**
+     * Has macros unexpanded
+     */
+    rawValue?: string;
 }
 
 export class IntProperty extends Property<number> {

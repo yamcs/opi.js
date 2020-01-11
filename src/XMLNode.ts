@@ -1,4 +1,4 @@
-import { ActionSet, ExecuteJavaScriptAction, OpenDisplayAction, WritePVAction } from './actions';
+import { ActionSet, ExecuteCommandAction, ExecuteJavaScriptAction, OpenDisplayAction, OpenFileAction, OpenWebpageAction, PlaySoundAction, WritePVAction } from './actions';
 import { Color } from './Color';
 import { Font } from './Font';
 
@@ -237,33 +237,50 @@ export class XMLNode {
         for (const actionNode of actionsNode.getNodes('action')) {
             const actionType = actionNode.getStringAttribute('type');
             if (actionType === 'OPEN_DISPLAY') {
-                const action: OpenDisplayAction = {
-                    type: actionType,
-                    path: actionNode.getString('path'),
-                };
+                const action = new OpenDisplayAction(actionNode.getString('path'));
                 if (actionNode.hasNode('mode')) {
                     action['mode'] = actionNode.getInt('mode');
                 }
+                action.description = actionNode.getString('description');
+                actions.add(action);
+            } else if (actionType === 'OPEN_FILE') {
+                const action = new OpenFileAction();
+                action.path = actionNode.getString('path')
+                action.description = actionNode.getString('description');
+                actions.add(action);
+            } else if (actionType === 'EXECUTE_CMD') {
+                const action = new ExecuteCommandAction();
+                action.command = actionNode.getString('command');
+                action.commandDirectory = actionNode.getString('command_directory');
+                action.waitTime = actionNode.getInt('wait_time');
+                action.description = actionNode.getString('description');
                 actions.add(action);
             } else if (actionType === 'EXECUTE_JAVASCRIPT') {
-                const action: ExecuteJavaScriptAction = {
-                    type: actionType,
-                    embedded: actionNode.getBoolean('embedded'),
-                };
+                const action = new ExecuteJavaScriptAction(
+                    actionNode.getBoolean('embedded'),
+                );
                 if (action.embedded) {
                     action.text = actionNode.getString('scriptText');
                 } else {
                     action.path = actionNode.getString('path');
                 }
+                action.description = actionNode.getString('description');
                 actions.add(action);
             } else if (actionType === 'WRITE_PV') {
-                const action: WritePVAction = {
-                    type: actionType,
-                    pvName: actionNode.getString('pv_name'),
-                    value: actionNode.getString('value'),
-                    confirmMessage: actionNode.getString('confirm_message'),
-                    description: actionNode.getString('description'),
-                };
+                const action = new WritePVAction(actionNode.getString('pv_name'),
+                    actionNode.getString('value'));
+                action.confirmMessage = actionNode.getString('confirm_message');
+                action.description = actionNode.getString('description');
+                actions.add(action);
+            } else if (actionType === 'PLAY_SOUND') {
+                const action = new PlaySoundAction();
+                action.path = actionNode.getString('path');
+                action.description = actionNode.getString('description');
+                actions.add(action);
+            } else if (actionType === 'OPEN_WEBPAGE') {
+                const action = new OpenWebpageAction();
+                action.hyperlink = actionNode.getString('hyperlink');
+                action.description = actionNode.getString('description');
                 actions.add(action);
             } else {
                 console.warn(`Unsupported action type ${actionType}`);

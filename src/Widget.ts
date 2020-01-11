@@ -447,6 +447,19 @@ export abstract class Widget {
                     this.display.pvEngine.setValue(pvName, action.value);
                 }
                 break;
+            case 'PLAY_SOUND':
+                if (action.path) {
+                    const audio = new Audio('/raw/' + action.path);
+                    audio.play();
+                }
+                break;
+            case 'OPEN_WEBPAGE':
+                if (action.hyperlink) {
+                    window.location.href = action.hyperlink;
+                }
+                break;
+            default:
+                throw new Error(`Unsupported command ${action.type}`);
         }
     }
 
@@ -476,8 +489,13 @@ export abstract class Widget {
     get actions(): ActionSet { return this.properties.getValue(PROP_ACTIONS); }
 
     get text(): string {
-        const rawText = this.properties.getValue(PROP_TEXT);
-        return rawText.split(' ').join('\u00a0'); // Preserve whitespace
+        if (this.display.editMode) {
+            const prop = this.properties.getProperty(PROP_TEXT) as StringProperty;
+            return (prop.rawValue || '').split(' ').join('\u00a0'); // Preserve whitespace
+        } else {
+            const text = this.properties.getValue(PROP_TEXT);
+            return text.split(' ').join('\u00a0'); // Preserve whitespace
+        }
     }
 
     init(): void { };

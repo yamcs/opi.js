@@ -7,7 +7,7 @@ const PROP_TRANSPARENCY = 'transparency';
 
 export class ImageWidget extends Widget {
 
-    private image?: HTMLImageElement;
+    private imageElement?: HTMLImageElement;
     private imageLoaded = false;
 
     constructor(display: Display) {
@@ -20,12 +20,14 @@ export class ImageWidget extends Widget {
         /*if (this.imageFile.startsWith('../')) {
             this.imageFile = this.display.resolve(this.imageFile);
         }*/
-        this.image = new Image(this.width, this.height); // Using optional size for image
-        this.image.onload = () => {
+        this.imageElement = new Image(this.width, this.height); // Using optional size for image
+        this.imageElement.onload = () => {
             this.imageLoaded = true;
             this.requestRepaint();
         }
-        this.image.src = this.imageFile;
+
+        const src = `/raw/${this.imageFile}`;
+        this.imageElement.src = src;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -34,8 +36,8 @@ export class ImageWidget extends Widget {
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        if (this.image && this.imageLoaded) {
-            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        if (this.imageElement && this.imageLoaded) {
+            ctx.drawImage(this.imageElement, this.x, this.y, this.width, this.height);
         }
     }
 
