@@ -34,6 +34,9 @@
             <li onclick="changeSource('top-bar.opi')">
                 <i class="far fa-fw fa-file"></i> top-bar.opi
             </li>
+            <li onclick="changeSource('xy.opi')">
+                <i class="far fa-fw fa-file"></i> xy.opi
+            </li>
         </ul>
 
         <h2 style="margin-top: 2em">
@@ -88,7 +91,11 @@
                 display.setSource(urlParams.get('file')).then(() => {
                     let html = '';
                     for (const widget of display.widgets) {
-                        html += `<li data-wuid="${widget.wuid}">${widget.name}</li>`
+                        let label = widget.name;
+                        if (widget.pvName) {
+                            label += ` (${widget.pvName})`;
+                        }
+                        html += `<li data-wuid="${widget.wuid}">${label}</li>`
                     }
                     widgetsEl.innerHTML = html;
                 });

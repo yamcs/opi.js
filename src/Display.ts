@@ -249,12 +249,15 @@ export class Display {
     }
 
     setSource(href: string) {
-        return fetch(href).then(response => {
-            if (response.ok) {
-                response.text().then(text => {
-                    this.setSourceString(text);
-                });
-            }
+        return new Promise((resolve, reject) => {
+            fetch(href).then(response => {
+                if (response.ok) {
+                    response.text().then(text => {
+                        this.setSourceString(text);
+                        resolve();
+                    }).catch(err => reject(err));
+                }
+            }).catch(err => reject(err));
         });
     }
 

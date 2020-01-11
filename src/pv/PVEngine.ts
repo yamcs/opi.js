@@ -1,5 +1,6 @@
 import { CompiledFormula } from './formulas/CompiledFormula';
 import { FormulaCompiler } from './formulas/FormulaCompiler';
+import { LocalPV } from './LocalPV';
 import { PV } from './PV';
 import { SimulatedPV } from './SimulatedPV';
 
@@ -47,13 +48,18 @@ export class PVEngine {
             return pv;
         }
 
-        if (pvName === 'sys://time' || pvName.startsWith('sim://')) {
+        if (pvName.startsWith('loc://')) {
+            pv = new LocalPV(pvName);
+            this.pvs.set(pvName, pv);
+        } else if (pvName === 'sys://time' || pvName.startsWith('sim://')) {
             pv = new SimulatedPV(pvName);
             this.pvs.set(pvName, pv);
             this.simulatedPvs.push(pv as SimulatedPV);
             return pv;
+        } else if (pvName.startsWith('=')) {
+            this.createFormula(pvName);
         } else {
-            console.warn(`Unsupported PV '${pvName}'`);
+            console.warn(`Unsupported PV ${pvName}`);
         }
     }
 
@@ -67,34 +73,36 @@ export class PVEngine {
     setValue(pvName: string, value: any) {
         const pv = this.pvs.get(pvName);
         if (pv) {
-            pv.value = value;
+            if (pv.isWritable()) {
+                pv.value = value;
+                this.changed = true;
+            } else {
+                throw new Error(`Cannot set value of readonly PV ${pvName}`);
+            }
         } else {
-            throw new Error(`Cannot set value of unknown PV '${pvName}'`);
+            throw new Error(`Cannot set value of unknown PV ${pvName}`);
         }
     }
 
-    createFormula(pvName: string) {
-        if (!pvName.startsWith('=')) {
-            throw new Error('Formulas must start with \'=\'');
-        }
-
-        let compiledFormula = this.formulas.get(name);
+    private createFormula(pvName: string) {
+        let compiledFormula = this.formulas.get(pvName);
         if (!compiledFormula) {
             const compiler = new FormulaCompiler();
             compiledFormula = compiler.compile(pvName);
         }
 
-        for (const parameter of compiledFormula.getParameters()) {
-            this.registerFormulaTriggers(parameter, compiledFormula);
+        for (const pvName of compiledFormula.getParameters()) {
+            this.createPV(pvName);
+            this.registerFormulaTriggers(pvName, compiledFormula);
         }
     }
 
-    private registerFormulaTriggers(qualifiedName: string, formula: CompiledFormula) {
-        const formulas = this.formulasByTrigger.get(qualifiedName);
+    private registerFormulaTriggers(pvName: string, formula: CompiledFormula) {
+        const formulas = this.formulasByTrigger.get(pvName);
         if (formulas) {
             formulas.push(formula);
         } else {
-            this.formulasByTrigger.set(qualifiedName, [formula]);
+            this.formulasByTrigger.set(pvName, [formula]);
         }
     }
 }

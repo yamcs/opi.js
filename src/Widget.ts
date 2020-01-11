@@ -174,14 +174,16 @@ export abstract class Widget {
     }
 
     drawDecoration(ctx: CanvasRenderingContext2D) {
-        if (!this.display.editMode && this.pv/* && this.pv.value === undefined*/) {
-            ctx.globalAlpha = 0.4;
-            ctx.fillStyle = 'purple';
-            ctx.fillRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth, this.holderHeight);
-            ctx.globalAlpha = 1;
+        if (!this.display.editMode) {
+            if (this.pvName && !this.pv) { // Disconnected
+                ctx.globalAlpha = 0.4;
+                ctx.fillStyle = 'purple';
+                ctx.fillRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth + 1, this.holderHeight + 1);
+                ctx.globalAlpha = 1;
 
-            ctx.strokeStyle = 'purple';
-            ctx.strokeRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth, this.holderHeight);
+                ctx.strokeStyle = 'purple';
+                ctx.strokeRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth + 1, this.holderHeight + 1);
+            }
         }
     }
 

@@ -1,7 +1,8 @@
 import { PV } from './PV';
-import { ConstantGenerator, FormattedTimeGenerator, Noise, SimGenerator } from './sim';
+import { ConstantGenerator, FormattedTimeGenerator, SimGenerator } from './sim';
 
 const PV_PATTERN = /sim\:\/\/([a-z]+)\((.*)\)/;
+const DUMMY_GENERATOR = new ConstantGenerator(undefined);
 
 
 export class SimulatedPV extends PV<any> {
@@ -22,19 +23,22 @@ export class SimulatedPV extends PV<any> {
                 this.fn = this.createGenerator(match[1], args);
             } else {
                 console.warn(`Unexpected pattern for PV ${name}`);
-                this.fn = new Noise(500, -5, 5);
+                this.fn = DUMMY_GENERATOR;
             }
         }
+    }
+
+    isWritable() {
+        return false;
     }
 
     private createGenerator(fnName: string, args: string[]) {
         switch (fnName) {
             case 'const':
-                console.log('create const generator', fnName, args);
                 return new ConstantGenerator(args[0]);
             default:
                 console.warn(`Unexpected function ${fnName} for PV ${name}`);
-                return new Noise(500, -5, 5);
+                return DUMMY_GENERATOR;
         }
     }
 

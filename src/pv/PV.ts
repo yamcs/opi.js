@@ -6,5 +6,7 @@ export abstract class PV<T> {
     constructor(readonly name: string) {
     }
 
-    abstract toString(): string;
+    abstract isWritable(): boolean;
+
+    abstract toString(): string | undefined;
 }
