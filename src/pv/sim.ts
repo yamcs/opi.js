@@ -67,7 +67,7 @@ export class Flipflop extends SimGenerator {
  */
 export class Noise extends SimGenerator {
 
-    constructor(interval: number, private min: number, private max: number) {
+    constructor(private min: number, private max: number, interval: number) {
         super(interval);
     }
 

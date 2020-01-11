@@ -19,7 +19,10 @@ export class RoundedRectangle extends Widget {
 
     constructor(display: Display) {
         super(display);
-        this.hideRoundedHolderBorder = true;
+
+        // This widget ignores the fill associated with border 14.
+        this.fillRoundRectangleBackgroundBorder = false;
+
         this.properties.add(new IntProperty(PROP_ALPHA))
         this.properties.add(new ColorProperty(PROP_BG_GRADIENT_COLOR));
         this.properties.add(new ColorProperty(PROP_FG_GRADIENT_COLOR));

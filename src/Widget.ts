@@ -1,6 +1,7 @@
 import { ActionSet } from './actions';
 import { Color } from './Color';
 import { Display } from './Display';
+import { Font } from './Font';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
 import { toBorderBox } from './positioning';
@@ -39,9 +40,9 @@ export abstract class Widget {
     width = 0;
     height = 0;
 
-    // Some widgets disable this type of border
+    // Some widgets ignore the fill of this border (only the stroke).
     // (Rectangle, RoundedRectangle)
-    protected hideRoundedHolderBorder = false;
+    protected fillRoundRectangleBackgroundBorder = true;
 
     properties = new PropertySet([
         new ActionsProperty(PROP_ACTIONS, new ActionSet()),
@@ -152,15 +153,138 @@ export abstract class Widget {
             ctx.lineWidth = this.borderWidth;
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
             ctx.strokeRect(box.x, box.y, box.width, box.height);
-        } else if (this.borderStyle === 14) { // Round Rectangle Background
-            if (!this.hideRoundedHolderBorder) {
+        } else if (this.borderStyle === 2) { // Raised
+            const top = this.holderY + 0.5;
+            const left = this.holderX + 0.5;
+            const bottom = this.holderY + this.holderHeight - 1 + 0.5;
+            const right = this.holderX + this.holderWidth - 1 + 0.5;
+
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.moveTo(right, bottom);
+            ctx.lineTo(right, top);
+            ctx.moveTo(right, bottom);
+            ctx.lineTo(left, bottom);
+            ctx.strokeStyle = Color.BLACK.toString();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(left, top);
+            ctx.lineTo(right - 1, top);
+            ctx.moveTo(left, top);
+            ctx.lineTo(left, bottom - 1);
+
+            ctx.strokeStyle = Color.WHITE.toString();
+            ctx.stroke();
+        } else if (this.borderStyle === 3) { // Lowered
+            const top = this.holderY + 0.5;
+            const left = this.holderX + 0.5;
+            const bottom = this.holderY + this.holderHeight - 1 + 0.5;
+            const right = this.holderX + this.holderWidth - 1 + 0.5;
+
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.moveTo(right, bottom);
+            ctx.lineTo(right, top);
+            ctx.moveTo(right, bottom);
+            ctx.lineTo(left, bottom);
+            ctx.strokeStyle = Color.WHITE.toString();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(left, top);
+            ctx.lineTo(right - 1, top);
+            ctx.moveTo(left, top);
+            ctx.lineTo(left, bottom - 1);
+
+            ctx.strokeStyle = Color.BLACK.toString();
+            ctx.stroke();
+        } else if (this.borderStyle === 4) { // Etched
+            this.drawShadowBorder(ctx, Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER,
+                Color.BUTTON_DARKER, Color.BUTTON_LIGHTEST);
+        } else if (this.borderStyle === 5) { // Ridged
+            this.drawShadowBorder(ctx, Color.BUTTON_DARKER, Color.BUTTON_LIGHTEST,
+                Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER);
+        } else if (this.borderStyle === 6) { // Button Raised
+            this.drawShadowBorder(ctx, Color.BUTTON_DARKEST, Color.BUTTON_DARKER,
+                Color.BUTTON, Color.BUTTON_LIGHTEST);
+        } else if (this.borderStyle === 7) { // Button Pressed
+            this.drawShadowBorder(ctx, Color.BUTTON_LIGHTEST, Color.BUTTON_LIGHTEST,
+                Color.BUTTON_DARKEST, Color.BUTTON_DARKER);
+        } else if (this.borderStyle === 8) { // Dot
+            this.drawDashedBorder(ctx, [2, 2]);
+        } else if (this.borderStyle === 9) { // Dash
+            this.drawDashedBorder(ctx, [6, 2]);
+        } else if (this.borderStyle === 10) { // Dash Dot
+            this.drawDashedBorder(ctx, [6, 2, 2, 2]);
+        } else if (this.borderStyle === 11) { // Dash Dot Dot
+            this.drawDashedBorder(ctx, [6, 2, 2, 2, 2, 2]);
+        } else if (this.borderStyle === 12) { // Title bar
+            ctx.fillStyle = this.borderColor.toString();
+            ctx.fillRect(this.holderX, this.holderY + 1, this.holderWidth, 16);
+
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'start';
+            ctx.font = Font.ARIAL_11.getFontString();
+            ctx.fillStyle = Color.BLACK.toString();
+            ctx.fillText(this.name, this.holderX + 1 + 3, this.holderY + 1 + (16 / 2));
+
+            ctx.lineWidth = 1;
+            const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, 1);
+            ctx.strokeStyle = Color.BLACK.toString();
+            ctx.strokeRect(box.x, box.y, box.width, box.height);
+        } else if (this.borderStyle === 13) { // Group Box
+            if (!this.transparent) {
                 ctx.fillStyle = this.backgroundColor.toString();
-                ctx.strokeStyle = this.borderColor.toString();
-                ctx.lineWidth = this.borderWidth;
-                const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-                utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
-                ctx.stroke();
+                ctx.fillRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
             }
+
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'middle';
+            ctx.font = Font.ARIAL_11.getFontString();
+            ctx.fillStyle = this.borderColor.toString();
+            ctx.fillText(this.name, this.holderX + 16, this.holderY + 8);
+
+            // Avoid drawing border over text
+            const fm = ctx.measureText(this.name);
+
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = this.backgroundColor.darker().toString();
+            let box = toBorderBox(this.holderX + 8, this.holderY + 8, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
+            ctx.beginPath();
+            ctx.moveTo(box.x, box.y);
+            ctx.lineTo(box.x + 8, box.y);
+            ctx.moveTo(box.x + 8 + fm.width, box.y);
+            ctx.lineTo(box.x + box.width, box.y);
+            ctx.lineTo(box.x + box.width, box.y + box.height);
+            ctx.lineTo(box.x, box.y + box.height);
+            ctx.lineTo(box.x, box.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = this.backgroundColor.brighter().toString();
+            box = toBorderBox(this.holderX + 8 + 1, this.holderY + 8 + 1, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
+
+            ctx.beginPath();
+            ctx.moveTo(box.x, box.y);
+            ctx.lineTo(box.x + 8 - 1, box.y);
+            ctx.moveTo(box.x + 8 - 1 + fm.width, box.y);
+            ctx.lineTo(box.x + box.width, box.y);
+            ctx.lineTo(box.x + box.width, box.y + box.height);
+            ctx.lineTo(box.x, box.y + box.height);
+            ctx.lineTo(box.x, box.y);
+            ctx.stroke();
+        } else if (this.borderStyle === 14) { // Round Rectangle Background
+            ctx.fillStyle = this.backgroundColor.toString();
+            ctx.strokeStyle = this.borderColor.toString();
+            ctx.lineWidth = this.borderWidth;
+            const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
+            utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
+            if (this.fillRoundRectangleBackgroundBorder) {
+                ctx.fill();
+            }
+            ctx.stroke();
         } else if (this.borderStyle === 15) { // Empty
             // NOP
         } else {
@@ -220,6 +344,62 @@ export abstract class Widget {
 
     requestRepaint() {
         this.display.requestRepaint();
+    }
+
+    private drawShadowBorder(ctx: CanvasRenderingContext2D, c1: Color, c2: Color, c3: Color, c4: Color) {
+        const top = this.holderY + 0.5;
+        const left = this.holderX + 0.5;
+        const bottom = this.holderY + this.holderHeight - 1 + 0.5;
+        const right = this.holderX + this.holderWidth - 1 + 0.5;
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(right, bottom);
+        ctx.lineTo(right, top);
+        ctx.moveTo(right, bottom);
+        ctx.lineTo(left, bottom);
+        ctx.strokeStyle = c1.toString();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(right - 1, bottom - 1);
+        ctx.lineTo(right - 1, top + 1);
+        ctx.moveTo(right - 1, bottom - 1);
+        ctx.lineTo(left + 1, bottom - 1);
+        ctx.strokeStyle = c2.toString();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(left, top);
+        ctx.lineTo(right - 1, top);
+        ctx.moveTo(left, top);
+        ctx.lineTo(left, bottom - 1);
+        ctx.strokeStyle = c3.toString();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(left + 1, top + 1);
+        ctx.lineTo(right - 1 - 1, top + 1);
+        ctx.moveTo(left + 1, top + 1);
+        ctx.lineTo(left + 1, bottom - 1 - 1);
+        ctx.strokeStyle = c4.toString();
+        ctx.stroke();
+    }
+
+    private drawDashedBorder(ctx: CanvasRenderingContext2D, segments: number[]) {
+        const bbox = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
+
+        ctx.lineWidth = this.borderWidth;
+        ctx.setLineDash(segments);
+        ctx.beginPath();
+        ctx.moveTo(bbox.x, bbox.y);
+        ctx.lineTo(bbox.x + bbox.width, bbox.y);
+        ctx.lineTo(bbox.x + bbox.width, bbox.y + bbox.height);
+        ctx.lineTo(bbox.x, bbox.y + bbox.height);
+        ctx.closePath();
+        ctx.strokeStyle = this.borderColor.toString();
+        ctx.stroke();
+        ctx.setLineDash([]);
     }
 
     protected executeAction(index: number) {
