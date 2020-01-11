@@ -11,6 +11,7 @@ const PROP_GRADIENT = 'gradient';
 const PROP_HORIZONTAL_FILL = 'horizontal_fill';
 const PROP_LINE_COLOR = 'line_color';
 const PROP_LINE_WIDTH = 'line_width';
+const PROP_LINE_STYLE = 'line_style';
 
 export class Rectangle extends Widget {
 
@@ -28,13 +29,11 @@ export class Rectangle extends Widget {
         this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
         this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
         this.properties.add(new ColorProperty(PROP_LINE_COLOR));
+        this.properties.add(new IntProperty(PROP_LINE_STYLE));
     }
 
     draw(ctx: CanvasRenderingContext2D) {
         ctx.globalAlpha = this.alpha / 255;
-        if (this.transparent) {
-            ctx.globalAlpha = 0;
-        }
 
         this.drawBackground(ctx);
         if (this.fillLevel) {
@@ -45,23 +44,31 @@ export class Rectangle extends Widget {
     }
 
     private drawBackground(ctx: CanvasRenderingContext2D) {
-        if (this.gradient) {
-            const x2 = this.horizontalFill ? this.x : this.x + this.width;
-            const y2 = this.horizontalFill ? this.y + this.height : this.y;
-            const gradient = ctx.createLinearGradient(this.x, this.y, x2, y2);
-            gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
-            gradient.addColorStop(1, this.backgroundColor.toString());
-            ctx.fillStyle = gradient;
-        } else {
-            ctx.fillStyle = this.backgroundColor.toString();
+        if (!this.transparent) {
+            if (this.gradient) {
+                const x2 = this.horizontalFill ? this.x : this.x + this.width;
+                const y2 = this.horizontalFill ? this.y + this.height : this.y;
+                const gradient = ctx.createLinearGradient(this.x, this.y, x2, y2);
+                gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
+                gradient.addColorStop(1, this.backgroundColor.toString());
+                ctx.fillStyle = gradient;
+            } else {
+                ctx.fillStyle = this.backgroundColor.toString();
+            }
+
+            ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-
         if (this.lineWidth) {
-            ctx.lineWidth = this.lineWidth;
-            ctx.strokeStyle = this.lineColor.toString();
-            ctx.stroke();
+            if (this.lineStyle === 0) { // Solid
+                ctx.lineWidth = this.lineWidth;
+                ctx.beginPath();
+                ctx.rect(this.x, this.y, this.width, this.height);
+                ctx.strokeStyle = this.lineColor.toString();
+                ctx.stroke();
+            } else {
+                console.warn(`Unsupported rectangle line style ${this.lineStyle}`);
+            }
         }
     }
 
@@ -113,6 +120,7 @@ export class Rectangle extends Widget {
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+    get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
     get gradient(): boolean { return this.properties.getValue(PROP_GRADIENT); }
     get backgroundGradientStartColor(): Color {
         return this.properties.getValue(PROP_BG_GRADIENT_COLOR);

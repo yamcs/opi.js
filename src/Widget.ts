@@ -309,6 +309,13 @@ export abstract class Widget {
 
                 ctx.strokeStyle = 'purple';
                 ctx.strokeRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth + 1, this.holderHeight + 1);
+            } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
+                ctx.setLineDash([2, 2]);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgb(255,0,255)';
+                const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, 2);
+                ctx.strokeRect(box.x, box.y, box.width, box.height);
+                ctx.setLineDash([]);
             }
         }
     }
