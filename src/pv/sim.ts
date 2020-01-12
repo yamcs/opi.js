@@ -114,11 +114,36 @@ export class Sine extends SimGenerator {
     generateSamples(date: Date) {
         const samples = [];
         const range = this.max - this.min;
-        for (let i = 0; i < this.samplesPerCycle; i++) {
-            const value = Math.sin(this.currentValue * 2 * Math.PI / this.samplesPerCycle) * range / 2 + this.min + (range / 2);
-            samples.push(new Sample(date, value));
-            this.currentValue++;
+        const value = Math.sin(this.currentValue * 2 * Math.PI / this.samplesPerCycle) * range / 2 + this.min + (range / 2);
+        samples.push(new Sample(date, value));
+        this.currentValue++;
+        return samples;
+    }
+}
+
+export class Ramp extends SimGenerator {
+
+    private currentValue = 0;
+
+    constructor(private min: number, private max: number, private inc: number, interval: number) {
+        super(interval);
+        if (inc >= 0) {
+            this.currentValue = min - inc;
+        } else {
+            this.currentValue = max - inc;
         }
+    }
+
+    generateSamples(date: Date) {
+        const samples = [];
+        this.currentValue = this.currentValue + this.inc;
+        if (this.currentValue > this.max) {
+            this.currentValue = this.min;
+        }
+        if (this.currentValue < this.min) {
+            this.currentValue = this.max;
+        }
+        samples.push(new Sample(date, this.currentValue));
         return samples;
     }
 }

@@ -4,7 +4,6 @@ import { Display } from './Display';
 import { Font } from './Font';
 import { Graphics } from './Graphics';
 import { HitCanvas } from './HitCanvas';
-import { HitRegion } from './HitRegion';
 import { toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, ScriptsProperty, StringProperty } from './properties';
 import { PV } from './pv/PV';
@@ -34,8 +33,6 @@ const PROP_Y = 'y';
 
 export abstract class Widget {
 
-    insets: [number, number, number, number] = [0, 0, 0, 0]; // T L B R
-
     // bbox around the widget (excluding border)
     x = 0;
     y = 0;
@@ -47,8 +44,6 @@ export abstract class Widget {
     protected fillRoundRectangleBackgroundBorder = true;
 
     properties: PropertySet;
-
-    holderRegion?: HitRegion;
 
     constructor(readonly display: Display) {
         this.properties = new PropertySet(display, [
@@ -77,68 +72,12 @@ export abstract class Widget {
     parseNode(node: XMLNode) {
         this.properties.loadXMLValues(node);
 
-        this.insets = [0, 0, 0, 0];
-        switch (this.borderStyle) {
-            case 0: // Empty
-                if (this.borderAlarmSensitive) {
-                    // TODO reevaluate the condition for these insets
-                    // (at least the TextUpdate does not seem to need this)
-                    ///this.insets = [2, 2, 2, 2];
-                }
-                break;
-            case 1: // Line
-                this.insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
-                break;
-            case 2: // Raised
-            case 3: // Lowered
-                this.insets = [1, 1, 1, 1];
-                break;
-            case 4: // Etched
-            case 5: // Ridged
-            case 6: // Button Raised
-                this.insets = [2, 2, 2, 2];
-                break;
-            case 7: // Button Pressed
-                this.insets = [2, 2, 1, 1];
-                break;
-            case 8: // Dot
-            case 9: // Dash
-            case 10: // Dash Dot
-            case 11: // Dash Dot Dot
-                this.insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
-                break;
-            case 12: // Title Bar
-                this.insets = [16 + 1, 1, 1, 1];
-                break;
-            case 13: // Group Box
-                this.insets = [16, 16, 16, 16];
-                break;
-            case 14: // Round Rectangle Background
-                const i = this.borderWidth * 2;
-                this.insets = [i, i, i, i];
-                break;
-        }
-
-        // Shrink the available widget area
-        this.x = this.holderX + this.insets[1];
-        this.y = this.holderY + this.insets[0];
-        this.width = this.holderWidth - this.insets[1] - this.insets[3];
-        this.height = this.holderHeight - this.insets[0] - this.insets[2];
-
-        if (this.actions.isClickable()) {
-            this.holderRegion = {
-                id: `${this.wuid}-holder`,
-                click: () => this.onHolderClick(),
-                cursor: 'pointer'
-            }
-        }
-
         if (this.pvName) {
             this.display.pvEngine.createPV(this.pvName);
         }
 
         for (const script of this.scripts.scripts) {
-            fetch(`/raw/${script.path}`).then(response => {
+            fetch(`${this.display.baseUrl}${script.path}`).then(response => {
                 if (response.ok) {
                     response.text().then(text => {
                         this.display.pvEngine.createScript(this, script, text);
@@ -150,13 +89,55 @@ export abstract class Widget {
         this.init();
     }
 
-    onHolderClick() {
-        for (const idx of this.actions.getClickActions()) {
-            this.executeAction(idx);
-        }
-    }
-
     drawHolder(g: Graphics, hitCanvas: HitCanvas) {
+        let insets = [0, 0, 0, 0]; // T L B R
+        switch (this.borderStyle) {
+            case 0: // Empty
+                if (this.borderAlarmSensitive) {
+                    // TODO reevaluate the condition for these insets
+                    // (at least the TextUpdate does not seem to need this)
+                    ///this.insets = [2, 2, 2, 2];
+                }
+                break;
+            case 1: // Line
+                insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
+                break;
+            case 2: // Raised
+            case 3: // Lowered
+                insets = [1, 1, 1, 1];
+                break;
+            case 4: // Etched
+            case 5: // Ridged
+            case 6: // Button Raised
+                insets = [2, 2, 2, 2];
+                break;
+            case 7: // Button Pressed
+                insets = [2, 2, 1, 1];
+                break;
+            case 8: // Dot
+            case 9: // Dash
+            case 10: // Dash Dot
+            case 11: // Dash Dot Dot
+                insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
+                break;
+            case 12: // Title Bar
+                insets = [16 + 1, 1, 1, 1];
+                break;
+            case 13: // Group Box
+                insets = [16, 16, 16, 16];
+                break;
+            case 14: // Round Rectangle Background
+                const i = this.borderWidth * 2;
+                insets = [i, i, i, i];
+                break;
+        }
+
+        // Shrink the available widget area
+        this.x = this.holderX + insets[1];
+        this.y = this.holderY + insets[0];
+        this.width = this.holderWidth - insets[1] - insets[3];
+        this.height = this.holderHeight - insets[0] - insets[2];
+
         if (this.borderStyle === 0) { // No border
             // This is a weird one. When there is no border the widget
             // shrinks according to an inset of 2px. This only happens when
@@ -320,8 +301,16 @@ export abstract class Widget {
             console.warn(`Unsupported border style: ${this.borderStyle}`);
         }
 
-        if (this.holderRegion) {
-            hitCanvas.beginHitRegion(this.holderRegion);
+        if (this.actions.isClickable()) {
+            hitCanvas.beginHitRegion({
+                id: `${this.wuid}-holder`,
+                click: () => {
+                    for (const idx of this.actions.getClickActions()) {
+                        this.executeAction(idx);
+                    }
+                },
+                cursor: 'pointer'
+            });
             hitCanvas.ctx.fillRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
         }
     }
@@ -472,7 +461,7 @@ export abstract class Widget {
                 break;
             case 'PLAY_SOUND':
                 if (action.path) {
-                    const audio = new Audio('/raw/' + action.path);
+                    const audio = new Audio(`${this.display.baseUrl}${action.path}`);
                     audio.play();
                 }
                 break;

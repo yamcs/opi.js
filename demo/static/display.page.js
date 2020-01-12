@@ -25,8 +25,11 @@ window.page = (function () {
     });
 
     return {
-        loadDisplay: url => {
-            display.setSource(url).then(() => {
+        loadDisplay: (baseUrl, name) => {
+            console.log('load display', baseUrl, name);
+            // if (true) { return }
+            display.baseUrl = baseUrl;
+            display.setSource(name).then(() => {
                 let html = '';
                 for (const widget of display.widgets) {
                     let label = widget.name;

@@ -21,7 +21,7 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     init() {
         if (this.opiFile) {
-            fetch(this.opiFile).then(response => {
+            fetch(this.display.baseUrl + this.opiFile).then(response => {
                 if (response.ok) {
                     response.text().then(source => {
                         this.linkedDisplay = new DisplayWidget(this.display);

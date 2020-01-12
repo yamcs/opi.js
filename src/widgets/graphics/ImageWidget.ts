@@ -27,7 +27,7 @@ export class ImageWidget extends Widget {
             this.requestRepaint();
         }
 
-        const src = `/raw/${this.imageFile}`;
+        const src = `${this.display.baseUrl}${this.imageFile}`;
         this.imageElement.src = src;
     }
 

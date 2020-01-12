@@ -1,5 +1,5 @@
 import { PV } from './PV';
-import { ConstantGenerator, FormattedTimeGenerator, Noise, SimGenerator, Sine } from './sim';
+import { ConstantGenerator, FormattedTimeGenerator, Noise, Ramp, SimGenerator, Sine } from './sim';
 
 const PV_PATTERN = /sim\:\/\/([a-z]+)(\((.*)\))?/;
 const DUMMY_GENERATOR = new ConstantGenerator(undefined);
@@ -45,6 +45,24 @@ export class SimulatedPV extends PV<any> {
                     const interval = parseFloat(args[2]) * 1000;
                     return new Noise(min, max, interval);
                 }
+            case 'ramp':
+                if (args.length === 0) {
+                    return new Ramp(-5, 5, 1, 1000);
+                } else if (args.length === 3) {
+                    const min = parseFloat(args[0]);
+                    const max = parseFloat(args[1]);
+                    const interval = parseFloat(args[2]) * 1000;
+                    return new Ramp(min, max, 1, interval);
+                } else if (args.length === 4) {
+                    const min = parseFloat(args[0]);
+                    const max = parseFloat(args[1]);
+                    const step = parseFloat(args[2]);
+                    const interval = parseFloat(args[3]) * 1000;
+                    return new Ramp(min, max, step, interval);
+                } else {
+                    console.warn(`Unexpected function ${fnName} for PV ${name}`);
+                    return DUMMY_GENERATOR;
+                }
             case 'sine':
                 if (args.length === 0) {
                     return new Sine(-5, 5, 10, 1000);
@@ -59,7 +77,10 @@ export class SimulatedPV extends PV<any> {
                     const samplesPerCycle = parseFloat(args[2]);
                     const interval = parseFloat(args[3]) * 1000;
                     return new Sine(min, max, samplesPerCycle, interval);
-                } // or fall
+                } else {
+                    console.warn(`Unexpected function ${fnName} for PV ${name}`);
+                    return DUMMY_GENERATOR;
+                }
             default:
                 console.warn(`Unexpected function ${fnName} for PV ${name}`);
                 return DUMMY_GENERATOR;

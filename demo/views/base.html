@@ -21,15 +21,24 @@
             BROWSE
         </h2>
         <ul class="menu">
-            {% for dir in displays.dirs %}
+            {% if parentUrl %}
             <li>
-                <i class="far fa-fw fa-folder"></i> {{ dir.name }}/
+                <a href="{{ parentUrl }}">
+                    <i class="far fa-fw fa-folder"></i> ..
+                </a>
+            </li>
+            {% endif %}
+            {% for f in tree.folders %}
+            <li>
+                <a href="/folders/{{ f.location }}">
+                    <i class="far fa-fw fa-folder"></i> {{ f.name }}
+                </a>
             </li>
             {% endfor %}
-            {% for display in displays.files %}
+            {% for d in tree.files %}
             <li>
-                <a href="/displays/{{ display.name }}">
-                    <i class="far fa-fw fa-file"></i> {{ display.name }}
+                <a href="/displays/{{ d.location }}">
+                    <i class="far fa-fw fa-file"></i> {{ d.name }}
                 </a>
             </li>
             {% endfor %}

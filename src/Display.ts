@@ -64,6 +64,11 @@ export class Display {
     private _showRuler = false;
     private _selection: string[] = [];
 
+    /**
+     * Prefix for external path references (images, scripts, dispays)
+     */
+    baseUrl = '';
+
     instance?: DisplayWidget;
 
     private eventListeners: OPIEventHandlers = {
@@ -256,7 +261,7 @@ export class Display {
 
     setSource(href: string) {
         return new Promise((resolve, reject) => {
-            fetch(href).then(response => {
+            fetch(this.baseUrl + href).then(response => {
                 if (response.ok) {
                     response.text().then(text => {
                         this.setSourceString(text);
