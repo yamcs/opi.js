@@ -217,7 +217,7 @@ export class BooleanButton extends Widget {
             const ry = ledArea.height / 2;
             const ledColor = this.enabled ? this.onColor : this.offColor;
 
-            g.fillEclipse({ cx, cy, rx, ry, color: ledColor });
+            g.fillEllipse({ cx, cy, rx, ry, color: ledColor });
 
             if (this.effect3d) {
                 const gradient = g.ctx.createLinearGradient(
@@ -258,7 +258,7 @@ export class BooleanButton extends Widget {
             const cy = ledArea.y + (ledArea.height / 2);
             const rx = ledArea.width / 2;
             const ry = ledArea.height / 2;
-            g.fillEclipse({ cx, cy, rx, ry, color: ledColor });
+            g.fillEllipse({ cx, cy, rx, ry, color: ledColor });
 
             if (this.effect3d) {
                 const gradient = g.ctx.createLinearGradient(

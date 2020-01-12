@@ -2,6 +2,7 @@
 export class Font {
 
   static ARIAL_11 = new Font('arial', 11, 0, false);
+  static ARIAL_12_BOLD = new Font('arial', 12, 1, false);
 
   constructor(
     public name: string,

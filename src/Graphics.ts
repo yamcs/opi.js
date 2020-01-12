@@ -35,13 +35,47 @@ interface TextFill {
     text: string;
 }
 
-interface EclipseFill {
+interface EllipseColorFill {
     cx: number;
     cy: number;
     rx: number;
     ry: number;
     color: Color;
 }
+
+interface EllipseGradientFill {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    gradient: CanvasGradient;
+}
+
+type EllipseFill = EllipseColorFill | EllipseGradientFill;
+
+interface EllipseColorStroke {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    lineWidth: number;
+    color: Color;
+    startAngle?: number;
+    endAngle?: number;
+}
+
+interface EllipseGradientStroke {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    lineWidth: number;
+    gradient: CanvasGradient;
+    startAngle?: number;
+    endAngle?: number;
+}
+
+type EllipseStroke = EllipseColorStroke | EllipseGradientStroke;
 
 interface RectStroke {
     x: number;
@@ -110,11 +144,29 @@ export class Graphics {
         this.ctx.fillText(fill.text, fill.x, fill.y);
     }
 
-    fillEclipse(fill: EclipseFill) {
+    fillEllipse(fill: EllipseFill) {
         this.ctx.beginPath();
         this.ctx.ellipse(fill.cx, fill.cy, fill.rx, fill.ry, 0, 0, 2 * Math.PI);
-        this.ctx.fillStyle = fill.color.toString();
+        if ('color' in fill) {
+            this.ctx.fillStyle = fill.color.toString();
+        } else {
+            this.ctx.fillStyle = fill.gradient;
+        }
         this.ctx.fill();
+    }
+
+    strokeEllipse(stroke: EllipseStroke) {
+        this.ctx.lineWidth = stroke.lineWidth || 1;
+        this.ctx.beginPath();
+        const startAngle = stroke.startAngle || 0;
+        const endAngle = (stroke.endAngle === undefined) ? 2 * Math.PI : stroke.endAngle;
+        this.ctx.ellipse(stroke.cx, stroke.cy, stroke.rx, stroke.ry, 0, startAngle, endAngle);
+        if ('color' in stroke) {
+            this.ctx.strokeStyle = stroke.color.toString();
+        } else {
+            this.ctx.strokeStyle = stroke.gradient;
+        }
+        this.ctx.stroke();
     }
 
     measureText(text: string, font: Font) {

@@ -26,8 +26,6 @@ window.page = (function () {
 
     return {
         loadDisplay: (baseUrl, name) => {
-            console.log('load display', baseUrl, name);
-            // if (true) { return }
             display.baseUrl = baseUrl;
             display.setSource(name).then(() => {
                 let html = '';
