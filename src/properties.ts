@@ -4,6 +4,7 @@ import { Display } from './Display';
 import { Font } from './Font';
 import { MacroSet } from './macros';
 import { Point } from './positioning';
+import { ScriptSet } from './scripts';
 import { XMLNode } from './XMLNode';
 
 export class PropertySet {
@@ -50,6 +51,8 @@ export class PropertySet {
                     property.value = node.getPoints(property.name);
                 } else if (property instanceof MacrosProperty) {
                     property.value = node.getMacros(property.name);
+                } else if (property instanceof ScriptsProperty) {
+                    property.value = node.getScripts(property.name);
                 } else {
                     throw new Error(`Property ${property.name} has an unexpected type`);
                 }
@@ -105,6 +108,14 @@ export class PropertySet {
             }
         }
     }
+
+    setValue(propertyName: string, value: any) {
+        const prop = this.properties.get(propertyName);
+        if (!prop) {
+            throw new Error(`Cannot set value of unknown property ${propertyName}`);
+        }
+        prop.value = value;
+    }
 }
 
 export abstract class Property<T> {
@@ -145,4 +156,7 @@ export class ActionsProperty extends Property<ActionSet> {
 }
 
 export class MacrosProperty extends Property<MacroSet> {
+}
+
+export class ScriptsProperty extends Property<ScriptSet> {
 }

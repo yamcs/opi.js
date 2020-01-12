@@ -1,4 +1,5 @@
 import FontFaceObserver from 'fontfaceobserver';
+import { Color } from './Color';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
@@ -131,8 +132,7 @@ export class Display {
             this.hitCanvas.ctx.canvas.height = height;
         }
 
-        this.ctx.fillStyle = this.instance ? this.instance.backgroundColor.toString() : 'white';
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.g.fillCanvas(this.instance ? this.instance.backgroundColor : Color.WHITE);
 
         if (this.showGrid && this.instance) {
             const patternCanvas = document.createElement('canvas');

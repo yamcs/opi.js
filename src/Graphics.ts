@@ -74,6 +74,19 @@ export class Graphics {
         this.ctx = canvas.getContext('2d')!;
     }
 
+    fillCanvas(color: Color) {
+        this.ctx.fillStyle = color.toString();
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+
+    resize(width: number, height: number) {
+        // Careful not to reset dimensions all the time (it does lots of stuff)
+        if (this.ctx.canvas.width != width || this.ctx.canvas.height != height) {
+            this.ctx.canvas.width = width;
+            this.ctx.canvas.height = height;
+        }
+    }
+
     fillRect(fill: RectFill) {
         if ('color' in fill) {
             this.ctx.fillStyle = fill.color.toString();

@@ -2,6 +2,7 @@ import { ActionSet, ExecuteCommandAction, ExecuteJavaScriptAction, OpenDisplayAc
 import { Color } from './Color';
 import { Font } from './Font';
 import { MacroSet } from './macros';
+import { ScriptInput, ScriptSet } from './scripts';
 
 export class XMLNode {
 
@@ -227,6 +228,27 @@ export class XMLNode {
             });
         }
         return points;
+    }
+
+    getScripts(name: string) {
+        const scriptsNode = this.getNode(name);
+        const scripts = new ScriptSet();
+        for (const pathNode of scriptsNode.getNodes('path')) {
+            const inputs: ScriptInput[] = [];
+            for (const pvNode of pathNode.getNodes('pv')) {
+                inputs.push({
+                    pvName: pathNode.getString('pv'),
+                    trigger: pvNode.getBooleanAttribute('trig'),
+                });
+            }
+            scripts.scripts.push({
+                path: pathNode.getStringAttribute('pathString'),
+                checkConnect: pathNode.getBooleanAttribute('checkConnect'),
+                skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
+                inputs,
+            });
+        }
+        return scripts;
     }
 
     getMacros(name: string) {

@@ -3,11 +3,18 @@ export class Color {
   static TRANSPARENT = new Color(0, 0, 0, 0);
 
   static BLACK = new Color(0, 0, 0);
-  static WHITE = new Color(255, 255, 255);
+  static BLUE = new Color(0, 0, 255);
+  static CYAN = new Color(0, 255, 255);
   static DARK_GRAY = new Color(150, 150, 150);
   static GRAY = new Color(200, 200, 200);
-  static PURPLE = new Color(128, 0, 255);
+  static GREEN = new Color(0, 255, 0);
+  static LIGHT_BLUE = new Color(153, 186, 243);
+  static ORANGE = new Color(255, 128, 0);
   static PINK = new Color(255, 0, 255);
+  static PURPLE = new Color(128, 0, 255);
+  static RED = new Color(255, 0, 0);
+  static WHITE = new Color(255, 255, 255);
+  static YELLOW = new Color(255, 255, 0);
 
   static BUTTON = new Color(239, 240, 241);
   static BUTTON_DARKER = new Color(164, 168, 172);

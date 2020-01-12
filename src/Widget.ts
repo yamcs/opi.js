@@ -6,9 +6,10 @@ import { Graphics } from './Graphics';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
 import { toBorderBox } from './positioning';
-import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, ScriptsProperty, StringProperty } from './properties';
 import { PV } from './pv/PV';
-import { Script } from './scripting/Script';
+import { ScriptEngine } from './scripting/ScriptEngine';
+import { ScriptSet } from './scripts';
 import { XMLNode } from './XMLNode';
 
 const PROP_ACTIONS = 'actions';
@@ -21,6 +22,7 @@ const PROP_FOREGROUND_COLOR = 'foreground_color';
 const PROP_HEIGHT = 'height';
 const PROP_NAME = 'name';
 const PROP_PV_NAME = 'pv_name';
+const PROP_SCRIPTS = 'scripts';
 const PROP_TEXT = 'text';
 const PROP_TRANSPARENT = 'transparent';
 const PROP_VISIBLE = 'visible';
@@ -60,6 +62,7 @@ export abstract class Widget {
             new IntProperty(PROP_HEIGHT),
             new StringProperty(PROP_NAME),
             new StringProperty(PROP_PV_NAME),
+            new ScriptsProperty(PROP_SCRIPTS),
             new StringProperty(PROP_TEXT, ''),
             new BooleanProperty(PROP_TRANSPARENT, false),
             new BooleanProperty(PROP_VISIBLE),
@@ -116,8 +119,6 @@ export abstract class Widget {
                 break;
         }
 
-        console.log('insets for', this.name, this.insets);
-
         // Shrink the available widget area
         this.x = this.holderX + this.insets[1];
         this.y = this.holderY + this.insets[0];
@@ -134,6 +135,16 @@ export abstract class Widget {
 
         if (this.pvName) {
             this.display.pvEngine.createPV(this.pvName);
+        }
+
+        for (const script of this.scripts.scripts) {
+            fetch(`/raw/${script.path}`).then(response => {
+                if (response.ok) {
+                    response.text().then(text => {
+                        this.display.pvEngine.createScript(this, script, text);
+                    });
+                }
+            });
         }
 
         this.init();
@@ -439,8 +450,9 @@ export abstract class Widget {
                 break;
             case 'EXECUTE_JAVASCRIPT':
                 if (action.embedded) {
-                    const script = new Script(this.display, action.text!);
-                    script.run();
+                    // TODO should the current widget be passed?
+                    const engine = new ScriptEngine(this.display.instance!, action.text!);
+                    engine.run();
                 } else {
                     console.warn('An action requested to run an external script');
                     /*const path = this.display.resolve(action.path!);
@@ -498,6 +510,7 @@ export abstract class Widget {
     get transparent(): boolean { return this.properties.getValue(PROP_TRANSPARENT); }
     get visible(): boolean { return this.properties.getValue(PROP_VISIBLE); }
     get actions(): ActionSet { return this.properties.getValue(PROP_ACTIONS); }
+    get scripts(): ScriptSet { return this.properties.getValue(PROP_SCRIPTS); }
 
     get text(): string {
         if (this.display.editMode) {

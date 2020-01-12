@@ -1,5 +1,5 @@
 import { PV } from './PV';
-import { ConstantGenerator, FormattedTimeGenerator, Noise, SimGenerator } from './sim';
+import { ConstantGenerator, FormattedTimeGenerator, Noise, SimGenerator, Sine } from './sim';
 
 const PV_PATTERN = /sim\:\/\/([a-z]+)(\((.*)\))?/;
 const DUMMY_GENERATOR = new ConstantGenerator(undefined);
@@ -45,6 +45,21 @@ export class SimulatedPV extends PV<any> {
                     const interval = parseFloat(args[2]) * 1000;
                     return new Noise(min, max, interval);
                 }
+            case 'sine':
+                if (args.length === 0) {
+                    return new Sine(-5, 5, 10, 1000);
+                } else if (args.length === 3) {
+                    const min = parseFloat(args[0]);
+                    const max = parseFloat(args[1]);
+                    const interval = parseFloat(args[2]) * 1000;
+                    return new Sine(min, max, 10, interval);
+                } else if (args.length === 4) {
+                    const min = parseFloat(args[0]);
+                    const max = parseFloat(args[1]);
+                    const samplesPerCycle = parseFloat(args[2]);
+                    const interval = parseFloat(args[3]) * 1000;
+                    return new Sine(min, max, samplesPerCycle, interval);
+                } // or fall
             default:
                 console.warn(`Unexpected function ${fnName} for PV ${name}`);
                 return DUMMY_GENERATOR;

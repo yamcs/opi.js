@@ -1,7 +1,11 @@
-import { Display } from '../Display';
+import { PV } from '../pv/PV';
+import { Widget } from '../Widget';
+import { ColorFontUtil } from './ColorFontUtil';
 import { ConsoleUtil } from './ConsoleUtil';
 import { MessageDialog } from './MessageDialog';
+import { PVUtil } from './PVUtil';
 import { ScriptUtil } from './ScriptUtil';
+import { WidgetWrapper } from './WidgetWrapper';
 
 interface Context { [key: string]: any; }
 
@@ -16,21 +20,24 @@ if (!wEval && contentWindow.execScript) { // IE
   wEval = contentWindow.eval;
 }
 
-export class Script {
+export class ScriptEngine {
 
   private scriptText: string;
   private context: Context;
 
-  constructor(display: Display, scriptText: string) {
+  constructor(widget: Widget, scriptText: string, pvs: PV<any>[] = []) {
     this.scriptText = scriptText
       .replace(/importClass\([^\)]*\)\s*\;?/gi, '')
       .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')
       .trim();
     this.context = {
-      widget: null, // Some scripts reference this. Ensure variable exists.
+      pvs,
+      widget: new WidgetWrapper(widget),
       ConsoleUtil: new ConsoleUtil(),
+      ColorFontUtil: new ColorFontUtil(),
       MessageDialog: new MessageDialog(),
-      ScriptUtil: new ScriptUtil(display),
+      PVUtil: new PVUtil(widget.display.pvEngine),
+      ScriptUtil: new ScriptUtil(widget.display),
     };
   }
 
@@ -41,7 +48,6 @@ export class Script {
   private runWithContext(script: string, context: Context) {
     // Mark current globals
     const originalGlobals = [];
-    // tslint:disable-next-line:forin
     for (const k in iframe.contentWindow) {
       originalGlobals.push(k);
     }

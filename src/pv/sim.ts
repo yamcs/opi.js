@@ -105,7 +105,9 @@ export class GaussianNoise extends SimGenerator {
  */
 export class Sine extends SimGenerator {
 
-    constructor(interval: number, private min: number, private max: number, private samplesPerCycle: number) {
+    private currentValue = 0;
+
+    constructor(private min: number, private max: number, private samplesPerCycle: number, interval: number) {
         super(interval);
     }
 
@@ -113,10 +115,10 @@ export class Sine extends SimGenerator {
         const samples = [];
         const range = this.max - this.min;
         for (let i = 0; i < this.samplesPerCycle; i++) {
-            const value = Math.sin(i * 2 * Math.PI / this.samplesPerCycle) * range / 2 + this.min + (range / 2);
+            const value = Math.sin(this.currentValue * 2 * Math.PI / this.samplesPerCycle) * range / 2 + this.min + (range / 2);
             samples.push(new Sample(date, value));
+            this.currentValue++;
         }
         return samples;
     }
 }
-
