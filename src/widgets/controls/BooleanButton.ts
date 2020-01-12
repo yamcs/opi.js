@@ -1,6 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
+import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
 import { Bounds } from '../../positioning';
@@ -68,33 +69,41 @@ export class BooleanButton extends Widget {
         };
     }
 
-    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    draw(g: Graphics, hitCanvas: HitCanvas) {
         if (this.squareButton) {
-            this.drawSquare(ctx, hitCanvas);
+            this.drawSquare(g, hitCanvas);
         } else {
-            this.drawEllipse(ctx, hitCanvas);
+            this.drawEllipse(g, hitCanvas);
         }
 
         // Foreground
         if (this.width > this.height) {
-            this.drawHorizontal(ctx);
+            this.drawHorizontal(g);
         } else {
-            this.drawVertical(ctx);
+            this.drawVertical(g);
         }
 
         if (this.showBooleanLabel) {
-            const label = this.enabled ? this.onLabel : this.offLabel;
-            ctx.font = this.font.getFontString();
-            ctx.fillStyle = this.foregroundColor.toString();
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, this.x + (this.width / 2), this.y + (this.height / 2))
+            g.fillText({
+                x: this.x + (this.width / 2),
+                y: this.y + (this.height / 2),
+                font: this.font,
+                color: this.foregroundColor,
+                align: 'center',
+                baseline: 'middle',
+                text: this.enabled ? this.onLabel : this.offLabel,
+            });
         }
     }
 
-    private drawSquare(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
-        ctx.fillStyle = Color.DARK_GRAY.toString();
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+    private drawSquare(g: Graphics, hitCanvas: HitCanvas) {
+        g.fillRect({
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            color: Color.DARK_GRAY,
+        });
 
         hitCanvas.beginHitRegion(this.areaRegion!);
         hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -102,38 +111,39 @@ export class BooleanButton extends Widget {
         const tlColor = this.enabled ? Color.DARK_GRAY : Color.WHITE;
         const brColor = this.enabled ? Color.WHITE : Color.DARK_GRAY;
         if (this.effect3d) {
-            ctx.fillStyle = tlColor.toString();
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y);
-            ctx.lineTo(this.x, this.y + this.height);
-            ctx.lineTo(this.x + 2, this.y + this.height - 2);
-            ctx.lineTo(this.x + 2, this.y + 2);
-            ctx.lineTo(this.x + this.width - 2, this.y + 2);
-            ctx.lineTo(this.x + this.width, this.y);
-            ctx.closePath();
-            ctx.fill();
+            g.path(this.x, this.y)
+                .lineTo(this.x, this.y + this.height)
+                .lineTo(this.x + 2, this.y + this.height - 2)
+                .lineTo(this.x + 2, this.y + 2)
+                .lineTo(this.x + this.width - 2, this.y + 2)
+                .lineTo(this.x + this.width, this.y)
+                .closePath()
+                .fill({ color: tlColor });
 
-            ctx.fillStyle = brColor.toString();
-            ctx.beginPath();
-            ctx.moveTo(this.x, this.y + this.height);
-            ctx.lineTo(this.x + this.width, this.y + this.height);
-            ctx.lineTo(this.x + this.width, this.y);
-            ctx.lineTo(this.x + this.width - 2, this.y + 2);
-            ctx.lineTo(this.x + this.width - 2, this.y + this.height - 2);
-            ctx.lineTo(this.x + 2, this.y + this.height - 2);
-            ctx.closePath();
-            ctx.fill();
+            g.path(this.x, this.y + this.height)
+                .lineTo(this.x + this.width, this.y + this.height)
+                .lineTo(this.x + this.width, this.y)
+                .lineTo(this.x + this.width - 2, this.y + 2)
+                .lineTo(this.x + this.width - 2, this.y + this.height - 2)
+                .lineTo(this.x + 2, this.y + this.height - 2)
+                .closePath()
+                .fill({ color: brColor })
         }
 
+        let color = this.backgroundColor;
         if (this.hovered) {
-            ctx.fillStyle = this.backgroundColor.mixWith(Color.WHITE, 0.5).toString();
-        } else {
-            ctx.fillStyle = this.backgroundColor.toString();
+            color = this.backgroundColor.mixWith(Color.WHITE, 0.5);
         }
-        ctx.fillRect(this.x + 2, this.y + 2, this.width - 2 - 2, this.height - 2 - 2);
+        g.fillRect({
+            x: this.x + 2,
+            y: this.y + 2,
+            width: this.width - 2 - 2,
+            height: this.height - 2 - 2,
+            color,
+        });
     }
 
-    private drawEllipse(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    private drawEllipse(g: Graphics, hitCanvas: HitCanvas) {
         if (this.effect3d) {
             const a = this.width / 2;
             const b = this.height / 2;
@@ -143,7 +153,7 @@ export class BooleanButton extends Widget {
             const x2 = this.x + a + (b - a + w) / 2 + 5;
             const y2 = this.y + b - (b - a - w) / 2 + 5;
 
-            const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+            const gradient = g.ctx.createLinearGradient(x1, y1, x2, y2);
             if (this.enabled) {
                 gradient.addColorStop(0, Color.DARK_GRAY.toString());
                 gradient.addColorStop(1, Color.WHITE.toString());
@@ -151,36 +161,36 @@ export class BooleanButton extends Widget {
                 gradient.addColorStop(0, Color.WHITE.toString());
                 gradient.addColorStop(1, Color.DARK_GRAY.toString());
             }
-            ctx.fillStyle = gradient;
+            g.ctx.fillStyle = gradient;
         } else if (this.enabled) {
-            ctx.fillStyle = Color.WHITE.toString();
+            g.ctx.fillStyle = Color.WHITE.toString();
         } else {
-            ctx.fillStyle = Color.DARK_GRAY.toString();
+            g.ctx.fillStyle = Color.DARK_GRAY.toString();
         }
 
         const x = this.x + (this.width / 2)
         const y = this.y + (this.height / 2)
         const rx = this.width / 2;
         const ry = this.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fill();
+        g.ctx.beginPath();
+        g.ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
+        g.ctx.fill();
 
         hitCanvas.beginHitRegion(this.areaRegion!);
         hitCanvas.ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         hitCanvas.ctx.fill();
 
         if (this.hovered) {
-            ctx.fillStyle = this.backgroundColor.mixWith(Color.WHITE, 0.5).toString();
+            g.ctx.fillStyle = this.backgroundColor.mixWith(Color.WHITE, 0.5).toString();
         } else {
-            ctx.fillStyle = this.backgroundColor.toString();
+            g.ctx.fillStyle = this.backgroundColor.toString();
         }
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx - 2, ry - 2, 0, 0, 2 * Math.PI);
-        ctx.fill();
+        g.ctx.beginPath();
+        g.ctx.ellipse(x, y, rx - 2, ry - 2, 0, 0, 2 * Math.PI);
+        g.ctx.fill();
     }
 
-    private drawHorizontal(ctx: CanvasRenderingContext2D) {
+    private drawHorizontal(g: Graphics) {
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
@@ -201,30 +211,28 @@ export class BooleanButton extends Widget {
                 height: diameter
             };
 
-            const x = ledArea.x + (ledArea.width / 2);
-            const y = ledArea.y + (ledArea.height / 2);
+            const cx = ledArea.x + (ledArea.width / 2);
+            const cy = ledArea.y + (ledArea.height / 2);
             const rx = ledArea.width / 2;
             const ry = ledArea.height / 2;
             const ledColor = this.enabled ? this.onColor : this.offColor;
-            ctx.beginPath();
-            ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = ledColor.toString();
-            ctx.fill();
+
+            g.fillEclipse({ cx, cy, rx, ry, color: ledColor });
 
             if (this.effect3d) {
-                const gradient = ctx.createLinearGradient(
+                const gradient = g.ctx.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
                 gradient.addColorStop(0, 'white');
                 gradient.addColorStop(1, ledColor.withAlpha(0).toString());
-                ctx.beginPath();
-                ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-                ctx.fillStyle = gradient;
-                ctx.fill();
+                g.ctx.beginPath();
+                g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+                g.ctx.fillStyle = gradient;
+                g.ctx.fill();
             }
         }
     }
 
-    private drawVertical(ctx: CanvasRenderingContext2D) {
+    private drawVertical(g: Graphics) {
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
@@ -246,24 +254,21 @@ export class BooleanButton extends Widget {
             };
 
             const ledColor = this.enabled ? this.onColor : this.offColor;
-            const x = ledArea.x + (ledArea.width / 2);
-            const y = ledArea.y + (ledArea.height / 2);
+            const cx = ledArea.x + (ledArea.width / 2);
+            const cy = ledArea.y + (ledArea.height / 2);
             const rx = ledArea.width / 2;
             const ry = ledArea.height / 2;
-            ctx.beginPath();
-            ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = ledColor.toString();
-            ctx.fill();
+            g.fillEclipse({ cx, cy, rx, ry, color: ledColor });
 
             if (this.effect3d) {
-                const gradient = ctx.createLinearGradient(
+                const gradient = g.ctx.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
                 gradient.addColorStop(0, Color.WHITE.toString());
                 gradient.addColorStop(1, ledColor.withAlpha(0).toString());
-                ctx.beginPath();
-                ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-                ctx.fillStyle = gradient;
-                ctx.fill();
+                g.ctx.beginPath();
+                g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+                g.ctx.fillStyle = gradient;
+                g.ctx.fill();
             }
         }
     }

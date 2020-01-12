@@ -1,4 +1,5 @@
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { IntProperty, StringProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
@@ -33,16 +34,26 @@ export class LinkingContainer extends AbstractContainerWidget {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    draw(g: Graphics, hitCanvas: HitCanvas) {
         if (!this.transparent) {
-            ctx.fillStyle = this.backgroundColor.toString();
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            g.fillRect({
+                x: this.x,
+                y: this.y,
+                width: this.width,
+                height: this.height,
+                color: this.backgroundColor,
+            });
         }
 
         if (this.linkedDisplay) {
             // Copy the opi background over the full container area
-            ctx.fillStyle = this.linkedDisplay.backgroundColor.toString();
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            g.fillRect({
+                x: this.x,
+                y: this.y,
+                width: this.width,
+                height: this.height,
+                color: this.linkedDisplay.backgroundColor,
+            });
 
             if (this.resizeBehavior === 0) { // FIT_OPI_TO_CONTAINER
                 const sw = this.linkedDisplay.preferredWidth;
@@ -57,13 +68,13 @@ export class LinkingContainer extends AbstractContainerWidget {
                     dh = this.height;
                     dw = dh * ratio;
                 }
-                ctx.drawImage(tmpCanvas, this.x, this.y, dw, dh);
+                g.ctx.drawImage(tmpCanvas, this.x, this.y, dw, dh);
                 tmpHitCanvas.transferToParent(this.x, this.y, dw, dh);
             } else if (this.resizeBehavior === 1) { // FIT_CONTAINER_TO_OPI
                 // TODO
             } else if (this.resizeBehavior === 2) { // CROP OPI
                 const tmpCanvas = this.drawOffscreen(hitCanvas);
-                ctx.drawImage(tmpCanvas, this.x, this.y);
+                g.ctx.drawImage(tmpCanvas, this.x, this.y);
             } else if (this.resizeBehavior === 3) { // SCROLL OPI
                 // TODO
                 console.warn('Unsupported resize behavior of LinkingContainer', this.resizeBehavior);
@@ -84,9 +95,9 @@ export class LinkingContainer extends AbstractContainerWidget {
         const canvas = document.createElement('canvas');
         canvas.width = this.linkedDisplay!.preferredWidth;
         canvas.height = this.linkedDisplay!.preferredHeight;
-        const ctx = canvas.getContext('2d')!;
+        const g = new Graphics(canvas);
 
-        this.linkedDisplay!.draw(ctx, hitCanvas);
+        this.linkedDisplay!.draw(g, hitCanvas);
 
         return canvas;
     }

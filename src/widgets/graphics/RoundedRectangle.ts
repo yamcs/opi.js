@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import * as utils from '../../utils';
 import { Widget } from '../../Widget';
@@ -35,7 +36,8 @@ export class RoundedRectangle extends Widget {
         this.properties.add(new IntProperty(PROP_CORNER_HEIGHT));
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
+        const ctx = g.ctx;
         ctx.globalAlpha = this.alpha / 255;
         if (this.transparent) {
             ctx.globalAlpha = 0;

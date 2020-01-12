@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { Point } from '../../positioning';
 import { BooleanProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -21,7 +22,8 @@ export class Polyline extends Widget {
         this.properties.add(new PointsProperty(PROP_POINTS, []))
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
+        const ctx = g.ctx;
         ctx.globalAlpha = this.alpha / 255;
         if (this.transparent) {
             ctx.globalAlpha = 0;

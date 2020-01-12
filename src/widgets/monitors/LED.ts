@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { toBorderBox } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -96,18 +97,18 @@ export class LED extends Widget {
         return color;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
         if (this.squareLed) {
             if (this.effect3d) {
-                this.drawSquare3d(ctx);
+                this.drawSquare3d(g.ctx);
             } else {
-                this.drawSquare2d(ctx);
+                this.drawSquare2d(g.ctx);
             }
         } else {
             if (this.effect3d) {
-                this.drawCircle3d(ctx);
+                this.drawCircle3d(g.ctx);
             } else {
-                this.drawCircle2d(ctx);
+                this.drawCircle2d(g.ctx);
             }
         }
     }

@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { ColorProperty, FloatProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
@@ -40,14 +41,14 @@ export class DisplayWidget extends AbstractContainerWidget {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    draw(g: Graphics, hitCanvas: HitCanvas) {
         for (const widget of this.widgets) {
-            widget.drawHolder(ctx, hitCanvas);
-            widget.draw(ctx, hitCanvas);
-            widget.drawDecoration(ctx);
+            widget.drawHolder(g, hitCanvas);
+            widget.draw(g, hitCanvas);
+            widget.drawDecoration(g);
         }
         for (const connection of this.connections) {
-            connection.draw(ctx);
+            connection.draw(g);
         }
     }
 

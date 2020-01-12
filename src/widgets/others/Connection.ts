@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { Point } from '../../positioning';
 import { ColorProperty, IntProperty, PointsProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -48,17 +49,17 @@ export class Connection extends Widget {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(g: Graphics) {
     if (!this.sourceWidget || !this.targetWidget) {
       return;
     }
 
     if (this.points.length) { // Only present if the user has manually repositioned a mid-point.
-      this.drawPath(ctx);
+      this.drawPath(g.ctx);
     } else if (this.router === 0) {
-      this.drawManhattanConnection(ctx);
+      this.drawManhattanConnection(g.ctx);
     } else if (this.router === 1) {
-      this.drawDirectConnection(ctx);
+      this.drawDirectConnection(g.ctx);
     }
   }
 

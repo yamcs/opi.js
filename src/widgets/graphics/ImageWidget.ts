@@ -1,4 +1,5 @@
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { BooleanProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -30,14 +31,14 @@ export class ImageWidget extends Widget {
         this.imageElement.src = src;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
         if (!this.transparency) {
-            ctx.fillStyle = this.backgroundColor.toString();
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            g.ctx.fillStyle = this.backgroundColor.toString();
+            g.ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
         if (this.imageElement && this.imageLoaded) {
-            ctx.drawImage(this.imageElement, this.x, this.y, this.width, this.height);
+            g.ctx.drawImage(this.imageElement, this.x, this.y, this.width, this.height);
         }
     }
 

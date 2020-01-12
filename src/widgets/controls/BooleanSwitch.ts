@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
 import { Bounds } from '../../positioning';
@@ -40,11 +41,11 @@ export class BooleanSwitch extends Widget {
         this.requestRepaint();
     }
 
-    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    draw(g: Graphics, hitCanvas: HitCanvas) {
         if (this.width > this.height) {
-            this.drawHorizontal(ctx, hitCanvas);
+            this.drawHorizontal(g.ctx, hitCanvas);
         } else {
-            this.drawVertical(ctx, hitCanvas);
+            this.drawVertical(g.ctx, hitCanvas);
         }
     }
 

@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -32,7 +33,8 @@ export class Rectangle extends Widget {
         this.properties.add(new IntProperty(PROP_LINE_STYLE));
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
+        const ctx = g.ctx;
         ctx.globalAlpha = this.alpha / 255;
 
         this.drawBackground(ctx);

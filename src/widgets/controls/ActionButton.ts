@@ -1,6 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
+import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
 import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
@@ -42,41 +43,34 @@ export class ActionButton extends Widget {
 
         this.areaRegion = {
             id: `${this.wuid}-area`,
-            mouseDown: () => this.onAreaMouseDown(),
-            mouseOut: () => this.onAreaMouseOut(),
-            mouseUp: () => this.onAreaMouseUp(),
-            click: () => this.onAreaClick(),
+            mouseDown: () => {
+                if (!this.toggleButton) {
+                    this.pushed = true;
+                    this.requestRepaint();
+                }
+            },
+            mouseOut: () => {
+                this.pushed = false;
+                this.requestRepaint();
+            },
+            mouseUp: () => {
+                if (!this.toggleButton) {
+                    this.pushed = false;
+                    this.requestRepaint();
+                }
+            },
+            click: () => {
+                this.executeAction(this.pushed ? this.releaseActionIndex! : this.pushActionIndex);
+                if (this.toggleButton) {
+                    this.pushed = !this.pushed;
+                }
+            },
             cursor: 'pointer'
         };
     }
 
-    private onAreaMouseDown() {
-        if (!this.toggleButton) {
-            this.pushed = true;
-            this.requestRepaint();
-        }
-    }
-
-    private onAreaMouseUp() {
-        if (!this.toggleButton) {
-            this.pushed = false;
-            this.requestRepaint();
-        }
-    }
-
-    private onAreaMouseOut() {
-        this.pushed = false;
-        this.requestRepaint();
-    }
-
-    private onAreaClick() {
-        this.executeAction(this.pushed ? this.releaseActionIndex! : this.pushActionIndex);
-        if (this.toggleButton) {
-            this.pushed = !this.pushed;
-        }
-    }
-
-    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    draw(g: Graphics, hitCanvas: HitCanvas) {
+        const ctx = g.ctx;
         ctx.fillStyle = (this.backgroundColor || Color.BUTTON).toString();
         ctx.fillRect(this.x, this.y, this.width, this.height);
 

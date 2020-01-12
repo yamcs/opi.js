@@ -1,5 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -26,7 +27,8 @@ export class Ellipse extends Widget {
         this.properties.add(new ColorProperty(PROP_LINE_COLOR))
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
+        const ctx = g.ctx;
         ctx.globalAlpha = this.alpha / 255;
         if (this.transparent) {
             ctx.globalAlpha = 0;

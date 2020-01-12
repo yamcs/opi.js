@@ -1,3 +1,4 @@
+import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
@@ -17,15 +18,15 @@ export class GroupingContainer extends AbstractContainerWidget {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    draw(g: Graphics, hitCanvas: HitCanvas) {
         if (!this.transparent) {
-            ctx.fillStyle = this.backgroundColor.toString();
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            g.ctx.fillStyle = this.backgroundColor.toString();
+            g.ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
         const tmpHitCanvas = hitCanvas.createChild(this.width, this.height);
         const tmpCanvas = this.drawOffscreen(tmpHitCanvas);
-        ctx.drawImage(tmpCanvas, this.x, this.y);
+        g.ctx.drawImage(tmpCanvas, this.x, this.y);
         tmpHitCanvas.transferToParent(this.x, this.y, this.width, this.height);
     }
 
@@ -33,12 +34,11 @@ export class GroupingContainer extends AbstractContainerWidget {
         const canvas = document.createElement('canvas');
         canvas.width = this.width;
         canvas.height = this.height;
-        const ctx = canvas.getContext('2d')!;
-
+        const g = new Graphics(canvas);
         for (const widget of this.widgets) {
-            widget.drawHolder(ctx, hitCanvas);
-            widget.draw(ctx, hitCanvas);
-            widget.drawDecoration(ctx);
+            widget.drawHolder(g, hitCanvas);
+            widget.draw(g, hitCanvas);
+            widget.drawDecoration(g);
         }
 
         return canvas;

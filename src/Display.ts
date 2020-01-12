@@ -1,6 +1,7 @@
 import FontFaceObserver from 'fontfaceobserver';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
+import { Graphics } from './Graphics';
 import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './pv/PVEngine';
 import { ActionButton } from './widgets/controls/ActionButton';
@@ -49,6 +50,7 @@ const TYPE_XY_GRAPH = 'org.csstudio.opibuilder.widgets.xyGraph';
 export class Display {
 
     private rootPanel: HTMLDivElement;
+    private g: Graphics;
     private ctx: CanvasRenderingContext2D;
     private hitCanvas = new HitCanvas();
     pvEngine = new PVEngine();
@@ -79,7 +81,8 @@ export class Display {
 
         const canvas = document.createElement('canvas');
         this.rootPanel.appendChild(canvas);
-        this.ctx = canvas.getContext('2d')!;
+        this.g = new Graphics(canvas);
+        this.ctx = this.g.ctx;
 
         window.requestAnimationFrame(t => this.step(t));
 
@@ -194,7 +197,7 @@ export class Display {
         }
 
         if (this.instance) {
-            this.instance.draw(this.ctx, this.hitCanvas);
+            this.instance.draw(this.g, this.hitCanvas);
         }
 
         // Selection on top of everything

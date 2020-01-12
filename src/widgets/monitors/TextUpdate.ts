@@ -1,5 +1,6 @@
 import { Display } from '../../Display';
 import { Font } from '../../Font';
+import { Graphics } from '../../Graphics';
 import { FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -16,7 +17,8 @@ export class TextUpdate extends Widget {
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
+        const ctx = g.ctx;
         if (!this.transparent) {
             ctx.fillStyle = this.backgroundColor.toString();
             ctx.fillRect(this.x, this.y, this.width, this.height);

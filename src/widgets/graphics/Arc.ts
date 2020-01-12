@@ -1,4 +1,5 @@
 import { Display } from '../../Display';
+import { Graphics } from '../../Graphics';
 import { BooleanProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -19,7 +20,8 @@ export class Arc extends Widget {
         this.properties.add(new BooleanProperty(PROP_FILL));
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(g: Graphics) {
+        const ctx = g.ctx;
         ctx.globalAlpha = this.alpha / 255;
         if (this.transparent) {
             ctx.globalAlpha = 0;

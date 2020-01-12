@@ -2,13 +2,13 @@ import { ActionSet } from './actions';
 import { Color } from './Color';
 import { Display } from './Display';
 import { Font } from './Font';
+import { Graphics } from './Graphics';
 import { HitCanvas } from './HitCanvas';
 import { HitRegion } from './HitRegion';
 import { toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, StringProperty } from './properties';
 import { PV } from './pv/PV';
 import { Script } from './scripting/Script';
-import * as utils from './utils';
 import { XMLNode } from './XMLNode';
 
 const PROP_ACTIONS = 'actions';
@@ -140,7 +140,7 @@ export abstract class Widget {
         }
     }
 
-    drawHolder(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    drawHolder(g: Graphics, hitCanvas: HitCanvas) {
         if (this.borderStyle === 0) { // No border
             // This is a weird one. When there is no border the widget
             // shrinks according to an inset of 2px. This only happens when
@@ -149,143 +149,154 @@ export abstract class Widget {
                 // anything TODO ?
             }
         } else if (this.borderStyle === 1) { // Line
-            ctx.strokeStyle = this.borderColor.toString();
-            ctx.lineWidth = this.borderWidth;
-            const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-            ctx.strokeRect(box.x, box.y, box.width, box.height);
+            g.strokeRect({
+                x: this.holderX,
+                y: this.holderY,
+                width: this.holderWidth,
+                height: this.holderHeight,
+                color: this.borderColor,
+                lineWidth: this.borderWidth,
+                crispen: true,
+            });
         } else if (this.borderStyle === 2) { // Raised
             const top = this.holderY + 0.5;
             const left = this.holderX + 0.5;
             const bottom = this.holderY + this.holderHeight - 1 + 0.5;
             const right = this.holderX + this.holderWidth - 1 + 0.5;
-
-            ctx.lineWidth = 1;
-
-            ctx.beginPath();
-            ctx.moveTo(right, bottom);
-            ctx.lineTo(right, top);
-            ctx.moveTo(right, bottom);
-            ctx.lineTo(left, bottom);
-            ctx.strokeStyle = Color.BLACK.toString();
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(left, top);
-            ctx.lineTo(right - 1, top);
-            ctx.moveTo(left, top);
-            ctx.lineTo(left, bottom - 1);
-
-            ctx.strokeStyle = Color.WHITE.toString();
-            ctx.stroke();
+            g.path(right, bottom)
+                .lineTo(right, top)
+                .moveTo(right, bottom)
+                .lineTo(left, bottom)
+                .stroke({ color: Color.BLACK });
+            g.path(left, top)
+                .lineTo(right - 1, top)
+                .moveTo(left, top)
+                .lineTo(left, bottom - 1)
+                .stroke({ color: Color.WHITE });
         } else if (this.borderStyle === 3) { // Lowered
             const top = this.holderY + 0.5;
             const left = this.holderX + 0.5;
             const bottom = this.holderY + this.holderHeight - 1 + 0.5;
             const right = this.holderX + this.holderWidth - 1 + 0.5;
-
-            ctx.lineWidth = 1;
-
-            ctx.beginPath();
-            ctx.moveTo(right, bottom);
-            ctx.lineTo(right, top);
-            ctx.moveTo(right, bottom);
-            ctx.lineTo(left, bottom);
-            ctx.strokeStyle = Color.WHITE.toString();
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(left, top);
-            ctx.lineTo(right - 1, top);
-            ctx.moveTo(left, top);
-            ctx.lineTo(left, bottom - 1);
-
-            ctx.strokeStyle = Color.BLACK.toString();
-            ctx.stroke();
+            g.path(right, bottom)
+                .lineTo(right, top)
+                .moveTo(right, bottom)
+                .lineTo(left, bottom)
+                .stroke({ color: Color.WHITE });
+            g.path(left, top)
+                .lineTo(right - 1, top)
+                .moveTo(left, top)
+                .lineTo(left, bottom - 1)
+                .stroke({ color: Color.BLACK });
         } else if (this.borderStyle === 4) { // Etched
-            this.drawShadowBorder(ctx, Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER,
+            this.drawShadowBorder(g, Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER,
                 Color.BUTTON_DARKER, Color.BUTTON_LIGHTEST);
         } else if (this.borderStyle === 5) { // Ridged
-            this.drawShadowBorder(ctx, Color.BUTTON_DARKER, Color.BUTTON_LIGHTEST,
+            this.drawShadowBorder(g, Color.BUTTON_DARKER, Color.BUTTON_LIGHTEST,
                 Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER);
         } else if (this.borderStyle === 6) { // Button Raised
-            this.drawShadowBorder(ctx, Color.BUTTON_DARKEST, Color.BUTTON_DARKER,
+            this.drawShadowBorder(g, Color.BUTTON_DARKEST, Color.BUTTON_DARKER,
                 Color.BUTTON, Color.BUTTON_LIGHTEST);
         } else if (this.borderStyle === 7) { // Button Pressed
-            this.drawShadowBorder(ctx, Color.BUTTON_LIGHTEST, Color.BUTTON_LIGHTEST,
+            this.drawShadowBorder(g, Color.BUTTON_LIGHTEST, Color.BUTTON_LIGHTEST,
                 Color.BUTTON_DARKEST, Color.BUTTON_DARKER);
         } else if (this.borderStyle === 8) { // Dot
-            this.drawDashedBorder(ctx, [2, 2]);
+            this.drawDashedBorder(g, [2, 2]);
         } else if (this.borderStyle === 9) { // Dash
-            this.drawDashedBorder(ctx, [6, 2]);
+            this.drawDashedBorder(g, [6, 2]);
         } else if (this.borderStyle === 10) { // Dash Dot
-            this.drawDashedBorder(ctx, [6, 2, 2, 2]);
+            this.drawDashedBorder(g, [6, 2, 2, 2]);
         } else if (this.borderStyle === 11) { // Dash Dot Dot
-            this.drawDashedBorder(ctx, [6, 2, 2, 2, 2, 2]);
+            this.drawDashedBorder(g, [6, 2, 2, 2, 2, 2]);
         } else if (this.borderStyle === 12) { // Title bar
-            ctx.fillStyle = this.borderColor.toString();
-            ctx.fillRect(this.holderX, this.holderY + 1, this.holderWidth, 16);
-
-            ctx.textBaseline = 'middle';
-            ctx.textAlign = 'start';
-            ctx.font = Font.ARIAL_11.getFontString();
-            ctx.fillStyle = Color.BLACK.toString();
-            ctx.fillText(this.name, this.holderX + 1 + 3, this.holderY + 1 + (16 / 2));
-
-            ctx.lineWidth = 1;
-            const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, 1);
-            ctx.strokeStyle = Color.BLACK.toString();
-            ctx.strokeRect(box.x, box.y, box.width, box.height);
+            g.fillRect({
+                x: this.holderX,
+                y: this.holderY + 1,
+                width: this.holderWidth,
+                height: 16,
+                color: this.borderColor,
+            });
+            g.fillText({
+                x: this.holderX + 1 + 3,
+                y: this.holderY + 1 + (16 / 2),
+                baseline: 'middle',
+                align: 'left',
+                font: Font.ARIAL_11,
+                color: Color.BLACK,
+                text: this.name,
+            });
+            g.strokeRect({
+                x: this.holderX,
+                y: this.holderY,
+                width: this.holderWidth,
+                height: this.holderHeight,
+                color: Color.BLACK,
+                crispen: true,
+            });
         } else if (this.borderStyle === 13) { // Group Box
             if (!this.transparent) {
-                ctx.fillStyle = this.backgroundColor.toString();
-                ctx.fillRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
+                g.fillRect({
+                    x: this.holderX,
+                    y: this.holderY,
+                    width: this.holderWidth,
+                    height: this.holderHeight,
+                    color: this.backgroundColor,
+                });
             }
 
-            ctx.textAlign = 'start';
-            ctx.textBaseline = 'middle';
-            ctx.font = Font.ARIAL_11.getFontString();
-            ctx.fillStyle = this.borderColor.toString();
-            ctx.fillText(this.name, this.holderX + 16, this.holderY + 8);
+            g.fillText({
+                x: this.holderX + 16,
+                y: this.holderY + 8,
+                baseline: 'middle',
+                align: 'left',
+                font: Font.ARIAL_11,
+                color: this.borderColor,
+                text: this.name,
+            });
 
             // Avoid drawing border over text
-            const fm = ctx.measureText(this.name);
+            const fm = g.measureText(this.name, Font.ARIAL_11);
 
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = this.backgroundColor.darker().toString();
             let box = toBorderBox(this.holderX + 8, this.holderY + 8, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
-            ctx.beginPath();
-            ctx.moveTo(box.x, box.y);
-            ctx.lineTo(box.x + 8, box.y);
-            ctx.moveTo(box.x + 8 + fm.width, box.y);
-            ctx.lineTo(box.x + box.width, box.y);
-            ctx.lineTo(box.x + box.width, box.y + box.height);
-            ctx.lineTo(box.x, box.y + box.height);
-            ctx.lineTo(box.x, box.y);
-            ctx.stroke();
 
-            ctx.strokeStyle = this.backgroundColor.brighter().toString();
+            g.path(box.x, box.y)
+                .lineTo(box.x + 8, box.y)
+                .moveTo(box.x + 8 + fm.width, box.y)
+                .lineTo(box.x + box.width, box.y)
+                .lineTo(box.x + box.width, box.y + box.height)
+                .lineTo(box.x, box.y + box.height)
+                .lineTo(box.x, box.y)
+                .stroke({ color: this.backgroundColor.darker() });
+
             box = toBorderBox(this.holderX + 8 + 1, this.holderY + 8 + 1, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
 
-            ctx.beginPath();
-            ctx.moveTo(box.x, box.y);
-            ctx.lineTo(box.x + 8 - 1, box.y);
-            ctx.moveTo(box.x + 8 - 1 + fm.width, box.y);
-            ctx.lineTo(box.x + box.width, box.y);
-            ctx.lineTo(box.x + box.width, box.y + box.height);
-            ctx.lineTo(box.x, box.y + box.height);
-            ctx.lineTo(box.x, box.y);
-            ctx.stroke();
+            g.path(box.x, box.y)
+                .lineTo(box.x + 8 - 1, box.y)
+                .moveTo(box.x + 8 - 1 + fm.width, box.y)
+                .lineTo(box.x + box.width, box.y)
+                .lineTo(box.x + box.width, box.y + box.height)
+                .lineTo(box.x, box.y + box.height)
+                .lineTo(box.x, box.y)
+                .stroke({ color: this.backgroundColor.brighter() });
         } else if (this.borderStyle === 14) { // Round Rectangle Background
-            ctx.fillStyle = this.backgroundColor.toString();
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-            utils.roundRect(ctx, box.x, box.y, box.width, box.height, 4, 4);
+
             if (this.fillRoundRectangleBackgroundBorder) {
-                ctx.fill();
+                g.fillRect({
+                    ...box,
+                    rx: 4,
+                    ry: 4,
+                    color: this.backgroundColor,
+                });
             }
             if (this.borderWidth) {
-                ctx.lineWidth = this.borderWidth;
-                ctx.strokeStyle = this.borderColor.toString();
-                ctx.stroke();
+                g.strokeRect({
+                    ...box,
+                    rx: 4,
+                    ry: 4,
+                    color: this.borderColor,
+                    lineWidth: this.borderWidth,
+                });
             }
         } else if (this.borderStyle === 15) { // Empty
             // NOP
@@ -299,23 +310,33 @@ export abstract class Widget {
         }
     }
 
-    drawDecoration(ctx: CanvasRenderingContext2D) {
+    drawDecoration(g: Graphics) {
         if (!this.display.editMode) {
             if (this.pvName && !this.pv) { // Disconnected
-                ctx.globalAlpha = 0.4;
-                ctx.fillStyle = 'purple';
-                ctx.fillRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth + 1, this.holderHeight + 1);
-                ctx.globalAlpha = 1;
-
-                ctx.strokeStyle = 'purple';
-                ctx.strokeRect(this.holderX - 0.5, this.holderY - 0.5, this.holderWidth + 1, this.holderHeight + 1);
+                g.ctx.globalAlpha = 0.4;
+                g.fillRect({
+                    x: this.holderX - 0.5,
+                    y: this.holderY - 0.5,
+                    width: this.holderWidth + 1,
+                    height: this.holderHeight + 1,
+                    color: Color.PURPLE,
+                });
+                g.ctx.globalAlpha = 1;
+                g.strokeRect({
+                    x: this.holderX - 0.5,
+                    y: this.holderY - 0.5,
+                    width: this.holderWidth + 1,
+                    height: this.holderHeight + 1,
+                    color: Color.PURPLE,
+                });
             } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
-                ctx.setLineDash([2, 2]);
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = 'rgb(255,0,255)';
                 const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, 2);
-                ctx.strokeRect(box.x, box.y, box.width, box.height);
-                ctx.setLineDash([]);
+                g.strokeRect({
+                    ...box,
+                    dash: [2, 2],
+                    lineWidth: 2,
+                    color: Color.PINK,
+                });
             }
         }
     }
@@ -355,60 +376,45 @@ export abstract class Widget {
         this.display.requestRepaint();
     }
 
-    private drawShadowBorder(ctx: CanvasRenderingContext2D, c1: Color, c2: Color, c3: Color, c4: Color) {
+    private drawShadowBorder(g: Graphics, c1: Color, c2: Color, c3: Color, c4: Color) {
         const top = this.holderY + 0.5;
         const left = this.holderX + 0.5;
         const bottom = this.holderY + this.holderHeight - 1 + 0.5;
         const right = this.holderX + this.holderWidth - 1 + 0.5;
-        ctx.lineWidth = 1;
-
-        ctx.beginPath();
-        ctx.moveTo(right, bottom);
-        ctx.lineTo(right, top);
-        ctx.moveTo(right, bottom);
-        ctx.lineTo(left, bottom);
-        ctx.strokeStyle = c1.toString();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(right - 1, bottom - 1);
-        ctx.lineTo(right - 1, top + 1);
-        ctx.moveTo(right - 1, bottom - 1);
-        ctx.lineTo(left + 1, bottom - 1);
-        ctx.strokeStyle = c2.toString();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(left, top);
-        ctx.lineTo(right - 1, top);
-        ctx.moveTo(left, top);
-        ctx.lineTo(left, bottom - 1);
-        ctx.strokeStyle = c3.toString();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(left + 1, top + 1);
-        ctx.lineTo(right - 1 - 1, top + 1);
-        ctx.moveTo(left + 1, top + 1);
-        ctx.lineTo(left + 1, bottom - 1 - 1);
-        ctx.strokeStyle = c4.toString();
-        ctx.stroke();
+        g.path(right, bottom)
+            .lineTo(right, bottom)
+            .moveTo(right, bottom)
+            .lineTo(left, bottom)
+            .stroke({ color: c1 });
+        g.path(right - 1, bottom - 1)
+            .lineTo(right - 1, top + 1)
+            .moveTo(right - 1, bottom - 1)
+            .lineTo(left + 1, bottom - 1)
+            .stroke({ color: c2 });
+        g.path(left, top)
+            .lineTo(right - 1, top)
+            .moveTo(left, top)
+            .lineTo(left, bottom - 1)
+            .stroke({ color: c3 });
+        g.path(left + 1, top + 1)
+            .lineTo(right - 1 - 1, top + 1)
+            .moveTo(left + 1, top + 1)
+            .lineTo(left + 1, bottom - 1 - 1)
+            .stroke({ color: c4 });
     }
 
-    private drawDashedBorder(ctx: CanvasRenderingContext2D, segments: number[]) {
+    private drawDashedBorder(g: Graphics, dash: number[]) {
         const bbox = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-
-        ctx.lineWidth = this.borderWidth;
-        ctx.setLineDash(segments);
-        ctx.beginPath();
-        ctx.moveTo(bbox.x, bbox.y);
-        ctx.lineTo(bbox.x + bbox.width, bbox.y);
-        ctx.lineTo(bbox.x + bbox.width, bbox.y + bbox.height);
-        ctx.lineTo(bbox.x, bbox.y + bbox.height);
-        ctx.closePath();
-        ctx.strokeStyle = this.borderColor.toString();
-        ctx.stroke();
-        ctx.setLineDash([]);
+        g.path(bbox.x, bbox.y)
+            .lineTo(bbox.x + bbox.width, bbox.y)
+            .lineTo(bbox.x + bbox.width, bbox.y + bbox.height)
+            .lineTo(bbox.x, bbox.y + bbox.height)
+            .closePath()
+            .stroke({
+                color: this.borderColor,
+                lineWidth: this.borderWidth,
+                dash,
+            });
     }
 
     protected executeAction(index: number) {
@@ -499,5 +505,5 @@ export abstract class Widget {
     }
 
     init(): void { };
-    abstract draw(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas): void;
+    abstract draw(g: Graphics, hitCanvas: HitCanvas): void;
 }
