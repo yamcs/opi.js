@@ -1,13 +1,13 @@
 {
-    "name": "@yamcs/webopi",
+    "name": "@yamcs/opi",
     "version": "1.0.0",
     "description": "OPI Display Renderer",
     "author": "Yamcs Team <yamcs@spaceapplications.com>",
     "repository": {
         "type": "git",
-        "url": "https://github.com/yamcs/webopi.git"
+        "url": "https://github.com/yamcs/opi.js.git"
     },
-    "homepage": "https://github.com/yamcs/webopi",
+    "homepage": "https://github.com/yamcs/opi.js",
     "license": "MIT",
     "scripts": {
         "build": "rollup -c",
@@ -17,8 +17,8 @@
         "pegjs": "cd src/pv/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts grammar.pegjs",
         "start": "node ./demo/server.js"
     },
-    "main": "dist/webopi.umd.js",
-    "module": "dist/webopi.js",
+    "main": "dist/opi.umd.js",
+    "module": "dist/opi.js",
     "types": "dist/types/index.d.ts",
     "files": [
         "dist/"

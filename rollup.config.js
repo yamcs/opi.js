@@ -30,12 +30,12 @@ export default {
   ],
   output: [
     {
-      file: 'dist/webopi.umd.js',
-      name: 'OPI',
+      file: 'dist/opi.umd.js',
+      name: 'opi',
       format: 'umd',
       sourcemap: true
     }, {
-      file: 'dist/webopi.js',
+      file: 'dist/opi.js',
       format: 'esm',
       sourcemap: true
     }

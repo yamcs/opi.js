@@ -1,4 +1,4 @@
-import { Display } from '/dist/webopi.js';
+import { Display } from '/dist/opi.js';
 
 window.page = (function () {
 
