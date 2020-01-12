@@ -2,7 +2,8 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
-import { ColorProperty, FloatProperty } from '../../properties';
+import { MacroSet } from '../../macros';
+import { ColorProperty, FloatProperty, MacrosProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { Connection } from './Connection';
@@ -11,6 +12,7 @@ const PROP_BACKGROUND_COLOR = 'background_color';
 const PROP_FOREGROUND_COLOR = 'foreground_color';
 const PROP_HEIGHT = 'height';
 const PROP_WIDTH = 'width';
+const PROP_MACROS = 'macros';
 
 export class DisplayWidget extends AbstractContainerWidget {
 
@@ -21,6 +23,7 @@ export class DisplayWidget extends AbstractContainerWidget {
         this.properties.add(new FloatProperty(PROP_HEIGHT));
         this.properties.add(new ColorProperty(PROP_BACKGROUND_COLOR));
         this.properties.add(new ColorProperty(PROP_FOREGROUND_COLOR));
+        this.properties.add(new MacrosProperty(PROP_MACROS));
     }
 
     parseNode(node: XMLNode) {
@@ -56,4 +59,5 @@ export class DisplayWidget extends AbstractContainerWidget {
     get foregroundColor(): Color { return this.properties.getValue(PROP_FOREGROUND_COLOR); }
     get preferredWidth(): number { return this.properties.getValue(PROP_WIDTH); }
     get preferredHeight(): number { return this.properties.getValue(PROP_HEIGHT); }
+    get macros(): MacroSet { return this.properties.getValue(PROP_MACROS); }
 }

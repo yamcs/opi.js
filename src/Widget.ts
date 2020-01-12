@@ -44,30 +44,31 @@ export abstract class Widget {
     // (Rectangle, RoundedRectangle)
     protected fillRoundRectangleBackgroundBorder = true;
 
-    properties = new PropertySet([
-        new ActionsProperty(PROP_ACTIONS, new ActionSet()),
-        new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT),
-        new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false),
-        new ColorProperty(PROP_BORDER_COLOR),
-        new IntProperty(PROP_BORDER_STYLE),
-        new IntProperty(PROP_BORDER_WIDTH),
-        new ColorProperty(PROP_FOREGROUND_COLOR),
-        new IntProperty(PROP_HEIGHT),
-        new StringProperty(PROP_NAME),
-        new StringProperty(PROP_PV_NAME),
-        new StringProperty(PROP_TEXT, ''),
-        new BooleanProperty(PROP_TRANSPARENT, false),
-        new BooleanProperty(PROP_VISIBLE),
-        new StringProperty(PROP_WIDGET_TYPE),
-        new IntProperty(PROP_WIDTH),
-        new StringProperty(PROP_WUID),
-        new IntProperty(PROP_X),
-        new IntProperty(PROP_Y),
-    ]);
+    properties: PropertySet;
 
     holderRegion?: HitRegion;
 
     constructor(readonly display: Display) {
+        this.properties = new PropertySet(display, [
+            new ActionsProperty(PROP_ACTIONS, new ActionSet()),
+            new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT),
+            new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false),
+            new ColorProperty(PROP_BORDER_COLOR),
+            new IntProperty(PROP_BORDER_STYLE),
+            new IntProperty(PROP_BORDER_WIDTH),
+            new ColorProperty(PROP_FOREGROUND_COLOR),
+            new IntProperty(PROP_HEIGHT),
+            new StringProperty(PROP_NAME),
+            new StringProperty(PROP_PV_NAME),
+            new StringProperty(PROP_TEXT, ''),
+            new BooleanProperty(PROP_TRANSPARENT, false),
+            new BooleanProperty(PROP_VISIBLE),
+            new StringProperty(PROP_WIDGET_TYPE),
+            new IntProperty(PROP_WIDTH),
+            new StringProperty(PROP_WUID),
+            new IntProperty(PROP_X),
+            new IntProperty(PROP_Y),
+        ]);
     }
 
     parseNode(node: XMLNode) {
@@ -77,7 +78,9 @@ export abstract class Widget {
         switch (this.borderStyle) {
             case 0: // Empty
                 if (this.borderAlarmSensitive) {
-                    this.insets = [2, 2, 2, 2];
+                    // TODO reevaluate the condition for these insets
+                    // (at least the TextUpdate does not seem to need this)
+                    ///this.insets = [2, 2, 2, 2];
                 }
                 break;
             case 1: // Line
@@ -112,6 +115,8 @@ export abstract class Widget {
                 this.insets = [i, i, i, i];
                 break;
         }
+
+        console.log('insets for', this.name, this.insets);
 
         // Shrink the available widget area
         this.x = this.holderX + this.insets[1];

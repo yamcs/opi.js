@@ -1,6 +1,8 @@
 import { ActionSet } from './actions';
 import { Color } from './Color';
+import { Display } from './Display';
 import { Font } from './Font';
+import { MacroSet } from './macros';
 import { Point } from './positioning';
 import { XMLNode } from './XMLNode';
 
@@ -8,7 +10,7 @@ export class PropertySet {
 
     private properties = new Map<string, Property<any>>();
 
-    constructor(properties: Property<any>[] = []) {
+    constructor(private parent: Display, properties: Property<any>[] = []) {
         for (const property of properties) {
             this.properties.set(property.name, property);
         }
@@ -30,9 +32,8 @@ export class PropertySet {
         this.properties.forEach(property => {
             if (node.hasNode(property.name)) {
                 if (property instanceof StringProperty) {
-                    const value = node.getString(property.name);
-                    property.rawValue = value;
-                    property.value = this.expandMacro(value);
+                    // The non-raw value is set below (after reading in other properties)
+                    property.rawValue = node.getString(property.name);
                 } else if (property instanceof IntProperty) {
                     property.value = node.getInt(property.name);
                 } else if (property instanceof FloatProperty) {
@@ -47,8 +48,22 @@ export class PropertySet {
                     property.value = node.getActions(property.name);
                 } else if (property instanceof PointsProperty) {
                     property.value = node.getPoints(property.name);
+                } else if (property instanceof MacrosProperty) {
+                    property.value = node.getMacros(property.name);
                 } else {
                     throw new Error(`Property ${property.name} has an unexpected type`);
+                }
+            }
+        });
+
+        // Expand macros only after reading in all properties
+        // (we need the values of other properties)
+        this.properties.forEach(property => {
+            if (property instanceof StringProperty) {
+                if (property.rawValue) {
+                    property.value = this.expandMacro(property.rawValue);
+                } else {
+                    property.value = property.rawValue;
                 }
             }
         });
@@ -64,6 +79,14 @@ export class PropertySet {
                 expanded = expanded.replace(`$(${prop.name})`, prop.value || '');
                 expanded = expanded.replace(`\${${prop.name}}`, prop.value || '');
             }
+            const parentWidget = this.parent.instance;
+            if (parentWidget) {
+                const macrosProperty = parentWidget.properties.getProperty('macros') as MacrosProperty;
+                if (macrosProperty.value) {
+                    expanded = macrosProperty.value.expandMacro(expanded);
+                }
+            }
+
             return expanded;
         }
     }
@@ -119,4 +142,7 @@ export class PointsProperty extends Property<Point[]> {
 }
 
 export class ActionsProperty extends Property<ActionSet> {
+}
+
+export class MacrosProperty extends Property<MacroSet> {
 }

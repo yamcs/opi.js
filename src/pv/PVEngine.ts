@@ -16,7 +16,8 @@ export class PVEngine {
     step(t: number): boolean {
         let wasChanged = this.changed;
         for (const pv of this.simulatedPvs) {
-            wasChanged = wasChanged || pv.step(t);
+            const pvChanged = pv.step(t);
+            wasChanged = wasChanged || pvChanged;
         }
 
         this.changed = false;

@@ -20,8 +20,13 @@ export class TextUpdate extends Widget {
     draw(g: Graphics) {
         const ctx = g.ctx;
         if (!this.transparent) {
-            ctx.fillStyle = this.backgroundColor.toString();
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            g.fillRect({
+                x: this.x,
+                y: this.y,
+                width: this.width,
+                height: this.height,
+                color: this.backgroundColor,
+            });
         }
 
         ctx.fillStyle = this.foregroundColor.toString();

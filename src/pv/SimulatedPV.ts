@@ -38,7 +38,7 @@ export class SimulatedPV extends PV<any> {
                 return new ConstantGenerator(args[0]);
             case 'noise':
                 if (args.length === 0) {
-                    return new Noise(-5, -5, 1000);
+                    return new Noise(-5, 5, 1000);
                 } else {
                     const min = parseFloat(args[0]);
                     const max = parseFloat(args[1]);

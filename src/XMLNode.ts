@@ -1,6 +1,7 @@
 import { ActionSet, ExecuteCommandAction, ExecuteJavaScriptAction, OpenDisplayAction, OpenFileAction, OpenWebpageAction, PlaySoundAction, WritePVAction } from './actions';
 import { Color } from './Color';
 import { Font } from './Font';
+import { MacroSet } from './macros';
 
 export class XMLNode {
 
@@ -226,6 +227,18 @@ export class XMLNode {
             });
         }
         return points;
+    }
+
+    getMacros(name: string) {
+        const macrosNode = this.getNode(name);
+        const macros = new MacroSet();
+        macros.includeParentMacros = macrosNode.getBoolean('include_parent_macros');
+        for (const child of macrosNode.getNodes()) {
+            if (child.name !== 'include_parent_macros') {
+                macros.set(child.name, macrosNode.getString(child.name));
+            }
+        }
+        return macros;
     }
 
     getActions(name: string) {
