@@ -6,12 +6,10 @@ body {
 #sidebar {
     position: absolute;
     left: 0;
-    top: 0;
+    top: 64px;
     bottom: 0;
     width: 300px;
-    padding-top: 64px;
-    background-color: black;
-    color: white;
+    background-color: white;
     overflow: auto;
 }
 
@@ -33,44 +31,52 @@ ul.menu, ul.menu li {
 }
 
 ul.menu li {
-    padding: 5px;
     font-size: 14px;
 }
 
 ul.menu li a, ul.menu li a:visited {
     display: block;
     text-decoration: none;
-    color: lightcyan;
+    color: #66bb6a;
 }
 
-ul.menu li:hover {
-    background-color: darkslateblue;
-}
-
-#properties {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 300px;
-    background-color: black;
+ul.menu li:hover a {
+    color: green;
 }
 
 #toolbar {
     position: absolute;
     top: 0;
     left: 300px;
-    right: 300px;
+    right: 0;
     height: 64px;
     line-height: 64px;
-    background-color: black;
+    background-color: limegreen;
+    color: black;
+}
+
+#app-title {
+    position: top;
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 64px;
+    line-height: 64px;
+    background-color: #32cd32;
+    padding-left: 1em;
+}
+
+#app-title a, #app-title a:visited {
     color: white;
+    font-size: 20px;
+    text-decoration: none;
 }
 
 #page {
     position: absolute;
     left: 300px;
     top: 64px;
-    right: 300px;
+    right: 0;
     bottom: 0;
+    overflow: auto;
 }

@@ -2,9 +2,10 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { Bounds, convertPolarToCartesian, rotatePoint, shrink, toRadians } from '../../positioning';
+import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { Ramp } from '../figures/Ramp';
 
 const BORDER_COLOR = new Color(100, 100, 100);
 const NEEDLE_DIAMETER = 16;
@@ -27,6 +28,7 @@ const PROP_MINIMUM = 'minimum';
 const PROP_MAXIMUM = 'maximum';
 const PROP_NEEDLE_COLOR = 'needle_color';
 const PROP_RAMP_GRADIENT = 'ramp_gradient';
+const PROP_SHOW_RAMP = 'show_ramp';
 
 // In degrees
 const START_ANGLE = 225;
@@ -52,13 +54,16 @@ export class Gauge extends Widget {
         this.properties.add(new IntProperty(PROP_MINIMUM));
         this.properties.add(new ColorProperty(PROP_NEEDLE_COLOR));
         this.properties.add(new BooleanProperty(PROP_RAMP_GRADIENT));
+        this.properties.add(new BooleanProperty(PROP_SHOW_RAMP, true));
     }
 
     draw(g: Graphics) {
         const width = Math.min(this.width, this.height);
         const height = width;
         this.drawBackground(g, width, height);
-        this.drawRamp(g, width, height);
+        if (this.showRamp) {
+            this.drawRamp(g, width, height);
+        }
         this.drawLabel(g, width, height);
         this.drawNeedle(g, width, height);
         this.drawNeedleCenter(g, width, height);
@@ -141,188 +146,25 @@ export class Gauge extends Widget {
 
     private drawRamp(g: Graphics, width: number, height: number) {
         const area = shrink({ x: this.x, y: this.y, width, height }, width / 4, height / 4);
-        area.width = Math.min(area.width, area.height);
-        area.height = area.width;
+        const rampArea = { ...area };
+        rampArea.width = Math.min(area.width, area.height);
+        rampArea.height = area.width;
 
-        const cx = area.x + (area.width / 2);
-        const cy = area.y + (area.height / 2);
-        const rx = area.width / 2;
-        const ry = area.height / 2;
-
-        const range = this.getRenderedRange();
-
-        // LOLO
-        let startAngle = START_ANGLE - 90;
-        let endAngle = 360 - this.getValuePosition(this.levelLoLo, range);
-        g.strokeEllipse({
-            cx,
-            cy,
-            rx: rx - 5,
-            ry: ry - 5,
-            lineWidth: 10,
-            startAngle: toRadians(startAngle),
-            endAngle: toRadians(endAngle),
-            color: this.colorLoLo,
-        });
-
-        // LO
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(this.levelLo, range);
-        if (this.effect3d && this.rampGradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(this.levelLoLo, range));
-            const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
-
-            const gradientRightAngle = toRadians(this.getValuePosition(this.levelLo, range));
-            const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, this.colorLoLo.toString());
-            gradient.addColorStop(1, this.colorLo.toString());
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                gradient,
-            });
-        } else {
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                color: this.colorLo,
-            });
-        }
-
-        const midNormal = (this.levelLo + this.levelHi) / 2;
-
-        // NORMAL (left part)
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(midNormal, range);
-        if (this.effect3d && this.rampGradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(this.levelLo, range));
-            const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
-
-            const gradientRightAngle = toRadians(this.getValuePosition(midNormal, range));
-            const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, this.colorLo.toString());
-            gradient.addColorStop(1, Color.GREEN.toString());
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                gradient,
-            });
-        } else {
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                color: Color.GREEN,
-            });
-        }
-
-        // NORMAL (right part)
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(this.levelHi, range);
-        if (this.effect3d && this.rampGradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(midNormal, range));
-            const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
-
-            const gradientRightAngle = toRadians(this.getValuePosition(this.levelHi, range));
-            const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, Color.GREEN.toString());
-            gradient.addColorStop(1, this.colorHi.toString());
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                gradient,
-            });
-        } else {
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                color: Color.GREEN,
-            });
-        }
-
-        // HI
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(this.levelHiHi, range);
-        if (this.effect3d && this.rampGradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(this.levelHi, range));
-            const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
-
-            const gradientRightAngle = toRadians(this.getValuePosition(this.levelHiHi, range));
-            const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, this.colorHi.toString());
-            gradient.addColorStop(1, this.colorHiHi.toString());
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                gradient,
-            });
-        } else {
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - 5,
-                ry: ry - 5,
-                lineWidth: 10,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                color: this.colorHi,
-            });
-        }
-
-        // HIHI
-        startAngle = endAngle;
-        endAngle = 360 - END_ANGLE;
-        /*const gradient = g.ctx.createLinearGradient(area.x, area.y, area.x + area.width, area.y + area.height);
-        gradient.addColorStop(0, Color.GREEN.toString());
-        gradient.addColorStop(1, Color.PURPLE.toString());*/
-        g.strokeEllipse({
-            cx,
-            cy,
-            rx: rx - 5,
-            ry: ry - 5,
-            lineWidth: 10,
-            startAngle: toRadians(startAngle),
-            endAngle: toRadians(endAngle),
-            color: this.colorHiHi,
-        });
+        const ramp = new Ramp(10, 225, 315);
+        ramp.lolo = this.levelLoLo;
+        ramp.loloColor = this.colorLoLo;
+        ramp.lo = this.levelLo;
+        ramp.loColor = this.colorLo;
+        ramp.hi = this.levelHi;
+        ramp.hiColor = this.colorHi;
+        ramp.hihi = this.levelHiHi;
+        ramp.hihiColor = this.colorHiHi;
+        ramp.minimum = this.minimum;
+        ramp.maximum = this.maximum;
+        ramp.effect3d = this.effect3d;
+        ramp.gradient = this.rampGradient;
+        ramp.logScale = this.logScale;
+        ramp.draw(g, area, rampArea);
     }
 
     private drawLabel(g: Graphics, width: number, height: number) {
@@ -443,11 +285,12 @@ export class Gauge extends Widget {
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
     get levelHi(): number { return this.properties.getValue(PROP_LEVEL_HI); }
     get levelHiHi(): number { return this.properties.getValue(PROP_LEVEL_HIHI); }
+    get logScale(): boolean { return this.properties.getValue(PROP_LOG_SCALE); }
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
     get needleColor(): Color { return this.properties.getValue(PROP_NEEDLE_COLOR); }
     get rampGradient(): boolean { return this.properties.getValue(PROP_RAMP_GRADIENT); }
-    get logScale(): boolean { return this.properties.getValue(PROP_LOG_SCALE); }
+    get showRamp(): boolean { return this.properties.getValue(PROP_SHOW_RAMP); }
 }
 
 interface Range {

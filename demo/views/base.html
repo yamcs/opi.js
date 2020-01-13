@@ -11,15 +11,13 @@
 
 <body>
     <div id="toolbar">
-        <a href="/">opi.js</a>
         {% block toolbar %}
         {% endblock %}
     </div>
+    <div id="app-title">
+        <a href="/">opi.js</a>
+    </div>
     <div id="sidebar">
-        <h2>
-            <i class="far fa-fw fa-folder-open"></i>
-            BROWSE
-        </h2>
         <ul class="menu">
             {% if parentUrl %}
             <li>

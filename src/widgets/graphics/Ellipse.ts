@@ -61,9 +61,11 @@ export class Ellipse extends Widget {
         ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         ctx.fill();
 
-        ctx.lineWidth = this.lineWidth;
-        ctx.strokeStyle = this.lineColor.toString();
-        ctx.stroke();
+        if (this.lineWidth) {
+            ctx.lineWidth = this.lineWidth;
+            ctx.strokeStyle = this.lineColor.toString();
+            ctx.stroke();
+        }
     }
 
     private drawFill(ctx: CanvasRenderingContext2D) {

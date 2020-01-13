@@ -24,7 +24,7 @@ const PROP_TOGGLE_BUTTON = 'toggle_button';
 export class BooleanButton extends Widget {
 
     private hovered = false;
-    private enabled = false;
+    private manualToggleState = false; // Without PV
 
     private areaRegion?: HitRegion;
 
@@ -49,12 +49,7 @@ export class BooleanButton extends Widget {
         this.areaRegion = {
             id: `${this.wuid}-area`,
             mouseDown: () => {
-                this.enabled = !this.enabled;
-                if (this.enabled) {
-                    this.executeAction(this.pushActionIndex);
-                } else if (this.releaseActionIndex !== undefined) {
-                    this.executeAction(this.releaseActionIndex);
-                }
+                this.manualToggleState ? this.toggleOff() : this.toggleOn();
                 this.requestRepaint();
             },
             mouseEnter: () => {
@@ -69,18 +64,47 @@ export class BooleanButton extends Widget {
         };
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
-        if (this.squareButton) {
-            this.drawSquare(g, hitCanvas);
+    private toggleOn() {
+        this.manualToggleState = true;
+        if (this.pv && this.pv.isWritable()) {
+            this.pv.value = 1;
+        }
+        this.executeAction(this.pushActionIndex);
+    }
+
+    private toggleOff() {
+        this.manualToggleState = false;
+        if (this.pv && this.pv.isWritable()) {
+            this.pv.value = 0;
+        }
+        if (this.releaseActionIndex !== undefined) {
+            this.executeAction(this.releaseActionIndex);
+        }
+    }
+
+    private getRenderedToggleState() {
+        if (this.pv) {
+            return this.pv.value;
         } else {
-            this.drawEllipse(g, hitCanvas);
+            return this.manualToggleState;
+        }
+    }
+
+
+    draw(g: Graphics, hitCanvas: HitCanvas) {
+        const toggled = this.getRenderedToggleState();
+
+        if (this.squareButton) {
+            this.drawSquare(g, hitCanvas, toggled);
+        } else {
+            this.drawEllipse(g, hitCanvas, toggled);
         }
 
         // Foreground
         if (this.width > this.height) {
-            this.drawHorizontal(g);
+            this.drawHorizontal(g, toggled);
         } else {
-            this.drawVertical(g);
+            this.drawVertical(g, toggled);
         }
 
         if (this.showBooleanLabel) {
@@ -91,12 +115,12 @@ export class BooleanButton extends Widget {
                 color: this.foregroundColor,
                 align: 'center',
                 baseline: 'middle',
-                text: this.enabled ? this.onLabel : this.offLabel,
+                text: toggled ? this.onLabel : this.offLabel,
             });
         }
     }
 
-    private drawSquare(g: Graphics, hitCanvas: HitCanvas) {
+    private drawSquare(g: Graphics, hitCanvas: HitCanvas, toggled: boolean) {
         g.fillRect({
             x: this.x,
             y: this.y,
@@ -108,8 +132,8 @@ export class BooleanButton extends Widget {
         hitCanvas.beginHitRegion(this.areaRegion!);
         hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        const tlColor = this.enabled ? Color.DARK_GRAY : Color.WHITE;
-        const brColor = this.enabled ? Color.WHITE : Color.DARK_GRAY;
+        const tlColor = toggled ? Color.DARK_GRAY : Color.WHITE;
+        const brColor = toggled ? Color.WHITE : Color.DARK_GRAY;
         if (this.effect3d) {
             g.path(this.x, this.y)
                 .lineTo(this.x, this.y + this.height)
@@ -143,7 +167,7 @@ export class BooleanButton extends Widget {
         });
     }
 
-    private drawEllipse(g: Graphics, hitCanvas: HitCanvas) {
+    private drawEllipse(g: Graphics, hitCanvas: HitCanvas, toggled: boolean) {
         if (this.effect3d) {
             const a = this.width / 2;
             const b = this.height / 2;
@@ -154,7 +178,7 @@ export class BooleanButton extends Widget {
             const y2 = this.y + b - (b - a - w) / 2 + 5;
 
             const gradient = g.ctx.createLinearGradient(x1, y1, x2, y2);
-            if (this.enabled) {
+            if (toggled) {
                 gradient.addColorStop(0, Color.DARK_GRAY.toString());
                 gradient.addColorStop(1, Color.WHITE.toString());
             } else {
@@ -162,7 +186,7 @@ export class BooleanButton extends Widget {
                 gradient.addColorStop(1, Color.DARK_GRAY.toString());
             }
             g.ctx.fillStyle = gradient;
-        } else if (this.enabled) {
+        } else if (toggled) {
             g.ctx.fillStyle = Color.WHITE.toString();
         } else {
             g.ctx.fillStyle = Color.DARK_GRAY.toString();
@@ -190,7 +214,7 @@ export class BooleanButton extends Widget {
         g.ctx.fill();
     }
 
-    private drawHorizontal(g: Graphics) {
+    private drawHorizontal(g: Graphics, toggled: boolean) {
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
@@ -215,7 +239,7 @@ export class BooleanButton extends Widget {
             const cy = ledArea.y + (ledArea.height / 2);
             const rx = ledArea.width / 2;
             const ry = ledArea.height / 2;
-            const ledColor = this.enabled ? this.onColor : this.offColor;
+            const ledColor = toggled ? this.onColor : this.offColor;
 
             g.fillEllipse({ cx, cy, rx, ry, color: ledColor });
 
@@ -232,7 +256,7 @@ export class BooleanButton extends Widget {
         }
     }
 
-    private drawVertical(g: Graphics) {
+    private drawVertical(g: Graphics, toggled: boolean) {
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
@@ -253,7 +277,7 @@ export class BooleanButton extends Widget {
                 height: diameter
             };
 
-            const ledColor = this.enabled ? this.onColor : this.offColor;
+            const ledColor = toggled ? this.onColor : this.offColor;
             const cx = ledArea.x + (ledArea.width / 2);
             const cy = ledArea.y + (ledArea.height / 2);
             const rx = ledArea.width / 2;

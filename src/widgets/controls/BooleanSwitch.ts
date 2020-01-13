@@ -4,7 +4,7 @@ import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { HitRegion } from '../../HitRegion';
 import { Bounds } from '../../positioning';
-import { BooleanProperty, ColorProperty, StringProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
 const PROP_EFFECT_3D = 'effect_3d';
@@ -12,6 +12,9 @@ const PROP_OFF_COLOR = 'off_color';
 const PROP_OFF_LABEL = 'off_label';
 const PROP_ON_COLOR = 'on_color';
 const PROP_ON_LABEL = 'on_label';
+const PROP_PUSH_ACTION_INDEX = 'push_action_index';
+const PROP_RELEASE_ACTION_INDEX = 'released_action_index'; // with 'd'
+const PROP_TOGGLE_BUTTON = 'toggle_button';
 
 export class BooleanSwitch extends Widget {
 
@@ -26,6 +29,9 @@ export class BooleanSwitch extends Widget {
         this.properties.add(new StringProperty(PROP_ON_LABEL));
         this.properties.add(new ColorProperty(PROP_OFF_COLOR));
         this.properties.add(new StringProperty(PROP_OFF_LABEL));
+        this.properties.add(new IntProperty(PROP_PUSH_ACTION_INDEX));
+        this.properties.add(new IntProperty(PROP_RELEASE_ACTION_INDEX));
+        this.properties.add(new BooleanProperty(PROP_TOGGLE_BUTTON));
     }
 
     init() {
@@ -38,7 +44,24 @@ export class BooleanSwitch extends Widget {
 
     private toggle() {
         this.enabled = !this.enabled;
+        this.enabled ? this.toggleOn() : this.toggleOff();
         this.requestRepaint();
+    }
+
+    private toggleOn() {
+        if (this.pv && this.pv.isWritable()) {
+            this.pv.value = 1;
+        }
+        this.executeAction(this.pushActionIndex);
+    }
+
+    private toggleOff() {
+        if (this.pv && this.pv.isWritable()) {
+            this.pv.value = 0;
+        }
+        if (this.releaseActionIndex !== undefined) {
+            this.executeAction(this.releaseActionIndex);
+        }
     }
 
     draw(g: Graphics, hitCanvas: HitCanvas) {
@@ -361,6 +384,9 @@ export class BooleanSwitch extends Widget {
         }
     }
 
+    get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
+    get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }
+    get releaseActionIndex(): number { return this.properties.getValue(PROP_RELEASE_ACTION_INDEX); }
     get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
     get onColor(): Color { return this.properties.getValue(PROP_ON_COLOR); }
     get onLabel(): string { return this.properties.getValue(PROP_ON_LABEL); }

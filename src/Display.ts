@@ -18,6 +18,7 @@ import { Rectangle } from './widgets/graphics/Rectangle';
 import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
 import { Gauge } from './widgets/monitors/Gauge';
 import { LED } from './widgets/monitors/LED';
+import { Meter } from './widgets/monitors/Meter';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
@@ -247,6 +248,8 @@ export class Display {
                 return new LED(this);
             case TYPE_LINKING_CONTAINER:
                 return new LinkingContainer(this);
+            case TYPE_METER:
+                return new Meter(this);
             case TYPE_POLYGON:
                 return new Polygon(this);
             case TYPE_POLYLINE:
