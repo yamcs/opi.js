@@ -41,6 +41,9 @@ interface EllipseColorFill {
     rx: number;
     ry: number;
     color: Color;
+    startAngle?: number;
+    endAngle?: number;
+    anticlockwise?: boolean;
 }
 
 interface EllipseGradientFill {
@@ -49,6 +52,9 @@ interface EllipseGradientFill {
     rx: number;
     ry: number;
     gradient: CanvasGradient;
+    startAngle?: number;
+    endAngle?: number;
+    anticlockwise?: boolean;
 }
 
 type EllipseFill = EllipseColorFill | EllipseGradientFill;
@@ -62,6 +68,7 @@ interface EllipseColorStroke {
     color: Color;
     startAngle?: number;
     endAngle?: number;
+    anticlockwise?: boolean;
     dash?: number[];
 }
 
@@ -74,6 +81,7 @@ interface EllipseGradientStroke {
     gradient: CanvasGradient;
     startAngle?: number;
     endAngle?: number;
+    anticlockwise?: boolean;
     dash?: number[];
 }
 
@@ -148,7 +156,10 @@ export class Graphics {
 
     fillEllipse(fill: EllipseFill) {
         this.ctx.beginPath();
-        this.ctx.ellipse(fill.cx, fill.cy, fill.rx, fill.ry, 0, 0, 2 * Math.PI);
+        const startAngle = fill.startAngle || 0;
+        const endAngle = (fill.endAngle === undefined) ? 2 * Math.PI : fill.endAngle;
+        this.ctx.ellipse(fill.cx, fill.cy,
+            fill.rx, fill.ry, 0, startAngle, endAngle, fill.anticlockwise);
         if ('color' in fill) {
             this.ctx.fillStyle = fill.color.toString();
         } else {
@@ -165,7 +176,8 @@ export class Graphics {
         this.ctx.beginPath();
         const startAngle = stroke.startAngle || 0;
         const endAngle = (stroke.endAngle === undefined) ? 2 * Math.PI : stroke.endAngle;
-        this.ctx.ellipse(stroke.cx, stroke.cy, stroke.rx, stroke.ry, 0, startAngle, endAngle);
+        this.ctx.ellipse(stroke.cx, stroke.cy,
+            stroke.rx, stroke.ry, 0, startAngle, endAngle, stroke.anticlockwise);
         if ('color' in stroke) {
             this.ctx.strokeStyle = stroke.color.toString();
         } else {

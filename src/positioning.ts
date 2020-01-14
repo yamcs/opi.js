@@ -64,11 +64,30 @@ export function toRadians(degrees: number) {
   return degrees * Math.PI / 180;
 }
 
+export function getDistance(p1: Point, p2: Point) {
+  return Math.sqrt(((p2.x - p1.x) * (p2.x - p1.x)) + ((p2.y - p1.y) * (p2.y - p1.y)));
+}
+
+export function findRelativePoint(p0: Point, p1: Point, distanceRatio: number): Point {
+  const d = getDistance(p0, p1);
+  const t = distanceRatio / d;
+  return {
+    x: ((1 - t) * p0.x) + (t * p1.x),
+    y: ((1 - t) * p0.y) + (t * p1.y),
+  };
+}
+
 export function convertPolarToCartesian(r: number, theta: number, bounds: Bounds): Point {
   const x = Math.floor(r * Math.cos(theta));
-  const y = Math.floor(-r * Math.sin(theta));
+  const y = Math.floor(-r * Math.sin(theta)); // hmm
   return {
     x: bounds.x + bounds.width / 2 + x,
     y: bounds.y + bounds.height / 2 + y,
   };
+}
+
+export function convertPolarToCartesian2(rx: number, ry: number, theta: number): Point {
+  const x = Math.floor(rx * Math.cos(theta));
+  const y = Math.floor(ry * Math.sin(theta));
+  return { x, y };
 }

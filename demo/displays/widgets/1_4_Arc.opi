@@ -340,7 +340,7 @@ $(pv_value)</tooltip>
     <font>
       <opifont.name fontName="Segoe UI" height="9" style="0">Default</opifont.name>
     </font>
-    <width>113</width>
+    <width>213</width>
     <line_style>2</line_style>
     <fill>true</fill>
     <border_style>0</border_style>
@@ -396,7 +396,7 @@ $(pv_value)</tooltip>
       <action type="EXECUTE_JAVASCRIPT">
         <path>../scripts/openHelp.js</path>
         <scriptText><![CDATA[importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-]]></scriptText>
+]]>        </scriptText>
         <embedded>false</embedded>
         <description>Open Help</description>
       </action>
@@ -582,7 +582,7 @@ $(pv_value)</tooltip>
       <action type="EXECUTE_JAVASCRIPT">
         <path>../scripts/goHome.js</path>
         <scriptText><![CDATA[importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-]]></scriptText>
+]]>        </scriptText>
         <embedded>false</embedded>
         <description></description>
       </action>
