@@ -1,5 +1,5 @@
 import { Display } from '../../Display';
-import { Graphics } from '../../Graphics';
+import { Graphics, Path } from '../../Graphics';
 import { convertPolarToCartesian2, findRelativePoint, toRadians } from '../../positioning';
 import { BooleanProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -92,11 +92,14 @@ export class Arc extends Widget {
 
         const triangleP1 = findRelativePoint({ x: 0, y: 0 }, p1, 1000);
         const triangleP2 = findRelativePoint({ x: 0, y: 0 }, p2, 1000);
-        g.path(cx, cy)
-            .lineTo(cx + triangleP1.x, cy + triangleP1.y)
-            .lineTo(cx + triangleP2.x, cy + triangleP2.y)
-            .closePath()
-            .fill({ color: this.backgroundColor });
+
+        g.fillPath({
+            color: this.backgroundColor,
+            path: new Path(cx, cy)
+                .lineTo(cx + triangleP1.x, cy + triangleP1.y)
+                .lineTo(cx + triangleP2.x, cy + triangleP2.y)
+                .closePath()
+        });
         g.ctx.restore();
     }
 

@@ -1,8 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
-import { HitRegion } from '../../HitRegion';
+import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -20,7 +19,7 @@ export class BooleanSwitch extends Widget {
 
     private enabled = false;
 
-    private shaftRegion?: HitRegion;
+    private shaftRegion?: HitRegionSpecification;
 
     constructor(display: Display) {
         super(display);

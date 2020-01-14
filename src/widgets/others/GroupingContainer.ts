@@ -36,7 +36,7 @@ export class GroupingContainer extends AbstractContainerWidget {
         canvas.height = this.height;
         const g = new Graphics(canvas);
         for (const widget of this.widgets) {
-            widget.drawHolder(g, hitCanvas);
+            widget.drawHolder(g);
             widget.draw(g, hitCanvas);
             widget.drawDecoration(g);
         }

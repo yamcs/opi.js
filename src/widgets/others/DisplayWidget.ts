@@ -46,7 +46,7 @@ export class DisplayWidget extends AbstractContainerWidget {
 
     draw(g: Graphics, hitCanvas: HitCanvas) {
         for (const widget of this.widgets) {
-            widget.drawHolder(g, hitCanvas);
+            widget.drawHolder(g);
             widget.draw(g, hitCanvas);
             widget.drawDecoration(g);
         }

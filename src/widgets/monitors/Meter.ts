@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
-import { Graphics } from '../../Graphics';
+import { Graphics, Path } from '../../Graphics';
 import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -152,11 +152,13 @@ export class Meter extends Widget {
         const p1 = rotatePoint(cx + area.width / 4, cy - NEEDLE_WIDTH / 2 + 3, cx, cy, angle);
         const p2 = rotatePoint(cx + ramp.getRadius() - GAP_BTW_NEEDLE_SCALE, cy, cx, cy, angle);
         const p3 = rotatePoint(cx + area.width / 4, cy + NEEDLE_WIDTH / 2 - 3, cx, cy, angle);
-        g.path(p1.x, p1.y)
-            .lineTo(p2.x, p2.y)
-            .lineTo(p3.x, p3.y)
-            .closePath()
-            .fill({ color: this.needleColor });
+        g.fillPath({
+            color: this.needleColor,
+            path: new Path(p1.x, p1.y)
+                .lineTo(p2.x, p2.y)
+                .lineTo(p3.x, p3.y)
+                .closePath()
+        });
     }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }

@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
-import { Graphics } from '../../Graphics';
+import { Graphics, Path } from '../../Graphics';
 import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -214,11 +214,13 @@ export class Gauge extends Widget {
         const p1 = rotatePoint(cx, cy - NEEDLE_DIAMETER / 2 + 3, cx, cy, angle);
         const p2 = rotatePoint(cx + width / 2 - MAJOR_TICK_LENGTH - GAP_BTW_NEEDLE_SCALE, cy, cx, cy, angle);
         const p3 = rotatePoint(cx, cy + NEEDLE_DIAMETER / 2 - 3, cx, cy, angle);
-        g.path(p1.x, p1.y)
-            .lineTo(p2.x, p2.y)
-            .lineTo(p3.x, p3.y)
-            .closePath()
-            .fill({ color: this.needleColor });
+        g.fillPath({
+            color: this.needleColor,
+            path: new Path(p1.x, p1.y)
+                .lineTo(p2.x, p2.y)
+                .lineTo(p3.x, p3.y)
+                .closePath()
+        });
     }
 
     private drawNeedleCenter(g: Graphics, width: number, height: number) {

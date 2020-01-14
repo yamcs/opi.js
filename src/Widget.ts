@@ -3,7 +3,7 @@ import { Color } from './Color';
 import { Display } from './Display';
 import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
-import { Graphics } from './Graphics';
+import { Graphics, Path } from './Graphics';
 import { HitCanvas } from './HitCanvas';
 import { toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
@@ -101,7 +101,7 @@ export abstract class Widget {
         this.init();
     }
 
-    drawHolder(g: Graphics, hitCanvas: HitCanvas) {
+    drawHolder(g: Graphics) {
         let insets = [0, 0, 0, 0]; // T L B R
         switch (this.borderStyle) {
             case 0: // Empty
@@ -172,31 +172,39 @@ export abstract class Widget {
             const left = this.holderX + 0.5;
             const bottom = this.holderY + this.holderHeight - 1 + 0.5;
             const right = this.holderX + this.holderWidth - 1 + 0.5;
-            g.path(right, bottom)
-                .lineTo(right, top)
-                .moveTo(right, bottom)
-                .lineTo(left, bottom)
-                .stroke({ color: Color.BLACK });
-            g.path(left, top)
-                .lineTo(right - 1, top)
-                .moveTo(left, top)
-                .lineTo(left, bottom - 1)
-                .stroke({ color: Color.WHITE });
+            g.strokePath({
+                color: Color.BLACK,
+                path: new Path(right, bottom)
+                    .lineTo(right, top)
+                    .moveTo(right, bottom)
+                    .lineTo(left, bottom)
+            });
+            g.strokePath({
+                color: Color.WHITE,
+                path: new Path(left, top)
+                    .lineTo(right - 1, top)
+                    .moveTo(left, top)
+                    .lineTo(left, bottom - 1)
+            });
         } else if (this.borderStyle === 3) { // Lowered
             const top = this.holderY + 0.5;
             const left = this.holderX + 0.5;
             const bottom = this.holderY + this.holderHeight - 1 + 0.5;
             const right = this.holderX + this.holderWidth - 1 + 0.5;
-            g.path(right, bottom)
-                .lineTo(right, top)
-                .moveTo(right, bottom)
-                .lineTo(left, bottom)
-                .stroke({ color: Color.WHITE });
-            g.path(left, top)
-                .lineTo(right - 1, top)
-                .moveTo(left, top)
-                .lineTo(left, bottom - 1)
-                .stroke({ color: Color.BLACK });
+            g.strokePath({
+                color: Color.WHITE,
+                path: new Path(right, bottom)
+                    .lineTo(right, top)
+                    .moveTo(right, bottom)
+                    .lineTo(left, bottom)
+            });
+            g.strokePath({
+                color: Color.BLACK,
+                path: new Path(left, top)
+                    .lineTo(right - 1, top)
+                    .moveTo(left, top)
+                    .lineTo(left, bottom - 1)
+            });
         } else if (this.borderStyle === 4) { // Etched
             this.drawShadowBorder(g, Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER,
                 Color.BUTTON_DARKER, Color.BUTTON_LIGHTEST);
@@ -268,25 +276,29 @@ export abstract class Widget {
 
             let box = toBorderBox(this.holderX + 8, this.holderY + 8, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
 
-            g.path(box.x, box.y)
-                .lineTo(box.x + 8, box.y)
-                .moveTo(box.x + 8 + fm.width, box.y)
-                .lineTo(box.x + box.width, box.y)
-                .lineTo(box.x + box.width, box.y + box.height)
-                .lineTo(box.x, box.y + box.height)
-                .lineTo(box.x, box.y)
-                .stroke({ color: this.backgroundColor.darker() });
+            g.strokePath({
+                color: this.backgroundColor.darker(),
+                path: new Path(box.x, box.y)
+                    .lineTo(box.x + 8, box.y)
+                    .moveTo(box.x + 8 + fm.width, box.y)
+                    .lineTo(box.x + box.width, box.y)
+                    .lineTo(box.x + box.width, box.y + box.height)
+                    .lineTo(box.x, box.y + box.height)
+                    .lineTo(box.x, box.y)
+            });
 
             box = toBorderBox(this.holderX + 8 + 1, this.holderY + 8 + 1, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
 
-            g.path(box.x, box.y)
-                .lineTo(box.x + 8 - 1, box.y)
-                .moveTo(box.x + 8 - 1 + fm.width, box.y)
-                .lineTo(box.x + box.width, box.y)
-                .lineTo(box.x + box.width, box.y + box.height)
-                .lineTo(box.x, box.y + box.height)
-                .lineTo(box.x, box.y)
-                .stroke({ color: this.backgroundColor.brighter() });
+            g.strokePath({
+                color: this.backgroundColor.brighter(),
+                path: new Path(box.x, box.y)
+                    .lineTo(box.x + 8 - 1, box.y)
+                    .moveTo(box.x + 8 - 1 + fm.width, box.y)
+                    .lineTo(box.x + box.width, box.y)
+                    .lineTo(box.x + box.width, box.y + box.height)
+                    .lineTo(box.x, box.y + box.height)
+                    .lineTo(box.x, box.y)
+            });
         } else if (this.borderStyle === 14) { // Round Rectangle Background
             const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
 
@@ -314,7 +326,7 @@ export abstract class Widget {
         }
 
         if (this.actions.isClickable()) {
-            hitCanvas.beginHitRegion({
+            const hitRegion = g.addHitRegion({
                 id: `${this.wuid}-holder`,
                 click: () => {
                     for (const idx of this.actions.getClickActions()) {
@@ -323,7 +335,7 @@ export abstract class Widget {
                 },
                 cursor: 'pointer'
             });
-            hitCanvas.ctx.fillRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
+            hitRegion.addRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
         }
     }
 
@@ -398,40 +410,48 @@ export abstract class Widget {
         const left = this.holderX + 0.5;
         const bottom = this.holderY + this.holderHeight - 1 + 0.5;
         const right = this.holderX + this.holderWidth - 1 + 0.5;
-        g.path(right, bottom)
-            .lineTo(right, bottom)
-            .moveTo(right, bottom)
-            .lineTo(left, bottom)
-            .stroke({ color: c1 });
-        g.path(right - 1, bottom - 1)
-            .lineTo(right - 1, top + 1)
-            .moveTo(right - 1, bottom - 1)
-            .lineTo(left + 1, bottom - 1)
-            .stroke({ color: c2 });
-        g.path(left, top)
-            .lineTo(right - 1, top)
-            .moveTo(left, top)
-            .lineTo(left, bottom - 1)
-            .stroke({ color: c3 });
-        g.path(left + 1, top + 1)
-            .lineTo(right - 1 - 1, top + 1)
-            .moveTo(left + 1, top + 1)
-            .lineTo(left + 1, bottom - 1 - 1)
-            .stroke({ color: c4 });
+        g.strokePath({
+            color: c1,
+            path: new Path(right, bottom)
+                .lineTo(right, bottom)
+                .moveTo(right, bottom)
+                .lineTo(left, bottom)
+        });
+        g.strokePath({
+            color: c2,
+            path: new Path(right - 1, bottom - 1)
+                .lineTo(right - 1, top + 1)
+                .moveTo(right - 1, bottom - 1)
+                .lineTo(left + 1, bottom - 1)
+        });
+        g.strokePath({
+            color: c3,
+            path: new Path(left, top)
+                .lineTo(right - 1, top)
+                .moveTo(left, top)
+                .lineTo(left, bottom - 1)
+        });
+        g.strokePath({
+            color: c4,
+            path: new Path(left + 1, top + 1)
+                .lineTo(right - 1 - 1, top + 1)
+                .moveTo(left + 1, top + 1)
+                .lineTo(left + 1, bottom - 1 - 1)
+        });
     }
 
     private drawDashedBorder(g: Graphics, dash: number[]) {
         const bbox = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, this.borderWidth);
-        g.path(bbox.x, bbox.y)
-            .lineTo(bbox.x + bbox.width, bbox.y)
-            .lineTo(bbox.x + bbox.width, bbox.y + bbox.height)
-            .lineTo(bbox.x, bbox.y + bbox.height)
-            .closePath()
-            .stroke({
-                color: this.borderColor,
-                lineWidth: this.borderWidth,
-                dash,
-            });
+        g.strokePath({
+            color: this.borderColor,
+            lineWidth: this.borderWidth,
+            dash,
+            path: new Path(bbox.x, bbox.y)
+                .lineTo(bbox.x + bbox.width, bbox.y)
+                .lineTo(bbox.x + bbox.width, bbox.y + bbox.height)
+                .lineTo(bbox.x, bbox.y + bbox.height)
+                .closePath()
+        });
     }
 
     protected executeAction(index: number) {

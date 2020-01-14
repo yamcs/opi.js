@@ -2,8 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
-import { HitRegion } from '../../HitRegion';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -15,7 +14,7 @@ const PROP_IMAGE = 'image';
 
 export class ActionButton extends Widget {
 
-    private areaRegion?: HitRegion;
+    private areaRegion?: HitRegionSpecification;
 
     private pushed = false;
 
@@ -69,13 +68,13 @@ export class ActionButton extends Widget {
         };
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         const ctx = g.ctx;
         ctx.fillStyle = (this.backgroundColor || Color.BUTTON).toString();
         ctx.fillRect(this.x, this.y, this.width, this.height);
 
-        hitCanvas.beginHitRegion(this.areaRegion!);
-        hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
+        const hitRegion = g.addHitRegion(this.areaRegion!);
+        hitRegion.addRect(this.x, this.y, this.width, this.height);
 
         const top = this.holderY + 0.5;
         const left = this.holderX + 0.5;

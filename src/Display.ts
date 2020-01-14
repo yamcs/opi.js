@@ -3,7 +3,6 @@ import { Color } from './Color';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
-import { HitCanvas } from './HitCanvas';
 import { PVEngine } from './pv/PVEngine';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
@@ -60,7 +59,6 @@ export class Display {
     rootPanel: HTMLDivElement;
     private g: Graphics;
     private ctx: CanvasRenderingContext2D;
-    private hitCanvas = new HitCanvas();
     pvEngine = new PVEngine();
 
     private repaintRequested = false;
@@ -108,7 +106,7 @@ export class Display {
         this.preloadFont('Liberation Sans', 'bold', 'normal');
         this.preloadFont('Liberation Sans', 'bold', 'italic');
 
-        new EventHandler(this, canvas, this.hitCanvas);
+        new EventHandler(this, canvas, this.g.hitCanvas);
     }
 
     preloadFont(fontFace: string, weight: string, style: string) {
@@ -124,7 +122,7 @@ export class Display {
 
         // Limit CPU usage to when we need it
         if (this.repaintRequested || pvChanged) {
-            this.hitCanvas.clear();
+            this.g.clearHitCanvas();
             this.drawScreen();
             this.repaintRequested = false;
         }
@@ -133,17 +131,7 @@ export class Display {
     private drawScreen() {
         this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
         this.rootPanel.style.width = this.targetElement.clientWidth + 'px';
-
-        const width = this.rootPanel.clientWidth;
-        const height = this.rootPanel.clientHeight;
-
-        // Careful not to reset dimensions all the time (it does lots of stuff)
-        if (this.ctx.canvas.width != width || this.ctx.canvas.height != height) {
-            this.ctx.canvas.width = width;
-            this.ctx.canvas.height = height;
-            this.hitCanvas.ctx.canvas.width = width;
-            this.hitCanvas.ctx.canvas.height = height;
-        }
+        this.g.resize(this.rootPanel.clientWidth, this.rootPanel.clientHeight);
 
         this.g.fillCanvas(this.instance ? this.instance.backgroundColor : Color.WHITE);
 
@@ -210,7 +198,7 @@ export class Display {
         }
 
         if (this.instance) {
-            this.instance.draw(this.g, this.hitCanvas);
+            this.instance.draw(this.g, this.g.hitCanvas);
         }
 
         // Selection on top of everything

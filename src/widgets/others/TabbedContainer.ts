@@ -2,8 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
-import { HitRegion } from '../../HitRegion';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { BooleanProperty, IntProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
@@ -22,7 +21,7 @@ interface Tab {
     foregroundColor: Color;
     enabled: boolean;
     font: Font;
-    headerRegion: HitRegion;
+    headerRegion: HitRegionSpecification;
     // iconPath: string;
 }
 
@@ -60,18 +59,84 @@ export class TabbedContainer extends AbstractContainerWidget {
         }
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         if (this.horizontalTabs) {
-            this.drawHorizontalTabs(g, hitCanvas);
+            this.drawHorizontalTabs(g);
         } else {
-            this.drawVerticalTabs(g, hitCanvas);
+            this.drawVerticalTabs(g);
         }
     }
 
-    private drawHorizontalTabs(g: Graphics, hitCanvas: HitCanvas) {
+    private drawHorizontalTabs(g: Graphics) {
+        let x = this.x;
+        for (let i = 0; i < this.tabs.length; i++) {
+            const tab = this.tabs[i];
+            const fm = g.measureText(tab.title, tab.font);
+            let rectX;
+            let rectY;
+            let rectWidth;
+            let rectHeight;
+            let rectFill;
+            if (this.activeTab === i) {
+                rectX = x;
+                rectY = this.y;
+                rectWidth = fm.width + MARGIN + GAP;
+                rectHeight = this.minimumTabHeight;
+                rectFill = tab.backgroundColor;
+            } else {
+                rectX = x + GAP;
+                rectY = this.y + 2;
+                rectWidth = fm.width + MARGIN - GAP;
+                rectHeight = this.minimumTabHeight - 2;
+                rectFill = this.darken(tab.backgroundColor);
+            }
+            g.fillRect({
+                x: rectX,
+                y: rectY,
+                width: rectWidth,
+                height: rectHeight,
+                color: rectFill,
+            });
+
+            const hitRegion = g.addHitRegion(tab.headerRegion);
+            hitRegion.addRect(rectX, rectY, rectWidth, rectHeight);
+
+            const gradient = g.ctx.createLinearGradient(rectX, rectY, rectX, rectY + rectHeight);
+            gradient.addColorStop(0, Color.WHITE.toString());
+            gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
+            g.fillRect({
+                x: rectX,
+                y: rectY,
+                width: rectWidth,
+                height: rectHeight,
+                gradient,
+            });
+
+            g.fillText({
+                x: rectX + (rectWidth / 2),
+                y: rectY + (rectHeight / 2),
+                baseline: 'middle',
+                align: 'center',
+                font: tab.font,
+                color: tab.foregroundColor,
+                text: tab.title,
+            });
+
+            x += fm.width + MARGIN - 1;
+
+            if (this.activeTab === i) {
+                g.fillRect({
+                    x: this.x,
+                    y: this.y + this.minimumTabHeight - 1,
+                    width: this.width - 1,
+                    height: this.height - this.minimumTabHeight,
+                    color: tab.backgroundColor,
+                });
+            }
+        }
     }
 
-    private drawVerticalTabs(g: Graphics, hitCanvas: HitCanvas) {
+    private drawVerticalTabs(g: Graphics) {
         let tabWidth = 0;
         for (const tab of this.tabs) {
             const fm = g.measureText(tab.title, tab.font);
@@ -109,8 +174,8 @@ export class TabbedContainer extends AbstractContainerWidget {
                 color: rectFill,
             });
 
-            hitCanvas.beginHitRegion(tab.headerRegion);
-            hitCanvas.ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+            const hitRegion = g.addHitRegion(tab.headerRegion);
+            hitRegion.addRect(rectX, rectY, rectWidth, rectHeight);
 
             const gradient = g.ctx.createLinearGradient(rectX, rectY, rectX + rectWidth, rectY);
             gradient.addColorStop(0, Color.WHITE.toString());

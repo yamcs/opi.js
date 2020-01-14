@@ -1,7 +1,9 @@
 import { Color } from './Color';
 import { Font } from './Font';
+import { HitCanvas, HitRegionSpecification } from './HitCanvas';
 import { shrink } from './positioning';
 import * as utils from './utils';
+
 
 interface RectColorFill {
     x: number;
@@ -101,12 +103,14 @@ interface RectStroke {
 }
 
 interface PathStroke {
+    path: Path;
     color: Color;
     lineWidth?: number;
     dash?: number[];
 }
 
 interface PathFill {
+    path: Path;
     color: Color;
 }
 
@@ -114,8 +118,17 @@ export class Graphics {
 
     readonly ctx: CanvasRenderingContext2D;
 
+    readonly hitCanvas: HitCanvas;
+    readonly hitCtx: CanvasRenderingContext2D;
+
     constructor(readonly canvas: HTMLCanvasElement) {
         this.ctx = canvas.getContext('2d')!;
+        this.hitCanvas = new HitCanvas();
+        this.hitCtx = this.hitCanvas.ctx;
+    }
+
+    clearHitCanvas() {
+        this.hitCanvas.clear();
     }
 
     fillCanvas(color: Color) {
@@ -128,6 +141,8 @@ export class Graphics {
         if (this.ctx.canvas.width != width || this.ctx.canvas.height != height) {
             this.ctx.canvas.width = width;
             this.ctx.canvas.height = height;
+            this.hitCanvas.ctx.canvas.width = width;
+            this.hitCanvas.ctx.canvas.height = height;
         }
     }
 
@@ -222,36 +237,17 @@ export class Graphics {
         }
     }
 
-    path(x: number, y: number) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
-        return new Path(this.ctx);
-    }
-}
-
-export class Path {
-
-    constructor(private ctx: CanvasRenderingContext2D) {
-    }
-
-    lineTo(x: number, y: number) {
-        this.ctx.lineTo(x, y);
-        return this;
-    }
-
-    moveTo(x: number, y: number) {
-        this.ctx.moveTo(x, y);
-        return this;
-    }
-
-    closePath() {
-        this.ctx.closePath();
-        return this;
-    }
-
-    stroke(stroke: PathStroke) {
+    strokePath(stroke: PathStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
+        }
+        this.ctx.beginPath();
+        for (const segment of stroke.path.segments) {
+            if (segment.line) {
+                this.ctx.lineTo(segment.x, segment.y);
+            } else {
+                this.ctx.moveTo(segment.x, segment.y);
+            }
         }
         this.ctx.lineWidth = stroke.lineWidth || 1;
         this.ctx.strokeStyle = stroke.color.toString();
@@ -261,8 +257,81 @@ export class Path {
         }
     }
 
-    fill(fill: PathFill) {
+    fillPath(fill: PathFill) {
+        this.ctx.beginPath();
+        for (const segment of fill.path.segments) {
+            if (segment.line) {
+                this.ctx.lineTo(segment.x, segment.y);
+            } else {
+                this.ctx.moveTo(segment.x, segment.y);
+            }
+        }
         this.ctx.fillStyle = fill.color.toString();
+        this.ctx.fill();
+    }
+
+    addHitRegion(region: HitRegionSpecification) {
+        this.hitCanvas.beginHitRegion(region);
+        return new HitRegionBuilder(this.hitCanvas.ctx);
+    }
+}
+
+interface PathSegment {
+    x: number;
+    y: number;
+    line: boolean;
+}
+
+export class Path {
+
+    segments: PathSegment[] = [];
+
+    constructor(x: number, y: number) {
+        this.segments.push({ x, y, line: false });
+    }
+
+    lineTo(x: number, y: number) {
+        this.segments.push({ x, y, line: true });
+        return this;
+    }
+
+    moveTo(x: number, y: number) {
+        this.segments.push({ x, y, line: false });
+        return this;
+    }
+
+    closePath() {
+        const orig = this.segments[0];
+        this.segments.push({ x: orig.x, y: orig.y, line: true });
+        return this;
+    }
+}
+
+export class HitRegionBuilder {
+
+    constructor(private ctx: CanvasRenderingContext2D) {
+    }
+
+    addRect(x: number, y: number, width: number, height: number) {
+        this.ctx.fillRect(x, y, width, height);
+        return this;
+    }
+
+    addEllipse(cx: number, cy: number, rx: number, ry: number, rotation: number, startAngle: number, endAngle: number, anticlockwise?: boolean) {
+        this.ctx.beginPath();
+        this.ctx.ellipse(cx, cy, rx, ry, rotation, startAngle, endAngle, anticlockwise);
+        this.ctx.fill();
+    }
+
+    addPath(path: Path) {
+        this.ctx.beginPath();
+        for (const segment of path.segments) {
+            if (segment.line) {
+                this.ctx.lineTo(segment.x, segment.y);
+            } else {
+                this.ctx.moveTo(segment.x, segment.y);
+            }
+        }
         this.ctx.fill();
     }
 }

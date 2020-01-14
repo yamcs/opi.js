@@ -1,11 +1,20 @@
-import { HitRegion } from './HitRegion';
-
 const WHITE = 'rgb(255,255,255)';
+
+export interface HitRegionSpecification {
+    id: string;
+    click?: () => void;
+    mouseEnter?: () => void;
+    mouseMove?: () => void;
+    mouseOut?: () => void;
+    mouseDown?: () => void;
+    mouseUp?: () => void;
+    cursor?: string;
+}
 
 export class HitCanvas {
 
     readonly ctx: CanvasRenderingContext2D;
-    private regions: { [key: string]: HitRegion } = {};
+    private regions: { [key: string]: HitRegionSpecification } = {};
 
     // If present, use the parent instead of the local regions map.
     // This avoids color collisions.
@@ -28,7 +37,7 @@ export class HitCanvas {
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
-    beginHitRegion(hitRegion: HitRegion) {
+    beginHitRegion(hitRegion: HitRegionSpecification) {
         const color = (this.parent || this).generateUniqueColor();
         (this.parent || this).regions[color] = hitRegion;
 
@@ -37,7 +46,7 @@ export class HitCanvas {
         return color;
     }
 
-    getActiveRegion(x: number, y: number): HitRegion | undefined {
+    getActiveRegion(x: number, y: number): HitRegionSpecification | undefined {
         const pixel = this.ctx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
         return this.regions[color] || undefined;

@@ -1,17 +1,16 @@
 import { Display } from './Display';
-import { HitCanvas } from './HitCanvas';
-import { HitRegion } from './HitRegion';
+import { HitCanvas, HitRegionSpecification } from './HitCanvas';
 import { Point } from './positioning';
 
 // Compare by id instead of references. HitRegions are allowed to be generated
 // on each draw, whereas the "id" could be something more long-term.
-function regionMatches(region1?: HitRegion, region2?: HitRegion) {
+function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpecification) {
     return region1 && region2 && region1.id === region2.id;
 }
 
 export class EventHandler {
 
-    private prevEnteredRegion?: HitRegion;
+    private prevEnteredRegion?: HitRegionSpecification;
 
     constructor(private display: Display, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
         canvas.addEventListener('click', e => this.onClick(e), false);

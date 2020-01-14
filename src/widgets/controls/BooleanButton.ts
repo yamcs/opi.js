@@ -1,9 +1,8 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
-import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
-import { HitRegion } from '../../HitRegion';
+import { Graphics, Path } from '../../Graphics';
+import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -26,7 +25,7 @@ export class BooleanButton extends Widget {
     private hovered = false;
     private manualToggleState = false; // Without PV
 
-    private areaRegion?: HitRegion;
+    private areaRegion?: HitRegionSpecification;
 
     constructor(display: Display) {
         super(display);
@@ -135,23 +134,27 @@ export class BooleanButton extends Widget {
         const tlColor = toggled ? Color.DARK_GRAY : Color.WHITE;
         const brColor = toggled ? Color.WHITE : Color.DARK_GRAY;
         if (this.effect3d) {
-            g.path(this.x, this.y)
-                .lineTo(this.x, this.y + this.height)
-                .lineTo(this.x + 2, this.y + this.height - 2)
-                .lineTo(this.x + 2, this.y + 2)
-                .lineTo(this.x + this.width - 2, this.y + 2)
-                .lineTo(this.x + this.width, this.y)
-                .closePath()
-                .fill({ color: tlColor });
+            g.fillPath({
+                color: tlColor,
+                path: new Path(this.x, this.y)
+                    .lineTo(this.x, this.y + this.height)
+                    .lineTo(this.x + 2, this.y + this.height - 2)
+                    .lineTo(this.x + 2, this.y + 2)
+                    .lineTo(this.x + this.width - 2, this.y + 2)
+                    .lineTo(this.x + this.width, this.y)
+                    .closePath()
+            });
 
-            g.path(this.x, this.y + this.height)
-                .lineTo(this.x + this.width, this.y + this.height)
-                .lineTo(this.x + this.width, this.y)
-                .lineTo(this.x + this.width - 2, this.y + 2)
-                .lineTo(this.x + this.width - 2, this.y + this.height - 2)
-                .lineTo(this.x + 2, this.y + this.height - 2)
-                .closePath()
-                .fill({ color: brColor })
+            g.fillPath({
+                color: brColor,
+                path: new Path(this.x, this.y + this.height)
+                    .lineTo(this.x + this.width, this.y + this.height)
+                    .lineTo(this.x + this.width, this.y)
+                    .lineTo(this.x + this.width - 2, this.y + 2)
+                    .lineTo(this.x + this.width - 2, this.y + this.height - 2)
+                    .lineTo(this.x + 2, this.y + this.height - 2)
+                    .closePath()
+            });
         }
 
         let color = this.backgroundColor;
