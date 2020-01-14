@@ -476,10 +476,10 @@ $(pv_value)</tooltip>
           <value>../pictures/snsBuilding.jpg</value>
         </exp>
         <exp bool_exp="pv0==2">
-          <value>platform:/plugin/org.csstudio.opibuilder/html/img/Widgets.png</value>
+          <value>../pictures/snscontrol.jpg</value>
         </exp>
         <exp bool_exp="pv0==3">
-          <value>https://www.google.com/images/srpr/logo11w.png</value>
+          <value>../pictures/snsBuilding.jpg</value>
         </exp>
         <pv trig="true">sim://ramp(0,3,1,1)</pv>
       </rule>
@@ -697,7 +697,7 @@ $(pv_value)</tooltip>
       <action type="EXECUTE_JAVASCRIPT">
         <path>../scripts/openHelp.js</path>
         <scriptText><![CDATA[importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-]]></scriptText>
+]]>        </scriptText>
         <embedded>false</embedded>
         <description>Open Help</description>
       </action>
@@ -901,7 +901,7 @@ $(pv_value)</tooltip>
       <action type="EXECUTE_JAVASCRIPT">
         <path>../scripts/goHome.js</path>
         <scriptText><![CDATA[importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
-]]></scriptText>
+]]>        </scriptText>
         <embedded>false</embedded>
         <description></description>
       </action>

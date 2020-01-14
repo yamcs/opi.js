@@ -4,6 +4,7 @@ import { ColorFontUtil } from './ColorFontUtil';
 import { ConsoleUtil } from './ConsoleUtil';
 import { MessageDialog } from './MessageDialog';
 import { PVUtil } from './PVUtil';
+import { PVWrapper } from './PVWrapper';
 import { ScriptUtil } from './ScriptUtil';
 import { WidgetWrapper } from './WidgetWrapper';
 
@@ -31,7 +32,7 @@ export class ScriptEngine {
       .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')
       .trim();
     this.context = {
-      pvs,
+      pvs: pvs.map(pv => new PVWrapper(pv)),
       widget: new WidgetWrapper(widget),
       ConsoleUtil: new ConsoleUtil(),
       ColorFontUtil: new ColorFontUtil(),

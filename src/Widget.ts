@@ -5,8 +5,9 @@ import { Font } from './Font';
 import { Graphics } from './Graphics';
 import { HitCanvas } from './HitCanvas';
 import { toBorderBox } from './positioning';
-import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, ScriptsProperty, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
 import { PV } from './pv/PV';
+import { RuleSet } from './rules';
 import { ScriptEngine } from './scripting/ScriptEngine';
 import { ScriptSet } from './scripts';
 import { XMLNode } from './XMLNode';
@@ -21,6 +22,7 @@ const PROP_FOREGROUND_COLOR = 'foreground_color';
 const PROP_HEIGHT = 'height';
 const PROP_NAME = 'name';
 const PROP_PV_NAME = 'pv_name';
+const PROP_RULES = 'rules';
 const PROP_SCRIPTS = 'scripts';
 const PROP_TEXT = 'text';
 const PROP_TRANSPARENT = 'transparent';
@@ -57,6 +59,7 @@ export abstract class Widget {
             new IntProperty(PROP_HEIGHT),
             new StringProperty(PROP_NAME),
             new StringProperty(PROP_PV_NAME),
+            new RulesProperty(PROP_RULES, new RuleSet()),
             new ScriptsProperty(PROP_SCRIPTS),
             new StringProperty(PROP_TEXT, ''),
             new BooleanProperty(PROP_TRANSPARENT, false),
@@ -84,6 +87,10 @@ export abstract class Widget {
                     });
                 }
             });
+        }
+
+        for (const rule of this.rules.rules) {
+            this.display.pvEngine.createRule(this, rule);
         }
 
         this.init();
@@ -500,6 +507,7 @@ export abstract class Widget {
     get visible(): boolean { return this.properties.getValue(PROP_VISIBLE); }
     get actions(): ActionSet { return this.properties.getValue(PROP_ACTIONS); }
     get scripts(): ScriptSet { return this.properties.getValue(PROP_SCRIPTS); }
+    get rules(): RuleSet { return this.properties.getValue(PROP_RULES); }
 
     get text(): string {
         if (this.display.editMode) {

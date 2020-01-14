@@ -121,12 +121,17 @@ export class Sine extends SimGenerator {
     }
 }
 
+let counter = 0;
+
 export class Ramp extends SimGenerator {
+
+    private id = 0;
 
     private currentValue = 0;
 
     constructor(private min: number, private max: number, private inc: number, interval: number) {
         super(interval);
+        this.id = counter++;
         if (inc >= 0) {
             this.currentValue = min - inc;
         } else {

@@ -2,6 +2,7 @@ import { ActionSet, ExecuteCommandAction, ExecuteJavaScriptAction, OpenDisplayAc
 import { Color } from './Color';
 import { Font } from './Font';
 import { MacroSet } from './macros';
+import { BooleanExpression, RuleInput, RuleSet } from './rules';
 import { ScriptInput, ScriptSet } from './scripts';
 
 export class XMLNode {
@@ -58,6 +59,13 @@ export class XMLNode {
 
     hasAttribute(name: string) {
         return (this.node as Element).hasAttribute(name);
+    }
+
+    /**
+     * Returns the inner content of this node as a string
+     */
+    getTextContent(defaultValue?: string) {
+        return this.node.textContent || defaultValue || '';
     }
 
     /**
@@ -237,7 +245,7 @@ export class XMLNode {
             const inputs: ScriptInput[] = [];
             for (const pvNode of pathNode.getNodes('pv')) {
                 inputs.push({
-                    pvName: pathNode.getString('pv'),
+                    pvName: pvNode.getTextContent(),
                     trigger: pvNode.getBooleanAttribute('trig'),
                 });
             }
@@ -249,6 +257,35 @@ export class XMLNode {
             });
         }
         return scripts;
+    }
+
+    getRules(name: string) {
+        const rulesNode = this.getNode(name);
+        const rules = new RuleSet();
+        for (const ruleNode of rulesNode.getNodes('rule')) {
+            const inputs: RuleInput[] = [];
+            for (const pvNode of ruleNode.getNodes('pv')) {
+                inputs.push({
+                    pvName: pvNode.getTextContent(),
+                    trigger: pvNode.getBooleanAttribute('trig'),
+                });
+            }
+            const expressions: BooleanExpression[] = [];
+            for (const expNode of ruleNode.getNodes('exp')) {
+                expressions.push({
+                    expression: expNode.getStringAttribute('bool_exp'),
+                    outputValue: expNode.getString('value'),
+                });
+            }
+            rules.rules.push({
+                name: ruleNode.getStringAttribute('name'),
+                propertyName: ruleNode.getStringAttribute('prop_id'),
+                outputExpression: ruleNode.getBooleanAttribute('out_exp'),
+                inputs,
+                expressions,
+            });
+        }
+        return rules;
     }
 
     getMacros(name: string) {
