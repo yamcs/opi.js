@@ -341,7 +341,7 @@ export class XMLNode {
             } else if (actionType === 'WRITE_PV') {
                 const action = new WritePVAction(actionNode.getString('pv_name'),
                     actionNode.getString('value'));
-                action.confirmMessage = actionNode.getString('confirm_message');
+                action.confirmMessage = actionNode.getString('confirm_message', '');
                 action.description = actionNode.getString('description');
                 actions.add(action);
             } else if (actionType === 'PLAY_SOUND') {

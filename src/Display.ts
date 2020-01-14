@@ -8,6 +8,7 @@ import { PVEngine } from './pv/PVEngine';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
+import { NativeButton } from './widgets/controls/NativeButton';
 import { Arc } from './widgets/graphics/Arc';
 import { Ellipse } from './widgets/graphics/Ellipse';
 import { ImageWidget } from './widgets/graphics/ImageWidget';
@@ -23,6 +24,7 @@ import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
+import { WebBrowserWidget } from './widgets/others/WebBrowserWidget';
 import { XMLNode } from './XMLNode';
 
 
@@ -41,6 +43,7 @@ const TYPE_LABEL = 'org.csstudio.opibuilder.widgets.Label';
 const TYPE_LED = 'org.csstudio.opibuilder.widgets.LED';
 const TYPE_LINKING_CONTAINER = 'org.csstudio.opibuilder.widgets.linkingContainer';
 const TYPE_METER = 'org.csstudio.opibuilder.widgets.meter';
+const TYPE_NATIVE_BUTTON = 'org.csstudio.opibuilder.widgets.NativeButton'; // Only used in old displays
 const TYPE_POLYGON = 'org.csstudio.opibuilder.widgets.polygon';
 const TYPE_POLYLINE = 'org.csstudio.opibuilder.widgets.polyline';
 const TYPE_RECTANGLE = 'org.csstudio.opibuilder.widgets.Rectangle';
@@ -48,11 +51,12 @@ const TYPE_ROUNDED_RECTANGLE = 'org.csstudio.opibuilder.widgets.RoundedRectangle
 const TYPE_TABBED_CONTAINER = 'org.csstudio.opibuilder.widgets.tab';
 const TYPE_TEXT_INPUT = 'org.csstudio.opibuilder.widgets.TextInput';
 const TYPE_TEXT_UPDATE = 'org.csstudio.opibuilder.widgets.TextUpdate';
+const TYPE_WEB_BROWSER = 'org.csstudio.opibuilder.widgets.webbrowser';
 const TYPE_XY_GRAPH = 'org.csstudio.opibuilder.widgets.xyGraph';
 
 export class Display {
 
-    private rootPanel: HTMLDivElement;
+    rootPanel: HTMLDivElement;
     private g: Graphics;
     private ctx: CanvasRenderingContext2D;
     private hitCanvas = new HitCanvas();
@@ -74,6 +78,7 @@ export class Display {
     instance?: DisplayWidget;
 
     private eventListeners: OPIEventHandlers = {
+        opendisplay: [],
         selection: [],
     };
 
@@ -250,6 +255,8 @@ export class Display {
                 return new LinkingContainer(this);
             case TYPE_METER:
                 return new Meter(this);
+            case TYPE_NATIVE_BUTTON:
+                return new NativeButton(this);
             case TYPE_POLYGON:
                 return new Polygon(this);
             case TYPE_POLYLINE:
@@ -260,9 +267,18 @@ export class Display {
                 return new RoundedRectangle(this);
             case TYPE_TEXT_UPDATE:
                 return new TextUpdate(this);
+            case TYPE_WEB_BROWSER:
+                return new WebBrowserWidget(this);
             default:
                 console.warn(`Unsupported widget type: ${kind}`);
         }
+    }
+
+    clear() {
+        this.clearSelection();
+        this.instance = undefined;
+        this.pvEngine.reset();
+        this.requestRepaint();
     }
 
     setSource(href: string) {

@@ -14,6 +14,9 @@ window.page = (function () {
             console.log('properties', widget.properties.all());
         }
     });
+    display.addEventListener('opendisplay', evt => {
+        window.location.href = evt.path;
+    });
 
     widgetsEl.addEventListener('click', evt => {
         const item = evt.target.closest('li');

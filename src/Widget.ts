@@ -1,6 +1,7 @@
 import { ActionSet } from './actions';
 import { Color } from './Color';
 import { Display } from './Display';
+import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics } from './Graphics';
 import { HitCanvas } from './HitCanvas';
@@ -90,7 +91,11 @@ export abstract class Widget {
         }
 
         for (const rule of this.rules.rules) {
-            this.display.pvEngine.createRule(this, rule);
+            if (this.properties.getProperty(rule.propertyName)) {
+                this.display.pvEngine.createRule(this, rule);
+            } else {
+                console.warn(`Cannot create rule for unsupported property ${rule.propertyName}`);
+            }
         }
 
         this.init();
@@ -437,12 +442,11 @@ export abstract class Widget {
 
         switch (action.type) {
             case 'OPEN_DISPLAY':
-                if (action.mode === 0) { // Replace current display
-                    this.display.setSource(action.path);
-                } else { // Open in new window
-                    // TODO, just generate event?
-                    console.warn('An action requested to open an external display');
-                }
+                const event: OpenDisplayEvent = {
+                    path: action.path,
+                    replace: action.mode === 0,
+                };
+                this.display.fireEvent('opendisplay', event);
                 break;
             case 'EXECUTE_JAVASCRIPT':
                 if (action.embedded) {
@@ -450,14 +454,14 @@ export abstract class Widget {
                     const engine = new ScriptEngine(this.display.instance!, action.text!);
                     engine.run();
                 } else {
-                    console.warn('An action requested to run an external script');
-                    /*const path = this.display.resolve(action.path!);
-                    this.display.displayCommunicator.getObject('displays', path).then(response => {
-                        response.text().then(text => {
-                            const script = new Script(this.display, text);
-                            script.run();
-                        });
-                    });*/
+                    fetch(`${this.display.baseUrl}${action.path}`).then(response => {
+                        if (response.ok) {
+                            response.text().then(text => {
+                                const engine = new ScriptEngine(this.display.instance!, text);
+                                engine.run();
+                            });
+                        }
+                    });
                 }
                 break;
             case 'WRITE_PV':
