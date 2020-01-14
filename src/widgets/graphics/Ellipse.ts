@@ -1,6 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
+import { shrink } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -12,105 +13,109 @@ const PROP_GRADIENT = 'gradient';
 const PROP_HORIZONTAL_FILL = 'horizontal_fill';
 const PROP_LINE_COLOR = 'line_color';
 const PROP_LINE_WIDTH = 'line_width';
+const PROP_LINE_STYLE = 'line_style';
 
 export class Ellipse extends Widget {
 
     constructor(display: Display) {
         super(display);
-        this.properties.add(new IntProperty(PROP_ALPHA))
+        this.properties.add(new IntProperty(PROP_ALPHA));
         this.properties.add(new ColorProperty(PROP_BG_GRADIENT_COLOR));
         this.properties.add(new ColorProperty(PROP_FG_GRADIENT_COLOR));
         this.properties.add(new BooleanProperty(PROP_GRADIENT));
-        this.properties.add(new IntProperty(PROP_LINE_WIDTH))
-        this.properties.add(new FloatProperty(PROP_FILL_LEVEL))
-        this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL))
-        this.properties.add(new ColorProperty(PROP_LINE_COLOR))
+        this.properties.add(new IntProperty(PROP_LINE_WIDTH));
+        this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
+        this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
+        this.properties.add(new ColorProperty(PROP_LINE_COLOR));
+        this.properties.add(new IntProperty(PROP_LINE_STYLE));
     }
 
     draw(g: Graphics) {
-        const ctx = g.ctx;
-        ctx.globalAlpha = this.alpha / 255;
-        if (this.transparent) {
-            ctx.globalAlpha = 0;
-        }
-        this.drawBackground(ctx);
+        g.ctx.globalAlpha = this.alpha / 255;
+
+        this.drawBackground(g);
         if (this.fillLevel) {
-            this.drawFill(ctx);
+            this.drawFill(g);
         }
 
-        ctx.globalAlpha = 1;
+        g.ctx.globalAlpha = 1;
     }
 
-    private drawBackground(ctx: CanvasRenderingContext2D) {
-        if (this.gradient) {
-            const x2 = this.horizontalFill ? this.x : this.x + this.width;
-            const y2 = this.horizontalFill ? this.y + this.height : this.y;
-            const gradient = ctx.createLinearGradient(this.x, this.y, x2, y2);
-            gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
-            gradient.addColorStop(1, this.backgroundColor.toString());
-            ctx.fillStyle = gradient;
-        } else {
-            ctx.fillStyle = this.backgroundColor.toString();
-        }
-
-        const x = this.x + (this.width / 2);
-        const y = this.y + (this.height / 2);
+    private drawBackground(g: Graphics) {
+        const cx = this.x + (this.width / 2);
+        const cy = this.y + (this.height / 2);
         const rx = this.width / 2;
         const ry = this.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fill();
+
+        if (!this.transparent) {
+            if (this.gradient) {
+                const x2 = this.horizontalFill ? this.x : this.x + this.width;
+                const y2 = this.horizontalFill ? this.y + this.height : this.y;
+                const gradient = g.ctx.createLinearGradient(this.x, this.y, x2, y2);
+                gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
+                gradient.addColorStop(1, this.backgroundColor.toString());
+                g.fillEllipse({ cx, cy, rx, ry, gradient });
+            } else {
+                g.fillEllipse({ cx, cy, rx, ry, color: this.backgroundColor });
+            }
+        }
 
         if (this.lineWidth) {
-            ctx.lineWidth = this.lineWidth;
-            ctx.strokeStyle = this.lineColor.toString();
-            ctx.stroke();
+            if (this.lineStyle === 0) {
+                g.strokeEllipse({
+                    cx, cy, rx, ry,
+                    color: this.lineColor, lineWidth: this.lineWidth,
+                });
+            } else if (this.lineStyle === 1) {
+                g.strokeEllipse({
+                    cx, cy, rx, ry,
+                    color: this.lineColor, lineWidth: this.lineWidth,
+                    dash: [6, 2],
+                });
+            } else {
+                console.warn(`Unsupported ellipse line style ${this.lineStyle}`);
+            }
         }
     }
 
-    private drawFill(ctx: CanvasRenderingContext2D) {
-        let fillY = this.y;
-        let fillWidth = this.width;
-        let fillHeight = this.height;
-        if (this.horizontalFill) {
-            fillWidth *= (this.fillLevel / 100);
-        } else {
-            fillHeight *= (this.fillLevel / 100);
-            fillY += fillHeight;
-        }
+    private drawFill(g: Graphics) {
+        const box = shrink(this, this.lineWidth);
 
         // Create a clip for the fill level
-        ctx.save();
-        let x = this.x - (this.lineWidth / 2);
-        let y = fillY - (this.lineWidth / 2);
-        let width = fillWidth + this.lineWidth;
-        let height = fillHeight + this.lineWidth;
-        ctx.beginPath();
-        ctx.rect(x, y, width, height);
-        ctx.clip();
+        g.ctx.save();
+        if (this.horizontalFill) {
+            const fillWidth = box.width * (this.fillLevel / 100);
+            g.ctx.beginPath();
+            g.ctx.rect(box.x, box.y, fillWidth, box.height);
+        } else {
+            const fillHeight = box.height * (this.fillLevel / 100);
+            const fillY = box.y + box.height - fillHeight;
+            g.ctx.beginPath();
+            g.ctx.rect(box.x, fillY, box.width, box.height);
+        }
+        g.ctx.clip();
 
         // With clip active, draw the actual fill
+
+        // Do not overlap shape border
+        const cx = this.x + (this.width / 2);
+        const cy = this.y + (this.height / 2);
+        const rx = (this.width - this.lineWidth) / 2;
+        const ry = (this.height - this.lineWidth) / 2;
+
         if (this.gradient) {
             const x2 = this.horizontalFill ? this.x : this.x + this.width;
             const y2 = this.horizontalFill ? this.y + this.height : this.y;
-            const gradient = ctx.createLinearGradient(this.x, this.y, x2, y2);
+            const gradient = g.ctx.createLinearGradient(this.x, this.y, x2, y2);
             gradient.addColorStop(0, this.foregroundGradientStartColor.toString());
             gradient.addColorStop(1, this.foregroundColor.toString());
-            ctx.fillStyle = gradient;
+            g.fillEllipse({ cx, cy, rx, ry, gradient });
         } else {
-            ctx.fillStyle = this.foregroundColor.toString();
+            g.fillEllipse({ cx, cy, rx, ry, color: this.foregroundColor });
         }
 
-        x = this.x + (this.width / 2);
-        y = this.y + (this.height / 2);
-        const rx = this.width / 2;
-        const ry = this.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fill();
-
         // Reset clip
-        ctx.restore();
+        g.ctx.restore();
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
@@ -118,6 +123,7 @@ export class Ellipse extends Widget {
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+    get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
     get gradient(): boolean { return this.properties.getValue(PROP_GRADIENT); }
     get backgroundGradientStartColor(): Color {
         return this.properties.getValue(PROP_BG_GRADIENT_COLOR);

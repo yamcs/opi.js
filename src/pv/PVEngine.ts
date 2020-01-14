@@ -1,3 +1,4 @@
+import { StringProperty } from '../properties';
 import { Rule } from '../rules';
 import { ScriptEngine } from '../scripting/ScriptEngine';
 import { Script } from '../scripts';
@@ -149,13 +150,15 @@ export class PVEngine {
     createScript(widget: Widget, model: Script, scriptText: string) {
         const pvs = [];
         for (const input of model.inputs) {
-            pvs.push(this.createPV(input.pvName));
+            const pvName = widget.properties.expandMacro(input.pvName);
+            pvs.push(this.createPV(pvName));
         }
         const script = new ScriptInstance(widget, model, scriptText, pvs);
         this.scripts.push(script);
         for (const input of model.inputs) {
             if (input.trigger) {
-                this.registerScriptTriggers(input.pvName, script);
+                const pvName = widget.properties.expandMacro(input.pvName);
+                this.registerScriptTriggers(pvName, script);
             }
         }
     }
@@ -163,13 +166,15 @@ export class PVEngine {
     createRule(widget: Widget, model: Rule) {
         const pvs = [];
         for (const input of model.inputs) {
-            pvs.push(this.createPV(input.pvName));
+            const pvName = widget.properties.expandMacro(input.pvName);
+            pvs.push(this.createPV(pvName));
         }
         const rule = new RuleInstance(widget, model, pvs);
         this.rules.push(rule);
         for (const input of model.inputs) {
             if (input.trigger) {
-                this.registerRuleTriggers(input.pvName, rule);
+                const pvName = widget.properties.expandMacro(input.pvName);
+                this.registerRuleTriggers(pvName, rule);
             }
         }
     }
@@ -230,6 +235,11 @@ class RuleInstance {
 
     constructor(readonly widget: Widget, readonly rule: Rule, pvs: PV<any>[]) {
         let scriptText = '';
+        const property = widget.properties.getProperty(rule.propertyName);
+        if (!property) {
+            throw new Error(`Cannot create rule for unsupported property ${rule.propertyName}`);
+        }
+        const quoteValues = property instanceof StringProperty;
         if (rule.expressions.length) {
             for (let i = 0; i < pvs.length; i++) {
                 scriptText += `var pv${i} = PVUtil.getDouble(pvs[0]);\n`;
@@ -240,9 +250,20 @@ class RuleInstance {
                 if (i > 0) {
                     scriptText += 'else ';
                 }
-                scriptText += `if (${expr}) widget.setPropertyValue("${rule.propertyName}", "${outputValue}");\n`;
+                scriptText += `if (${expr}) widget.setPropertyValue("${rule.propertyName}", `;
+                if (rule.outputExpression || !quoteValues) {
+                    scriptText += `${outputValue});\n`;
+                } else {
+                    scriptText += `"${outputValue}");\n`;
+                }
             }
-            scriptText += `else widget.setPropertyValue("${rule.propertyName}", "");\n`;
+            const defaultValue = property.value;
+            scriptText += `else widget.setPropertyValue("${rule.propertyName}", `;
+            if (quoteValues) {
+                scriptText += `"${defaultValue}");\n`;
+            } else {
+                scriptText += `${defaultValue});\n`;
+            }
         }
 
         this.scriptEngine = new ScriptEngine(widget, scriptText, pvs);

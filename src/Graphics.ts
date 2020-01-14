@@ -1,6 +1,6 @@
 import { Color } from './Color';
 import { Font } from './Font';
-import { toBorderBox } from './positioning';
+import { shrink } from './positioning';
 import * as utils from './utils';
 
 interface RectColorFill {
@@ -62,6 +62,7 @@ interface EllipseColorStroke {
     color: Color;
     startAngle?: number;
     endAngle?: number;
+    dash?: number[];
 }
 
 interface EllipseGradientStroke {
@@ -73,6 +74,7 @@ interface EllipseGradientStroke {
     gradient: CanvasGradient;
     startAngle?: number;
     endAngle?: number;
+    dash?: number[];
 }
 
 type EllipseStroke = EllipseColorStroke | EllipseGradientStroke;
@@ -156,6 +158,9 @@ export class Graphics {
     }
 
     strokeEllipse(stroke: EllipseStroke) {
+        if (stroke.dash) {
+            this.ctx.setLineDash(stroke.dash);
+        }
         this.ctx.lineWidth = stroke.lineWidth || 1;
         this.ctx.beginPath();
         const startAngle = stroke.startAngle || 0;
@@ -167,6 +172,9 @@ export class Graphics {
             this.ctx.strokeStyle = stroke.gradient;
         }
         this.ctx.stroke();
+        if (stroke.dash) {
+            this.ctx.setLineDash([]);
+        }
     }
 
     measureText(text: string, font: Font) {
@@ -182,7 +190,7 @@ export class Graphics {
         this.ctx.lineWidth = stroke.lineWidth || 1;
         this.ctx.strokeStyle = stroke.color.toString();
         if (stroke.crispen && stroke.lineWidth) {
-            const box = toBorderBox(stroke.x, stroke.y, stroke.width, stroke.height, stroke.lineWidth);
+            const box = shrink(stroke, stroke.lineWidth / 2, stroke.lineWidth / 2);
             if (stroke.rx || stroke.ry) {
                 utils.roundRect(this.ctx, box.x, box.y, box.width, box.height, stroke.rx || 0, stroke.ry || 0);
                 this.ctx.stroke();

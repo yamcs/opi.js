@@ -12,15 +12,11 @@ export interface Point {
 
 /**
  * Sets the specified attributes assuming they use border-box
- * coordinates.
+ * coordinates. This is effectively the same as shrinking by
+ * half the stroke size.
  */
 export function toBorderBox(x: number, y: number, width: number, height: number, lineWidth: number): Bounds {
-  x = x + (lineWidth / 2.0);
-  y = y + (lineWidth / 2.0);
-  width = width - lineWidth;
-  height = height - lineWidth;
-
-  return { x, y, width, height };
+  return shrink({ x, y, width, height }, lineWidth / 2);
 }
 
 export function outline(x: number, y: number, width: number, height: number, strokeWidth: number): Bounds {
@@ -49,7 +45,13 @@ export function rotatePoint(x: number, y: number, cx: number, cy: number, angle:
   return { x: temp + cx, y: (relX * sin + relY * cos) + cy };
 }
 
-export function shrink(original: Bounds, v: number, h: number): Bounds {
+/**
+ * Returns new bounds where the width and height are shrinked.
+ */
+export function shrink(original: Bounds, v: number, h?: number): Bounds {
+  if (h === undefined) {
+    h = v;
+  }
   return {
     x: original.x + h,
     y: original.y + v,
