@@ -5,7 +5,7 @@ import { Widget } from '../../Widget';
 
 const PROP_URL = 'url';
 
-export class WebBrowserWidget extends Widget {
+export class WebBrowser extends Widget {
 
     private iframe?: HTMLIFrameElement;
     private prevUrl?: string;

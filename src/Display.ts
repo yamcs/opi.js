@@ -24,7 +24,8 @@ import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
-import { WebBrowserWidget } from './widgets/others/WebBrowserWidget';
+import { TabbedContainer } from './widgets/others/TabbedContainer';
+import { WebBrowser } from './widgets/others/WebBrowser';
 import { XMLNode } from './XMLNode';
 
 
@@ -265,10 +266,12 @@ export class Display {
                 return new Rectangle(this);
             case TYPE_ROUNDED_RECTANGLE:
                 return new RoundedRectangle(this);
+            case TYPE_TABBED_CONTAINER:
+                return new TabbedContainer(this);
             case TYPE_TEXT_UPDATE:
                 return new TextUpdate(this);
             case TYPE_WEB_BROWSER:
-                return new WebBrowserWidget(this);
+                return new WebBrowser(this);
             default:
                 console.warn(`Unsupported widget type: ${kind}`);
         }
