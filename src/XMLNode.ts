@@ -172,10 +172,14 @@ export class XMLNode {
         }
     }
 
-    getBooleanAttribute(name: string) {
+    getBooleanAttribute(name: string, defaultValue?: boolean) {
         const attr = (this.node as Element).attributes.getNamedItem(name);
         if (attr === null) {
-            throw new Error(`No attribute named ${name}`);
+            if (defaultValue !== undefined) {
+                return defaultValue;
+            } else {
+                throw new Error(`No attribute named ${name}`);
+            }
         } else {
             return attr.textContent === 'true';
         }
@@ -249,12 +253,24 @@ export class XMLNode {
                     trigger: pvNode.getBooleanAttribute('trig'),
                 });
             }
-            scripts.scripts.push({
-                path: pathNode.getStringAttribute('pathString'),
-                checkConnect: pathNode.getBooleanAttribute('checkConnect'),
-                skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
-                inputs,
-            });
+            const path = pathNode.getStringAttribute('pathString');
+            if (path === 'EmbeddedJs') {
+                scripts.scripts.push({
+                    embedded: true,
+                    text: pathNode.getString('scriptText'),
+                    checkConnect: pathNode.getBooleanAttribute('checkConnect'),
+                    skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
+                    inputs,
+                });
+            } else {
+                scripts.scripts.push({
+                    embedded: false,
+                    path,
+                    checkConnect: pathNode.getBooleanAttribute('checkConnect'),
+                    skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
+                    inputs,
+                });
+            }
         }
         return scripts;
     }
@@ -305,7 +321,7 @@ export class XMLNode {
         const actions = new ActionSet();
 
         actions.hookFirstActionToClick = actionsNode.getBooleanAttribute('hook');
-        actions.hookAllActionsToClick = actionsNode.getBooleanAttribute('hook_all');
+        actions.hookAllActionsToClick = actionsNode.getBooleanAttribute('hook_all', false);
         for (const actionNode of actionsNode.getNodes('action')) {
             const actionType = actionNode.getStringAttribute('type');
             if (actionType === 'OPEN_DISPLAY') {

@@ -60,6 +60,17 @@ export function shrink(original: Bounds, v: number, h?: number): Bounds {
   }
 }
 
+export function translatePoint(point: Point, dx: number, dy: number) {
+  return {
+    x: point.x + dx,
+    y: point.y + dy,
+  };
+}
+
+export function translatePoints(points: Point[], dx: number, dy: number) {
+  return points.map(point => translatePoint(point, dx, dy));
+}
+
 export function toRadians(degrees: number) {
   return degrees * Math.PI / 180;
 }

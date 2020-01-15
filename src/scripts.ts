@@ -3,7 +3,10 @@ export class ScriptSet {
 }
 
 export interface Script {
-    path: string;
+    embedded: boolean;
+
+    path?: string;
+    text?: string;
 
     /**
      * If true, the script may only run if all PVs are connected

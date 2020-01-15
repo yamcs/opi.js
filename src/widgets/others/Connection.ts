@@ -1,20 +1,40 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
-import { Graphics } from '../../Graphics';
+import { Graphics, Path } from '../../Graphics';
 import { Point } from '../../positioning';
-import { ColorProperty, IntProperty, PointsProperty, StringProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, IntProperty, PointsProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
 
-export const PROP_NAME = 'name';
-export const PROP_LINE_COLOR = 'line_color';
-export const PROP_LINE_WIDTH = 'line_width';
-export const PROP_SRC_WUID = 'src_wuid';
-export const PROP_SRC_TERM = 'src_term';
-export const PROP_TGT_WUID = 'tgt_wuid';
-export const PROP_TGT_TERM = 'tgt_term';
-export const PROP_ROUTER = 'router';
-export const PROP_POINTS = 'points';
+const PROP_ARROW_LENGTH = 'arrow_length';
+const PROP_ARROWS = 'arrows';
+const PROP_FILL_ARROW = 'fill_arrow';
+const PROP_NAME = 'name';
+const PROP_LINE_COLOR = 'line_color';
+const PROP_LINE_STYLE = 'line_style';
+const PROP_LINE_WIDTH = 'line_width';
+const PROP_SRC_WUID = 'src_wuid';
+const PROP_SRC_TERM = 'src_term';
+const PROP_TGT_WUID = 'tgt_wuid';
+const PROP_TGT_TERM = 'tgt_term';
+const PROP_ROUTER = 'router';
+const PROP_POINTS = 'points';
+const PROP_WUID = 'wuid';
+
+const DIRECTION_LEFT = 'LEFT';
+const DIRECTION_UP = 'UP';
+const DIRECTION_DOWN = 'DOWN';
+const DIRECTION_RIGHT = 'RIGHT';
+
+const MINDIST = 20;
+const TOL = 0.1;
+const TOLxTOL = 0.01;
+
+interface RoutePoint extends Point {
+  x: number;
+  y: number;
+  direction: string;
+}
 
 export class Connection extends Widget {
 
@@ -24,15 +44,20 @@ export class Connection extends Widget {
   constructor(display: Display) {
     super(display);
     this.properties.clear();
-    this.properties.add(new StringProperty('name'));
-    this.properties.add(new ColorProperty('line_color'));
-    this.properties.add(new IntProperty('line_width'));
-    this.properties.add(new StringProperty('src_wuid'));
-    this.properties.add(new StringProperty('src_term'));
-    this.properties.add(new StringProperty('tgt_wuid'));
-    this.properties.add(new StringProperty('tgt_term'));
-    this.properties.add(new IntProperty('router'));
-    this.properties.add(new PointsProperty('points'));
+    this.properties.add(new IntProperty(PROP_ARROW_LENGTH));
+    this.properties.add(new IntProperty(PROP_ARROWS));
+    this.properties.add(new BooleanProperty(PROP_FILL_ARROW));
+    this.properties.add(new StringProperty(PROP_NAME));
+    this.properties.add(new ColorProperty(PROP_LINE_COLOR));
+    this.properties.add(new IntProperty(PROP_LINE_STYLE));
+    this.properties.add(new IntProperty(PROP_LINE_WIDTH));
+    this.properties.add(new StringProperty(PROP_SRC_WUID));
+    this.properties.add(new StringProperty(PROP_SRC_TERM));
+    this.properties.add(new StringProperty(PROP_TGT_WUID));
+    this.properties.add(new StringProperty(PROP_TGT_TERM));
+    this.properties.add(new IntProperty(PROP_ROUTER));
+    this.properties.add(new PointsProperty(PROP_POINTS));
+    this.properties.add(new StringProperty(PROP_WUID));
   }
 
   parseNode(node: XMLNode) {
@@ -55,50 +80,115 @@ export class Connection extends Widget {
     }
 
     if (this.points.length) { // Only present if the user has manually repositioned a mid-point.
-      this.drawPath(g.ctx);
+      this.drawPath(g);
     } else if (this.router === 0) {
-      this.drawManhattanConnection(g.ctx);
+      this.drawManhattanConnection(g);
     } else if (this.router === 1) {
-      this.drawDirectConnection(g.ctx);
+      this.drawDirectConnection(g);
     }
   }
 
-  private drawPath(ctx: CanvasRenderingContext2D) {
+  private drawPath(g: Graphics) {
     const from = this.getPosition(this.sourceWidget!, this.sourceTerm);
     const to = this.getPosition(this.targetWidget!, this.targetTerm);
 
-    ctx.beginPath();
-    ctx.moveTo(from.x + 0.5, from.y + 0.5);
-    for (const point of this.points) {
-      ctx.lineTo(point.x + 0.5, point.y + 0.5);
+    const path = Path.fromPoints([from, ... this.points, to])
+      .translate(0.5, 0.5);
+
+    g.strokePath({
+      path,
+      lineWidth: this.lineWidth,
+      color: this.lineColor,
+      dash: this.getDashArray(),
+    });
+  }
+
+  private drawManhattanConnection(g: Graphics) {
+    const source = this.getManhattanAnchor(this.sourceWidget!, this.sourceTerm);
+    const target = this.getManhattanAnchor(this.targetWidget!, this.targetTerm);
+
+    const points = this.route(source, target);
+    const path = Path.fromPoints(points);
+
+    if (this.lineWidth) {
+      g.strokePath({
+        lineWidth: this.lineWidth,
+        color: this.lineColor,
+        path,
+        dash: this.getDashArray(),
+      });
     }
-    ctx.lineTo(to.x + 0.5, to.y + 0.5);
-
-    ctx.strokeStyle = this.lineColor.toString();
-    ctx.lineWidth = this.lineWidth;
-    ctx.stroke();
   }
 
-  private drawManhattanConnection(ctx: CanvasRenderingContext2D) {
-    // TODO
-    this.drawDirectConnection(ctx);
+  private getDashArray() {
+    if (this.lineWidth) {
+      if (this.lineStyle === 0) { // Solid
+        return [];
+      } else if (this.lineStyle === 1) { // Dash
+        return [6, 2];
+      } else if (this.lineStyle === 2) { // Dot
+        return [2, 2];
+      } else {
+        console.warn(`Unsupported connection line style ${this.lineStyle}`);
+      }
+    }
   }
 
-  private drawDirectConnection(ctx: CanvasRenderingContext2D) {
+  private drawDirectConnection(g: Graphics) {
     const from = this.getPosition(this.sourceWidget!, this.sourceTerm);
-    const x1 = from.x;
-    const y1 = from.y;
-
     const to = this.getPosition(this.targetWidget!, this.targetTerm);
-    const x2 = to.x;
-    const y2 = to.y;
+    if (this.lineWidth) {
+      g.strokePath({
+        path: new Path(from.x, from.y).lineTo(to.x, to.y),
+        lineWidth: this.lineWidth,
+        color: this.lineColor,
+        dash: this.getDashArray(),
+      });
+    }
+  }
 
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.lineWidth = this.lineWidth;
-    ctx.strokeStyle = this.lineColor.toString();
-    ctx.stroke();
+  // Gets the direction that a connector should have when connecting
+  // to a particular anchor.
+  private getManhattanAnchor(widget: Widget, term: string): RoutePoint {
+    let direction;
+    switch (term) {
+      case 'TOP':
+      case 'TOP_LEFT':
+      case 'TOP_RIGHT':
+        direction = DIRECTION_UP;
+        break;
+      case 'BOTTOM':
+      case 'BOTTOM_LEFT':
+      case 'BOTTOM_RIGHT':
+        direction = DIRECTION_DOWN;
+        break;
+      case 'LEFT':
+        direction = DIRECTION_LEFT;
+        break;
+      case 'RIGHT':
+        direction = DIRECTION_RIGHT;
+        break;
+      default:
+    }
+
+    const bounds = widget.getBounds();
+    const position = this.getPosition(widget, term);
+
+    const distanceLeft = position.x - bounds.x;
+    const distanceRight = bounds.x + bounds.width - position.x;
+    const distanceTop = position.y - bounds.y;
+    const distanceBottom = bounds.y + bounds.height - position.y;
+    if (Math.min(distanceLeft, distanceRight) < Math.min(distanceTop, distanceBottom)) {
+      direction = distanceLeft < distanceRight ? DIRECTION_LEFT : DIRECTION_RIGHT;
+    } else {
+      direction = distanceTop < distanceBottom ? DIRECTION_UP : DIRECTION_DOWN;
+    }
+
+    return {
+      x: position.x,
+      y: position.y,
+      direction,
+    };
   }
 
   private getPosition(widget: Widget, term: string): Point {
@@ -144,12 +234,153 @@ export class Connection extends Widget {
           y: widget.holderY + widget.holderHeight,
         };
       default:
-        throw Error(`Unexpected term ${term}`);
+        const idx = parseInt(term, 10);
+        const points = widget.properties.getProperty('points');
+        if (points) {
+          return (points.value as Point[])[idx];
+        } else {
+          throw Error(`Unexpected term ${term}`);
+        }
     }
   }
 
+  private route(from: RoutePoint, to: RoutePoint): Point[] {
+    let xDiff = from.x - to.x;
+    let yDiff = from.y - to.y;
+    let point: Point = { x: 0, y: 0 };
+    let dir;
+    let pos;
+    let path: Point[] = [];
+
+    if (((xDiff * xDiff) < TOLxTOL) && ((yDiff * yDiff) < TOLxTOL)) {
+      return [{ x: to.x, y: to.y }];
+    }
+
+    if (from.direction === DIRECTION_LEFT) {
+      if ((xDiff > 0) && ((yDiff * yDiff) < TOL) && (to.direction === DIRECTION_RIGHT)) {
+        point = to;
+        dir = to.direction;
+      }
+      else {
+        if (xDiff < 0) {
+          point = { x: from.x - MINDIST, y: from.y };
+        }
+        else if (((yDiff > 0) && (to.direction === DIRECTION_DOWN)) || ((yDiff < 0) && (to.direction === DIRECTION_UP))) {
+          point = { x: to.x, y: from.y };
+        }
+        else if (from.direction === to.direction) {
+          pos = Math.min(from.x, to.x) - MINDIST;
+          point = { x: pos, y: from.y }
+        }
+        else {
+          point = { x: from.x - (xDiff / 2), y: from.y };
+        }
+
+        if (yDiff > 0) {
+          dir = DIRECTION_UP;
+        }
+        else {
+          dir = DIRECTION_DOWN;
+        }
+      }
+    }
+    else if (from.direction === DIRECTION_RIGHT) {
+      if ((xDiff < 0) && ((yDiff * yDiff) < TOL) && (to.direction === DIRECTION_LEFT)) {
+        point = to;
+        dir = to.direction;
+      }
+      else {
+        if (xDiff > 0) {
+          point = { x: from.x + MINDIST, y: from.y };
+        }
+        else if (((yDiff > 0) && (to.direction === DIRECTION_DOWN)) || ((yDiff < 0) && (to.direction === DIRECTION_UP))) {
+          point = { x: to.x, y: from.y };
+        }
+        else if (from.direction === to.direction) {
+          pos = Math.max(from.x, to.x) + MINDIST;
+          point = { x: pos, y: from.y };
+        }
+        else {
+          point = { x: from.x - (xDiff / 2), y: from.y };
+        }
+
+        if (yDiff > 0) {
+          dir = DIRECTION_UP;
+        }
+        else {
+          dir = DIRECTION_DOWN;
+        }
+      }
+    }
+    else if (from.direction === DIRECTION_DOWN) {
+      if (((xDiff * xDiff) < TOL) && (yDiff < 0) && (to.direction === DIRECTION_UP)) {
+        point = to;
+        dir = to.direction;
+      }
+      else {
+        if (yDiff > 0) {
+          point = { x: from.x, y: from.y + MINDIST };
+        }
+        else if (((xDiff > 0) && (to.direction === DIRECTION_RIGHT)) || ((xDiff < 0) && (to.direction === DIRECTION_LEFT))) {
+          point = { x: from.x, y: to.y };
+        }
+        else if (from.direction === to.direction) {
+          pos = Math.max(from.y, to.y) + MINDIST;
+          point = { x: from.x, y: pos };
+        }
+        else {
+          point = { x: from.x, y: from.y - (yDiff / 2) };
+        }
+
+        if (xDiff > 0) {
+          dir = DIRECTION_LEFT;
+        }
+        else {
+          dir = DIRECTION_RIGHT;
+        }
+      }
+    }
+    else if (from.direction === DIRECTION_UP) {
+      if (((xDiff * xDiff) < TOL) && (yDiff > 0) && (to.direction === DIRECTION_DOWN)) {
+        point = to;
+        dir = to.direction;
+      }
+      else {
+        if (yDiff < 0) {
+          point = { x: from.x, y: from.y - MINDIST };
+        }
+        else if (((xDiff > 0) && (to.direction === DIRECTION_RIGHT)) || ((xDiff < 0) && (to.direction === DIRECTION_LEFT))) {
+          point = { x: from.x, y: to.y };
+        }
+        else if (from.direction === to.direction) {
+          pos = Math.min(from.y, to.y) - MINDIST;
+          point = { x: from.x, y: pos };
+        }
+        else {
+          point = { x: from.x, y: from.y - (yDiff / 2) };
+        }
+
+        if (xDiff > 0) {
+          dir = DIRECTION_LEFT;
+        }
+        else {
+          dir = DIRECTION_RIGHT;
+        }
+      }
+    }
+
+    const fromAnchor: RoutePoint = { ...point, direction: dir as any };
+    path = path.concat(this.route(fromAnchor, to));
+    path.push(from);
+    return path;
+  }
+
   get name(): string { return this.properties.getValue(PROP_NAME); }
+  get arrows(): number { return this.properties.getValue(PROP_ARROWS); }
+  get fillArrow(): boolean { return this.properties.getValue(PROP_FILL_ARROW); }
+  get arrowLength(): number { return this.properties.getValue(PROP_ARROW_LENGTH); }
   get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+  get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
   get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
   get router(): number { return this.properties.getValue(PROP_ROUTER); }
   get sourceTerm(): string { return this.properties.getValue(PROP_SRC_TERM); }

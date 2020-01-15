@@ -6,6 +6,7 @@ import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { DisplayWidget } from './DisplayWidget';
 
+const PROP_GROUP_NAME = 'group_name';
 const PROP_OPI_FILE = 'opi_file';
 const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
 
@@ -15,8 +16,9 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     constructor(display: Display) {
         super(display);
+        this.properties.add(new StringProperty(PROP_GROUP_NAME));
         this.properties.add(new StringProperty(PROP_OPI_FILE));
-        this.properties.add(new IntProperty(PROP_RESIZE_BEHAVIOR));
+        this.properties.add(new IntProperty(PROP_RESIZE_BEHAVIOR, 0));
     }
 
     init() {
@@ -103,5 +105,6 @@ export class LinkingContainer extends AbstractContainerWidget {
     }
 
     get opiFile(): string { return this.properties.getValue(PROP_OPI_FILE); }
+    get groupName(): string { return this.properties.getValue(PROP_GROUP_NAME); }
     get resizeBehavior(): number { return this.properties.getValue(PROP_RESIZE_BEHAVIOR); }
 }

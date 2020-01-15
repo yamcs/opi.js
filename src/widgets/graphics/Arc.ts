@@ -15,7 +15,7 @@ export class Arc extends Widget {
 
     constructor(display: Display) {
         super(display);
-        this.properties.add(new IntProperty(PROP_ALPHA));
+        this.properties.add(new IntProperty(PROP_ALPHA, 255));
         this.properties.add(new IntProperty(PROP_LINE_WIDTH));
         this.properties.add(new IntProperty(PROP_START_ANGLE));
         this.properties.add(new IntProperty(PROP_TOTAL_ANGLE));

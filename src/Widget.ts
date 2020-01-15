@@ -5,7 +5,7 @@ import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
 import { HitCanvas } from './HitCanvas';
-import { toBorderBox } from './positioning';
+import { Bounds, toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
 import { PV } from './pv/PV';
 import { RuleSet } from './rules';
@@ -81,13 +81,17 @@ export abstract class Widget {
         }
 
         for (const script of this.scripts.scripts) {
-            fetch(`${this.display.baseUrl}${script.path}`).then(response => {
-                if (response.ok) {
-                    response.text().then(text => {
-                        this.display.pvEngine.createScript(this, script, text);
-                    });
-                }
-            });
+            if (script.embedded) {
+                this.display.pvEngine.createScript(this, script, script.text!);
+            } else {
+                fetch(`${this.display.baseUrl}${script.path}`).then(response => {
+                    if (response.ok) {
+                        response.text().then(text => {
+                            this.display.pvEngine.createScript(this, script, text);
+                        });
+                    }
+                });
+            }
         }
 
         for (const rule of this.rules.rules) {
@@ -403,6 +407,15 @@ export abstract class Widget {
 
     requestRepaint() {
         this.display.requestRepaint();
+    }
+
+    getBounds(): Bounds {
+        return {
+            x: this.holderX,
+            y: this.holderY,
+            width: this.holderWidth,
+            height: this.holderHeight,
+        };
     }
 
     private drawShadowBorder(g: Graphics, c1: Color, c2: Color, c3: Color, c4: Color) {

@@ -2,8 +2,9 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
 import { BooleanProperty, IntProperty } from '../../properties';
+import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 
@@ -56,6 +57,15 @@ export class TabbedContainer extends AbstractContainerWidget {
                     cursor: 'pointer'
                 }
             });
+        }
+
+        for (const widgetNode of node.getNodes('widget')) {
+            const kind = widgetNode.getStringAttribute('typeId');
+            const widget = this.display.createWidget(kind);
+            if (widget) {
+                widget.parseNode(widgetNode);
+                this.widgets.push(widget);
+            }
         }
     }
 
@@ -125,13 +135,23 @@ export class TabbedContainer extends AbstractContainerWidget {
             x += fm.width + MARGIN - 1;
 
             if (this.activeTab === i) {
+                const contentX = this.x;
+                const contentY = this.y + this.minimumTabHeight - 1;
+                const contentWidth = this.width - 1;
+                const contentHeight = this.height - this.minimumTabHeight;
                 g.fillRect({
-                    x: this.x,
-                    y: this.y + this.minimumTabHeight - 1,
-                    width: this.width - 1,
-                    height: this.height - this.minimumTabHeight,
+                    x: contentX,
+                    y: contentY,
+                    width: contentWidth,
+                    height: contentHeight,
                     color: tab.backgroundColor,
                 });
+
+                const activeWidget = this.widgets[i];
+                const tmpHitCanvas = g.hitCanvas.createChild(contentWidth, contentHeight);
+                const tmpCanvas = this.drawOffscreen(tmpHitCanvas, activeWidget);
+                g.ctx.drawImage(tmpCanvas, contentX, contentY);
+                tmpHitCanvas.transferToParent(contentX, contentY, contentWidth, contentHeight);
             }
         }
     }
@@ -201,15 +221,43 @@ export class TabbedContainer extends AbstractContainerWidget {
             y += this.minimumTabHeight + MARGIN - 1;
 
             if (this.activeTab === i) {
+                const contentX = this.x + tabWidth - 1;
+                const contentY = this.y;
+                const contentWidth = this.width - tabWidth;
+                const contentHeight = this.height - 1;
                 g.fillRect({
-                    x: this.x + tabWidth - 1,
-                    y: this.y,
-                    width: this.width - tabWidth,
-                    height: this.height - 1,
+                    x: contentX,
+                    y: contentY,
+                    width: contentWidth,
+                    height: contentHeight,
                     color: tab.backgroundColor,
                 });
+
+                const activeWidget = this.widgets[i];
+                const tmpHitCanvas = g.hitCanvas.createChild(contentWidth, contentHeight);
+                const tmpCanvas = this.drawOffscreen(tmpHitCanvas, activeWidget);
+                g.ctx.drawImage(tmpCanvas, contentX, contentY);
+                tmpHitCanvas.transferToParent(contentX, contentY, contentWidth, contentHeight);
             }
         }
+    }
+
+    private drawOffscreen(hitCanvas: HitCanvas, tabGroup: Widget) {
+        const canvas = document.createElement('canvas');
+        canvas.width = this.width;
+        canvas.height = this.height;
+        const g = new Graphics(canvas);
+        tabGroup.drawHolder(g);
+        tabGroup.draw(g, hitCanvas);
+        tabGroup.drawDecoration(g);
+
+        console.log('drawing', (tabGroup as any).widgets.length);
+
+        for (const widget of (tabGroup as any).widgets) {
+            console.log('widget', widget.name);
+        }
+
+        return canvas;
     }
 
     private darken(color: Color) {

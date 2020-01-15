@@ -362,6 +362,12 @@ export class Display {
         }
     }
 
+    findWidgetByName(name: string) {
+        if (this.instance) {
+            return this.instance.findWidgetByName(name);
+        }
+    }
+
     getPVNames() {
         this.pvEngine.getPVNames();
     }

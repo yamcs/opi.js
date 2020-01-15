@@ -15,11 +15,11 @@ export class Polyline extends Widget {
 
     constructor(display: Display) {
         super(display);
-        this.properties.add(new IntProperty(PROP_ALPHA))
-        this.properties.add(new IntProperty(PROP_LINE_WIDTH))
-        this.properties.add(new FloatProperty(PROP_FILL_LEVEL))
-        this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL))
-        this.properties.add(new PointsProperty(PROP_POINTS, []))
+        this.properties.add(new IntProperty(PROP_ALPHA, 255));
+        this.properties.add(new IntProperty(PROP_LINE_WIDTH));
+        this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
+        this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
+        this.properties.add(new PointsProperty(PROP_POINTS, []));
     }
 
     draw(g: Graphics) {

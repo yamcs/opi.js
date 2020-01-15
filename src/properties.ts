@@ -35,7 +35,7 @@ export class PropertySet {
             if (node.hasNode(property.name)) {
                 if (property instanceof StringProperty) {
                     // The non-raw value is set below (after reading in other properties)
-                    property.rawValue = node.getString(property.name);
+                    (property as StringProperty).rawValue = node.getString(property.name);
                 } else if (property instanceof IntProperty) {
                     property.value = node.getInt(property.name);
                 } else if (property instanceof FloatProperty) {
@@ -66,10 +66,11 @@ export class PropertySet {
         // (we need the values of other properties)
         this.properties.forEach(property => {
             if (property instanceof StringProperty) {
-                if (property.rawValue) {
-                    property.value = this.expandMacro(property.rawValue);
+                const stringProperty = property as StringProperty;
+                if (stringProperty.rawValue) {
+                    property.value = this.expandMacro(stringProperty.rawValue);
                 } else {
-                    property.value = property.rawValue;
+                    property.value = stringProperty.rawValue;
                 }
             }
         });
@@ -123,12 +124,33 @@ export class PropertySet {
 
 export abstract class Property<T> {
 
-    value?: T;
+    private _value?: T;
+    private listeners?: PropertyListener<T>[];
 
     constructor(readonly name: string, readonly defaultValue?: T) {
         this.value = defaultValue;
     }
+
+    get value(): T | undefined { return this._value };
+    set value(value: T | undefined) {
+        if (this.value !== value) {
+            const oldValue = this._value;
+            this._value = value
+            if (this.listeners) {
+                for (const listener of this.listeners) {
+                    listener(value, oldValue);
+                }
+            }
+        }
+    }
+
+    addListener(listener: PropertyListener<T>) {
+        this.listeners = this.listeners || [];
+        this.listeners.push(listener);
+    }
 }
+
+export type PropertyListener<T> = (newValue?: T, oldValue?: T) => void;
 
 export class StringProperty extends Property<string> {
     /**

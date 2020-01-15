@@ -3,7 +3,8 @@ import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
 import { HitCanvas } from '../../HitCanvas';
 import { MacroSet } from '../../macros';
-import { ColorProperty, FloatProperty, MacrosProperty } from '../../properties';
+import { ColorProperty, FloatProperty, MacrosProperty, RulesProperty, ScriptsProperty, StringProperty } from '../../properties';
+import { RuleSet } from '../../rules';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { Connection } from './Connection';
@@ -13,6 +14,9 @@ const PROP_FOREGROUND_COLOR = 'foreground_color';
 const PROP_HEIGHT = 'height';
 const PROP_WIDTH = 'width';
 const PROP_MACROS = 'macros';
+const PROP_NAME = 'name';
+const PROP_RULES = 'rules';
+const PROP_SCRIPTS = 'scripts';
 
 export class DisplayWidget extends AbstractContainerWidget {
 
@@ -24,10 +28,13 @@ export class DisplayWidget extends AbstractContainerWidget {
         this.properties.add(new ColorProperty(PROP_BACKGROUND_COLOR));
         this.properties.add(new ColorProperty(PROP_FOREGROUND_COLOR));
         this.properties.add(new MacrosProperty(PROP_MACROS));
+        this.properties.add(new StringProperty(PROP_NAME));
+        this.properties.add(new RulesProperty(PROP_RULES, new RuleSet()));
+        this.properties.add(new ScriptsProperty(PROP_SCRIPTS));
     }
 
     parseNode(node: XMLNode) {
-        this.properties.loadXMLValues(node);
+        super.parseNode(node);
 
         for (const widgetNode of node.getNodes('widget')) {
             const kind = widgetNode.getStringAttribute('typeId');

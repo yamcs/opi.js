@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
-import { Point } from '../../positioning';
+import { Point, translatePoints } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
 
@@ -16,12 +16,32 @@ export class Polygon extends Widget {
 
     constructor(display: Display) {
         super(display);
-        this.properties.add(new IntProperty(PROP_ALPHA));
+        this.properties.add(new IntProperty(PROP_ALPHA, 255));
         this.properties.add(new IntProperty(PROP_LINE_WIDTH));
         this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
         this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
         this.properties.add(new ColorProperty(PROP_LINE_COLOR));
         this.properties.add(new PointsProperty(PROP_POINTS, []));
+    }
+
+    init() {
+        const xProperty = this.properties.getProperty('x');
+        if (xProperty) {
+            xProperty.addListener((newValue, oldValue) => {
+                const newPoints = translatePoints(this.points, newValue - oldValue, 0);
+                this.properties.setValue(PROP_POINTS, newPoints);
+                this.requestRepaint();
+            });
+        }
+
+        const yProperty = this.properties.getProperty('y');
+        if (yProperty) {
+            yProperty.addListener((newValue, oldValue) => {
+                const newPoints = translatePoints(this.points, 0, newValue - oldValue);
+                this.properties.setValue(PROP_POINTS, newPoints);
+                this.requestRepaint();
+            });
+        }
     }
 
     draw(g: Graphics) {
@@ -48,7 +68,7 @@ export class Polygon extends Widget {
         ctx.fillStyle = color.toString();
         ctx.beginPath();
         for (let i = 0; i < this.points.length; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 ctx.moveTo(this.points[i].x, this.points[i].y);
             } else {
                 ctx.lineTo(this.points[i].x, this.points[i].y);
