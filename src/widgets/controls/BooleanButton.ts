@@ -6,6 +6,7 @@ import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_FONT = 'font';
@@ -27,9 +28,8 @@ export class BooleanButton extends Widget {
 
     private areaRegion?: HitRegionSpecification;
 
-    constructor(display: Display) {
-        super(display);
-
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new BooleanProperty(PROP_SQUARE_BUTTON));
         this.properties.add(new BooleanProperty(PROP_SHOW_LED));
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));

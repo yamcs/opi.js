@@ -3,6 +3,7 @@ import { Graphics, Path } from '../../Graphics';
 import { convertPolarToCartesian2, findRelativePoint, toRadians } from '../../positioning';
 import { BooleanProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_ALPHA = 'alpha';
 const PROP_FILL = 'fill';
@@ -13,8 +14,8 @@ const PROP_TOTAL_ANGLE = 'total_angle';
 
 export class Arc extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new IntProperty(PROP_ALPHA, 255));
         this.properties.add(new IntProperty(PROP_LINE_WIDTH));
         this.properties.add(new IntProperty(PROP_START_ANGLE));

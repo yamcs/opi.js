@@ -2,6 +2,7 @@ import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
 import { BooleanProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_IMAGE_FILE = 'image_file';
 const PROP_NO_ANIMATION = 'no_animation';
@@ -14,8 +15,8 @@ export class ImageWidget extends Widget {
     private imageSnapshot?: HTMLCanvasElement;
     private imageLoaded = false;
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new StringProperty(PROP_IMAGE_FILE));
         this.properties.add(new StringProperty(PROP_NO_ANIMATION));
         this.properties.add(new BooleanProperty(PROP_TRANSPARENCY, true))

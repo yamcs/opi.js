@@ -150,14 +150,14 @@ export class PVEngine {
     createScript(widget: Widget, model: Script, scriptText: string) {
         const pvs = [];
         for (const input of model.inputs) {
-            const pvName = widget.properties.expandMacro(input.pvName);
+            const pvName = widget.expandMacro(input.pvName);
             pvs.push(this.createPV(pvName));
         }
         const script = new ScriptInstance(widget, model, scriptText, pvs);
         this.scripts.push(script);
         for (const input of model.inputs) {
             if (input.trigger) {
-                const pvName = widget.properties.expandMacro(input.pvName);
+                const pvName = widget.expandMacro(input.pvName);
                 this.registerScriptTriggers(pvName, script);
             }
         }
@@ -166,14 +166,14 @@ export class PVEngine {
     createRule(widget: Widget, model: Rule) {
         const pvs = [];
         for (const input of model.inputs) {
-            const pvName = widget.properties.expandMacro(input.pvName);
+            const pvName = widget.expandMacro(input.pvName);
             pvs.push(this.createPV(pvName));
         }
         const rule = new RuleInstance(widget, model, pvs);
         this.rules.push(rule);
         for (const input of model.inputs) {
             if (input.trigger) {
-                const pvName = widget.properties.expandMacro(input.pvName);
+                const pvName = widget.expandMacro(input.pvName);
                 this.registerRuleTriggers(pvName, rule);
             }
         }
@@ -241,8 +241,51 @@ class RuleInstance {
         }
         const quoteValues = property instanceof StringProperty;
         if (rule.expressions.length) {
+            let usesDoubles = false;
+            let usesInts = false;
+            let usesStrings = false;
+            let usesSeverities = false;
+            for (const expr of rule.expressions) {
+                if (expr.expression.match(/pv[0-9]+/)) {
+                    usesDoubles = true;
+                }
+                if (rule.outputExpression && expr.outputValue.match(/pv[0-9]+/)) {
+                    usesDoubles = true;
+                }
+                if (expr.expression.indexOf('pvInt') !== -1) {
+                    usesInts = true;
+                }
+                if (rule.outputExpression && expr.outputValue.indexOf('pvInt') !== -1) {
+                    usesInts = true;
+                }
+                if (expr.expression.indexOf('pvStr') !== -1) {
+                    usesStrings = true;
+                }
+                if (rule.outputExpression && expr.outputValue.indexOf('pvStr') !== -1) {
+                    usesStrings = true;
+                }
+                if (expr.expression.indexOf('pvSev') !== -1) {
+                    usesSeverities = true;
+                }
+                if (rule.outputExpression && expr.outputValue.indexOf('pvSev') !== -1) {
+                    usesSeverities = true;
+                }
+            }
+            // This does not seem to make much sense, but it is ported as-is
+            // from the desktop application.
             for (let i = 0; i < pvs.length; i++) {
-                scriptText += `var pv${i} = PVUtil.getDouble(pvs[0]);\n`;
+                if (usesDoubles) {
+                    scriptText += `var pv${i} = PVUtil.getDouble(pvs[${i}]);\n`;
+                }
+                if (usesInts) {
+                    scriptText += `var pvInt${i} = PVUtil.getLong(pvs[${i}]);\n`;
+                }
+                if (usesStrings) {
+                    scriptText += `var pvStr${i} = PVUtil.getString(pvs[${i}]);\n`;
+                }
+                if (usesSeverities) {
+                    scriptText += `var pvSev${i} = PVUtil.getSeverity(pvs[${i}]);\n`;
+                }
             }
             for (let i = 0; i < rule.expressions.length; i++) {
                 const expr = rule.expressions[i].expression;

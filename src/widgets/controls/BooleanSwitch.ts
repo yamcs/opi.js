@@ -5,6 +5,7 @@ import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_OFF_COLOR = 'off_color';
@@ -21,8 +22,8 @@ export class BooleanSwitch extends Widget {
 
     private shaftRegion?: HitRegionSpecification;
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new ColorProperty(PROP_ON_COLOR));
         this.properties.add(new StringProperty(PROP_ON_LABEL));

@@ -20,6 +20,7 @@ import { Gauge } from './widgets/monitors/Gauge';
 import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
+import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
@@ -193,7 +194,7 @@ export class Display {
             this.ctx.lineWidth = 1;
             this.ctx.setLineDash([10, 5]);
             this.ctx.strokeStyle = 'black';
-            this.ctx.strokeRect(-0.5, -0.5, this.instance.preferredWidth + 1, this.instance.preferredHeight + 1);
+            this.ctx.strokeRect(-0.5, -0.5, this.instance.holderWidth + 1, this.instance.holderHeight + 1);
             this.ctx.setLineDash([]);
         }
 
@@ -218,48 +219,48 @@ export class Display {
         this.repaintRequested = true;
     }
 
-    createWidget(kind: string) {
+    createWidget(kind: string, parent: AbstractContainerWidget) {
         switch (kind) {
             case TYPE_ACTION_BUTTON:
-                return new ActionButton(this);
+                return new ActionButton(this, parent);
             case TYPE_ARC:
-                return new Arc(this);
+                return new Arc(this, parent);
             case TYPE_BOOLEAN_BUTTON:
-                return new BooleanButton(this);
+                return new BooleanButton(this, parent);
             case TYPE_BOOLEAN_SWITCH:
-                return new BooleanSwitch(this);
+                return new BooleanSwitch(this, parent);
             case TYPE_ELLIPSE:
-                return new Ellipse(this);
+                return new Ellipse(this, parent);
             case TYPE_GAUGE:
-                return new Gauge(this);
+                return new Gauge(this, parent);
             case TYPE_GROUPING_CONTAINER:
-                return new GroupingContainer(this);
+                return new GroupingContainer(this, parent);
             case TYPE_IMAGE:
-                return new ImageWidget(this);
+                return new ImageWidget(this, parent);
             case TYPE_LABEL:
-                return new Label(this);
+                return new Label(this, parent);
             case TYPE_LED:
-                return new LED(this);
+                return new LED(this, parent);
             case TYPE_LINKING_CONTAINER:
-                return new LinkingContainer(this);
+                return new LinkingContainer(this, parent);
             case TYPE_METER:
-                return new Meter(this);
+                return new Meter(this, parent);
             case TYPE_NATIVE_BUTTON:
-                return new NativeButton(this);
+                return new NativeButton(this, parent);
             case TYPE_POLYGON:
-                return new Polygon(this);
+                return new Polygon(this, parent);
             case TYPE_POLYLINE:
-                return new Polyline(this);
+                return new Polyline(this, parent);
             case TYPE_RECTANGLE:
-                return new Rectangle(this);
+                return new Rectangle(this, parent);
             case TYPE_ROUNDED_RECTANGLE:
-                return new RoundedRectangle(this);
+                return new RoundedRectangle(this, parent);
             case TYPE_TABBED_CONTAINER:
-                return new TabbedContainer(this);
+                return new TabbedContainer(this, parent);
             case TYPE_TEXT_UPDATE:
-                return new TextUpdate(this);
+                return new TextUpdate(this, parent);
             case TYPE_WEB_BROWSER:
-                return new WebBrowser(this);
+                return new WebBrowser(this, parent);
             default:
                 console.warn(`Unsupported widget type: ${kind}`);
         }

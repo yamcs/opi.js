@@ -6,6 +6,7 @@ import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { Ramp } from '../figures/Ramp';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const NEEDLE_WIDTH = 16;
 const GAP_BTW_NEEDLE_SCALE = -5;
@@ -32,8 +33,8 @@ const PROP_SHOW_RAMP = 'show_ramp';
 
 export class Meter extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new ColorProperty(PROP_COLOR_HI));
         this.properties.add(new ColorProperty(PROP_COLOR_HIHI));
         this.properties.add(new ColorProperty(PROP_COLOR_LO));

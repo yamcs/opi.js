@@ -26,13 +26,12 @@ interface Tab {
     // iconPath: string;
 }
 
-
 export class TabbedContainer extends AbstractContainerWidget {
 
     private tabs: Tab[] = [];
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new IntProperty('minimum_tab_height'));
         this.properties.add(new IntProperty('active_tab'));
         this.properties.add(new BooleanProperty('horizontal_tabs'));
@@ -61,7 +60,7 @@ export class TabbedContainer extends AbstractContainerWidget {
 
         for (const widgetNode of node.getNodes('widget')) {
             const kind = widgetNode.getStringAttribute('typeId');
-            const widget = this.display.createWidget(kind);
+            const widget = this.display.createWidget(kind, this);
             if (widget) {
                 widget.parseNode(widgetNode);
                 this.widgets.push(widget);

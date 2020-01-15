@@ -3,6 +3,7 @@ import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
 import { FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_FONT = 'font';
 const PROP_HORIZONTAL_ALIGNMENT = 'horizontal_alignment';
@@ -10,8 +11,8 @@ const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextUpdate extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));

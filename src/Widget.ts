@@ -11,6 +11,7 @@ import { PV } from './pv/PV';
 import { RuleSet } from './rules';
 import { ScriptEngine } from './scripting/ScriptEngine';
 import { ScriptSet } from './scripts';
+import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
 import { XMLNode } from './XMLNode';
 
 const PROP_ACTIONS = 'actions';
@@ -48,8 +49,8 @@ export abstract class Widget {
 
     properties: PropertySet;
 
-    constructor(readonly display: Display) {
-        this.properties = new PropertySet(display, [
+    constructor(readonly display: Display, readonly parent?: AbstractContainerWidget) {
+        this.properties = new PropertySet(this, [
             new ActionsProperty(PROP_ACTIONS, new ActionSet()),
             new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT),
             new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false),
@@ -499,7 +500,7 @@ export abstract class Widget {
                 break;
             case 'WRITE_PV':
                 if (action.pvName) {
-                    const pvName = this.properties.expandMacro(action.pvName);
+                    const pvName = this.expandMacro(action.pvName);
                     this.display.pvEngine.setValue(pvName, action.value);
                 }
                 break;
@@ -516,6 +517,19 @@ export abstract class Widget {
                 break;
             default:
                 throw new Error(`Unsupported command ${action.type}`);
+        }
+    }
+
+    expandMacro(text: string) {
+        if (text.indexOf('$') === -1) {
+            return text;
+        } else {
+            for (const prop of this.properties.all()) {
+                // Both ${pv_name} and $(pv_name) notations are accepted
+                text = text.replace(`$(${prop.name})`, prop.value || '');
+                text = text.replace(`\${${prop.name}}`, prop.value || '');
+            }
+            return this.parent ? this.parent.expandContainerMacros(text) : text;
         }
     }
 

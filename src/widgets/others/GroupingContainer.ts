@@ -10,7 +10,7 @@ export class GroupingContainer extends AbstractContainerWidget {
 
         for (const widgetNode of node.getNodes('widget')) {
             const kind = widgetNode.getStringAttribute('typeId');
-            const widget = this.display.createWidget(kind);
+            const widget = this.display.createWidget(kind, this);
             if (widget) {
                 widget.parseNode(widgetNode);
                 this.widgets.push(widget);

@@ -1,18 +1,18 @@
 import { ActionSet } from './actions';
 import { Color } from './Color';
-import { Display } from './Display';
 import { Font } from './Font';
 import { MacroSet } from './macros';
 import { Point } from './positioning';
 import { RuleSet } from './rules';
 import { ScriptSet } from './scripts';
+import { Widget } from './Widget';
 import { XMLNode } from './XMLNode';
 
 export class PropertySet {
 
     private properties = new Map<string, Property<any>>();
 
-    constructor(private parent: Display, properties: Property<any>[] = []) {
+    constructor(private widget: Widget, properties: Property<any>[] = []) {
         for (const property of properties) {
             this.properties.set(property.name, property);
         }
@@ -68,34 +68,12 @@ export class PropertySet {
             if (property instanceof StringProperty) {
                 const stringProperty = property as StringProperty;
                 if (stringProperty.rawValue) {
-                    property.value = this.expandMacro(stringProperty.rawValue);
+                    property.value = this.widget.expandMacro(stringProperty.rawValue);
                 } else {
                     property.value = stringProperty.rawValue;
                 }
             }
         });
-    }
-
-    expandMacro(macro: string) {
-        if (macro.indexOf('$') === -1) {
-            return macro;
-        } else {
-            let expanded = macro;
-            for (const prop of this.properties.values()) {
-                // Both ${pv_name} and $(pv_name) notations are accepted
-                expanded = expanded.replace(`$(${prop.name})`, prop.value || '');
-                expanded = expanded.replace(`\${${prop.name}}`, prop.value || '');
-            }
-            const parentWidget = this.parent.instance;
-            if (parentWidget) {
-                const macrosProperty = parentWidget.properties.getProperty('macros') as MacrosProperty;
-                if (macrosProperty.value) {
-                    expanded = macrosProperty.value.expandMacro(expanded);
-                }
-            }
-
-            return expanded;
-        }
     }
 
     getProperty(propertyName: string) {

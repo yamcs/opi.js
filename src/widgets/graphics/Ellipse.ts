@@ -4,6 +4,7 @@ import { Graphics } from '../../Graphics';
 import { shrink } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_ALPHA = 'alpha';
 const PROP_BG_GRADIENT_COLOR = 'bg_gradient_color';
@@ -17,8 +18,8 @@ const PROP_LINE_STYLE = 'line_style';
 
 export class Ellipse extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new IntProperty(PROP_ALPHA, 255));
         this.properties.add(new ColorProperty(PROP_BG_GRADIENT_COLOR));
         this.properties.add(new ColorProperty(PROP_FG_GRADIENT_COLOR));

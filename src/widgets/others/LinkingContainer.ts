@@ -14,8 +14,8 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     private linkedDisplay?: DisplayWidget;
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new StringProperty(PROP_GROUP_NAME));
         this.properties.add(new StringProperty(PROP_OPI_FILE));
         this.properties.add(new IntProperty(PROP_RESIZE_BEHAVIOR, 0));
@@ -26,7 +26,7 @@ export class LinkingContainer extends AbstractContainerWidget {
             fetch(this.display.baseUrl + this.opiFile).then(response => {
                 if (response.ok) {
                     response.text().then(source => {
-                        this.linkedDisplay = new DisplayWidget(this.display);
+                        this.linkedDisplay = new DisplayWidget(this.display, this);
                         const displayNode = XMLNode.parseFromXML(source);
                         this.linkedDisplay.parseNode(displayNode);
                         this.requestRepaint();
@@ -58,8 +58,8 @@ export class LinkingContainer extends AbstractContainerWidget {
             });
 
             if (this.resizeBehavior === 0) { // FIT_OPI_TO_CONTAINER
-                const sw = this.linkedDisplay.preferredWidth;
-                const sh = this.linkedDisplay.preferredHeight;
+                const sw = this.linkedDisplay.holderWidth;
+                const sh = this.linkedDisplay.holderHeight;
                 const tmpHitCanvas = hitCanvas.createChild(sw, sh);
                 const tmpCanvas = this.drawOffscreen(tmpHitCanvas);
 
@@ -95,8 +95,8 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     private drawOffscreen(hitCanvas: HitCanvas) {
         const canvas = document.createElement('canvas');
-        canvas.width = this.linkedDisplay!.preferredWidth;
-        canvas.height = this.linkedDisplay!.preferredHeight;
+        canvas.width = this.linkedDisplay!.holderWidth;
+        canvas.height = this.linkedDisplay!.holderHeight;
         const g = new Graphics(canvas);
 
         this.linkedDisplay!.draw(g, hitCanvas);

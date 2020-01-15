@@ -5,6 +5,7 @@ import { Graphics } from '../../Graphics';
 import { HitRegionSpecification } from '../../HitCanvas';
 import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_FONT = 'font';
 const PROP_PUSH_ACTION_INDEX = 'push_action_index';
@@ -21,8 +22,8 @@ export class ActionButton extends Widget {
     private imageElement?: HTMLImageElement;
     private imageLoaded = false;
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new BooleanProperty(PROP_TOGGLE_BUTTON));
         this.properties.add(new IntProperty(PROP_PUSH_ACTION_INDEX));

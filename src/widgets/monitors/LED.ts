@@ -5,6 +5,7 @@ import { toBorderBox } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 interface State {
     label: string;
@@ -29,8 +30,8 @@ export class LED extends Widget {
     private states: State[] = [];
     private fallback?: State;
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new BooleanProperty(PROP_SQUARE_LED));
         this.properties.add(new IntProperty(PROP_STATE_COUNT, 2));

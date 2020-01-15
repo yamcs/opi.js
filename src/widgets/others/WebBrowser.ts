@@ -2,6 +2,7 @@ import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
 import { StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from './AbstractContainerWidget';
 
 const PROP_URL = 'url';
 
@@ -10,8 +11,8 @@ export class WebBrowser extends Widget {
     private iframe?: HTMLIFrameElement;
     private prevUrl?: string;
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new StringProperty(PROP_URL));
     }
 

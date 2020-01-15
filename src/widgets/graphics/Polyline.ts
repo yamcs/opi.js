@@ -4,6 +4,7 @@ import { Graphics } from '../../Graphics';
 import { Point } from '../../positioning';
 import { BooleanProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_ALPHA = 'alpha';
 const PROP_FILL_LEVEL = 'fill_level';
@@ -13,8 +14,8 @@ const PROP_POINTS = 'points';
 
 export class Polyline extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new IntProperty(PROP_ALPHA, 255));
         this.properties.add(new IntProperty(PROP_LINE_WIDTH));
         this.properties.add(new FloatProperty(PROP_FILL_LEVEL));

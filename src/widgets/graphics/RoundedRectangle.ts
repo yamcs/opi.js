@@ -4,6 +4,7 @@ import { Graphics } from '../../Graphics';
 import { shrink } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_ALPHA = 'alpha';
 const PROP_BG_GRADIENT_COLOR = 'bg_gradient_color';
@@ -19,8 +20,8 @@ const PROP_LINE_STYLE = 'line_style';
 
 export class RoundedRectangle extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
 
         // This widget ignores the fill associated with border 14.
         this.fillRoundRectangleBackgroundBorder = false;

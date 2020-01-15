@@ -6,6 +6,7 @@ import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { Ramp } from '../figures/Ramp';
+import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const BORDER_COLOR = new Color(100, 100, 100);
 const NEEDLE_DIAMETER = 16;
@@ -37,8 +38,8 @@ const RAMP_OVERLAP = 2;
 
 export class Gauge extends Widget {
 
-    constructor(display: Display) {
-        super(display);
+    constructor(display: Display, parent: AbstractContainerWidget) {
+        super(display, parent);
         this.properties.add(new ColorProperty(PROP_COLOR_HI));
         this.properties.add(new ColorProperty(PROP_COLOR_HIHI));
         this.properties.add(new ColorProperty(PROP_COLOR_LO));
