@@ -1,3 +1,4 @@
+import { StringProperty } from '../properties';
 import { Widget } from '../Widget';
 
 /**
@@ -14,7 +15,18 @@ export class WidgetWrapper {
     }
 
     setPropertyValue(propertyName: string, value: any) {
-        this.widget.properties.setValue(propertyName, value);
+        const property = this.widget.properties.getProperty(propertyName);
+        if (!property) {
+            throw new Error(`Cannot set value of unknown property ${propertyName}`);
+        }
+
+        if (property instanceof StringProperty) {
+            value = (value !== undefined) ? String(value) : value;
+            this.widget.properties.setValue(propertyName, value);
+        } else {
+            this.widget.properties.setValue(propertyName, value);
+        }
+
         this.widget.requestRepaint();
     }
 }

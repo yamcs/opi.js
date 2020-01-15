@@ -67,7 +67,7 @@ export class PropertySet {
         this.properties.forEach(property => {
             if (property instanceof StringProperty) {
                 const stringProperty = property as StringProperty;
-                if (stringProperty.rawValue) {
+                if (stringProperty.rawValue !== undefined) {
                     property.value = this.widget.expandMacro(stringProperty.rawValue);
                 } else {
                     property.value = stringProperty.rawValue;
