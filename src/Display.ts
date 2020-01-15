@@ -199,7 +199,7 @@ export class Display {
         }
 
         if (this.instance) {
-            this.instance.draw(this.g, this.g.hitCanvas);
+            this.instance.draw(this.g);
         }
 
         // Selection on top of everything

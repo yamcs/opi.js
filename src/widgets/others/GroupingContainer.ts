@@ -1,5 +1,4 @@
 import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 
@@ -18,29 +17,24 @@ export class GroupingContainer extends AbstractContainerWidget {
         }
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         if (!this.transparent) {
-            g.ctx.fillStyle = this.backgroundColor.toString();
-            g.ctx.fillRect(this.x, this.y, this.width, this.height);
+            g.fillRect({
+                x: this.x,
+                y: this.y,
+                width: this.width,
+                height: this.height,
+                color: this.backgroundColor,
+            });
         }
 
-        const tmpHitCanvas = hitCanvas.createChild(this.width, this.height);
-        const tmpCanvas = this.drawOffscreen(tmpHitCanvas);
-        g.ctx.drawImage(tmpCanvas, this.x, this.y);
-        tmpHitCanvas.transferToParent(this.x, this.y, this.width, this.height);
-    }
-
-    private drawOffscreen(hitCanvas: HitCanvas) {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.width;
-        canvas.height = this.height;
-        const g = new Graphics(canvas);
+        const offscreen = g.createChild(this.width, this.height);
         for (const widget of this.widgets) {
-            widget.drawHolder(g);
-            widget.draw(g, hitCanvas);
-            widget.drawDecoration(g);
+            widget.drawHolder(offscreen);
+            widget.draw(offscreen);
+            widget.drawDecoration(offscreen);
         }
 
-        return canvas;
+        g.copy(offscreen, this.x, this.y);
     }
 }

@@ -1,5 +1,4 @@
 import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { Connection } from './Connection';
@@ -24,10 +23,10 @@ export class DisplayWidget extends AbstractContainerWidget {
         }
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         for (const widget of this.widgets) {
             widget.drawHolder(g);
-            widget.draw(g, hitCanvas);
+            widget.draw(g);
             widget.drawDecoration(g);
         }
         for (const connection of this.connections) {

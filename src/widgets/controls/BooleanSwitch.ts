@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
-import { Graphics } from '../../Graphics';
-import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
+import { Graphics, Path } from '../../Graphics';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -64,15 +64,15 @@ export class BooleanSwitch extends Widget {
         }
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         if (this.width > this.height) {
-            this.drawHorizontal(g.ctx, hitCanvas);
+            this.drawHorizontal(g);
         } else {
-            this.drawVertical(g.ctx, hitCanvas);
+            this.drawVertical(g);
         }
     }
 
-    private drawHorizontal(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    private drawHorizontal(g: Graphics) {
         let areaWidth = this.width;
         let areaHeight = this.height;
         if (areaHeight > areaWidth / 2) {
@@ -87,7 +87,7 @@ export class BooleanSwitch extends Widget {
             width: areaHeight / 2,
             height: areaHeight / 2,
         };
-        this.drawPedestal(ctx, pedBounds);
+        this.drawPedestal(g, pedBounds);
 
         const largeWidth = Math.floor((35.0 / 218.0) * areaWidth);
         const largeHeight = Math.floor((45.0 / 105.0) * areaHeight);
@@ -109,7 +109,7 @@ export class BooleanSwitch extends Widget {
                 width: smallWidth,
                 height: smallHeight,
             };
-            this.drawHorizontalBar(ctx, hitCanvas, onSmallBounds, onLargeBounds, true);
+            this.drawHorizontalBar(g, onSmallBounds, onLargeBounds, true);
         } else {
             const offLargeBounds: Bounds = {
                 x: 0,
@@ -123,11 +123,11 @@ export class BooleanSwitch extends Widget {
                 width: smallWidth,
                 height: smallHeight,
             };
-            this.drawHorizontalBar(ctx, hitCanvas, offSmallBounds, offLargeBounds, false);
+            this.drawHorizontalBar(g, offSmallBounds, offLargeBounds, false);
         }
     }
 
-    private drawVertical(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas) {
+    private drawVertical(g: Graphics) {
         let areaWidth = this.width;
         let areaHeight = this.height;
         if (areaWidth > areaHeight / 2) {
@@ -142,7 +142,7 @@ export class BooleanSwitch extends Widget {
             width: areaWidth / 2,
             height: areaWidth / 2,
         };
-        this.drawPedestal(ctx, pedBounds);
+        this.drawPedestal(g, pedBounds);
 
         const largeWidth = Math.floor((45.0 / 105.0) * areaWidth);
         const largeHeight = Math.floor((35.0 / 218.0) * areaHeight);
@@ -163,7 +163,7 @@ export class BooleanSwitch extends Widget {
                 height: smallHeight,
             };
             onSmallBounds.y -= Math.floor((1.0 / 7.0) * pedBounds.height);
-            this.drawVerticalBar(ctx, hitCanvas, onSmallBounds, onLargeBounds, true);
+            this.drawVerticalBar(g, onSmallBounds, onLargeBounds, true);
         } else {
             const barHeight = pedBounds.y + pedBounds.height / 2 + smallHeight / 2 + 2;
             const offLargeBounds: Bounds = {
@@ -179,22 +179,22 @@ export class BooleanSwitch extends Widget {
                 height: smallHeight,
             };
             offSmallBounds.y += Math.floor((1.0 / 7.0) * pedBounds.height);
-            this.drawVerticalBar(ctx, hitCanvas, offSmallBounds, offLargeBounds, false);
+            this.drawVerticalBar(g, offSmallBounds, offLargeBounds, false);
         }
     }
 
-    private drawPedestal(ctx: CanvasRenderingContext2D, bounds: Bounds) {
+    private drawPedestal(g: Graphics, bounds: Bounds) {
         let cx = this.x + bounds.x + (bounds.width / 2);
         let cy = this.y + bounds.y + (bounds.height / 2);
         let rx = bounds.width / 2;
         let ry = bounds.height / 2;
-        ctx.fillStyle = this.effect3d ? Color.WHITE.toString() : Color.GRAY.toString();
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fill();
+        g.ctx.fillStyle = this.effect3d ? Color.WHITE.toString() : Color.GRAY.toString();
+        g.ctx.beginPath();
+        g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        g.ctx.fill();
 
         if (this.effect3d) {
-            const gradient = ctx.createLinearGradient(this.x + bounds.x, this.y + bounds.y,
+            const gradient = g.ctx.createLinearGradient(this.x + bounds.x, this.y + bounds.y,
                 this.x + bounds.x + bounds.width, this.y + bounds.y + bounds.height);
 
             if (this.enabled) {
@@ -204,20 +204,20 @@ export class BooleanSwitch extends Widget {
                 gradient.addColorStop(0, 'rgba(0,0,0,0)');
                 gradient.addColorStop(1, `rgba(0,0,0,${150 / 255})`);
             }
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
     }
 
-    private drawHorizontalBar(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas, sm: Bounds, lg: Bounds, booleanValue: boolean) {
+    private drawHorizontalBar(g: Graphics, sm: Bounds, lg: Bounds, booleanValue: boolean) {
         let stopOpacity1 = (booleanValue ? 0 : 10) / 255;
         let stopOpacity2 = (booleanValue ? 150 : 220) / 255;
 
-        const gradient = ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x, this.y + lg.y + lg.height);
+        const gradient = g.ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x, this.y + lg.y + lg.height);
         gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
         gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
 
-        hitCanvas.beginHitRegion(this.shaftRegion!);
+        const shaftRegion = g.addHitRegion(this.shaftRegion!);
 
         /*
          * Small end
@@ -226,18 +226,16 @@ export class BooleanSwitch extends Widget {
         let cy = this.y + sm.y + (sm.height / 2);
         let rx = sm.width / 2;
         let ry = sm.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        g.ctx.beginPath();
+        g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
-        hitCanvas.ctx.beginPath();
-        hitCanvas.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
-        hitCanvas.ctx.fill();
+        shaftRegion.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
-        ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
-        ctx.fill();
+        g.ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
+        g.ctx.fill();
         if (this.effect3d) {
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
 
         /*
@@ -249,26 +247,24 @@ export class BooleanSwitch extends Widget {
             Math.round(this.x + sm.x + sm.width / 2), Math.round(this.y + sm.y + sm.height),
             Math.round(this.x + sm.x + sm.width / 2), Math.round(this.y + sm.y),
         ];
-        ctx.beginPath();
-        ctx.moveTo(points[0], points[1]);
-        ctx.lineTo(points[2], points[3]);
-        ctx.lineTo(points[4], points[5]);
-        ctx.lineTo(points[6], points[7]);
-        ctx.closePath();
+        g.ctx.beginPath();
+        g.ctx.moveTo(points[0], points[1]);
+        g.ctx.lineTo(points[2], points[3]);
+        g.ctx.lineTo(points[4], points[5]);
+        g.ctx.lineTo(points[6], points[7]);
+        g.ctx.closePath();
 
-        hitCanvas.ctx.beginPath();
-        hitCanvas.ctx.moveTo(points[0], points[1]);
-        hitCanvas.ctx.lineTo(points[2], points[3]);
-        hitCanvas.ctx.lineTo(points[4], points[5]);
-        hitCanvas.ctx.lineTo(points[6], points[7]);
-        hitCanvas.ctx.closePath();
-        hitCanvas.ctx.fill();
+        shaftRegion.addPath(new Path(points[0], points[1])
+            .lineTo(points[2], points[3])
+            .lineTo(points[4], points[5])
+            .lineTo(points[6], points[7])
+            .closePath());
 
-        ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
-        ctx.fill();
+        g.ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
+        g.ctx.fill();
         if (this.effect3d) {
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
 
         /*
@@ -278,15 +274,13 @@ export class BooleanSwitch extends Widget {
         cy = this.y + lg.y + (lg.height / 2);
         rx = lg.width / 2;
         ry = lg.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        g.ctx.beginPath();
+        g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
-        hitCanvas.ctx.beginPath();
-        hitCanvas.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
-        hitCanvas.ctx.fill();
+        shaftRegion.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
-        ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
-        ctx.fill();
+        g.ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
+        g.ctx.fill();
         if (this.effect3d) {
             const w = Math.sqrt(rx * rx + ry * ry);
             const wp = ry - rx;
@@ -294,38 +288,36 @@ export class BooleanSwitch extends Widget {
             const y1 = this.x + lg.y + ry - (wp + w) / 2 - 1;
             const x2 = this.x + lg.x + rx + (wp + w) / 2 + 5;
             const y2 = this.x + lg.y + ry - (wp - w) / 2 + 5;
-            const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+            const gradient = g.ctx.createLinearGradient(x1, y1, x2, y2);
             gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
             gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
     }
 
-    private drawVerticalBar(ctx: CanvasRenderingContext2D, hitCanvas: HitCanvas, sm: Bounds, lg: Bounds, booleanValue: boolean) {
-        const gradient = ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x + lg.width, this.y + lg.y);
+    private drawVerticalBar(g: Graphics, sm: Bounds, lg: Bounds, booleanValue: boolean) {
+        const gradient = g.ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x + lg.width, this.y + lg.y);
         gradient.addColorStop(0, `rgba(0,0,0,${10 / 255})`);
         gradient.addColorStop(1, `rgba(0,0,0,${booleanValue ? 210 / 255 : 160 / 255})`);
 
-        hitCanvas.beginHitRegion(this.shaftRegion!);
+        const shaftRegion = g.addHitRegion(this.shaftRegion!);
 
         /*
          * Small end
          */
         let cx = this.x + sm.x + (sm.width / 2);
         let cy = this.y + sm.y + (sm.height / 2);
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, sm.width / 2, sm.height / 2, 0, 0, 2 * Math.PI);
+        g.ctx.beginPath();
+        g.ctx.ellipse(cx, cy, sm.width / 2, sm.height / 2, 0, 0, 2 * Math.PI);
 
-        hitCanvas.ctx.beginPath();
-        hitCanvas.ctx.ellipse(cx, cy, sm.width / 2, sm.height / 2, 0, 0, 2 * Math.PI);
-        hitCanvas.ctx.fill();
+        shaftRegion.addEllipse(cx, cy, sm.width / 2, sm.height / 2, 0, 0, 2 * Math.PI);
 
-        ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
-        ctx.fill();
+        g.ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
+        g.ctx.fill();
         if (this.effect3d) {
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
 
         /*
@@ -337,26 +329,24 @@ export class BooleanSwitch extends Widget {
             Math.round(this.x + sm.x + sm.width), Math.round(this.y + sm.y + sm.height / 2),
             Math.round(this.x + sm.x), Math.round(this.y + sm.y + sm.height / 2)
         ];
-        ctx.beginPath();
-        ctx.moveTo(points[0], points[1]);
-        ctx.lineTo(points[2], points[3]);
-        ctx.lineTo(points[4], points[5]);
-        ctx.lineTo(points[6], points[7]);
-        ctx.closePath();
+        g.ctx.beginPath();
+        g.ctx.moveTo(points[0], points[1]);
+        g.ctx.lineTo(points[2], points[3]);
+        g.ctx.lineTo(points[4], points[5]);
+        g.ctx.lineTo(points[6], points[7]);
+        g.ctx.closePath();
 
-        hitCanvas.ctx.beginPath();
-        hitCanvas.ctx.moveTo(points[0], points[1]);
-        hitCanvas.ctx.lineTo(points[2], points[3]);
-        hitCanvas.ctx.lineTo(points[4], points[5]);
-        hitCanvas.ctx.lineTo(points[6], points[7]);
-        hitCanvas.ctx.closePath();
-        hitCanvas.ctx.fill();
+        shaftRegion.addPath(new Path(points[0], points[1])
+            .lineTo(points[2], points[3])
+            .lineTo(points[4], points[5])
+            .lineTo(points[6], points[7])
+            .closePath());
 
-        ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
-        ctx.fill();
+        g.ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
+        g.ctx.fill();
         if (this.effect3d) {
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
 
         /*
@@ -366,21 +356,19 @@ export class BooleanSwitch extends Widget {
         cy = this.y + lg.y + (lg.height / 2);
         const rx = lg.width / 2;
         const ry = lg.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        g.ctx.beginPath();
+        g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
-        hitCanvas.ctx.beginPath();
-        hitCanvas.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
-        hitCanvas.ctx.fill();
+        shaftRegion.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
 
-        ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
-        ctx.fill();
+        g.ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
+        g.ctx.fill();
         if (this.effect3d) {
-            const gradient = ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.width, this.y + lg.height);
+            const gradient = g.ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.width, this.y + lg.height);
             gradient.addColorStop(0, `rgba(0,0,0,${(booleanValue ? 5 : 10) / 255})`);
             gradient.addColorStop(1, `rgba(0,0,0,${(booleanValue ? 180 : 160) / 255})`);
-            ctx.fillStyle = gradient;
-            ctx.fill();
+            g.ctx.fillStyle = gradient;
+            g.ctx.fill();
         }
     }
 

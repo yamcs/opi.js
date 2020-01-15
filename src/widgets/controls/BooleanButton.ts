@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -90,13 +90,13 @@ export class BooleanButton extends Widget {
     }
 
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         const toggled = this.getRenderedToggleState();
 
         if (this.squareButton) {
-            this.drawSquare(g, hitCanvas, toggled);
+            this.drawSquare(g, toggled);
         } else {
-            this.drawEllipse(g, hitCanvas, toggled);
+            this.drawEllipse(g, toggled);
         }
 
         // Foreground
@@ -119,7 +119,7 @@ export class BooleanButton extends Widget {
         }
     }
 
-    private drawSquare(g: Graphics, hitCanvas: HitCanvas, toggled: boolean) {
+    private drawSquare(g: Graphics, toggled: boolean) {
         g.fillRect({
             x: this.x,
             y: this.y,
@@ -128,8 +128,8 @@ export class BooleanButton extends Widget {
             color: Color.DARK_GRAY,
         });
 
-        hitCanvas.beginHitRegion(this.areaRegion!);
-        hitCanvas.ctx.fillRect(this.x, this.y, this.width, this.height);
+        const area = g.addHitRegion(this.areaRegion!);
+        area.addRect(this.x, this.y, this.width, this.height);
 
         const tlColor = toggled ? Color.DARK_GRAY : Color.WHITE;
         const brColor = toggled ? Color.WHITE : Color.DARK_GRAY;
@@ -170,7 +170,7 @@ export class BooleanButton extends Widget {
         });
     }
 
-    private drawEllipse(g: Graphics, hitCanvas: HitCanvas, toggled: boolean) {
+    private drawEllipse(g: Graphics, toggled: boolean) {
         if (this.effect3d) {
             const a = this.width / 2;
             const b = this.height / 2;
@@ -203,9 +203,8 @@ export class BooleanButton extends Widget {
         g.ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
         g.ctx.fill();
 
-        hitCanvas.beginHitRegion(this.areaRegion!);
-        hitCanvas.ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        hitCanvas.ctx.fill();
+        const area = g.addHitRegion(this.areaRegion!);
+        area.addEllipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
 
         if (this.hovered) {
             g.ctx.fillStyle = this.backgroundColor.mixWith(Color.WHITE, 0.5).toString();

@@ -2,9 +2,8 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitCanvas, HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { BooleanProperty, IntProperty } from '../../properties';
-import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 
@@ -147,10 +146,12 @@ export class TabbedContainer extends AbstractContainerWidget {
                 });
 
                 const activeWidget = this.widgets[i];
-                const tmpHitCanvas = g.hitCanvas.createChild(contentWidth, contentHeight);
-                const tmpCanvas = this.drawOffscreen(tmpHitCanvas, activeWidget);
-                g.ctx.drawImage(tmpCanvas, contentX, contentY);
-                tmpHitCanvas.transferToParent(contentX, contentY, contentWidth, contentHeight);
+
+                const offscreen = g.createChild(contentWidth, contentHeight);
+                activeWidget.drawHolder(offscreen);
+                activeWidget.draw(offscreen);
+                activeWidget.drawDecoration(offscreen);
+                g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
             }
         }
     }
@@ -233,30 +234,14 @@ export class TabbedContainer extends AbstractContainerWidget {
                 });
 
                 const activeWidget = this.widgets[i];
-                const tmpHitCanvas = g.hitCanvas.createChild(contentWidth, contentHeight);
-                const tmpCanvas = this.drawOffscreen(tmpHitCanvas, activeWidget);
-                g.ctx.drawImage(tmpCanvas, contentX, contentY);
-                tmpHitCanvas.transferToParent(contentX, contentY, contentWidth, contentHeight);
+
+                const offscreen = g.createChild(contentWidth, contentHeight);
+                activeWidget.drawHolder(offscreen);
+                activeWidget.draw(offscreen);
+                activeWidget.drawDecoration(offscreen);
+                g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
             }
         }
-    }
-
-    private drawOffscreen(hitCanvas: HitCanvas, tabGroup: Widget) {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.width;
-        canvas.height = this.height;
-        const g = new Graphics(canvas);
-        tabGroup.drawHolder(g);
-        tabGroup.draw(g, hitCanvas);
-        tabGroup.drawDecoration(g);
-
-        console.log('drawing', (tabGroup as any).widgets.length);
-
-        for (const widget of (tabGroup as any).widgets) {
-            console.log('widget', widget.name);
-        }
-
-        return canvas;
     }
 
     private darken(color: Color) {

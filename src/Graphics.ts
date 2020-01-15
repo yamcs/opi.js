@@ -121,10 +121,41 @@ export class Graphics {
     readonly hitCanvas: HitCanvas;
     readonly hitCtx: CanvasRenderingContext2D;
 
-    constructor(readonly canvas: HTMLCanvasElement) {
+    constructor(readonly canvas: HTMLCanvasElement, hitCanvas?: HitCanvas) {
         this.ctx = canvas.getContext('2d')!;
-        this.hitCanvas = new HitCanvas();
+        this.hitCanvas = hitCanvas ? hitCanvas : new HitCanvas();
         this.hitCtx = this.hitCanvas.ctx;
+    }
+
+    createChild(width: number, height: number) {
+        const tmpHitCanvas = this.hitCanvas.createChild(width, height);
+        const childCanvas = document.createElement('canvas');
+        childCanvas.width = width;
+        childCanvas.height = height;
+        return new Graphics(childCanvas, tmpHitCanvas);
+    }
+
+    copy(g: Graphics, dx: number, dy: number) {
+        this.ctx.drawImage(g.canvas, dx, dy);
+        g.hitCanvas.transferToParent(dx, dy, g.canvas.width, g.canvas.height);
+    }
+
+    copyFitted(g: Graphics, dx: number, dy: number, dw: number, dh: number) {
+        const sw = g.canvas.width;
+        const sh = g.canvas.height;
+        const ratio = sw / sh;
+        let fitw = dw;
+        let fith = fitw / ratio;
+        if (fith > dh) {
+            fith = dh;
+            fitw = fith * ratio;
+        }
+        this.copyScaled(g, dx, dy, fitw, fith);
+    }
+
+    copyScaled(g: Graphics, dx: number, dy: number, dw: number, dh: number) {
+        this.ctx.drawImage(g.canvas, dx, dy, dw, dh);
+        g.hitCanvas.transferToParent(dx, dy, dw, dh);
     }
 
     clearHitCanvas() {

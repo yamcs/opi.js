@@ -4,7 +4,6 @@ import { Display } from './Display';
 import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
-import { HitCanvas } from './HitCanvas';
 import { Bounds, toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
 import { PV } from './pv/PV';
@@ -571,5 +570,5 @@ export abstract class Widget {
     }
 
     init(): void { };
-    abstract draw(g: Graphics, hitCanvas: HitCanvas): void;
+    abstract draw(g: Graphics): void;
 }

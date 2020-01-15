@@ -1,6 +1,5 @@
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
-import { HitCanvas } from '../../HitCanvas';
 import { IntProperty, StringProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
@@ -36,7 +35,7 @@ export class LinkingContainer extends AbstractContainerWidget {
         }
     }
 
-    draw(g: Graphics, hitCanvas: HitCanvas) {
+    draw(g: Graphics) {
         if (!this.transparent) {
             g.fillRect({
                 x: this.x,
@@ -47,7 +46,8 @@ export class LinkingContainer extends AbstractContainerWidget {
             });
         }
 
-        if (this.linkedDisplay) {
+        const linkedWidget = this.getLinkedWidget();
+        if (this.linkedDisplay && linkedWidget) {
             // Copy the opi background over the full container area
             g.fillRect({
                 x: this.x,
@@ -57,51 +57,41 @@ export class LinkingContainer extends AbstractContainerWidget {
                 color: this.linkedDisplay.backgroundColor,
             });
 
-            if (this.resizeBehavior === 0) { // FIT_OPI_TO_CONTAINER
-                const sw = this.linkedDisplay.holderWidth;
-                const sh = this.linkedDisplay.holderHeight;
-                const tmpHitCanvas = hitCanvas.createChild(sw, sh);
-                const tmpCanvas = this.drawOffscreen(tmpHitCanvas);
+            //if (linkedWidget) {
+            // console.log('need to link to ', linkedWidget.name);
+            //}
 
-                const ratio = sw / sh;
-                let dw = this.width;
-                let dh = dw / ratio;
-                if (dh > this.height) {
-                    dh = this.height;
-                    dw = dh * ratio;
-                }
-                g.ctx.drawImage(tmpCanvas, this.x, this.y, dw, dh);
-                tmpHitCanvas.transferToParent(this.x, this.y, dw, dh);
+            const sw = this.linkedDisplay.holderWidth;
+            const sh = this.linkedDisplay.holderHeight;
+            const offscreen = g.createChild(sw, sh);
+            this.linkedDisplay!.draw(offscreen);
+
+            if (this.resizeBehavior === 0) { // FIT_OPI_TO_CONTAINER
+                g.copyFitted(offscreen, this.x, this.y, this.width, this.height);
             } else if (this.resizeBehavior === 1) { // FIT_CONTAINER_TO_OPI
-                // TODO
+                console.warn('Unsupported resize behavior of LinkingContainer', this.resizeBehavior);
             } else if (this.resizeBehavior === 2) { // CROP OPI
-                const tmpCanvas = this.drawOffscreen(hitCanvas);
-                g.ctx.drawImage(tmpCanvas, this.x, this.y);
+                g.copy(offscreen, this.x, this.y);
             } else if (this.resizeBehavior === 3) { // SCROLL OPI
-                // TODO
                 console.warn('Unsupported resize behavior of LinkingContainer', this.resizeBehavior);
             }
         }
     }
 
-    get widgets() { return (this.linkedDisplay) ? this.linkedDisplay.widgets : [] }
-    get connections() { return (this.linkedDisplay) ? this.linkedDisplay.connections : [] }
+    getLinkedWidget() {
+        if (this.linkedDisplay && this.groupName !== '') { // Careful, "0" is a valid group name.
+            return this.linkedDisplay.findWidgetByName(this.groupName);
+        }
+        return this.linkedDisplay;
+    }
+
+    get widgets() { return this.linkedDisplay ? this.linkedDisplay.widgets : [] }
+    get connections() { return this.linkedDisplay ? this.linkedDisplay.connections : [] }
 
     findWidget(wuid: string) {
         if (this.linkedDisplay) {
             return this.linkedDisplay.findWidget(wuid);
         }
-    }
-
-    private drawOffscreen(hitCanvas: HitCanvas) {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.linkedDisplay!.holderWidth;
-        canvas.height = this.linkedDisplay!.holderHeight;
-        const g = new Graphics(canvas);
-
-        this.linkedDisplay!.draw(g, hitCanvas);
-
-        return canvas;
     }
 
     get opiFile(): string { return this.properties.getValue(PROP_OPI_FILE); }
