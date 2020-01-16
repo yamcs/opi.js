@@ -241,6 +241,10 @@ export class Graphics {
         return { width: fm.width, height: font.height };
     }
 
+    createLinearGradient(x0: number, y0: number, x1: number, y1: number) {
+        return this.ctx.createLinearGradient(x0, y0, x1, y1);
+    }
+
     strokeRect(stroke: RectStroke) {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);

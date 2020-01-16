@@ -51,7 +51,7 @@ export class Rectangle extends Widget {
             if (this.gradient) {
                 const x2 = this.horizontalFill ? this.x : this.x + this.width;
                 const y2 = this.horizontalFill ? this.y + this.height : this.y;
-                const gradient = g.ctx.createLinearGradient(this.x, this.y, x2, y2);
+                const gradient = g.createLinearGradient(this.x, this.y, x2, y2);
                 gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
                 gradient.addColorStop(1, this.backgroundColor.toString());
                 g.fillRect({
@@ -110,7 +110,7 @@ export class Rectangle extends Widget {
         if (this.gradient) {
             const x2 = this.horizontalFill ? box.x : box.x + box.width;
             const y2 = this.horizontalFill ? box.y + box.height : box.y;
-            const gradient = g.ctx.createLinearGradient(box.x, box.y, x2, y2);
+            const gradient = g.createLinearGradient(box.x, box.y, x2, y2);
             gradient.addColorStop(0, this.foregroundGradientStartColor.toString());
             gradient.addColorStop(1, this.foregroundColor.toString());
             g.fillRect({ ...box, gradient });

@@ -17,7 +17,7 @@ export class PVEngine {
     private rulesByTrigger = new Map<string, RuleInstance[]>();
     private scripts: ScriptInstance[] = [];
     private scriptsByTrigger = new Map<string, ScriptInstance[]>();
-    private pvs = new Map<string, PV<any>>();
+    private pvs = new Map<string, PV>();
     private simulatedPvs: SimulatedPV[] = [];
 
     private changed = false;
@@ -224,7 +224,7 @@ class ScriptInstance {
 
     scriptEngine: ScriptEngine;
 
-    constructor(readonly widget: Widget, readonly script: Script, readonly text: string, pvs: PV<any>[]) {
+    constructor(readonly widget: Widget, readonly script: Script, readonly text: string, pvs: PV[]) {
         this.scriptEngine = new ScriptEngine(widget, text, pvs);
     }
 }
@@ -233,7 +233,7 @@ class RuleInstance {
 
     scriptEngine: ScriptEngine;
 
-    constructor(readonly widget: Widget, readonly rule: Rule, pvs: PV<any>[]) {
+    constructor(readonly widget: Widget, readonly rule: Rule, pvs: PV[]) {
         let scriptText = '';
         const property = widget.properties.getProperty(rule.propertyName);
         if (!property) {

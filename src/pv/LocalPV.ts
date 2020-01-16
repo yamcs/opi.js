@@ -1,6 +1,6 @@
 import { PV } from './PV';
 
-export class LocalPV extends PV<any> {
+export class LocalPV extends PV {
 
     constructor(name: string, readonly initializer?: string) {
         super(name);

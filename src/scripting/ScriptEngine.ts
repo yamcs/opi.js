@@ -27,7 +27,7 @@ export class ScriptEngine {
   private scriptText: string;
   private context: Context;
 
-  constructor(widget: Widget, scriptText: string, pvs: PV<any>[] = []) {
+  constructor(widget: Widget, scriptText: string, pvs: PV[] = []) {
     this.scriptText = scriptText
       .replace(/importClass\([^\)]*\)\s*\;?/gi, '')
       .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')

@@ -532,7 +532,7 @@ export abstract class Widget {
         }
     }
 
-    get pv(): PV<any> | undefined {
+    get pv(): PV | undefined {
         if (this.pvName) {
             return this.display.getPV(this.pvName);
         }

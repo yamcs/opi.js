@@ -180,7 +180,7 @@ export class BooleanButton extends Widget {
             const x2 = this.x + a + (b - a + w) / 2 + 5;
             const y2 = this.y + b - (b - a - w) / 2 + 5;
 
-            const gradient = g.ctx.createLinearGradient(x1, y1, x2, y2);
+            const gradient = g.createLinearGradient(x1, y1, x2, y2);
             if (toggled) {
                 gradient.addColorStop(0, Color.DARK_GRAY.toString());
                 gradient.addColorStop(1, Color.WHITE.toString());
@@ -246,7 +246,7 @@ export class BooleanButton extends Widget {
             g.fillEllipse({ cx, cy, rx, ry, color: ledColor });
 
             if (this.effect3d) {
-                const gradient = g.ctx.createLinearGradient(
+                const gradient = g.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
                 gradient.addColorStop(0, 'white');
                 gradient.addColorStop(1, ledColor.withAlpha(0).toString());
@@ -287,7 +287,7 @@ export class BooleanButton extends Widget {
             g.fillEllipse({ cx, cy, rx, ry, color: ledColor });
 
             if (this.effect3d) {
-                const gradient = g.ctx.createLinearGradient(
+                const gradient = g.createLinearGradient(
                     ledArea.x, ledArea.y, ledArea.x + ledArea.width, ledArea.y + ledArea.height);
                 gradient.addColorStop(0, Color.WHITE.toString());
                 gradient.addColorStop(1, ledColor.withAlpha(0).toString());

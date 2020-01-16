@@ -109,7 +109,7 @@ export class TabbedContainer extends AbstractContainerWidget {
             const hitRegion = g.addHitRegion(tab.headerRegion);
             hitRegion.addRect(rectX, rectY, rectWidth, rectHeight);
 
-            const gradient = g.ctx.createLinearGradient(rectX, rectY, rectX, rectY + rectHeight);
+            const gradient = g.createLinearGradient(rectX, rectY, rectX, rectY + rectHeight);
             gradient.addColorStop(0, Color.WHITE.toString());
             gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
             g.fillRect({
@@ -197,7 +197,7 @@ export class TabbedContainer extends AbstractContainerWidget {
             const hitRegion = g.addHitRegion(tab.headerRegion);
             hitRegion.addRect(rectX, rectY, rectWidth, rectHeight);
 
-            const gradient = g.ctx.createLinearGradient(rectX, rectY, rectX + rectWidth, rectY);
+            const gradient = g.createLinearGradient(rectX, rectY, rectX + rectWidth, rectY);
             gradient.addColorStop(0, Color.WHITE.toString());
             gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
             g.fillRect({

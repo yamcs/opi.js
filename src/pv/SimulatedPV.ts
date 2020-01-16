@@ -5,7 +5,7 @@ const PV_PATTERN = /sim\:\/\/([a-z]+)(\((.*)\))?/;
 const DUMMY_GENERATOR = new ConstantGenerator(undefined);
 
 
-export class SimulatedPV extends PV<any> {
+export class SimulatedPV extends PV {
 
     private fn: SimGenerator;
 
@@ -37,54 +37,76 @@ export class SimulatedPV extends PV<any> {
             case 'const':
                 return new ConstantGenerator(args[0]);
             case 'noise':
-                if (args.length === 0) {
-                    return new Noise(-5, 5, 1000);
-                } else {
-                    const min = parseFloat(args[0]);
-                    const max = parseFloat(args[1]);
-                    const interval = parseFloat(args[2]) * 1000;
-                    return new Noise(min, max, interval);
-                }
+                return this.createNoise(args);
             case 'ramp':
-                if (args.length === 0) {
-                    return new Ramp(-5, 5, 1, 1000);
-                } else if (args.length === 3) {
-                    const min = parseFloat(args[0]);
-                    const max = parseFloat(args[1]);
-                    const interval = parseFloat(args[2]) * 1000;
-                    return new Ramp(min, max, 1, interval);
-                } else if (args.length === 4) {
-                    const min = parseFloat(args[0]);
-                    const max = parseFloat(args[1]);
-                    const step = parseFloat(args[2]);
-                    const interval = parseFloat(args[3]) * 1000;
-                    return new Ramp(min, max, step, interval);
-                } else {
-                    console.warn(`Unexpected function ${fnName} for PV ${name}`);
-                    return DUMMY_GENERATOR;
-                }
+                return this.createRamp(args);
             case 'sine':
-                if (args.length === 0) {
-                    return new Sine(-5, 5, 10, 1000);
-                } else if (args.length === 3) {
-                    const min = parseFloat(args[0]);
-                    const max = parseFloat(args[1]);
-                    const interval = parseFloat(args[2]) * 1000;
-                    return new Sine(min, max, 10, interval);
-                } else if (args.length === 4) {
-                    const min = parseFloat(args[0]);
-                    const max = parseFloat(args[1]);
-                    const samplesPerCycle = parseFloat(args[2]);
-                    const interval = parseFloat(args[3]) * 1000;
-                    return new Sine(min, max, samplesPerCycle, interval);
-                } else {
-                    console.warn(`Unexpected function ${fnName} for PV ${name}`);
-                    return DUMMY_GENERATOR;
-                }
+                return this.createSine(args);
             default:
-                console.warn(`Unexpected function ${fnName} for PV ${name}`);
+                console.warn(`Unexpected function ${fnName} for PV ${this.name}`);
                 return DUMMY_GENERATOR;
         }
+    }
+
+    private createNoise(args: string[]) {
+        if (args.length === 0) {
+            return new Noise(-5, 5, 1000);
+        } else {
+            const min = parseFloat(args[0]);
+            const max = parseFloat(args[1]);
+            const interval = parseFloat(args[2]) * 1000;
+            return new Noise(min, max, interval);
+        }
+    }
+
+    private createRamp(args: string[]) {
+        if (args.length === 0) {
+            return new Ramp(-5, 5, 1, 1000);
+        } else if (args.length === 3) {
+            const min = parseFloat(args[0]);
+            const max = parseFloat(args[1]);
+            const interval = parseFloat(args[2]) * 1000;
+            return new Ramp(min, max, 1, interval);
+        } else if (args.length === 4) {
+            const min = parseFloat(args[0]);
+            const max = parseFloat(args[1]);
+            const step = parseFloat(args[2]);
+            const interval = parseFloat(args[3]) * 1000;
+            return new Ramp(min, max, step, interval);
+        } else {
+            console.warn(`Unexpected ramp arguments for PV ${this.name}`);
+            return DUMMY_GENERATOR;
+        }
+    }
+
+    private createSine(args: string[]) {
+        let sine: Sine;
+        if (args.length === 0) {
+            sine = new Sine(-5, 5, 10, 1000);
+        } else if (args.length === 3) {
+            const min = parseFloat(args[0]);
+            const max = parseFloat(args[1]);
+            const interval = parseFloat(args[2]) * 1000;
+            sine = new Sine(min, max, 10, interval);
+        } else if (args.length === 4) {
+            const min = parseFloat(args[0]);
+            const max = parseFloat(args[1]);
+            const samplesPerCycle = parseFloat(args[2]);
+            const interval = parseFloat(args[3]) * 1000;
+            sine = new Sine(min, max, samplesPerCycle, interval);
+        } else {
+            console.warn(`Unexpected sine arguments for PV ${this.name}`);
+            return DUMMY_GENERATOR;
+        }
+
+        this.units = sine.units;
+        this.lowerDisplayLimit = sine.lowerDisplayLimit;
+        this.lowerAlarmLimit = sine.lowerAlarmLimit;
+        this.lowerWarningLimit = sine.lowerWarningLimit;
+        this.upperWarningLimit = sine.upperWarningLimit;
+        this.upperAlarmLimit = sine.upperAlarmLimit;
+        this.upperDisplayLimit = sine.upperDisplayLimit;
+        return sine;
     }
 
     step(t: number) {

@@ -194,7 +194,7 @@ export class BooleanSwitch extends Widget {
         g.ctx.fill();
 
         if (this.effect3d) {
-            const gradient = g.ctx.createLinearGradient(this.x + bounds.x, this.y + bounds.y,
+            const gradient = g.createLinearGradient(this.x + bounds.x, this.y + bounds.y,
                 this.x + bounds.x + bounds.width, this.y + bounds.y + bounds.height);
 
             if (this.enabled) {
@@ -213,7 +213,7 @@ export class BooleanSwitch extends Widget {
         let stopOpacity1 = (booleanValue ? 0 : 10) / 255;
         let stopOpacity2 = (booleanValue ? 150 : 220) / 255;
 
-        const gradient = g.ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x, this.y + lg.y + lg.height);
+        const gradient = g.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x, this.y + lg.y + lg.height);
         gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
         gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
 
@@ -288,7 +288,7 @@ export class BooleanSwitch extends Widget {
             const y1 = this.x + lg.y + ry - (wp + w) / 2 - 1;
             const x2 = this.x + lg.x + rx + (wp + w) / 2 + 5;
             const y2 = this.x + lg.y + ry - (wp - w) / 2 + 5;
-            const gradient = g.ctx.createLinearGradient(x1, y1, x2, y2);
+            const gradient = g.createLinearGradient(x1, y1, x2, y2);
             gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
             gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
             g.ctx.fillStyle = gradient;
@@ -297,7 +297,7 @@ export class BooleanSwitch extends Widget {
     }
 
     private drawVerticalBar(g: Graphics, sm: Bounds, lg: Bounds, booleanValue: boolean) {
-        const gradient = g.ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x + lg.width, this.y + lg.y);
+        const gradient = g.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.x + lg.width, this.y + lg.y);
         gradient.addColorStop(0, `rgba(0,0,0,${10 / 255})`);
         gradient.addColorStop(1, `rgba(0,0,0,${booleanValue ? 210 / 255 : 160 / 255})`);
 
@@ -364,7 +364,7 @@ export class BooleanSwitch extends Widget {
         g.ctx.fillStyle = (booleanValue) ? this.onColor.toString() : this.offColor.toString();
         g.ctx.fill();
         if (this.effect3d) {
-            const gradient = g.ctx.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.width, this.y + lg.height);
+            const gradient = g.createLinearGradient(this.x + lg.x, this.y + lg.y, this.x + lg.width, this.y + lg.height);
             gradient.addColorStop(0, `rgba(0,0,0,${(booleanValue ? 5 : 10) / 255})`);
             gradient.addColorStop(1, `rgba(0,0,0,${(booleanValue ? 180 : 160) / 255})`);
             g.ctx.fillStyle = gradient;

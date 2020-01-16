@@ -262,6 +262,8 @@ export class XMLNode {
                     skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
                     inputs,
                 });
+            } else if (path === 'EmbeddedPy') {
+                console.warn('Unsupported EmbeddedPy script');
             } else {
                 scripts.scripts.push({
                     embedded: false,

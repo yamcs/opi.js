@@ -24,6 +24,7 @@ const PROP_LEVEL_HI = 'level_hi';
 const PROP_LEVEL_HIHI = 'level_hihi';
 const PROP_LEVEL_LO = 'level_lo';
 const PROP_LEVEL_LOLO = 'level_lolo';
+const PROP_LIMITS_FROM_PV = 'limits_from_pv';
 const PROP_LOG_SCALE = 'log_scale';
 const PROP_MINIMUM = 'minimum';
 const PROP_MAXIMUM = 'maximum';
@@ -35,6 +36,15 @@ const PROP_SHOW_RAMP = 'show_ramp';
 const START_ANGLE = 225;
 const END_ANGLE = 315;
 const RAMP_OVERLAP = 2;
+
+interface DisplayLimits {
+    min: number;
+    lolo: number;
+    lo: number;
+    hi: number;
+    hihi: number;
+    max: number;
+}
 
 export class Gauge extends Widget {
 
@@ -51,6 +61,7 @@ export class Gauge extends Widget {
         this.properties.add(new IntProperty(PROP_LEVEL_LO));
         this.properties.add(new IntProperty(PROP_LEVEL_LOLO));
         this.properties.add(new BooleanProperty(PROP_LOG_SCALE));
+        this.properties.add(new BooleanProperty(PROP_LIMITS_FROM_PV));
         this.properties.add(new IntProperty(PROP_MAXIMUM));
         this.properties.add(new IntProperty(PROP_MINIMUM));
         this.properties.add(new ColorProperty(PROP_NEEDLE_COLOR));
@@ -59,14 +70,42 @@ export class Gauge extends Widget {
     }
 
     draw(g: Graphics) {
+        let limits: DisplayLimits;
+        if (this.pv) {
+            limits = {
+                min: this.pv.lowerDisplayLimit!,
+                lolo: this.pv.lowerAlarmLimit!,
+                lo: this.pv.lowerWarningLimit!,
+                hi: this.pv.upperWarningLimit!,
+                hihi: this.pv.upperAlarmLimit!,
+                max: this.pv.upperDisplayLimit!,
+            };
+        } else {
+            limits = {
+                min: this.minimum,
+                lolo: this.levelLoLo,
+                lo: this.levelLo,
+                hi: this.levelHi,
+                hihi: this.levelHiHi,
+                max: this.maximum,
+            };
+        }
+
+        if (this.logScale) {
+            limits.min = Math.max(0.1, limits.min);
+            if (limits.max <= limits.min) {
+                limits.max = limits.min + 100;
+            }
+        }
+
         const width = Math.min(this.width, this.height);
         const height = width;
         this.drawBackground(g, width, height);
         if (this.showRamp) {
-            this.drawRamp(g, width, height);
+            this.drawRamp(g, width, height, limits);
         }
         this.drawLabel(g, width, height);
-        this.drawNeedle(g, width, height);
+        this.drawNeedle(g, width, height, limits);
         this.drawNeedleCenter(g, width, height);
     }
 
@@ -80,7 +119,7 @@ export class Gauge extends Widget {
         });
 
         if (this.effect3d) {
-            const gradient = g.ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+            const gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
             gradient.addColorStop(0, BORDER_COLOR.toString());
             gradient.addColorStop(1, Color.WHITE.toString());
             g.fillEllipse({
@@ -114,7 +153,7 @@ export class Gauge extends Widget {
                 width: Math.floor(2 * R * LR_FILL_PART * Math.cos(UP_ANGLE)),
                 height: Math.floor(R * UD_FILL_PART + R * UP_DOWN_RATIO),
             };
-            let gradient = g.ctx.createLinearGradient(box.x, box.y, box.x, box.y + box.height);
+            let gradient = g.createLinearGradient(box.x, box.y, box.x, box.y + box.height);
             gradient.addColorStop(0, Color.WHITE.withAlpha(90 / 255).toString());
             gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
 
@@ -132,7 +171,7 @@ export class Gauge extends Widget {
                 width: Math.floor(2 * R * LR_FILL_PART * Math.sin(DOWN_ANGLE)),
                 height: Math.floor(Math.ceil(R * UD_FILL_PART - R * UP_DOWN_RATIO)),
             };
-            gradient = g.ctx.createLinearGradient(box.x, box.y, box.x, box.y + box.height);
+            gradient = g.createLinearGradient(box.x, box.y, box.x, box.y + box.height);
             gradient.addColorStop(0, Color.WHITE.withAlpha(0).toString());
             gradient.addColorStop(1, Color.WHITE.withAlpha(40 / 255).toString());
             g.fillEllipse({
@@ -145,23 +184,23 @@ export class Gauge extends Widget {
         }
     }
 
-    private drawRamp(g: Graphics, width: number, height: number) {
+    private drawRamp(g: Graphics, width: number, height: number, limits: DisplayLimits) {
         const area = shrink({ x: this.x, y: this.y, width, height }, width / 4, height / 4);
         const rampArea = { ...area };
         rampArea.width = Math.min(area.width, area.height);
         rampArea.height = area.width;
 
         const ramp = new Ramp(10, 225, 315);
-        ramp.lolo = this.levelLoLo;
+        ramp.lolo = limits.lolo;
         ramp.loloColor = this.colorLoLo;
-        ramp.lo = this.levelLo;
+        ramp.lo = limits.lo;
         ramp.loColor = this.colorLo;
-        ramp.hi = this.levelHi;
+        ramp.hi = limits.hi;
         ramp.hiColor = this.colorHi;
-        ramp.hihi = this.levelHiHi;
+        ramp.hihi = limits.hihi;
         ramp.hihiColor = this.colorHiHi;
-        ramp.minimum = this.minimum;
-        ramp.maximum = this.maximum;
+        ramp.minimum = limits.min;
+        ramp.maximum = limits.max;
         ramp.effect3d = this.effect3d;
         ramp.gradient = this.rampGradient;
         ramp.logScale = this.logScale;
@@ -171,9 +210,9 @@ export class Gauge extends Widget {
     private drawLabel(g: Graphics, width: number, height: number) {
         // A font property is exposed in the UI, but it seems to get ignored in favour of arial 12 bold.
         const font = Font.ARIAL_12_BOLD;
-        if (this.pv && this.pv.value !== undefined) {
-            const stringValue = String(this.pv.value);
-            const fm = g.measureText(stringValue, font);
+        if (this.pv?.value !== undefined) {
+            const text = String(this.pv.value);
+            const fm = g.measureText(text, font);
             g.fillText({
                 x: this.x + width / 2 - fm.width / 2,
                 y: this.y + height * 7 / 8 - fm.height / 2,
@@ -181,34 +220,33 @@ export class Gauge extends Widget {
                 align: 'left',
                 baseline: 'top',
                 font,
-                text: stringValue,
+                text,
             });
         }
     }
 
-    private drawNeedle(g: Graphics, width: number, height: number) {
+    private drawNeedle(g: Graphics, width: number, height: number, limits: DisplayLimits) {
         const cx = this.x + (width / 2);
         const cy = this.y + (height / 2);
         let valuePosition;
-        const range = this.getRenderedRange();
-        if (this.pv && this.pv.value !== undefined) {
-            const v = this.getValueInRange(this.pv.value, range);
-            valuePosition = 360 - this.getValuePosition(v, range);
-            if (range.max > range.min) {
-                if (v > range.max) {
+        if (this.pv?.value !== undefined) {
+            const v = this.getValueInRange(this.pv.value, limits);
+            valuePosition = 360 - this.getValuePosition(v, limits);
+            if (limits.max > limits.min) {
+                if (v > limits.max) {
                     valuePosition += 10;
-                } else if (v < range.min) {
+                } else if (v < limits.min) {
                     valuePosition -= 10;
                 }
             } else {
-                if (v > range.min) {
+                if (v > limits.min) {
                     valuePosition -= 10;
-                } else if (v < range.max) {
+                } else if (v < limits.max) {
                     valuePosition += 10;
                 }
             }
         } else {
-            valuePosition = 360 - this.getValuePosition((range.min + range.max) / 2, range);
+            valuePosition = 360 - this.getValuePosition((limits.min + limits.max) / 2, limits);
         }
 
         const angle = toRadians(valuePosition);
@@ -230,7 +268,7 @@ export class Gauge extends Widget {
         const rx = NEEDLE_DIAMETER / 2;
         const ry = NEEDLE_DIAMETER / 2;
         if (this.effect3d) {
-            const gradient = g.ctx.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry);
+            const gradient = g.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry);
             gradient.addColorStop(0, Color.WHITE.toString());
             gradient.addColorStop(1, BORDER_COLOR.toString());
             g.fillEllipse({ cx, cy, rx, ry, gradient });
@@ -239,23 +277,23 @@ export class Gauge extends Widget {
         }
     }
 
-    private getValueInRange(v: number, range: Range) {
-        if (range.min <= v && v <= range.max) {
+    private getValueInRange(v: number, limits: DisplayLimits) {
+        if (limits.min <= v && v <= limits.max) {
             return v;
         } else {
-            return v > range.max ? range.max : range.min;
+            return v > limits.max ? limits.max : limits.min;
         }
     }
 
-    private getValuePosition(v: number, range: Range) {
+    private getValuePosition(v: number, limits: DisplayLimits) {
         const lengthInDegrees = 360 - (END_ANGLE - START_ANGLE);
 
         let valuePosition;
         if (this.logScale) {
-            valuePosition = START_ANGLE - ((Math.log10(v) - Math.log10(range.min))
-                / (Math.log10(range.max) - Math.log10(range.min)) * lengthInDegrees);
+            valuePosition = START_ANGLE - ((Math.log10(v) - Math.log10(limits.min))
+                / (Math.log10(limits.max) - Math.log10(limits.min)) * lengthInDegrees);
         } else {
-            valuePosition = START_ANGLE - ((v - range.min) / (range.max - range.min) * lengthInDegrees);
+            valuePosition = START_ANGLE - ((v - limits.min) / (limits.max - limits.min) * lengthInDegrees);
         }
 
         if (valuePosition < 0) {
@@ -265,18 +303,6 @@ export class Gauge extends Widget {
         return valuePosition;
     }
 
-    private getRenderedRange(): Range {
-        const range = { min: this.minimum, max: this.maximum };
-        if (this.logScale) {
-            if (this.minimum <= 0) {
-                range.min = 0.1;
-            }
-            if (range.max <= this.minimum) {
-                range.max = range.min + 100;
-            }
-        }
-        return range;
-    }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
     get colorLoLo(): Color { return this.properties.getValue(PROP_COLOR_LOLO); }
@@ -288,15 +314,11 @@ export class Gauge extends Widget {
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
     get levelHi(): number { return this.properties.getValue(PROP_LEVEL_HI); }
     get levelHiHi(): number { return this.properties.getValue(PROP_LEVEL_HIHI); }
+    get limitsFromPv(): boolean { return this.properties.getValue(PROP_LIMITS_FROM_PV); }
     get logScale(): boolean { return this.properties.getValue(PROP_LOG_SCALE); }
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
     get needleColor(): Color { return this.properties.getValue(PROP_NEEDLE_COLOR); }
     get rampGradient(): boolean { return this.properties.getValue(PROP_RAMP_GRADIENT); }
     get showRamp(): boolean { return this.properties.getValue(PROP_SHOW_RAMP); }
-}
-
-interface Range {
-    min: number;
-    max: number;
 }

@@ -93,7 +93,7 @@ export class Ramp {
 
             const gradientRightAngle = toRadians(this.getValuePosition(this.lo) + RAMP_OVERLAP);
             const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
+            const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
             gradient.addColorStop(0, this.loloColor.toString());
             gradient.addColorStop(1, this.loColor.toString());
             g.strokeEllipse({
@@ -130,7 +130,7 @@ export class Ramp {
 
             const gradientRightAngle = toRadians(this.getValuePosition(midNormal) + RAMP_OVERLAP);
             const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
+            const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
             gradient.addColorStop(0, this.loColor.toString());
             gradient.addColorStop(1, Color.GREEN.toString());
             g.strokeEllipse({
@@ -165,7 +165,7 @@ export class Ramp {
 
             const gradientRightAngle = toRadians(this.getValuePosition(this.hi) + RAMP_OVERLAP);
             const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
+            const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
             gradient.addColorStop(0, Color.GREEN.toString());
             gradient.addColorStop(1, this.hiColor.toString());
             g.strokeEllipse({
@@ -200,7 +200,7 @@ export class Ramp {
 
             const gradientRightAngle = toRadians(this.getValuePosition(this.hihi) + RAMP_OVERLAP);
             const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.ctx.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
+            const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
             gradient.addColorStop(0, this.hiColor.toString());
             gradient.addColorStop(1, this.hihiColor.toString());
             g.strokeEllipse({

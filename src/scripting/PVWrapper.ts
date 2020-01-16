@@ -2,7 +2,7 @@ import { PV } from '../pv/PV';
 
 export class PVWrapper {
 
-    constructor(private pv: PV<any>) {
+    constructor(private pv: PV) {
     }
 
     getName() {

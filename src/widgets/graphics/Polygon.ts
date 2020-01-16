@@ -1,6 +1,6 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
-import { Graphics } from '../../Graphics';
+import { Graphics, Path } from '../../Graphics';
 import { Point, translatePoints } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -46,40 +46,31 @@ export class Polygon extends Widget {
     }
 
     draw(g: Graphics) {
-        const ctx = g.ctx;
-        ctx.globalAlpha = this.alpha / 255;
+        g.ctx.globalAlpha = this.alpha / 255;
         if (this.transparent) {
-            ctx.globalAlpha = 0;
+            g.ctx.globalAlpha = 0;
         }
 
-        this.drawShape(ctx, this.backgroundColor);
+        const path = Path.fromPoints(this.points).closePath();
+
+        g.fillPath({ path, color: this.backgroundColor });
+
         if (this.lineWidth) {
-            ctx.strokeStyle = this.lineColor.toString();
-            ctx.stroke();
+            g.strokePath({
+                path,
+                lineWidth: this.lineWidth,
+                color: this.lineColor,
+            });
         }
 
         if (this.fillLevel) {
-            this.drawFill(ctx);
+            this.drawFill(g, path);
         }
 
-        ctx.globalAlpha = 1;
+        g.ctx.globalAlpha = 1;
     }
 
-    private drawShape(ctx: CanvasRenderingContext2D, color: Color) {
-        ctx.fillStyle = color.toString();
-        ctx.beginPath();
-        for (let i = 0; i < this.points.length; i++) {
-            if (i === 0) {
-                ctx.moveTo(this.points[i].x, this.points[i].y);
-            } else {
-                ctx.lineTo(this.points[i].x, this.points[i].y);
-            }
-        }
-        ctx.closePath();
-        ctx.fill();
-    }
-
-    private drawFill(ctx: CanvasRenderingContext2D) {
+    private drawFill(g: Graphics, path: Path) {
         let fillY = this.y;
         let fillWidth = this.width;
         let fillHeight = this.height;
@@ -91,20 +82,20 @@ export class Polygon extends Widget {
         }
 
         // Create a clip for the fill level
-        ctx.save();
+        g.ctx.save();
         let x = this.x - (this.lineWidth / 2);
         let y = fillY - (this.lineWidth / 2);
         let width = fillWidth + this.lineWidth;
         let height = fillHeight + this.lineWidth;
-        ctx.beginPath();
-        ctx.rect(x, y, width, height);
-        ctx.clip();
+        g.ctx.beginPath();
+        g.ctx.rect(x, y, width, height);
+        g.ctx.clip();
 
         // With clip active, draw the actual fill
-        this.drawShape(ctx, this.foregroundColor);
+        g.fillPath({ path, color: this.foregroundColor });
 
         // Reset clip
-        ctx.restore();
+        g.ctx.restore();
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }

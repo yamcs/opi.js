@@ -1,7 +1,17 @@
 
-export abstract class PV<T> {
+export abstract class PV {
 
-    value?: T;
+    value?: any;
+
+    units?: string;
+
+    lowerDisplayLimit?: number;
+    lowerAlarmLimit?: number;
+    lowerWarningLimit?: number;
+
+    upperWarningLimit?: number;
+    upperAlarmLimit?: number;
+    upperDisplayLimit?: number;
 
     constructor(readonly name: string) {
     }

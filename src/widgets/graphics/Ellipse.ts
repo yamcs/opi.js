@@ -52,7 +52,7 @@ export class Ellipse extends Widget {
             if (this.gradient) {
                 const x2 = this.horizontalFill ? this.x : this.x + this.width;
                 const y2 = this.horizontalFill ? this.y + this.height : this.y;
-                const gradient = g.ctx.createLinearGradient(this.x, this.y, x2, y2);
+                const gradient = g.createLinearGradient(this.x, this.y, x2, y2);
                 gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
                 gradient.addColorStop(1, this.backgroundColor.toString());
                 g.fillEllipse({ cx, cy, rx, ry, gradient });
@@ -107,7 +107,7 @@ export class Ellipse extends Widget {
         if (this.gradient) {
             const x2 = this.horizontalFill ? this.x : this.x + this.width;
             const y2 = this.horizontalFill ? this.y + this.height : this.y;
-            const gradient = g.ctx.createLinearGradient(this.x, this.y, x2, y2);
+            const gradient = g.createLinearGradient(this.x, this.y, x2, y2);
             gradient.addColorStop(0, this.foregroundGradientStartColor.toString());
             gradient.addColorStop(1, this.foregroundColor.toString());
             g.fillEllipse({ cx, cy, rx, ry, gradient });
