@@ -17,6 +17,7 @@ import { Polyline } from './widgets/graphics/Polyline';
 import { Rectangle } from './widgets/graphics/Rectangle';
 import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
 import { Gauge } from './widgets/monitors/Gauge';
+import { ImageBooleanIndicator } from './widgets/monitors/ImageBooleanIndicator';
 import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
@@ -237,6 +238,8 @@ export class Display {
                 return new GroupingContainer(this, parent);
             case TYPE_IMAGE:
                 return new ImageWidget(this, parent);
+            case TYPE_IMAGE_BOOLEAN_INDICATOR:
+                return new ImageBooleanIndicator(this, parent);
             case TYPE_LABEL:
                 return new Label(this, parent);
             case TYPE_LED:

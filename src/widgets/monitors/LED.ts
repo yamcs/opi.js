@@ -57,7 +57,7 @@ export class LED extends Widget {
 
     parseNode(node: XMLNode) {
         super.parseNode(node);
-        if (this.stateCount !== 2) {
+        if (this.stateCount > 2) {
             for (let i = 0; i < this.stateCount; i++) {
                 const colorProperty = new ColorProperty(`state_color_${i}`);
                 colorProperty.value = node.getColor(`state_color_${i}`);
