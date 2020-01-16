@@ -1,4 +1,3 @@
-
 export abstract class PV {
 
     value?: any;
@@ -16,7 +15,19 @@ export abstract class PV {
     constructor(readonly name: string) {
     }
 
+    get severity() {
+        return AlarmSeverity.NONE;
+    }
+
     abstract isWritable(): boolean;
 
     abstract toString(): string | undefined;
+}
+
+export enum AlarmSeverity {
+    NONE,
+    MINOR,
+    MAJOR,
+    INVALID,
+    UNDEFINED
 }

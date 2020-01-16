@@ -37,7 +37,7 @@ export class ActionButton extends Widget {
             this.imageElement.onload = () => {
                 this.imageLoaded = true;
                 this.requestRepaint();
-            }
+            };
             this.imageElement.src = `${this.display.baseUrl}${this.image}`;
         }
 
@@ -139,24 +139,24 @@ export class ActionButton extends Widget {
             const textWidth = ctx.measureText(lines[0]).width;
             const textHeight = this.font.height;
 
-            const hratio = (this.height - this.imageElement.height) / textHeight;
-            const wratio = (this.width - this.imageElement.width) / textWidth;
+            const hratio = (this.height - this.imageElement.naturalHeight) / textHeight;
+            const wratio = (this.width - this.imageElement.naturalWidth) / textWidth;
             if (wratio > hratio) { // Text right of icon
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'left';
                 x = this.x + (this.width - textWidth) / 2 + 5 /* magic spacer */;
                 y = this.y + (this.height / 2);
 
-                const imageX = this.x + (this.width - textWidth) / 2 - this.imageElement.width;
-                const imageY = this.y + (this.height - this.imageElement.height) / 2;
+                const imageX = this.x + (this.width - textWidth) / 2 - this.imageElement.naturalWidth;
+                const imageY = this.y + (this.height - this.imageElement.naturalHeight) / 2;
                 ctx.drawImage(this.imageElement, imageX, imageY);
             } else { // Text under icon
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
                 x = this.x + (this.width / 2);
                 y = this.y + (this.height - textHeight) / 2 + 5 /* magic spacer */;
-                const imageX = this.x + (this.width - this.imageElement.width) / 2;
-                const imageY = this.y + (this.height - textHeight) / 2 - this.imageElement.height;
+                const imageX = this.x + (this.width - this.imageElement.naturalWidth) / 2;
+                const imageY = this.y + (this.height - textHeight) / 2 - this.imageElement.naturalHeight;
                 ctx.drawImage(this.imageElement, imageX, imageY);
             }
         } else {

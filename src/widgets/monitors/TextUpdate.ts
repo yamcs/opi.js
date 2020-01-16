@@ -28,9 +28,17 @@ export class TextUpdate extends Widget {
                 height: this.height,
                 color: this.backgroundColor,
             });
+        } else if (this.backgroundAlarmSensitive && this.alarm) {
+            g.fillRect({
+                x: this.x,
+                y: this.y,
+                width: this.width,
+                height: this.height,
+                color: this.alarmSensitiveBackgroundColor,
+            });
         }
 
-        ctx.fillStyle = this.foregroundColor.toString();
+        ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
         ctx.font = this.font.getFontString();
 
         let x = this.x;

@@ -1,8 +1,9 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
-import { Graphics } from '../../Graphics';
+import { Font } from '../../Font';
+import { Graphics, Path } from '../../Graphics';
 import { toBorderBox } from '../../positioning';
-import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, StringProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -13,35 +14,39 @@ interface State {
     value?: number;
 }
 
+const PROP_BIT = 'bit';
+const PROP_DATA_TYPE = 'data_type';
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_STATE_COUNT = 'state_count';
 const PROP_SQUARE_LED = 'square_led';
 const PROP_OFF_COLOR = 'off_color';
 const PROP_OFF_LABEL = 'off_label';
+const PROP_FONT = 'font';
 const PROP_ON_COLOR = 'on_color';
 const PROP_ON_LABEL = 'on_label';
 const PROP_BULB_BORDER = 'bulb_border';
 const PROP_BULB_BORDER_COLOR = 'bulb_border_color';
 const PROP_STATE_COLOR_FALLBACK = 'state_color_fallback';
 const PROP_STATE_LABEL_FALLBACK = 'state_label_fallback';
+const PROP_SHOW_BOOLEAN_LABEL = 'show_boolean_label';
 
 export class LED extends Widget {
 
     private states: State[] = [];
-    private fallback?: State;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
+        this.properties.add(new IntProperty(PROP_BIT));
+        this.properties.add(new IntProperty(PROP_DATA_TYPE));
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new BooleanProperty(PROP_SQUARE_LED));
         this.properties.add(new IntProperty(PROP_STATE_COUNT, 2));
-
         this.properties.add(new ColorProperty(PROP_OFF_COLOR));
         this.properties.add(new StringProperty(PROP_OFF_LABEL));
-
         this.properties.add(new ColorProperty(PROP_ON_COLOR));
         this.properties.add(new StringProperty(PROP_ON_LABEL));
-
+        this.properties.add(new FontProperty(PROP_FONT));
+        this.properties.add(new BooleanProperty(PROP_SHOW_BOOLEAN_LABEL));
         this.properties.add(new ColorProperty(PROP_STATE_COLOR_FALLBACK));
         this.properties.add(new StringProperty(PROP_STATE_LABEL_FALLBACK));
 
@@ -52,16 +57,7 @@ export class LED extends Widget {
 
     parseNode(node: XMLNode) {
         super.parseNode(node);
-        if (this.stateCount === 2) {
-            this.states.push({
-                label: this.offLabel,
-                color: this.offColor,
-            });
-            this.states.push({
-                label: this.onLabel,
-                color: this.onColor,
-            });
-        } else {
+        if (this.stateCount !== 2) {
             for (let i = 0; i < this.stateCount; i++) {
                 const colorProperty = new ColorProperty(`state_color_${i}`);
                 colorProperty.value = node.getColor(`state_color_${i}`);
@@ -80,157 +76,193 @@ export class LED extends Widget {
                     color: this.properties.getValue(colorProperty.name),
                     value: this.properties.getValue(valueProperty.name),
                 });
-                this.fallback = {
-                    label: this.stateLabelFallback,
-                    color: this.stateColorFallback,
-                };
             }
         }
     }
 
+    get booleanValue() {
+        if (this.bit < 0) {
+            return this.pv?.value !== 0;
+        } else if (this.pv?.value !== undefined) {
+            return ((this.pv?.value >> this.bit) & 1) > 0;
+        } else {
+            return false;
+        }
+    }
+
     get bulbColor(): Color {
-        let color = this.fallback ? this.fallback.color : this.states[0].color;
-        for (const state of this.states) {
-            if (state.value === 0) {
-                color = state.color;
+        if (this.stateCount <= 2) {
+            if (this.pv?.value !== undefined) {
+                return this.booleanValue ? this.onColor : this.offColor;
             }
         }
-        return color;
+
+        for (const state of this.states) {
+            if (state.value === this.pv?.value) {
+                return state.color;
+            }
+        }
+        return this.stateColorFallback;
+    }
+
+    get label(): string {
+        if (this.stateCount === 2) {
+            if (this.pv?.value) {
+                return this.booleanValue ? this.onLabel : this.offLabel;
+            }
+        }
+
+        for (const state of this.states) {
+            if (state.value === this.pv?.value) {
+                return state.label;
+            }
+        }
+        return this.stateLabelFallback;
     }
 
     draw(g: Graphics) {
         if (this.squareLed) {
             if (this.effect3d) {
-                this.drawSquare3d(g.ctx);
+                this.drawSquare3d(g);
             } else {
-                this.drawSquare2d(g.ctx);
+                this.drawSquare2d(g);
             }
         } else {
             if (this.effect3d) {
-                this.drawCircle3d(g.ctx);
+                this.drawCircle3d(g);
             } else {
-                this.drawCircle2d(g.ctx);
+                this.drawCircle2d(g);
             }
+        }
+
+        if (this.showBooleanLabel) {
+            g.fillText({
+                x: this.x + this.width / 2,
+                y: this.y + this.height / 2,
+                font: this.font,
+                baseline: 'middle',
+                align: 'center',
+                color: this.foregroundColor,
+                text: this.label,
+            });
         }
     }
 
-    private drawCircle2d(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.bulbColor.toString();
-        ctx.lineWidth = this.bulbBorder;
-        ctx.strokeStyle = this.bulbBorderColor.toString();
-
-        const x = this.x + (this.width / 2);
-        const y = this.y + (this.height / 2);
+    private drawCircle2d(g: Graphics) {
+        const cx = this.x + (this.width / 2);
+        const cy = this.y + (this.height / 2);
         let rx = this.width / 2;
         let ry = this.height / 2;
         if (this.bulbBorder > 0) {
             rx -= (this.bulbBorder / 2.0);
             ry -= (this.bulbBorder / 2.0);
         }
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.stroke();
+
+        g.fillEllipse({ cx, cy, rx, ry, color: this.bulbColor });
+        g.strokeEllipse({ cx, cy, rx, ry, color: this.bulbBorderColor, lineWidth: this.bulbBorder });
     }
 
-    private drawCircle3d(ctx: CanvasRenderingContext2D) {
-        let x = this.x + (this.width / 2);
-        let y = this.y + (this.height / 2);
+    private drawCircle3d(g: Graphics) {
+        let cx = this.x + (this.width / 2);
+        let cy = this.y + (this.height / 2);
         let rx = this.width / 2;
         let ry = this.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fillStyle = Color.WHITE.toString();
-        ctx.fill();
+        g.fillEllipse({ cx, cy, rx, ry, color: Color.WHITE });
 
-        let gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        let gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
         gradient.addColorStop(0, this.bulbBorderColor.toString());
         gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        g.fillEllipse({ cx, cy, rx, ry, gradient });
 
         const innerWidth = this.width - (2 * this.bulbBorder);
         const innerHeight = this.height - (2 * this.bulbBorder);
-        x = this.x + (this.width / 2);
-        y = this.y + (this.height / 2);
+        cx = this.x + (this.width / 2);
+        cy = this.y + (this.height / 2);
         rx = innerWidth / 2;
         ry = innerHeight / 2;
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fillStyle = this.bulbColor.toString();
-        ctx.fill();
+        g.fillEllipse({ cx, cy, rx, ry, color: this.bulbColor });
 
-        gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
-        ctx.beginPath();
-        ctx.ellipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        g.fillEllipse({ cx, cy, rx, ry, gradient });
     }
 
-    private drawSquare2d(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.bulbColor.toString();
-        ctx.strokeStyle = this.bulbBorderColor.toString();
-        ctx.lineWidth = this.bulbBorder;
+    private drawSquare2d(g: Graphics) {
         const box = toBorderBox(this.x, this.y, this.width, this.height, this.bulbBorder);
-        ctx.fillRect(box.x, box.y, box.width, box.height);
-        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        g.fillRect({
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            color: this.bulbColor,
+        });
+        g.strokeRect({
+            x: box.x,
+            y: box.y,
+            width: box.width,
+            height: box.height,
+            color: this.bulbBorderColor,
+            lineWidth: this.bulbBorder,
+        });
     }
 
-    private drawSquare3d(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.bulbBorderColor.toString();
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+    private drawSquare3d(g: Graphics) {
+        g.fillRect({
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            color: this.bulbBorderColor,
+        });
 
         // Left border
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x + this.bulbBorder, this.y + this.bulbBorder);
-        ctx.lineTo(this.x + this.bulbBorder, this.y + this.height - this.bulbBorder);
-        ctx.lineTo(this.x, this.y + this.height);
-        let gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
+        let gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
         gradient.addColorStop(0, 'rgba(0,0,0,0.078)');
         gradient.addColorStop(1, 'rgba(0,0,0,0.39)');
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        g.fillPath({
+            gradient,
+            path: new Path(this.x, this.y)
+                .lineTo(this.x + this.bulbBorder, this.y + this.bulbBorder)
+                .lineTo(this.x + this.bulbBorder, this.y + this.height - this.bulbBorder)
+                .lineTo(this.x, this.y + this.height)
+        });
 
         // Top border
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x + this.bulbBorder, this.y + this.bulbBorder);
-        ctx.lineTo(this.x + this.width - this.bulbBorder, this.y + this.bulbBorder);
-        ctx.lineTo(this.x + this.width, this.y);
-        gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+        gradient = g.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
         gradient.addColorStop(0, 'rgba(0,0,0,0.078)');
         gradient.addColorStop(1, 'rgba(0,0,0,0.39)');
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        g.fillPath({
+            gradient,
+            path: new Path(this.x, this.y)
+                .lineTo(this.x + this.bulbBorder, this.y + this.bulbBorder)
+                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.bulbBorder)
+                .lineTo(this.x + this.width, this.y)
+        });
 
         // Right border
-        ctx.beginPath();
-        ctx.moveTo(this.x + this.width, this.y);
-        ctx.lineTo(this.x + this.width - this.bulbBorder, this.y + this.bulbBorder);
-        ctx.lineTo(this.x + this.width - this.bulbBorder, this.y + this.height - this.bulbBorder);
-        ctx.lineTo(this.x + this.width, this.y + this.height);
-        gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
+        gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
         gradient.addColorStop(0, 'rgba(255,255,255,0.078)');
         gradient.addColorStop(1, 'rgba(255,255,255,0.39)');
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        g.fillPath({
+            gradient,
+            path: new Path(this.x + this.width, this.y)
+                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.bulbBorder)
+                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.height - this.bulbBorder)
+                .lineTo(this.x + this.width, this.y + this.height)
+        });
 
         // Bottom border
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y + this.height);
-        ctx.lineTo(this.x + this.bulbBorder, this.y + this.height - this.bulbBorder);
-        ctx.lineTo(this.x + this.width - this.bulbBorder, this.y + this.height - this.bulbBorder);
-        ctx.lineTo(this.x + this.width, this.y + this.height);
-        gradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+        gradient = g.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
         gradient.addColorStop(0, 'rgba(255,255,255,0.078)');
         gradient.addColorStop(1, 'rgba(255,255,255,0.39)');
-        ctx.fillStyle = gradient;
-        ctx.fill();
+        g.fillPath({
+            gradient,
+            path: new Path(this.x, this.y + this.height)
+                .lineTo(this.x + this.bulbBorder, this.y + this.height - this.bulbBorder)
+                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.height - this.bulbBorder)
+                .lineTo(this.x + this.width, this.y + this.height)
+        });
 
         // Bulb
         const x = this.x + this.bulbBorder;
@@ -238,18 +270,20 @@ export class LED extends Widget {
         const width = this.width - (2 * this.bulbBorder);
         const height = this.height - (2 * this.bulbBorder);
 
-        ctx.fillStyle = this.bulbColor.toString();
-        ctx.fillRect(x, y, width, height);
+        g.fillRect({ x, y, width, height, color: this.bulbColor });
 
         // Bulb gradient overlay
-        gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
         gradient.addColorStop(0, 'rgba(255,255,255,0.784)');
         gradient.addColorStop(1, this.bulbColor.withAlpha(0).toString());
-        ctx.fillStyle = gradient;
-        ctx.fillRect(x, y, width, height);
+        g.fillRect({ x, y, width, height, gradient });
     }
 
+    get bit(): number { return this.properties.getValue(PROP_BIT); }
+    get dataType(): number { return this.properties.getValue(PROP_DATA_TYPE); }
     get squareLed(): boolean { return this.properties.getValue(PROP_SQUARE_LED); }
+    get showBooleanLabel(): boolean { return this.properties.getValue(PROP_SHOW_BOOLEAN_LABEL); }
+    get font(): Font { return this.properties.getValue(PROP_FONT); }
     get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
     get stateCount(): number { return this.properties.getValue(PROP_STATE_COUNT); }
     get bulbBorder(): number { return this.properties.getValue(PROP_BULB_BORDER); }

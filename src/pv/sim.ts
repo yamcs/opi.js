@@ -1,27 +1,58 @@
-import { Sample } from './Sample';
+import { AlarmSeverity } from './PV';
+
+
+export interface Sample {
+    date: Date;
+    value: any;
+    severity: AlarmSeverity;
+}
 
 export abstract class SimGenerator {
 
     private lastEmit?: number;
 
+    lowerDisplayLimit?: number;
+    lowerAlarmLimit?: number;
+    lowerWarningLimit?: number;
+
+    upperWarningLimit?: number;
+    upperAlarmLimit?: number;
+    upperDisplayLimit?: number;
+
     constructor(private interval: number, private initialValue?: any) {
     }
 
-    step(frameTime: number) {
+    step(frameTime: number): Sample | undefined {
         if (!this.lastEmit && this.initialValue) {
-            const samples = [{ date: new Date(), value: this.initialValue }];
             this.lastEmit = frameTime;
-            return samples;
+            return {
+                date: new Date(),
+                value: this.initialValue,
+                severity: AlarmSeverity.NONE,
+            };
         }
         if (this.interval > 0) {
             if (!this.lastEmit || (frameTime - this.lastEmit) >= this.interval) {
                 this.lastEmit = frameTime;
-                return this.generateSamples(new Date());
+                return this.generateSample(new Date());
             }
         }
     }
 
-    abstract generateSamples(t: Date): Sample[];
+    protected calculateSeverity(value: any): AlarmSeverity {
+        if (this.lowerAlarmLimit !== undefined && value < this.lowerAlarmLimit) {
+            return AlarmSeverity.MAJOR;
+        } else if (this.upperAlarmLimit !== undefined && value > this.upperAlarmLimit) {
+            return AlarmSeverity.MAJOR;
+        } else if (this.lowerWarningLimit !== undefined && value < this.lowerWarningLimit) {
+            return AlarmSeverity.MINOR;
+        } else if (this.upperWarningLimit !== undefined && value > this.upperWarningLimit) {
+            return AlarmSeverity.MINOR;
+        }
+        return AlarmSeverity.NONE;
+    }
+
+    abstract generateSample(t: Date): Sample | undefined;
 }
 
 export class ConstantGenerator extends SimGenerator {
@@ -30,8 +61,8 @@ export class ConstantGenerator extends SimGenerator {
         super(-1, initialValue);
     }
 
-    generateSamples() {
-        return [];
+    generateSample(): undefined {
+        return;
     }
 }
 
@@ -40,8 +71,8 @@ export class ConstantGenerator extends SimGenerator {
  */
 export class FormattedTimeGenerator extends SimGenerator {
 
-    generateSamples(date: Date) {
-        return [{ date, value: date.toISOString() }];
+    generateSample(date: Date) {
+        return { date, value: date.toISOString(), severity: AlarmSeverity.NONE };
     }
 }
 
@@ -56,9 +87,9 @@ export class Flipflop extends SimGenerator {
         super(interval);
     }
 
-    generateSamples(date: Date) {
+    generateSample(date: Date) {
         this.state = !this.state;
-        return [{ date, value: !this.state }];
+        return { date, value: !this.state, severity: AlarmSeverity.NONE };
     }
 }
 
@@ -67,12 +98,23 @@ export class Flipflop extends SimGenerator {
  */
 export class Noise extends SimGenerator {
 
+    units: string;
+
     constructor(private min: number, private max: number, interval: number) {
         super(interval);
+        const range = this.max - this.min;
+        this.units = 'x';
+        this.lowerDisplayLimit = min;
+        this.lowerAlarmLimit = min + range * 0.1;
+        this.lowerWarningLimit = min + range * 0.2;
+        this.upperWarningLimit = min + range * 0.8;
+        this.upperAlarmLimit = min + range * 0.9;
+        this.upperDisplayLimit = max;
     }
 
-    generateSamples(date: Date) {
-        return [{ date, value: Math.random() * (this.max - this.min) + this.min }];
+    generateSample(date: Date) {
+        const value = Math.random() * (this.max - this.min) + this.min;
+        return { date, value, severity: this.calculateSeverity(value) };
     }
 }
 
@@ -81,11 +123,28 @@ export class Noise extends SimGenerator {
  */
 export class GaussianNoise extends SimGenerator {
 
+    units: string;
+
+    lowerDisplayLimit: number;
+    lowerAlarmLimit: number;
+    lowerWarningLimit: number;
+
+    upperWarningLimit: number;
+    upperAlarmLimit: number;
+    upperDisplayLimit: number;
+
     constructor(interval: number, private avg: number, private stddev: number) {
         super(interval);
+        this.units = 'x';
+        this.lowerDisplayLimit = avg - 4 * stddev;
+        this.lowerAlarmLimit = avg - 2 * stddev;
+        this.lowerWarningLimit = avg - stddev;
+        this.upperWarningLimit = avg + stddev;
+        this.upperAlarmLimit = avg + 2 * stddev;
+        this.upperDisplayLimit = avg + 4 * stddev;
     }
 
-    generateSamples(date: Date) {
+    generateSample(date: Date) {
         let x1;
         let x2;
         let rad;
@@ -96,14 +155,14 @@ export class GaussianNoise extends SimGenerator {
         } while (rad >= 1 || rad === 0);
         const c = Math.sqrt(-2 * Math.log(rad) / rad);
         const gaussian = x1 * c;
-        return [{ date, value: this.avg + gaussian * this.stddev }];
+        const value = this.avg + gaussian * this.stddev;
+        return { date, value, severity: this.calculateSeverity(value) };
     }
 }
 
 /**
  * Generate sine samples between min and max.
  * Warning limits are set at 80%, and alarm limits at 90%.
- * Alarm status is not set.
  */
 export class Sine extends SimGenerator {
 
@@ -131,19 +190,27 @@ export class Sine extends SimGenerator {
         this.upperDisplayLimit = max;
     }
 
-    generateSamples(date: Date) {
-        const samples = [];
+    generateSample(date: Date) {
         const range = this.max - this.min;
         const value = Math.sin(this.currentValue * 2 * Math.PI / this.samplesPerCycle) * range / 2 + this.min + (range / 2);
-        samples.push({ date, value });
         this.currentValue++;
-        return samples;
+        return { date, value, severity: this.calculateSeverity(value) };
     }
 }
 
 export class Ramp extends SimGenerator {
 
     private currentValue = 0;
+
+    units: string;
+
+    lowerDisplayLimit: number;
+    lowerAlarmLimit: number;
+    lowerWarningLimit: number;
+
+    upperWarningLimit: number;
+    upperAlarmLimit: number;
+    upperDisplayLimit: number;
 
     constructor(private min: number, private max: number, private inc: number, interval: number) {
         super(interval);
@@ -152,10 +219,17 @@ export class Ramp extends SimGenerator {
         } else {
             this.currentValue = max - inc;
         }
+        const range = this.max - this.min;
+        this.units = 'x';
+        this.lowerDisplayLimit = min;
+        this.lowerAlarmLimit = min + range * 0.1;
+        this.lowerWarningLimit = min + range * 0.2;
+        this.upperWarningLimit = min + range * 0.8;
+        this.upperAlarmLimit = min + range * 0.9;
+        this.upperDisplayLimit = max;
     }
 
-    generateSamples(date: Date) {
-        const samples = [];
+    generateSample(date: Date) {
         this.currentValue = this.currentValue + this.inc;
         if (this.currentValue > this.max) {
             this.currentValue = this.min;
@@ -163,7 +237,7 @@ export class Ramp extends SimGenerator {
         if (this.currentValue < this.min) {
             this.currentValue = this.max;
         }
-        samples.push({ date, value: this.currentValue });
-        return samples;
+
+        return { date, value: this.currentValue, severity: this.calculateSeverity(this.currentValue) };
     }
 }

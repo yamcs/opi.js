@@ -9,6 +9,16 @@ import { LocalPV } from './LocalPV';
 import { PV } from './PV';
 import { SimulatedPV } from './SimulatedPV';
 
+const PV_PATTERN = /(loc\:\/\/[^\(]+)(\((.*)\))?/;
+
+function stripInitializer(pvName: string) {
+    if (!pvName.startsWith('loc://')) {
+        return pvName;
+    }
+    const match = pvName.match(PV_PATTERN);
+    return match ? match[1] : pvName;
+}
+
 export class PVEngine {
 
     private formulas = new Map<string, CompiledFormula>();
@@ -71,11 +81,13 @@ export class PVEngine {
     }
 
     hasPV(pvName: string) {
-        return this.pvs.has(pvName);
+        const stripped = stripInitializer(pvName);
+        return this.pvs.has(stripped);
     }
 
     getPV(pvName: string) {
-        return this.pvs.get(pvName);
+        const stripped = stripInitializer(pvName);
+        return this.pvs.get(stripped);
     }
 
     createPV(pvName: string) {
@@ -102,7 +114,6 @@ export class PVEngine {
     }
 
     private createLocalPV(pvName: string) {
-        const PV_PATTERN = /(loc\:\/\/[^\(]+)(\((.*)\))?/;
         const match = pvName.match(PV_PATTERN);
         let initializer;
         if (match) {
@@ -127,14 +138,16 @@ export class PVEngine {
     }
 
     getValue(pvName: string) {
-        const pv = this.pvs.get(pvName);
+        const stripped = stripInitializer(pvName);
+        const pv = this.pvs.get(stripped);
         if (pv) {
             return pv.value;
         }
     }
 
     setValue(pvName: string, value: any) {
-        const pv = this.pvs.get(pvName);
+        const stripped = stripInitializer(pvName);
+        const pv = this.pvs.get(stripped);
         if (pv) {
             if (pv.isWritable()) {
                 pv.value = value;

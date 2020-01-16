@@ -1,5 +1,5 @@
-import { PV } from './PV';
-import { ConstantGenerator, FormattedTimeGenerator, Noise, Ramp, SimGenerator, Sine } from './sim';
+import { AlarmSeverity, PV } from './PV';
+import { ConstantGenerator, FormattedTimeGenerator, Noise, Ramp, Sample, SimGenerator, Sine } from './sim';
 
 const PV_PATTERN = /sim\:\/\/([a-z]+)(\((.*)\))?/;
 const DUMMY_GENERATOR = new ConstantGenerator(undefined);
@@ -8,6 +8,7 @@ const DUMMY_GENERATOR = new ConstantGenerator(undefined);
 export class SimulatedPV extends PV {
 
     private fn: SimGenerator;
+    private lastSample?: Sample;
 
     constructor(name: string) {
         super(name);
@@ -26,6 +27,25 @@ export class SimulatedPV extends PV {
                 this.fn = DUMMY_GENERATOR;
             }
         }
+    }
+
+    step(t: number) {
+        const sample = this.fn.step(t);
+        if (sample) {
+            this.lastSample = sample;
+            return true;
+        }
+        return false;
+    }
+
+    get value() {
+        if (this.lastSample) {
+            return this.lastSample.value;
+        }
+    }
+
+    get severity() {
+        return this.lastSample?.severity || AlarmSeverity.NONE;
     }
 
     isWritable() {
@@ -60,23 +80,33 @@ export class SimulatedPV extends PV {
     }
 
     private createRamp(args: string[]) {
+        let ramp: Ramp;
         if (args.length === 0) {
-            return new Ramp(-5, 5, 1, 1000);
+            ramp = new Ramp(-5, 5, 1, 1000);
         } else if (args.length === 3) {
             const min = parseFloat(args[0]);
             const max = parseFloat(args[1]);
             const interval = parseFloat(args[2]) * 1000;
-            return new Ramp(min, max, 1, interval);
+            ramp = new Ramp(min, max, 1, interval);
         } else if (args.length === 4) {
             const min = parseFloat(args[0]);
             const max = parseFloat(args[1]);
             const step = parseFloat(args[2]);
             const interval = parseFloat(args[3]) * 1000;
-            return new Ramp(min, max, step, interval);
+            ramp = new Ramp(min, max, step, interval);
         } else {
             console.warn(`Unexpected ramp arguments for PV ${this.name}`);
             return DUMMY_GENERATOR;
         }
+
+        this.units = ramp.units;
+        this.lowerDisplayLimit = ramp.lowerDisplayLimit;
+        this.lowerAlarmLimit = ramp.lowerAlarmLimit;
+        this.lowerWarningLimit = ramp.lowerWarningLimit;
+        this.upperWarningLimit = ramp.upperWarningLimit;
+        this.upperAlarmLimit = ramp.upperAlarmLimit;
+        this.upperDisplayLimit = ramp.upperDisplayLimit;
+        return ramp;
     }
 
     private createSine(args: string[]) {
@@ -107,17 +137,6 @@ export class SimulatedPV extends PV {
         this.upperAlarmLimit = sine.upperAlarmLimit;
         this.upperDisplayLimit = sine.upperDisplayLimit;
         return sine;
-    }
-
-    step(t: number) {
-        const samples = this.fn.step(t);
-        if (samples && samples.length) {
-            for (const sample of samples) {
-                this.value = sample.value;
-            }
-            return true;
-        }
-        return false;
     }
 
     toString() {

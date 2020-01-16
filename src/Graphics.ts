@@ -13,6 +13,7 @@ interface RectColorFill {
     color: Color;
     rx?: number;
     ry?: number;
+    opacity?: number;
 }
 
 interface RectGradientFill {
@@ -23,6 +24,7 @@ interface RectGradientFill {
     gradient: CanvasGradient;
     rx?: number;
     ry?: number;
+    opacity?: number;
 }
 
 type RectFill = RectColorFill | RectGradientFill;
@@ -109,10 +111,17 @@ interface PathStroke {
     dash?: number[];
 }
 
-interface PathFill {
+interface PathColorFill {
     path: Path;
     color: Color;
 }
+
+interface PathGradientFill {
+    path: Path;
+    gradient: CanvasGradient;
+}
+
+type PathFill = PathColorFill | PathGradientFill;
 
 export class Graphics {
 
@@ -184,11 +193,19 @@ export class Graphics {
             this.ctx.fillStyle = fill.gradient;
         }
 
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = fill.opacity;
+        }
+
         if (fill.rx || fill.ry) {
             utils.roundRect(this.ctx, fill.x, fill.y, fill.width, fill.height, fill.rx || 0, fill.ry || 0);
             this.ctx.fill();
         } else {
             this.ctx.fillRect(fill.x, fill.y, fill.width, fill.height);
+        }
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
         }
     }
 
@@ -301,7 +318,11 @@ export class Graphics {
                 this.ctx.moveTo(segment.x, segment.y);
             }
         }
-        this.ctx.fillStyle = fill.color.toString();
+        if ('color' in fill) {
+            this.ctx.fillStyle = fill.color.toString();
+        } else {
+            this.ctx.fillStyle = fill.gradient;
+        }
         this.ctx.fill();
     }
 

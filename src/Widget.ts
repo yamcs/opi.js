@@ -6,7 +6,7 @@ import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
 import { Bounds, toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
-import { PV } from './pv/PV';
+import { AlarmSeverity, PV } from './pv/PV';
 import { RuleSet } from './rules';
 import { ScriptEngine } from './scripting/ScriptEngine';
 import { ScriptSet } from './scripts';
@@ -15,11 +15,13 @@ import { XMLNode } from './XMLNode';
 
 const PROP_ACTIONS = 'actions';
 const PROP_BACKGROUND_COLOR = 'background_color';
+const PROP_BACKGROUND_ALARM_SENSITIVE = 'backcolor_alarm_sensitive';
 const PROP_BORDER_ALARM_SENSITIVE = 'border_alarm_sensitive';
 const PROP_BORDER_COLOR = 'border_color';
 const PROP_BORDER_WIDTH = 'border_width';
 const PROP_BORDER_STYLE = 'border_style';
 const PROP_FOREGROUND_COLOR = 'foreground_color';
+const PROP_FOREGROUND_ALARM_SENSITIVE = 'forecolor_alarm_sensitive';
 const PROP_HEIGHT = 'height';
 const PROP_NAME = 'name';
 const PROP_PV_NAME = 'pv_name';
@@ -51,11 +53,13 @@ export abstract class Widget {
     constructor(readonly display: Display, readonly parent?: AbstractContainerWidget) {
         this.properties = new PropertySet(this, [
             new ActionsProperty(PROP_ACTIONS, new ActionSet()),
+            new BooleanProperty(PROP_BACKGROUND_ALARM_SENSITIVE, false),
             new ColorProperty(PROP_BACKGROUND_COLOR, Color.TRANSPARENT),
             new BooleanProperty(PROP_BORDER_ALARM_SENSITIVE, false),
             new ColorProperty(PROP_BORDER_COLOR),
             new IntProperty(PROP_BORDER_STYLE),
             new IntProperty(PROP_BORDER_WIDTH),
+            new BooleanProperty(PROP_FOREGROUND_ALARM_SENSITIVE, false),
             new ColorProperty(PROP_FOREGROUND_COLOR),
             new IntProperty(PROP_HEIGHT),
             new StringProperty(PROP_NAME),
@@ -344,31 +348,50 @@ export abstract class Widget {
     }
 
     drawDecoration(g: Graphics) {
-        if (!this.display.editMode) {
-            if (this.pvName && !this.pv) { // Disconnected
-                g.ctx.globalAlpha = 0.4;
-                g.fillRect({
-                    x: this.holderX - 0.5,
-                    y: this.holderY - 0.5,
-                    width: this.holderWidth + 1,
-                    height: this.holderHeight + 1,
-                    color: Color.PURPLE,
-                });
-                g.ctx.globalAlpha = 1;
+        if (this.display.editMode) {
+            return;
+        }
+
+        if (this.pvName && !this.pv) { // Disconnected
+            g.fillRect({
+                x: this.holderX - 0.5,
+                y: this.holderY - 0.5,
+                width: this.holderWidth + 1,
+                height: this.holderHeight + 1,
+                color: Color.PURPLE,
+                opacity: 0.4,
+            });
+            g.strokeRect({
+                x: this.holderX - 0.5,
+                y: this.holderY - 0.5,
+                width: this.holderWidth + 1,
+                height: this.holderHeight + 1,
+                color: Color.PURPLE,
+            });
+        } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
+            g.strokeRect({
+                ...this.getBounds(),
+                dash: [2, 2],
+                lineWidth: 2,
+                color: Color.PINK,
+                crispen: true,
+            });
+        }
+
+        if (this.borderAlarmSensitive) {
+            if (this.pv?.severity === AlarmSeverity.MAJOR) {
                 g.strokeRect({
-                    x: this.holderX - 0.5,
-                    y: this.holderY - 0.5,
-                    width: this.holderWidth + 1,
-                    height: this.holderHeight + 1,
-                    color: Color.PURPLE,
-                });
-            } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
-                const box = toBorderBox(this.holderX, this.holderY, this.holderWidth, this.holderHeight, 2);
-                g.strokeRect({
-                    ...box,
-                    dash: [2, 2],
+                    ... this.getBounds(),
                     lineWidth: 2,
-                    color: Color.PINK,
+                    color: Color.RED,
+                    crispen: true,
+                });
+            } else if (this.pv?.severity === AlarmSeverity.MINOR) {
+                g.strokeRect({
+                    ... this.getBounds(),
+                    lineWidth: 2,
+                    color: Color.ORANGE,
+                    crispen: true,
                 });
             }
         }
@@ -538,6 +561,41 @@ export abstract class Widget {
         }
     }
 
+    isMinorSeverity() {
+        return this.pv?.severity === AlarmSeverity.MINOR;
+    }
+
+    isMajorSeverity() {
+        return this.pv?.severity === AlarmSeverity.MAJOR;
+    }
+
+    get alarm() {
+        return this.pv?.severity === AlarmSeverity.MINOR
+            || this.pv?.severity === AlarmSeverity.MAJOR;
+    }
+
+    get alarmSensitiveBackgroundColor() {
+        if (this.backgroundAlarmSensitive) {
+            if (this.isMajorSeverity()) {
+                return Color.RED;
+            } else if (this.isMinorSeverity()) {
+                return Color.ORANGE;
+            }
+        }
+        return this.backgroundColor;
+    }
+
+    get alarmSensitiveForegroundColor() {
+        if (this.foregroundAlarmSensitive) {
+            if (this.isMajorSeverity()) {
+                return Color.RED;
+            } else if (this.isMinorSeverity()) {
+                return Color.ORANGE;
+            }
+        }
+        return this.foregroundColor;
+    }
+
     get wuid(): string { return this.properties.getValue(PROP_WUID); }
     get name(): string { return this.properties.getValue(PROP_NAME); }
     get holderX(): number { return this.properties.getValue(PROP_X); }
@@ -546,6 +604,12 @@ export abstract class Widget {
     get holderHeight(): number { return this.properties.getValue(PROP_HEIGHT); }
     get borderAlarmSensitive(): boolean {
         return this.properties.getValue(PROP_BORDER_ALARM_SENSITIVE);
+    }
+    get backgroundAlarmSensitive(): boolean {
+        return this.properties.getValue(PROP_BACKGROUND_ALARM_SENSITIVE);
+    }
+    get foregroundAlarmSensitive(): boolean {
+        return this.properties.getValue(PROP_FOREGROUND_ALARM_SENSITIVE);
     }
     get pvName(): string | undefined { return this.properties.getValue(PROP_PV_NAME, true); }
     get borderColor(): Color { return this.properties.getValue(PROP_BORDER_COLOR); }

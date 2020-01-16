@@ -48,7 +48,7 @@ export class Arc extends Widget {
                 g.fillEllipse({
                     cx, cy, rx, ry, startAngle, endAngle: midAngle,
                     anticlockwise: true,
-                    color: this.backgroundColor,
+                    color: this.alarmSensitiveBackgroundColor,
                 });
                 midAngle = -toRadians(this.startAngle + 180);
                 this.drawSlice(g, midAngle, endAngle);
@@ -58,7 +58,7 @@ export class Arc extends Widget {
         if (this.lineWidth && this.totalAngle !== 0 && this.totalAngle !== 360) {
             let dash;
             if (this.lineStyle === 0) { // Solid
-                dash = []
+                dash = [];
             } else if (this.lineStyle === 1) { // Dash
                 dash = [6, 2];
             } else if (this.lineStyle === 2) { // Dot
@@ -71,7 +71,7 @@ export class Arc extends Widget {
                 cx, cy, rx, ry, startAngle, endAngle,
                 lineWidth: this.lineWidth,
                 anticlockwise: true,
-                color: this.foregroundColor,
+                color: this.alarmSensitiveForegroundColor,
                 dash,
             });
         }
@@ -95,7 +95,7 @@ export class Arc extends Widget {
         const triangleP2 = findRelativePoint({ x: 0, y: 0 }, p2, 1000);
 
         g.fillPath({
-            color: this.backgroundColor,
+            color: this.alarmSensitiveBackgroundColor,
             path: new Path(cx, cy)
                 .lineTo(cx + triangleP1.x, cy + triangleP1.y)
                 .lineTo(cx + triangleP2.x, cy + triangleP2.y)
