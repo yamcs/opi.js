@@ -9,7 +9,7 @@ export class DisplayWidget extends AbstractContainerWidget {
         super.parseNode(node);
 
         for (const widgetNode of node.getNodes('widget')) {
-            const kind = widgetNode.getStringAttribute('typeId');
+            const kind = widgetNode.getString('widget_type');
             const widget = this.display.createWidget(kind, this);
             if (widget) {
                 widget.parseNode(widgetNode);

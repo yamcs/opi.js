@@ -7,6 +7,7 @@ import { PVEngine } from './pv/PVEngine';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
+import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
 import { Arc } from './widgets/graphics/Arc';
 import { Ellipse } from './widgets/graphics/Ellipse';
@@ -21,6 +22,7 @@ import { ImageBooleanIndicator } from './widgets/monitors/ImageBooleanIndicator'
 import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
+import { XYGraph } from './widgets/monitors/XYGraph';
 import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
@@ -30,31 +32,31 @@ import { WebBrowser } from './widgets/others/WebBrowser';
 import { XMLNode } from './XMLNode';
 
 
-const TYPE_ACTION_BUTTON = 'org.csstudio.opibuilder.widgets.ActionButton';
-const TYPE_ARC = 'org.csstudio.opibuilder.widgets.arc';
-const TYPE_BOOLEAN_BUTTON = 'org.csstudio.opibuilder.widgets.BoolButton';
-const TYPE_BOOLEAN_SWITCH = 'org.csstudio.opibuilder.widgets.BoolSwitch';
-const TYPE_DISPLAY = 'org.csstudio.opibuilder.Display';
-const TYPE_ELLIPSE = 'org.csstudio.opibuilder.widgets.Ellipse';
-const TYPE_GAUGE = 'org.csstudio.opibuilder.widgets.gauge';
-const TYPE_GROUPING_CONTAINER = 'org.csstudio.opibuilder.widgets.groupingContainer';
-const TYPE_IMAGE = 'org.csstudio.opibuilder.widgets.Image';
-const TYPE_IMAGE_BOOLEAN_BUTTON = 'org.csstudio.opibuilder.widgets.ImageBoolButton';
-const TYPE_IMAGE_BOOLEAN_INDICATOR = 'org.csstudio.opibuilder.widgets.ImageBoolIndicator';
-const TYPE_LABEL = 'org.csstudio.opibuilder.widgets.Label';
-const TYPE_LED = 'org.csstudio.opibuilder.widgets.LED';
-const TYPE_LINKING_CONTAINER = 'org.csstudio.opibuilder.widgets.linkingContainer';
-const TYPE_METER = 'org.csstudio.opibuilder.widgets.meter';
-const TYPE_NATIVE_BUTTON = 'org.csstudio.opibuilder.widgets.NativeButton'; // Only used in old displays
-const TYPE_POLYGON = 'org.csstudio.opibuilder.widgets.polygon';
-const TYPE_POLYLINE = 'org.csstudio.opibuilder.widgets.polyline';
-const TYPE_RECTANGLE = 'org.csstudio.opibuilder.widgets.Rectangle';
-const TYPE_ROUNDED_RECTANGLE = 'org.csstudio.opibuilder.widgets.RoundedRectangle';
-const TYPE_TABBED_CONTAINER = 'org.csstudio.opibuilder.widgets.tab';
-const TYPE_TEXT_INPUT = 'org.csstudio.opibuilder.widgets.TextInput';
-const TYPE_TEXT_UPDATE = 'org.csstudio.opibuilder.widgets.TextUpdate';
-const TYPE_WEB_BROWSER = 'org.csstudio.opibuilder.widgets.webbrowser';
-const TYPE_XY_GRAPH = 'org.csstudio.opibuilder.widgets.xyGraph';
+const TYPE_ACTION_BUTTON = 'Action Button';
+const TYPE_ARC = 'Arc';
+const TYPE_BOOLEAN_BUTTON = 'Boolean Button';
+const TYPE_BOOLEAN_SWITCH = 'Boolean Switch';
+const TYPE_DISPLAY = 'Display';
+const TYPE_ELLIPSE = 'Ellipse';
+const TYPE_GAUGE = 'Gauge';
+const TYPE_GROUPING_CONTAINER = 'Grouping Container';
+const TYPE_IMAGE = 'Image';
+const TYPE_IMAGE_BOOLEAN_BUTTON = 'Image Boolean Button';
+const TYPE_IMAGE_BOOLEAN_INDICATOR = 'Image Boolean Indicator';
+const TYPE_LABEL = 'Label';
+const TYPE_LED = 'LED';
+const TYPE_LINKING_CONTAINER = 'Linking Container';
+const TYPE_METER = 'Meter';
+const TYPE_NATIVE_BUTTON = 'Button'; // Only used in old displays
+const TYPE_POLYGON = 'Polygon';
+const TYPE_POLYLINE = 'Polyline';
+const TYPE_RECTANGLE = 'Rectangle';
+const TYPE_ROUNDED_RECTANGLE = 'Rounded Rectangle';
+const TYPE_TABBED_CONTAINER = 'Tabbed Container';
+const TYPE_TEXT_INPUT = 'Text Input';
+const TYPE_TEXT_UPDATE = 'Text Update';
+const TYPE_WEB_BROWSER = 'Web Browser';
+const TYPE_XY_GRAPH = 'XY Graph';
 
 export class Display {
 
@@ -135,7 +137,26 @@ export class Display {
         this.rootPanel.style.width = this.targetElement.clientWidth + 'px';
         this.g.resize(this.rootPanel.clientWidth, this.rootPanel.clientHeight);
 
-        this.g.fillCanvas(this.instance ? this.instance.backgroundColor : Color.WHITE);
+        if (this.editMode) {
+            const patternCanvas = document.createElement('canvas');
+            const patternContext = patternCanvas.getContext('2d')!;
+            patternCanvas.width = 16;
+            patternCanvas.height = 16;
+            patternContext.fillStyle = '#d6d6d6';
+            patternContext.fillRect(0, 0, 8, 8);
+            patternContext.fillRect(8, 8, 8, 8);
+            this.ctx.fillStyle = this.ctx.createPattern(patternCanvas, 'repeat')!;
+            this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+            if (this.instance) {
+                this.g.fillRect({
+                    ... this.instance.bounds,
+                    color: this.instance.backgroundColor
+                });
+            }
+        } else {
+            this.g.fillCanvas(this.instance ? this.instance.backgroundColor : Color.WHITE);
+        }
 
         if (this.showGrid && this.instance) {
             const patternCanvas = document.createElement('canvas');
@@ -143,7 +164,7 @@ export class Display {
             patternCanvas.width = 25;
             patternCanvas.height = 25;
             patternContext.fillStyle = this.instance.foregroundColor.toString();
-            patternContext.fillRect(0, 0, 1, 1);
+            patternContext.fillRect(0, 0, 2, 1);
             this.ctx.fillStyle = this.ctx.createPattern(patternCanvas, 'repeat')!;
             this.ctx.fillRect(25, 25, this.ctx.canvas.width - 50, this.ctx.canvas.height - 50);
         }
@@ -238,6 +259,8 @@ export class Display {
                 return new GroupingContainer(this, parent);
             case TYPE_IMAGE:
                 return new ImageWidget(this, parent);
+            case TYPE_IMAGE_BOOLEAN_BUTTON:
+                return new ImageBooleanButton(this, parent);
             case TYPE_IMAGE_BOOLEAN_INDICATOR:
                 return new ImageBooleanIndicator(this, parent);
             case TYPE_LABEL:
@@ -264,6 +287,8 @@ export class Display {
                 return new TextUpdate(this, parent);
             case TYPE_WEB_BROWSER:
                 return new WebBrowser(this, parent);
+            case TYPE_XY_GRAPH:
+                return new XYGraph(this, parent);
             default:
                 console.warn(`Unsupported widget type: ${kind}`);
         }

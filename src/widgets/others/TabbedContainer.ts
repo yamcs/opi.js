@@ -58,7 +58,7 @@ export class TabbedContainer extends AbstractContainerWidget {
         }
 
         for (const widgetNode of node.getNodes('widget')) {
-            const kind = widgetNode.getStringAttribute('typeId');
+            const kind = widgetNode.getString('widget_type');
             const widget = this.display.createWidget(kind, this);
             if (widget) {
                 widget.parseNode(widgetNode);

@@ -171,7 +171,7 @@ export class Connection extends Widget {
       default:
     }
 
-    const bounds = widget.getBounds();
+    const bounds = this.bounds;
     const position = this.getPosition(widget, term);
 
     const distanceLeft = position.x - bounds.x;
@@ -270,7 +270,7 @@ export class Connection extends Widget {
         }
         else if (from.direction === to.direction) {
           pos = Math.min(from.x, to.x) - MINDIST;
-          point = { x: pos, y: from.y }
+          point = { x: pos, y: from.y };
         }
         else {
           point = { x: from.x - (xDiff / 2), y: from.y };

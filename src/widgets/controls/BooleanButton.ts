@@ -8,6 +8,8 @@ import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProper
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
+const PROP_BIT = 'bit';
+const PROP_DATA_TYPE = 'data_type';
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_FONT = 'font';
 const PROP_OFF_COLOR = 'off_color';
@@ -30,6 +32,8 @@ export class BooleanButton extends Widget {
 
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
+        this.properties.add(new IntProperty(PROP_BIT));
+        this.properties.add(new IntProperty(PROP_DATA_TYPE));
         this.properties.add(new BooleanProperty(PROP_SQUARE_BUTTON));
         this.properties.add(new BooleanProperty(PROP_SHOW_LED));
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
@@ -66,7 +70,10 @@ export class BooleanButton extends Widget {
     private toggleOn() {
         this.manualToggleState = true;
         if (this.pv && this.pv.isWritable()) {
-            this.pv.value = 1;
+            if (this.dataType === 0) { // Bit
+                this.pv.value |= (1 << this.bit);
+            } else { // TODO
+            }
         }
         this.executeAction(this.pushActionIndex);
     }
@@ -74,24 +81,36 @@ export class BooleanButton extends Widget {
     private toggleOff() {
         this.manualToggleState = false;
         if (this.pv && this.pv.isWritable()) {
-            this.pv.value = 0;
+            if (this.dataType === 0) { // Bit
+                this.pv.value &= ~(1 << this.bit);
+            } else { // TODO
+            }
         }
         if (this.releaseActionIndex !== undefined) {
             this.executeAction(this.releaseActionIndex);
         }
     }
 
-    private getRenderedToggleState() {
-        if (this.pv) {
-            return this.pv.value;
+    get booleanValue() {
+        if (this.pv && this.pv.value !== undefined) {
+            if (this.dataType === 0) { // Bit
+                if (this.bit < 0) {
+                    return this.pv?.value !== 0;
+                } else {
+                    return ((this.pv?.value >> this.bit) & 1) > 0;
+                }
+            } else if (this.dataType === 1) { // Enum
+                return false; // TODO
+            } else {
+                return false;
+            }
         } else {
             return this.manualToggleState;
         }
     }
 
-
     draw(g: Graphics) {
-        const toggled = this.getRenderedToggleState();
+        const toggled = this.booleanValue;
 
         if (this.squareButton) {
             this.drawSquare(g, toggled);
@@ -195,8 +214,8 @@ export class BooleanButton extends Widget {
             g.ctx.fillStyle = Color.DARK_GRAY.toString();
         }
 
-        const x = this.x + (this.width / 2)
-        const y = this.y + (this.height / 2)
+        const x = this.x + (this.width / 2);
+        const y = this.y + (this.height / 2);
         const rx = this.width / 2;
         const ry = this.height / 2;
         g.ctx.beginPath();
@@ -299,6 +318,8 @@ export class BooleanButton extends Widget {
         }
     }
 
+    get bit(): number { return this.properties.getValue(PROP_BIT); }
+    get dataType(): number { return this.properties.getValue(PROP_DATA_TYPE); }
     get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
     get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }
     get releaseActionIndex(): number { return this.properties.getValue(PROP_RELEASE_ACTION_INDEX); }

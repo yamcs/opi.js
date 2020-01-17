@@ -109,11 +109,11 @@ export abstract class Property<T> {
         this.value = defaultValue;
     }
 
-    get value(): T | undefined { return this._value };
+    get value(): T | undefined { return this._value; }
     set value(value: T | undefined) {
         if (this.value !== value) {
             const oldValue = this._value;
-            this._value = value
+            this._value = value;
             if (this.listeners) {
                 for (const listener of this.listeners) {
                     listener(value, oldValue);

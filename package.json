@@ -26,9 +26,11 @@
     "devDependencies": {
         "@rollup/plugin-commonjs": "^11.0.1",
         "@rollup/plugin-node-resolve": "^7.0.0",
+        "@types/dygraphs": "^1.1.10",
         "@types/fontfaceobserver": "0.0.6",
         "@types/node": "^13.1.7",
         "@types/pegjs": "^0.10.0",
+        "dygraphs": "^2.1.0",
         "express": "^4.17.1",
         "fontfaceobserver": "^2.0.13",
         "morgan": "^1.9.1",

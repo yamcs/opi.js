@@ -33,6 +33,7 @@ export class SimulatedPV extends PV {
         const sample = this.fn.step(t);
         if (sample) {
             this.lastSample = sample;
+            this.fireValueChanged();
             return true;
         }
         return false;

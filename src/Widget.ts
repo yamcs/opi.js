@@ -370,7 +370,7 @@ export abstract class Widget {
             });
         } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
             g.strokeRect({
-                ...this.getBounds(),
+                ...this.bounds,
                 dash: [2, 2],
                 lineWidth: 2,
                 color: Color.PINK,
@@ -381,14 +381,14 @@ export abstract class Widget {
         if (this.borderAlarmSensitive) {
             if (this.pv?.severity === AlarmSeverity.MAJOR) {
                 g.strokeRect({
-                    ... this.getBounds(),
+                    ... this.bounds,
                     lineWidth: 2,
                     color: Color.RED,
                     crispen: true,
                 });
             } else if (this.pv?.severity === AlarmSeverity.MINOR) {
                 g.strokeRect({
-                    ... this.getBounds(),
+                    ... this.bounds,
                     lineWidth: 2,
                     color: Color.ORANGE,
                     crispen: true,
@@ -432,12 +432,51 @@ export abstract class Widget {
         this.display.requestRepaint();
     }
 
-    getBounds(): Bounds {
+    /**
+     * Bounds of this widget relative to the root
+     * of all of its parents.
+     */
+    get absoluteBounds(): Bounds {
+        const bounds = this.bounds;
+        let parent = this.parent;
+        while (parent) {
+            bounds.x += parent.holderX;
+            bounds.y += parent.holderY;
+            parent = parent.parent;
+        }
+        return bounds;
+    }
+
+    /**
+     * Bounds of this widget (within its parent).
+     * Bounds cover the entire widget: area + ornaments.
+     */
+    get bounds(): Bounds {
         return {
             x: this.holderX,
             y: this.holderY,
             width: this.holderWidth,
             height: this.holderHeight,
+        };
+    }
+
+    get absoluteArea(): Bounds {
+        const bounds = this.absoluteBounds;
+        bounds.x += (this.x - this.holderX);
+        bounds.y += (this.y - this.holderY);
+        return bounds;
+    }
+
+    /**
+     * Area where the widget can draw.
+     * (this is smaller than the actual widget bounds).
+     */
+    get area(): Bounds {
+        return {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
         };
     }
 
