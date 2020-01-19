@@ -38,10 +38,7 @@ export class LinkingContainer extends AbstractContainerWidget {
     draw(g: Graphics) {
         if (!this.transparent) {
             g.fillRect({
-                x: this.x,
-                y: this.y,
-                width: this.width,
-                height: this.height,
+                ... this.area,
                 color: this.backgroundColor,
             });
         }
@@ -50,10 +47,7 @@ export class LinkingContainer extends AbstractContainerWidget {
         if (this.linkedDisplay && linkedWidget) {
             // Copy the opi background over the full container area
             g.fillRect({
-                x: this.x,
-                y: this.y,
-                width: this.width,
-                height: this.height,
+                ... this.area,
                 color: this.linkedDisplay.backgroundColor,
             });
 

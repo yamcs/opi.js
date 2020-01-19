@@ -1,46 +1,56 @@
 {
-    "name": "@yamcs/opi",
-    "version": "1.0.0",
-    "description": "OPI Display Renderer",
-    "author": "Yamcs Team <yamcs@spaceapplications.com>",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/yamcs/opi.js.git"
-    },
-    "homepage": "https://github.com/yamcs/opi.js",
-    "license": "MIT",
-    "scripts": {
-        "build": "rollup -c",
-        "clean": "rm -rf dist",
-        "prepublishOnly": "npm run build",
-        "watch": "rollup -cw",
-        "pegjs": "cd src/pv/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts grammar.pegjs",
-        "start": "node ./demo/server.js"
-    },
-    "main": "dist/opi.umd.js",
-    "module": "dist/opi.js",
-    "types": "dist/types/index.d.ts",
-    "files": [
-        "dist/"
-    ],
-    "devDependencies": {
-        "@rollup/plugin-commonjs": "^11.0.1",
-        "@rollup/plugin-node-resolve": "^7.0.0",
-        "@types/dygraphs": "^1.1.10",
-        "@types/fontfaceobserver": "0.0.6",
-        "@types/node": "^13.1.7",
-        "@types/pegjs": "^0.10.0",
-        "dygraphs": "^2.1.0",
-        "express": "^4.17.1",
-        "fontfaceobserver": "^2.0.13",
-        "morgan": "^1.9.1",
-        "nunjucks": "^3.2.0",
-        "pegjs": "^0.10.0",
-        "rollup": "^1.29.0",
-        "rollup-plugin-copy": "^3.2.0",
-        "rollup-plugin-terser": "^5.2.0",
-        "rollup-plugin-typescript2": "^0.25.3",
-        "ts-pegjs": "^0.2.1",
-        "typescript": "^3.7.3"
-    }
+  "name": "@yamcs/opi",
+  "version": "1.0.0",
+  "description": "OPI Display Renderer",
+  "author": "Yamcs Team <yamcs@spaceapplications.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yamcs/opi.js.git"
+  },
+  "homepage": "https://github.com/yamcs/opi.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "node --eval \"console.error('ERROR: Trying to publish a package that has been compiled by NGCC. This is not allowed.\\nPlease delete and rebuild the package, without compiling with NGCC, before attempting to publish.\\nNote that NGCC may have been run by importing this package into another project that is being built with Ivy enabled.\\n')\" && exit 1",
+    "watch": "rollup -cw",
+    "pegjs": "cd src/pv/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts grammar.pegjs",
+    "start": "node ./demo/server.js",
+    "prepublishOnly__ivy_ngcc_bak": "npm run build"
+  },
+  "main": "dist/opi.umd.js",
+  "module": "dist/opi.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.0.1",
+    "@rollup/plugin-node-resolve": "^7.0.0",
+    "@types/dygraphs": "^1.1.10",
+    "@types/fontfaceobserver": "0.0.6",
+    "@types/node": "^13.1.8",
+    "@types/pegjs": "^0.10.0",
+    "dygraphs": "^2.1.0",
+    "express": "^4.17.1",
+    "fontfaceobserver": "^2.0.13",
+    "morgan": "^1.9.1",
+    "nunjucks": "^3.2.0",
+    "pegjs": "^0.10.0",
+    "rollup": "^1.29.0",
+    "rollup-plugin-copy": "^3.2.1",
+    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.25.3",
+    "ts-pegjs": "^0.2.1",
+    "typescript": "^3.7.5"
+  },
+  "__processed_by_ivy_ngcc__": {
+    "fesm2015": "9.0.0-rc.9",
+    "fesm5": "9.0.0-rc.9",
+    "es2015": "9.0.0-rc.9",
+    "esm2015": "9.0.0-rc.9",
+    "esm5": "9.0.0-rc.9",
+    "main": "9.0.0-rc.9",
+    "module": "9.0.0-rc.9"
+  }
 }

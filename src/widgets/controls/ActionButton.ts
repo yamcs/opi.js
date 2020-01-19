@@ -71,8 +71,11 @@ export class ActionButton extends Widget {
 
     draw(g: Graphics) {
         const ctx = g.ctx;
-        ctx.fillStyle = (this.backgroundColor || Color.BUTTON).toString();
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        g.fillRect({
+            ...this.area,
+            color: this.backgroundColor,
+        });
 
         const hitRegion = g.addHitRegion(this.areaRegion!);
         hitRegion.addRect(this.x, this.y, this.width, this.height);
@@ -178,4 +181,14 @@ export class ActionButton extends Widget {
     get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
     get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }
     get releaseActionIndex(): number { return this.properties.getValue(PROP_RELEASE_ACTION_INDEX); }
+
+    // Some widget instances don't seem to have this property and use a specific default.
+    get backgroundColor(): Color {
+        const prop = this.properties.getProperty('background_color');
+        if (prop && prop.value !== Color.TRANSPARENT) {
+            return prop.value;
+        } else {
+            return Color.BUTTON;
+        }
+    }
 }

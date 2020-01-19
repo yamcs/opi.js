@@ -49,15 +49,15 @@ export class BooleanSwitch extends Widget {
     }
 
     private toggleOn() {
-        if (this.pv && this.pv.isWritable()) {
-            this.pv.value = 1;
+        if (this.pv && this.pv.writable) {
+            this.display.pvEngine.setValue(new Date(), this.pv.name, 1);
         }
         this.executeAction(this.pushActionIndex);
     }
 
     private toggleOff() {
-        if (this.pv && this.pv.isWritable()) {
-            this.pv.value = 0;
+        if (this.pv && this.pv.writable) {
+            this.display.pvEngine.setValue(new Date(), this.pv.name, 0);
         }
         if (this.releaseActionIndex !== undefined) {
             this.executeAction(this.releaseActionIndex);

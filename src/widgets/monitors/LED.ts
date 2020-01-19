@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { toBorderBox } from '../../positioning';
+import { Bounds, shrink, toBorderBox } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
@@ -81,10 +81,16 @@ export class LED extends Widget {
     }
 
     get booleanValue() {
-        if (this.bit < 0) {
-            return this.pv?.value !== 0;
-        } else if (this.pv?.value !== undefined) {
-            return ((this.pv?.value >> this.bit) & 1) > 0;
+        if (this.dataType === 0) { // Bit
+            if (this.bit < 0) {
+                return this.pv && this.pv.value !== 0;
+            } else if (this.pv?.value !== undefined) {
+                return ((this.pv?.value >> this.bit) & 1) > 0;
+            } else {
+                return false;
+            }
+        } else if (this.dataType === 1) { // Enum
+            return false;
         } else {
             return false;
         }
@@ -92,9 +98,7 @@ export class LED extends Widget {
 
     get bulbColor(): Color {
         if (this.stateCount <= 2) {
-            if (this.pv?.value !== undefined) {
-                return this.booleanValue ? this.onColor : this.offColor;
-            }
+            return this.booleanValue ? this.onColor : this.offColor;
         }
 
         for (const state of this.states) {
@@ -107,9 +111,7 @@ export class LED extends Widget {
 
     get label(): string {
         if (this.stateCount === 2) {
-            if (this.pv?.value) {
-                return this.booleanValue ? this.onLabel : this.offLabel;
-            }
+            return this.booleanValue ? this.onLabel : this.offLabel;
         }
 
         for (const state of this.states) {
@@ -121,24 +123,25 @@ export class LED extends Widget {
     }
 
     draw(g: Graphics) {
+        const area = shrink(this.bounds, 3);
         if (this.squareLed) {
             if (this.effect3d) {
-                this.drawSquare3d(g);
+                this.drawSquare3d(g, area);
             } else {
-                this.drawSquare2d(g);
+                this.drawSquare2d(g, area);
             }
         } else {
             if (this.effect3d) {
-                this.drawCircle3d(g);
+                this.drawCircle3d(g, area);
             } else {
-                this.drawCircle2d(g);
+                this.drawCircle2d(g, area);
             }
         }
 
         if (this.showBooleanLabel) {
             g.fillText({
-                x: this.x + this.width / 2,
-                y: this.y + this.height / 2,
+                x: area.x + area.width / 2,
+                y: area.y + area.height / 2,
                 font: this.font,
                 baseline: 'middle',
                 align: 'center',
@@ -148,11 +151,11 @@ export class LED extends Widget {
         }
     }
 
-    private drawCircle2d(g: Graphics) {
-        const cx = this.x + (this.width / 2);
-        const cy = this.y + (this.height / 2);
-        let rx = this.width / 2;
-        let ry = this.height / 2;
+    private drawCircle2d(g: Graphics, area: Bounds) {
+        const cx = area.x + (area.width / 2);
+        const cy = area.y + (area.height / 2);
+        let rx = area.width / 2;
+        let ry = area.height / 2;
         if (this.bulbBorder > 0) {
             rx -= (this.bulbBorder / 2.0);
             ry -= (this.bulbBorder / 2.0);
@@ -162,118 +165,107 @@ export class LED extends Widget {
         g.strokeEllipse({ cx, cy, rx, ry, color: this.bulbBorderColor, lineWidth: this.bulbBorder });
     }
 
-    private drawCircle3d(g: Graphics) {
-        let cx = this.x + (this.width / 2);
-        let cy = this.y + (this.height / 2);
-        let rx = this.width / 2;
-        let ry = this.height / 2;
+    private drawCircle3d(g: Graphics, area: Bounds) {
+        const cx = area.x + (area.width / 2);
+        const cy = area.y + (area.height / 2);
+        let rx = area.width / 2;
+        let ry = area.height / 2;
         g.fillEllipse({ cx, cy, rx, ry, color: Color.WHITE });
 
-        let gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        let gradient = g.createLinearGradient(area.x, area.y, area.x + area.width, area.y + area.height);
         gradient.addColorStop(0, this.bulbBorderColor.toString());
         gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
         g.fillEllipse({ cx, cy, rx, ry, gradient });
 
-        const innerWidth = this.width - (2 * this.bulbBorder);
-        const innerHeight = this.height - (2 * this.bulbBorder);
-        cx = this.x + (this.width / 2);
-        cy = this.y + (this.height / 2);
+        const innerWidth = area.width - (2 * this.bulbBorder);
+        const innerHeight = area.height - (2 * this.bulbBorder);
         rx = innerWidth / 2;
         ry = innerHeight / 2;
         g.fillEllipse({ cx, cy, rx, ry, color: this.bulbColor });
 
-        gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        gradient = g.createLinearGradient(area.x, area.y, area.x + area.width, area.y + area.height);
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
         g.fillEllipse({ cx, cy, rx, ry, gradient });
     }
 
-    private drawSquare2d(g: Graphics) {
-        const box = toBorderBox(this.x, this.y, this.width, this.height, this.bulbBorder);
+    private drawSquare2d(g: Graphics, area: Bounds) {
+        const box = toBorderBox(area.x, area.y, area.width, area.height, this.bulbBorder);
         g.fillRect({
-            x: box.x,
-            y: box.y,
-            width: box.width,
-            height: box.height,
+            ...box,
             color: this.bulbColor,
         });
         g.strokeRect({
-            x: box.x,
-            y: box.y,
-            width: box.width,
-            height: box.height,
+            ...box,
             color: this.bulbBorderColor,
             lineWidth: this.bulbBorder,
         });
     }
 
-    private drawSquare3d(g: Graphics) {
+    private drawSquare3d(g: Graphics, area: Bounds) {
         g.fillRect({
-            x: this.x,
-            y: this.y,
-            width: this.width,
-            height: this.height,
+            ...area,
             color: this.bulbBorderColor,
         });
 
         // Left border
-        let gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
+        let gradient = g.createLinearGradient(area.x, area.y, area.x + area.width, area.y);
         gradient.addColorStop(0, 'rgba(0,0,0,0.078)');
         gradient.addColorStop(1, 'rgba(0,0,0,0.39)');
         g.fillPath({
             gradient,
-            path: new Path(this.x, this.y)
-                .lineTo(this.x + this.bulbBorder, this.y + this.bulbBorder)
-                .lineTo(this.x + this.bulbBorder, this.y + this.height - this.bulbBorder)
-                .lineTo(this.x, this.y + this.height)
+            path: new Path(area.x, area.y)
+                .lineTo(area.x + this.bulbBorder, area.y + this.bulbBorder)
+                .lineTo(area.x + this.bulbBorder, area.y + area.height - this.bulbBorder)
+                .lineTo(area.x, area.y + area.height)
         });
 
         // Top border
-        gradient = g.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+        gradient = g.createLinearGradient(area.x, area.y, area.x, area.y + area.height);
         gradient.addColorStop(0, 'rgba(0,0,0,0.078)');
         gradient.addColorStop(1, 'rgba(0,0,0,0.39)');
         g.fillPath({
             gradient,
-            path: new Path(this.x, this.y)
-                .lineTo(this.x + this.bulbBorder, this.y + this.bulbBorder)
-                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.bulbBorder)
-                .lineTo(this.x + this.width, this.y)
+            path: new Path(area.x, area.y)
+                .lineTo(area.x + this.bulbBorder, area.y + this.bulbBorder)
+                .lineTo(area.x + area.width - this.bulbBorder, area.y + this.bulbBorder)
+                .lineTo(area.x + area.width, area.y)
         });
 
         // Right border
-        gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
+        gradient = g.createLinearGradient(area.x, area.y, area.x + area.width, area.y);
         gradient.addColorStop(0, 'rgba(255,255,255,0.078)');
         gradient.addColorStop(1, 'rgba(255,255,255,0.39)');
         g.fillPath({
             gradient,
-            path: new Path(this.x + this.width, this.y)
-                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.bulbBorder)
-                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.height - this.bulbBorder)
-                .lineTo(this.x + this.width, this.y + this.height)
+            path: new Path(area.x + area.width, area.y)
+                .lineTo(area.x + area.width - this.bulbBorder, area.y + this.bulbBorder)
+                .lineTo(area.x + area.width - this.bulbBorder, area.y + area.height - this.bulbBorder)
+                .lineTo(area.x + area.width, area.y + area.height)
         });
 
         // Bottom border
-        gradient = g.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+        gradient = g.createLinearGradient(area.x, area.y, area.x, area.y + area.height);
         gradient.addColorStop(0, 'rgba(255,255,255,0.078)');
         gradient.addColorStop(1, 'rgba(255,255,255,0.39)');
         g.fillPath({
             gradient,
-            path: new Path(this.x, this.y + this.height)
-                .lineTo(this.x + this.bulbBorder, this.y + this.height - this.bulbBorder)
-                .lineTo(this.x + this.width - this.bulbBorder, this.y + this.height - this.bulbBorder)
-                .lineTo(this.x + this.width, this.y + this.height)
+            path: new Path(area.x, area.y + area.height)
+                .lineTo(area.x + this.bulbBorder, area.y + area.height - this.bulbBorder)
+                .lineTo(area.x + area.width - this.bulbBorder, area.y + area.height - this.bulbBorder)
+                .lineTo(area.x + area.width, area.y + area.height)
         });
 
         // Bulb
-        const x = this.x + this.bulbBorder;
-        const y = this.y + this.bulbBorder;
-        const width = this.width - (2 * this.bulbBorder);
-        const height = this.height - (2 * this.bulbBorder);
+        const x = area.x + this.bulbBorder;
+        const y = area.y + this.bulbBorder;
+        const width = area.width - (2 * this.bulbBorder);
+        const height = area.height - (2 * this.bulbBorder);
 
         g.fillRect({ x, y, width, height, color: this.bulbColor });
 
         // Bulb gradient overlay
-        gradient = g.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        gradient = g.createLinearGradient(area.x, area.y, area.x + area.width, area.y + area.height);
         gradient.addColorStop(0, 'rgba(255,255,255,0.784)');
         gradient.addColorStop(1, this.bulbColor.withAlpha(0).toString());
         g.fillRect({ x, y, width, height, gradient });

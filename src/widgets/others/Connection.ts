@@ -171,7 +171,7 @@ export class Connection extends Widget {
       default:
     }
 
-    const bounds = this.bounds;
+    const bounds = widget.bounds;
     const position = this.getPosition(widget, term);
 
     const distanceLeft = position.x - bounds.x;

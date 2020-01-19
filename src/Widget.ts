@@ -488,7 +488,7 @@ export abstract class Widget {
         g.strokePath({
             color: c1,
             path: new Path(right, bottom)
-                .lineTo(right, bottom)
+                .lineTo(right, top)
                 .moveTo(right, bottom)
                 .lineTo(left, bottom)
         });
@@ -562,7 +562,7 @@ export abstract class Widget {
             case 'WRITE_PV':
                 if (action.pvName) {
                     const pvName = this.expandMacro(action.pvName);
-                    this.display.pvEngine.setValue(pvName, action.value);
+                    this.display.pvEngine.setValue(new Date(), pvName, action.value);
                 }
                 break;
             case 'PLAY_SOUND':

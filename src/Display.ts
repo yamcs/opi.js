@@ -4,6 +4,8 @@ import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
 import { PVEngine } from './pv/PVEngine';
+import { PVProvider } from './pv/PVProvider';
+import { SimulatedPVProvider } from './pv/SimulatedPVProvider';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
@@ -63,7 +65,7 @@ export class Display {
     rootPanel: HTMLDivElement;
     private g: Graphics;
     private ctx: CanvasRenderingContext2D;
-    pvEngine = new PVEngine();
+    pvEngine: PVEngine;
 
     private repaintRequested = false;
 
@@ -81,6 +83,7 @@ export class Display {
     instance?: DisplayWidget;
 
     private eventListeners: OPIEventHandlers = {
+        closedisplay: [],
         opendisplay: [],
         selection: [],
     };
@@ -100,7 +103,10 @@ export class Display {
         this.g = new Graphics(canvas);
         this.ctx = this.g.ctx;
 
-        window.requestAnimationFrame(t => this.step(t));
+        this.pvEngine = new PVEngine(this);
+        this.pvEngine.addProvider(new SimulatedPVProvider());
+
+        window.requestAnimationFrame(() => this.step());
 
         // Preload the default Liberation font for correct text measurements
         // Probably can be done without external library in about 5 years from now.
@@ -119,13 +125,15 @@ export class Display {
             .catch(() => console.warn(`Failed to load font '${fontFace}'. Font metrics may not be accurate.`));
     }
 
-    private step(t: number) {
-        window.requestAnimationFrame(t => this.step(t));
+    addProvider(provider: PVProvider) {
+        this.pvEngine.addProvider(provider);
+    }
 
-        const pvChanged = this.pvEngine.step(t);
+    private step() {
+        window.requestAnimationFrame(() => this.step());
 
         // Limit CPU usage to when we need it
-        if (this.repaintRequested || pvChanged) {
+        if (this.repaintRequested) {
             this.g.clearHitCanvas();
             this.drawScreen();
             this.repaintRequested = false;
@@ -294,14 +302,18 @@ export class Display {
         }
     }
 
-    clear() {
-        this.clearSelection();
+    destroy() {
         this.instance = undefined;
-        this.pvEngine.reset();
+        this.pvEngine.clearState();
         this.requestRepaint();
     }
 
     setSource(href: string) {
+        if (this.instance) {
+            this.clearSelection();
+            this.pvEngine.clearState();
+            this.instance = undefined;
+        }
         return new Promise((resolve, reject) => {
             fetch(this.baseUrl + href).then(response => {
                 if (response.ok) {

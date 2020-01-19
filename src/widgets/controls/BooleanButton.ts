@@ -69,9 +69,10 @@ export class BooleanButton extends Widget {
 
     private toggleOn() {
         this.manualToggleState = true;
-        if (this.pv && this.pv.isWritable()) {
+        if (this.pv && this.pv.writable) {
             if (this.dataType === 0) { // Bit
-                this.pv.value |= (1 << this.bit);
+                const value = this.pv.value | (1 << this.bit);
+                this.display.pvEngine.setValue(new Date(), this.pv.name, value);
             } else { // TODO
             }
         }
@@ -80,9 +81,10 @@ export class BooleanButton extends Widget {
 
     private toggleOff() {
         this.manualToggleState = false;
-        if (this.pv && this.pv.isWritable()) {
+        if (this.pv && this.pv.writable) {
             if (this.dataType === 0) { // Bit
-                this.pv.value &= ~(1 << this.bit);
+                const value = this.pv.value & ~(1 << this.bit);
+                this.display.pvEngine.setValue(new Date(), this.pv.name, value);
             } else { // TODO
             }
         }

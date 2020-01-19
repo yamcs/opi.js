@@ -1,47 +1,103 @@
-export abstract class PV {
+import { PVEngine } from './PVEngine';
+import { Sample } from './Sample';
 
+export class PV {
+
+    private _writable = false;
+    private _units?: string;
+
+    private _lowerDisplayLimit?: number;
+    private _lowerAlarmLimit?: number;
+    private _lowerWarningLimit?: number;
+
+    private _upperWarningLimit?: number;
+    private _upperAlarmLimit?: number;
+    private _upperDisplayLimit?: number;
+
+    private _time?: Date;
     private _value?: any;
-    private listeners?: PVListener[];
+    private _severity = AlarmSeverity.NONE;
 
-    units?: string;
+    private _disconnected = false;
 
-    lowerDisplayLimit?: number;
-    lowerAlarmLimit?: number;
-    lowerWarningLimit?: number;
-
-    upperWarningLimit?: number;
-    upperAlarmLimit?: number;
-    upperDisplayLimit?: number;
-
-    constructor(readonly name: string) {
+    constructor(readonly name: string, readonly pvEngine: PVEngine) {
     }
 
-    get severity() {
-        return AlarmSeverity.NONE;
+    get units(): string | undefined { return this._units; }
+    set units(units: string | undefined) {
+        this._units = units;
+        this.pvEngine.requestRepaint();
     }
 
+    get lowerDisplayLimit(): number | undefined { return this._lowerDisplayLimit; }
+    set lowerDisplayLimit(lowerDisplayLimit: number | undefined) {
+        this._lowerDisplayLimit = lowerDisplayLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get lowerAlarmLimit(): number | undefined { return this._lowerAlarmLimit; }
+    set lowerAlarmLimit(lowerAlarmLimit: number | undefined) {
+        this._lowerAlarmLimit = lowerAlarmLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get lowerWarningLimit(): number | undefined { return this._lowerWarningLimit; }
+    set lowerWarningLimit(lowerWarningLimit: number | undefined) {
+        this._lowerWarningLimit = lowerWarningLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get upperWarningLimit(): number | undefined { return this._upperWarningLimit; }
+    set upperWarningLimit(upperWarningLimit: number | undefined) {
+        this._upperWarningLimit = upperWarningLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get upperAlarmLimit(): number | undefined { return this._upperAlarmLimit; }
+    set upperAlarmLimit(upperAlarmLimit: number | undefined) {
+        this._upperAlarmLimit = upperAlarmLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get upperDisplayLimit(): number | undefined { return this._upperDisplayLimit; }
+    set upperDisplayLimit(upperDisplayLimit: number | undefined) {
+        this._upperDisplayLimit = upperDisplayLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get writable(): boolean { return this._writable; }
+    set writable(writable: boolean) {
+        this._writable = writable;
+        this.pvEngine.requestRepaint();
+    }
+
+    get disconnected(): boolean { return this._disconnected; }
+    set disconnected(disconnected: boolean) {
+        this._disconnected = disconnected;
+        this.pvEngine.requestRepaint();
+    }
+
+    get time(): Date | undefined { return this._time; }
     get value(): any | undefined { return this._value; }
-    set value(value: any | undefined) {
-        this._value = value;
-        this.fireValueChanged();
-    }
+    get severity(): AlarmSeverity { return this._severity; }
 
-    protected fireValueChanged() {
-        if (this.listeners) {
-            for (const listener of this.listeners) {
-                listener();
-            }
-        }
+    // Should be called by PVEngine only
+    setSample(sample: Sample) {
+        this._time = sample.time;
+        this._value = sample.value;
+        this._severity = sample.severity;
+        this.pvEngine.requestRepaint();
     }
-
-    abstract isWritable(): boolean;
 
     addListener(listener: PVListener) {
-        this.listeners = this.listeners || [];
-        this.listeners.push(listener);
+        this.pvEngine.addListener(this.name, listener);
     }
 
-    abstract toString(): string | undefined;
+    toString() {
+        if (this.value !== undefined) {
+            return String(this.value);
+        }
+    }
 }
 
 export type PVListener = () => void;

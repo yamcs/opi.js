@@ -18,6 +18,6 @@ export class ScriptUtil {
   }
 
   closeCurrentOPI() {
-    this.display.clear();
+    this.display.fireEvent('closedisplay', {});
   }
 }

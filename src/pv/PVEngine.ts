@@ -1,3 +1,4 @@
+import { Display } from '../Display';
 import { StringProperty } from '../properties';
 import { Rule } from '../rules';
 import { ScriptEngine } from '../scripting/ScriptEngine';
@@ -6,8 +7,9 @@ import { Widget } from '../Widget';
 import { CompiledFormula } from './formulas/CompiledFormula';
 import { FormulaCompiler } from './formulas/FormulaCompiler';
 import { LocalPV } from './LocalPV';
-import { PV } from './PV';
-import { SimulatedPV } from './SimulatedPV';
+import { AlarmSeverity, PV, PVListener } from './PV';
+import { PVProvider } from './PVProvider';
+import { Sample } from './Sample';
 
 const PV_PATTERN = /(loc\:\/\/[^\(]+)(\((.*)\))?/;
 
@@ -22,58 +24,22 @@ function stripInitializer(pvName: string) {
 export class PVEngine {
 
     private formulas = new Map<string, CompiledFormula>();
-    private formulasByTrigger = new Map<string, CompiledFormula[]>();
     private rules: RuleInstance[] = [];
-    private rulesByTrigger = new Map<string, RuleInstance[]>();
     private scripts: ScriptInstance[] = [];
-    private scriptsByTrigger = new Map<string, ScriptInstance[]>();
     private pvs = new Map<string, PV>();
-    private simulatedPvs: SimulatedPV[] = [];
 
-    private changed = false;
+    private providers: PVProvider[] = [];
 
-    step(t: number): boolean {
-        const triggeredScripts = [];
-        const triggeredRules = [];
+    private listeners = new Map<string, PVListener[]>();
 
-        let wasChanged = this.changed;
-        for (const pv of this.simulatedPvs) {
-            const pvChanged = pv.step(t);
-            if (pvChanged) {
-                for (const script of this.scriptsByTrigger.get(pv.name) || []) {
-                    triggeredScripts.push(script);
-                }
-                for (const rule of this.rulesByTrigger.get(pv.name) || []) {
-                    triggeredRules.push(rule);
-                }
-            }
-            wasChanged = wasChanged || pvChanged;
-        }
-
-        if (triggeredRules.length) {
-            for (const rule of triggeredRules) {
-                rule.scriptEngine.run();
-            }
-        }
-        if (triggeredScripts.length) {
-            for (const script of triggeredScripts) {
-                script.scriptEngine.run();
-            }
-        }
-
-        this.changed = false;
-        return wasChanged;
+    constructor(private display: Display) {
     }
 
-    reset() {
-        this.formulas.clear();
-        this.formulasByTrigger.clear();
-        this.pvs.clear();
-        this.simulatedPvs = [];
+    clearState() {
+        this.disconnectAll();
         this.rules = [];
-        this.rulesByTrigger.clear();
         this.scripts = [];
-        this.scriptsByTrigger.clear();
+        this.listeners.clear();
     }
 
     getPVNames() {
@@ -90,6 +56,22 @@ export class PVEngine {
         return this.pvs.get(stripped);
     }
 
+    disconnectAll() {
+        for (const provider of this.providers) {
+            const toBeStopped = [];
+            for (const pv of this.pvs.values()) {
+                if (provider.canProvide(pv.name)) {
+                    toBeStopped.push(pv);
+                }
+            }
+            if (toBeStopped.length) {
+                provider.stopProviding(toBeStopped);
+            }
+        }
+        this.pvs.clear();
+        this.formulas.clear();
+    }
+
     createPV(pvName: string) {
         if (pvName.startsWith('loc://')) {
             return this.createLocalPV(pvName);
@@ -100,17 +82,28 @@ export class PVEngine {
             return pv;
         }
 
-        if (pvName === 'sys://time' || pvName.startsWith('sim://')) {
-            pv = new SimulatedPV(pvName);
-            this.pvs.set(pvName, pv);
-            this.simulatedPvs.push(pv as SimulatedPV);
-            return pv;
-        } else if (pvName.startsWith('=')) {
+        if (pvName.startsWith('=')) {
             this.createFormula(pvName);
-            return new LocalPV(pvName); // TODO
-        } else {
-            throw new Error(`Unsupported PV ${pvName}`);
+            return new LocalPV(pvName, this); // TODO
         }
+
+        pv = new PV(pvName, this);
+        this.pvs.set(pvName, pv);
+
+        for (const provider of this.providers) {
+            if (provider.canProvide(pvName)) {
+                provider.startProviding([pv]);
+                return pv;
+            }
+        }
+
+        console.warn(`No provider for PV ${pvName}`);
+        pv.disconnected = true;
+        return pv;
+    }
+
+    requestRepaint() {
+        this.display.requestRepaint();
     }
 
     private createLocalPV(pvName: string) {
@@ -128,10 +121,10 @@ export class PVEngine {
             console.warn(`PV ${pvName} is defined with different initializers.`);
         }
         if (!pv) {
-            pv = new LocalPV(pvName, initializer);
+            pv = new LocalPV(pvName, this, initializer);
             this.pvs.set(pvName, pv);
             if (initializer !== undefined) {
-                this.setValue(pvName, initializer);
+                this.setValue(new Date(), pvName, initializer);
             }
         }
         return pv;
@@ -145,18 +138,38 @@ export class PVEngine {
         }
     }
 
-    setValue(pvName: string, value: any) {
+    setValue(time: Date, pvName: string, value: any, severity = AlarmSeverity.NONE) {
         const stripped = stripInitializer(pvName);
         const pv = this.pvs.get(stripped);
         if (pv) {
-            if (pv.isWritable()) {
-                pv.value = value;
-                this.changed = true;
-            } else {
-                throw new Error(`Cannot set value of readonly PV ${pvName}`);
+            pv.setSample({ time, value, severity });
+            for (const listener of this.listeners.get(pvName) || []) {
+                listener();
             }
         } else {
             throw new Error(`Cannot set value of unknown PV ${pvName}`);
+        }
+    }
+
+    setValues(samples: Map<string, Sample>) {
+        // Bundle triggers so that if a listener is listening to
+        // multiple received PVs, it only triggers once (i.e. scripts).
+        const triggeredListeners: PVListener[] = [];
+
+        for (const pvName of samples.keys()) {
+            const pv = this.pvs.get(pvName);
+            if (pv) {
+                pv.setSample(samples.get(pvName)!);
+                for (const listener of this.listeners.get(pvName) || []) {
+                    triggeredListeners.push(listener);
+                }
+            } else {
+                console.warn(`Received an update for unknown pv ${pvName}`);
+            }
+        }
+
+        for (const listener of triggeredListeners) {
+            listener();
         }
     }
 
@@ -168,10 +181,13 @@ export class PVEngine {
         }
         const script = new ScriptInstance(widget, model, scriptText, pvs);
         this.scripts.push(script);
+
+        const listener = () => script.scriptEngine.run();
+
         for (const input of model.inputs) {
             if (input.trigger) {
                 const pvName = widget.expandMacro(input.pvName);
-                this.registerScriptTriggers(pvName, script);
+                this.addListener(pvName, listener);
             }
         }
     }
@@ -184,10 +200,13 @@ export class PVEngine {
         }
         const rule = new RuleInstance(widget, model, pvs);
         this.rules.push(rule);
+
+        const listener = () => rule.scriptEngine.run();
+
         for (const input of model.inputs) {
             if (input.trigger) {
                 const pvName = widget.expandMacro(input.pvName);
-                this.registerRuleTriggers(pvName, rule);
+                this.addListener(pvName, listener);
             }
         }
     }
@@ -199,36 +218,24 @@ export class PVEngine {
             compiledFormula = compiler.compile(pvName);
         }
 
+        const listener = () => compiledFormula?.execute();
+
         for (const pvName of compiledFormula.getParameters()) {
             this.createPV(pvName);
-            this.registerFormulaTriggers(pvName, compiledFormula);
+            this.addListener(pvName, listener);
         }
     }
 
-    private registerFormulaTriggers(pvName: string, formula: CompiledFormula) {
-        const formulas = this.formulasByTrigger.get(pvName);
-        if (formulas) {
-            formulas.push(formula);
-        } else {
-            this.formulasByTrigger.set(pvName, [formula]);
-        }
+    addProvider(provider: PVProvider) {
+        this.providers.push(provider);
     }
 
-    private registerScriptTriggers(pvName: string, script: ScriptInstance) {
-        const scripts = this.scriptsByTrigger.get(pvName);
-        if (scripts) {
-            scripts.push(script);
+    addListener(pvName: string, listener: PVListener) {
+        const listeners = this.listeners.get(pvName);
+        if (listeners) {
+            listeners.push(listener);
         } else {
-            this.scriptsByTrigger.set(pvName, [script]);
-        }
-    }
-
-    private registerRuleTriggers(pvName: string, rule: RuleInstance) {
-        const rules = this.rulesByTrigger.get(pvName);
-        if (rules) {
-            rules.push(rule);
-        } else {
-            this.rulesByTrigger.set(pvName, [rule]);
+            this.listeners.set(pvName, [listener]);
         }
     }
 }

@@ -14,6 +14,6 @@ export class PVWrapper {
     }
 
     setValue(value: any) {
-        this.pv.value = value;
+        this.pv.pvEngine.setValue(new Date(), this.pv.name, value);
     }
 }
