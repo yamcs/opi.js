@@ -11,6 +11,7 @@ import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
+import { TextInput } from './widgets/controls/TextInput';
 import { Arc } from './widgets/graphics/Arc';
 import { Ellipse } from './widgets/graphics/Ellipse';
 import { ImageWidget } from './widgets/graphics/ImageWidget';
@@ -38,7 +39,6 @@ const TYPE_ACTION_BUTTON = 'Action Button';
 const TYPE_ARC = 'Arc';
 const TYPE_BOOLEAN_BUTTON = 'Boolean Button';
 const TYPE_BOOLEAN_SWITCH = 'Boolean Switch';
-const TYPE_DISPLAY = 'Display';
 const TYPE_ELLIPSE = 'Ellipse';
 const TYPE_GAUGE = 'Gauge';
 const TYPE_GROUPING_CONTAINER = 'Grouping Container';
@@ -130,14 +130,14 @@ export class Display {
     }
 
     private step() {
-        window.requestAnimationFrame(() => this.step());
-
         // Limit CPU usage to when we need it
         if (this.repaintRequested) {
             this.g.clearHitCanvas();
             this.drawScreen();
             this.repaintRequested = false;
         }
+
+        window.requestAnimationFrame(() => this.step());
     }
 
     private drawScreen() {
@@ -291,6 +291,8 @@ export class Display {
                 return new RoundedRectangle(this, parent);
             case TYPE_TABBED_CONTAINER:
                 return new TabbedContainer(this, parent);
+            case TYPE_TEXT_INPUT:
+                return new TextInput(this, parent);
             case TYPE_TEXT_UPDATE:
                 return new TextUpdate(this, parent);
             case TYPE_WEB_BROWSER:

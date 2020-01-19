@@ -7,13 +7,6 @@ window.page = (function () {
 
     const display = new Display(displayEl);
 
-    display.addEventListener('selection', () => {
-        console.log('--- new selection');
-        for (const id of display.selection) {
-            const widget = display.findWidget(id);
-            console.log('properties', widget.properties.all());
-        }
-    });
     display.addEventListener('opendisplay', evt => {
         window.location.href = evt.path;
     });
@@ -41,15 +34,6 @@ window.page = (function () {
                 }
                 widgetsEl.innerHTML = html;
             });
-        },
-        toggleGrid: () => {
-            display.showGrid = !display.showGrid;
-        },
-        toggleOutline: () => {
-            display.showOutline = !display.showOutline;
-        },
-        toggleRuler: () => {
-            display.showRuler = !display.showRuler;
         },
         toggleEdit: () => {
             if (display.editMode) {

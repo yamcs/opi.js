@@ -18,6 +18,8 @@ export class PV {
     private _value?: any;
     private _severity = AlarmSeverity.NONE;
 
+    private _precision = 3;
+
     private _disconnected = false;
 
     constructor(readonly name: string, readonly pvEngine: PVEngine) {
@@ -62,6 +64,12 @@ export class PV {
     get upperDisplayLimit(): number | undefined { return this._upperDisplayLimit; }
     set upperDisplayLimit(upperDisplayLimit: number | undefined) {
         this._upperDisplayLimit = upperDisplayLimit;
+        this.pvEngine.requestRepaint();
+    }
+
+    get precision(): number { return this._precision; }
+    set precision(precision: number) {
+        this._precision = precision;
         this.pvEngine.requestRepaint();
     }
 

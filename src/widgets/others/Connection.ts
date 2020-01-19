@@ -128,6 +128,10 @@ export class Connection extends Widget {
         return [6, 2];
       } else if (this.lineStyle === 2) { // Dot
         return [2, 2];
+      } else if (this.lineStyle === 3) { // Dash Dot
+        return [6, 2, 2, 2];
+      } else if (this.lineStyle === 4) { // Dash Dot Dot
+        return [6, 2, 2, 2, 2, 2];
       } else {
         console.warn(`Unsupported connection line style ${this.lineStyle}`);
       }

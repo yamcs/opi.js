@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}opi.js{% endblock %}</title>
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <link rel="stylesheet" href="/dist/fonts/stylesheet.css">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css">
@@ -15,7 +16,10 @@
         {% endblock %}
     </div>
     <div id="app-title">
-        <a href="/">opi.js</a>
+        <a href="/">
+            <img src="/static/opi.png" style="vertical-align: middle">
+            opi.js
+        </a>
     </div>
     <div id="sidebar">
         <ul class="menu">

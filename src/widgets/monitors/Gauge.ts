@@ -3,7 +3,7 @@ import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
 import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
-import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { Ramp } from '../figures/Ramp';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -20,6 +20,7 @@ const PROP_COLOR_LO = 'color_lo';
 const PROP_COLOR_LOLO = 'color_lolo';
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_FONT = 'font';
+const PROP_VALUE_LABEL_FORMAT = 'value_label_format';
 const PROP_LEVEL_HI = 'level_hi';
 const PROP_LEVEL_HIHI = 'level_hihi';
 const PROP_LEVEL_LO = 'level_lo';
@@ -67,6 +68,7 @@ export class Gauge extends Widget {
         this.properties.add(new ColorProperty(PROP_NEEDLE_COLOR));
         this.properties.add(new BooleanProperty(PROP_RAMP_GRADIENT));
         this.properties.add(new BooleanProperty(PROP_SHOW_RAMP, true));
+        this.properties.add(new StringProperty(PROP_VALUE_LABEL_FORMAT));
     }
 
     draw(g: Graphics) {
@@ -211,7 +213,7 @@ export class Gauge extends Widget {
         // A font property is exposed in the UI, but it seems to get ignored in favour of arial 12 bold.
         const font = Font.ARIAL_12_BOLD;
         if (this.pv?.value !== undefined) {
-            const text = String(this.pv.value);
+            const text = this.formatLabelValue(this.pv.value);
             const fm = g.measureText(text, font);
             g.fillText({
                 x: this.x + width / 2 - fm.width / 2,
@@ -303,6 +305,14 @@ export class Gauge extends Widget {
         return valuePosition;
     }
 
+    private formatLabelValue(value: number) {
+        if (this.valueLabelFormat) {
+            console.log(`Custom format ${this.valueLabelFormat} not supported.`);
+            return String(value);
+        } else {
+            return String(Number(value.toFixed(3)));
+        }
+    }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
     get colorLoLo(): Color { return this.properties.getValue(PROP_COLOR_LOLO); }
@@ -321,4 +331,5 @@ export class Gauge extends Widget {
     get needleColor(): Color { return this.properties.getValue(PROP_NEEDLE_COLOR); }
     get rampGradient(): boolean { return this.properties.getValue(PROP_RAMP_GRADIENT); }
     get showRamp(): boolean { return this.properties.getValue(PROP_SHOW_RAMP); }
+    get valueLabelFormat(): string { return this.properties.getValue(PROP_VALUE_LABEL_FORMAT); }
 }

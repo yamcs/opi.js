@@ -22,6 +22,8 @@ export class Font {
   getFontString() {
     if (this.style === 1) {
       return `bold ${this.height}px ${this.name}`;
+    } else if (this.style === 2) {
+      return `italic ${this.height}px ${this.name}`;
     } else {
       if (this.style !== 0) {
         console.warn(`Unsupported font style ${this.style}`);
