@@ -1,4 +1,5 @@
 import { Color } from '../Color';
+import { Font } from '../Font';
 
 export class ColorFontUtil {
 
@@ -15,4 +16,12 @@ export class ColorFontUtil {
   static RED = Color.RED;
   static WHITE = Color.WHITE;
   static YELLOW = Color.YELLOW;
+
+  getColorFromRGB(red: number, green: number, blue: number) {
+    return new Color(red, green, blue);
+  }
+
+  getFont(name: string, height: number, style: number) {
+    return new Font(name, height, style, false);
+  }
 }

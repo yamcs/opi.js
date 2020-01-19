@@ -1,8 +1,13 @@
+import FontFaceObserver, { FontVariant } from 'fontfaceobserver';
+
+// FontFaceObserver only detects fonts loaded through @font-face, so we
+// bypass it for "common" fonts.
+const WEB_SAFE = ['Arial', 'Arial Black', 'Courier New', 'Helvetica', 'Tahoma', 'Verdana'];
 
 export class Font {
 
-  static ARIAL_11 = new Font('arial', 11, 0, false);
-  static ARIAL_12_BOLD = new Font('arial', 12, 1, false);
+  static ARIAL_11 = new Font('Arial', 11, 0, false);
+  static ARIAL_12_BOLD = new Font('Arial', 12, 1, false);
 
   height: number; // pixels
 
@@ -15,7 +20,10 @@ export class Font {
     if (pixels) {
       this.height = height;
     } else {
-      this.height = Math.round(height * 1.3333);
+      // TODO. Would expect 1pt = 3/4px, but this ratio
+      // appears to be more accurate with desktop s/w...
+      // (on a 72 dpi screen)
+      this.height = Math.round(height * 16 / 15);
     }
   }
 
@@ -30,5 +38,22 @@ export class Font {
       }
       return `normal ${this.height}px ${this.name}`;
     }
+  }
+
+  preload() {
+    if (WEB_SAFE.indexOf(this.name) !== -1) {
+      return Promise.resolve();
+    }
+
+    let variant: FontVariant = { weight: 'normal', style: 'normal' };
+    if (this.style === 1) {
+      variant.weight = 'bold';
+    } else if (this.style === 2) {
+      variant.style = 'italic';
+    }
+
+    // Probably can be done without external library in about 5 years from now.
+    // Follow browser support of this spec: https://www.w3.org/TR/css-font-loading-3/
+    return new FontFaceObserver(this.name, variant).load();
   }
 }

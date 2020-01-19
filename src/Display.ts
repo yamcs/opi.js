@@ -1,4 +1,3 @@
-import FontFaceObserver from 'fontfaceobserver';
 import { Color } from './Color';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
@@ -108,21 +107,7 @@ export class Display {
 
         window.requestAnimationFrame(() => this.step());
 
-        // Preload the default Liberation font for correct text measurements
-        // Probably can be done without external library in about 5 years from now.
-        // Follow browser support of this spec: https://www.w3.org/TR/css-font-loading-3/
-        this.preloadFont('Liberation Sans', 'normal', 'normal');
-        this.preloadFont('Liberation Sans', 'normal', 'italic');
-        this.preloadFont('Liberation Sans', 'bold', 'normal');
-        this.preloadFont('Liberation Sans', 'bold', 'italic');
-
         new EventHandler(this, canvas, this.g.hitCanvas);
-    }
-
-    preloadFont(fontFace: string, weight: string, style: string) {
-        new FontFaceObserver(fontFace, { weight, style }).load()
-            .then(() => this.requestRepaint())
-            .catch(() => console.warn(`Failed to load font '${fontFace}'. Font metrics may not be accurate.`));
     }
 
     addProvider(provider: PVProvider) {

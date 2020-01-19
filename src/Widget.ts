@@ -5,7 +5,7 @@ import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
 import { Bounds, toBorderBox } from './positioning';
-import { ActionsProperty, BooleanProperty, ColorProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
 import { AlarmSeverity, PV } from './pv/PV';
 import { RuleSet } from './rules';
 import { ScriptEngine } from './scripting/ScriptEngine';
@@ -79,6 +79,14 @@ export abstract class Widget {
 
     parseNode(node: XMLNode) {
         this.properties.loadXMLValues(node);
+
+        for (const property of this.properties.all()) {
+            if (property instanceof FontProperty) {
+                const font = property.value as Font;
+                font.preload().then(() => this.requestRepaint())
+                    .catch(() => console.warn(`Failed to load font '${font.getFontString()}'.`));
+            }
+        }
 
         if (this.pvName) {
             this.display.pvEngine.createPV(this.pvName);

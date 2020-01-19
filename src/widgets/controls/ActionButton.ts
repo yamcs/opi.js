@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
-import { Graphics } from '../../Graphics';
+import { Graphics, Path } from '../../Graphics';
 import { HitRegionSpecification } from '../../HitCanvas';
 import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -85,50 +85,41 @@ export class ActionButton extends Widget {
         const bottom = this.holderY + this.holderHeight - 1 + 0.5;
         const right = this.holderX + this.holderWidth - 1 + 0.5;
 
-        let shadow1 = Color.BLACK;
-        let shadow2 = Color.BUTTON_DARKER;
-        let hl1 = Color.BUTTON_LIGHTEST;
-        let hl2 = this.backgroundColor || Color.BUTTON;
-        if (this.pushed) {
-            shadow1 = hl1;
-            shadow2 = hl2;
-            hl1 = Color.BLACK;
-            hl2 = Color.BUTTON_DARKER;
-        }
+        g.strokePath({
+            lineWidth: 1,
+            color: this.pushed ? Color.BUTTON_LIGHTEST : Color.BLACK,
+            path: new Path(right, bottom)
+                .lineTo(right, top)
+                .moveTo(right, bottom)
+                .lineTo(left, bottom),
+        });
 
-        ctx.lineWidth = 1;
+        g.strokePath({
+            lineWidth: 1,
+            color: this.pushed ? this.backgroundColor : Color.BUTTON_DARKER,
+            path: new Path(right - 1, bottom - 1)
+                .lineTo(right - 1, top + 1)
+                .moveTo(right - 1, bottom - 1)
+                .lineTo(left + 1, bottom - 1),
+        });
 
-        ctx.beginPath();
-        ctx.moveTo(right, bottom);
-        ctx.lineTo(right, top);
-        ctx.moveTo(right, bottom);
-        ctx.lineTo(left, bottom);
-        ctx.strokeStyle = shadow1.toString();
-        ctx.stroke();
+        g.strokePath({
+            lineWidth: 1,
+            color: this.pushed ? Color.BLACK : Color.BUTTON_LIGHTEST,
+            path: new Path(left, top)
+                .lineTo(right - 1, top)
+                .moveTo(left, top)
+                .lineTo(left, bottom - 1),
+        });
 
-        ctx.beginPath();
-        ctx.moveTo(right - 1, bottom - 1);
-        ctx.lineTo(right - 1, top + 1);
-        ctx.moveTo(right - 1, bottom - 1);
-        ctx.lineTo(left + 1, bottom - 1);
-        ctx.strokeStyle = shadow2.toString();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(left, top);
-        ctx.lineTo(right - 1, top);
-        ctx.moveTo(left, top);
-        ctx.lineTo(left, bottom - 1);
-        ctx.strokeStyle = hl1.toString();
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(left + 1, top + 1);
-        ctx.lineTo(right - 1 - 1, top + 1);
-        ctx.moveTo(left + 1, top + 1);
-        ctx.lineTo(left + 1, bottom - 1 - 1);
-        ctx.strokeStyle = hl2.toString();
-        ctx.stroke();
+        g.strokePath({
+            lineWidth: 1,
+            color: this.pushed ? Color.BUTTON_DARKER : this.backgroundColor,
+            path: new Path(left + 1, top + 1)
+                .lineTo(right - 1 - 1, top + 1)
+                .moveTo(left + 1, top + 1)
+                .lineTo(left + 1, bottom - 1 - 1),
+        });
 
         const lines = this.text.split('\n');
 
@@ -156,10 +147,11 @@ export class ActionButton extends Widget {
             } else { // Text under icon
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
+                const contentHeight = textHeight + this.imageElement.naturalHeight;
                 x = this.x + (this.width / 2);
-                y = this.y + (this.height - textHeight) / 2 + 5 /* magic spacer */;
+                y = this.y + (this.height - contentHeight) / 2 + this.imageElement.naturalHeight;
                 const imageX = this.x + (this.width - this.imageElement.naturalWidth) / 2;
-                const imageY = this.y + (this.height - textHeight) / 2 - this.imageElement.naturalHeight;
+                const imageY = this.y + (this.height - contentHeight) / 2;
                 ctx.drawImage(this.imageElement, imageX, imageY);
             }
         } else {
