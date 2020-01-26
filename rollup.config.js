@@ -24,7 +24,7 @@ export default {
     }),
     copy({
       targets: [
-        { src: 'src/fonts', dest: 'dist' },
+        { src: 'src/fonts', dest: 'dist' }
       ]
     })
   ],

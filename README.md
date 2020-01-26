@@ -1,19 +1,23 @@
 # opi.js
+[![npm version](https://badge.fury.io/js/%40yamcs%2Fopi.svg)](https://www.npmjs.com/package/@yamcs/opi)
 
-This is a JavaScript library for rendering Yamcs OPI operator displays in a web browser.
+This is a JavaScript library for rendering Yamcs Operator Interfaces (OPI) in a web browser.
 
-OPI displays can be made with the desktop product Yamcs Studio (https://github.com/yamcs/yamcs-studio)
+An OPI is a file in XML format that describes a synoptic display for the monitoring and control of systems.
+
+This library is a side project of [Yamcs Mission Control](https://yamcs.org) for use in its web interface. Operators can upload and monitor synoptic displays where widgets are connected to telemetry delivered by Yamcs.
 
 
 ## Limitations
 
-Compared to the Yamcs Studio desktop software, this library does support these features:
+Compared to the Yamcs Studio desktop software, this library has these limitations:
 
+* No edit support
 * No Python scripts (use JavaScript instead)
 * No access to Java code from within scripts
 * Scripts cannot access the local file system
 
-In addition, this library is still in its beginning phase. Many widgets are not yet fully supported.
+And as this library is in incubation phase, many widgets are not or not fully supported.
 
 
 ## Usage
@@ -34,12 +38,10 @@ const display = new Display(targetEl);
 display.setSource('/static/my-display.opi');
 ```
 
-This library is a side project of the authors of [Yamcs Mission Control](https://yamcs.org) for inclusion in its web interface. See the Yamcs sources for our use case: https://github.com/yamcs/yamcs/yamcs-web/src/main/webapp
-
 
 ## Acknowledgments
 
-The OPI display format originates from [Control System Studio](https://github.com/ControlSystemStudio/cs-studio). The implementation in this repository ports many of the routines under license of the authors of Control System Studio.
+The OPI display format originates from [Control System Studio](https://github.com/ControlSystemStudio/cs-studio), an Eclipse RCP product. The implementation in this repository ports many of their routines.
 
 Note that compatibility with Control System Studio is not an objective of this library. Instead we follow the display format of Yamcs Studio -- a fork of Control System Studio.
 
@@ -48,4 +50,4 @@ Note that compatibility with Control System Studio is not an objective of this l
 
 MIT License
 
-This product includes 3rd party software that uses different licensing terms. For details see [LICENSE](LICENSE).
+This product includes 3rd party software under different terms. For details see [LICENSE](LICENSE).
