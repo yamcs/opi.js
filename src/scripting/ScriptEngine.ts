@@ -43,32 +43,36 @@ export class ScriptEngine {
   }
 
   run() {
-    this.context = this.runWithContext(this.scriptText, this.context);
-  }
-
-  private runWithContext(script: string, context: Context) {
     // Mark current globals
     const originalGlobals = [];
     for (const k in iframe.contentWindow) {
       originalGlobals.push(k);
     }
 
-    // Add context to iframe globals
-    for (const k in context) {
-      if (context.hasOwnProperty(k)) {
-        contentWindow[k] = context[k];
+    try {
+      // Add context to iframe globals
+      for (const k in this.context) {
+        if (this.context.hasOwnProperty(k)) {
+          contentWindow[k] = this.context[k];
+        }
       }
-    }
-    wEval.call(contentWindow, script);
+      wEval.call(contentWindow, this.scriptText);
 
-    // Reset iframe while extracting updated context
-    const updatedContext: Context = {};
-    for (const k in contentWindow) {
-      if (originalGlobals.indexOf(k) === -1) {
-        updatedContext[k] = contentWindow[k];
-        delete contentWindow[k];
+      // Extract updated context
+      const updatedContext: Context = {};
+      for (const k in contentWindow) {
+        if (originalGlobals.indexOf(k) === -1) {
+          updatedContext[k] = contentWindow[k];
+        }
+      }
+      this.context = updatedContext;
+    } finally {
+      // Reset iframe
+      for (const k in contentWindow) {
+        if (originalGlobals.indexOf(k) === -1) {
+          delete contentWindow[k];
+        }
       }
     }
-    return updatedContext;
   }
 }
