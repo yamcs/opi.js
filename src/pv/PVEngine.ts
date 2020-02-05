@@ -29,6 +29,7 @@ export class PVEngine {
     private pvs = new Map<string, PV>();
 
     private providers: PVProvider[] = [];
+    readonly scriptLibraries: { [key: string]: any; } = {};
 
     private listeners = new Map<string, PVListener[]>();
 
@@ -228,6 +229,10 @@ export class PVEngine {
 
     addProvider(provider: PVProvider) {
         this.providers.push(provider);
+    }
+
+    addScriptLibrary(name: string, library: any) {
+        this.scriptLibraries[name] = library;
     }
 
     addListener(pvName: string, listener: PVListener) {

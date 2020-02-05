@@ -24,15 +24,12 @@ if (!wEval && contentWindow.execScript) { // IE
 
 export class ScriptEngine {
 
-  private scriptText: string;
   private context: Context;
 
-  constructor(widget: Widget, scriptText: string, pvs: PV[] = []) {
-    this.scriptText = scriptText
-      .replace(/importClass\([^\)]*\)\s*\;?/gi, '')
-      .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')
-      .trim();
+  constructor(widget: Widget, readonly scriptText: string, pvs: PV[] = []) {
     this.context = {
+      importClass: () => undefined,
+      importPackage: () => undefined,
       display: new DisplayWrapper(widget.display),
       pvs: pvs.map(pv => new PVWrapper(pv)),
       widget: new WidgetWrapper(widget),
@@ -41,6 +38,7 @@ export class ScriptEngine {
       MessageDialog: new MessageDialog(),
       PVUtil: new PVUtil(widget.display.pvEngine),
       ScriptUtil: new ScriptUtil(widget.display),
+      ...widget.display.pvEngine.scriptLibraries,
     };
   }
 

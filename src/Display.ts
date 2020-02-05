@@ -114,6 +114,10 @@ export class Display {
         this.pvEngine.addProvider(provider);
     }
 
+    addScriptLibrary(name: string, library: any) {
+        this.pvEngine.addScriptLibrary(name, library);
+    }
+
     private step() {
         // Limit CPU usage to when we need it
         if (this.repaintRequested) {
