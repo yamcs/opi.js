@@ -55,9 +55,14 @@ export class LinkingContainer extends AbstractContainerWidget {
             // console.log('need to link to ', linkedWidget.name);
             //}
 
-            const sw = this.linkedDisplay.holderWidth;
-            const sh = this.linkedDisplay.holderHeight;
+            // The dimensions of the linked display are ignored,
+            // instead the real content bounds are used for fitting.
+            const contentBounds = this.linkedDisplay.measureContentBounds();
+
+            const sw = contentBounds.width;
+            const sh = contentBounds.height;
             const offscreen = g.createChild(sw, sh);
+            offscreen.translate(contentBounds.x, contentBounds.y);
             this.linkedDisplay!.draw(offscreen);
 
             if (this.resizeBehavior === 0) { // FIT_OPI_TO_CONTAINER
@@ -79,8 +84,8 @@ export class LinkingContainer extends AbstractContainerWidget {
         return this.linkedDisplay;
     }
 
-    get widgets() { return this.linkedDisplay ? this.linkedDisplay.widgets : [] }
-    get connections() { return this.linkedDisplay ? this.linkedDisplay.connections : [] }
+    get widgets() { return this.linkedDisplay ? this.linkedDisplay.widgets : []; }
+    get connections() { return this.linkedDisplay ? this.linkedDisplay.connections : []; }
 
     findWidget(wuid: string) {
         if (this.linkedDisplay) {

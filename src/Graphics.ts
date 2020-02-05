@@ -144,6 +144,11 @@ export class Graphics {
         return new Graphics(childCanvas, tmpHitCanvas);
     }
 
+    translate(x: number, y: number) {
+        this.ctx.translate(x, y);
+        this.hitCtx.translate(x, y);
+    }
+
     copy(g: Graphics, dx: number, dy: number) {
         this.ctx.drawImage(g.canvas, dx, dy);
         g.hitCanvas.transferToParent(dx, dy, g.canvas.width, g.canvas.height);
