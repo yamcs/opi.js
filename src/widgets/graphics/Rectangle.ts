@@ -55,33 +55,32 @@ export class Rectangle extends Widget {
                 gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
                 gradient.addColorStop(1, this.backgroundColor.toString());
                 g.fillRect({
-                    x: this.x,
-                    y: this.y,
-                    width: this.width,
-                    height: this.height,
+                    ... this.area,
                     gradient,
                 });
             } else {
                 g.fillRect({
-                    x: this.x,
-                    y: this.y,
-                    width: this.width,
-                    height: this.height,
+                    ... this.area,
                     color: this.backgroundColor,
-                })
+                });
             }
         }
 
         if (this.lineWidth) {
             if (this.lineStyle === 0) { // Solid
                 g.strokeRect({
-                    x: this.x,
-                    y: this.y,
-                    width: this.width,
-                    height: this.height,
+                    ... this.area,
                     color: this.lineColor,
                     lineWidth: this.lineWidth,
                     crispen: true,
+                });
+            } else if (this.lineStyle === 1) { // Dash
+                g.strokeRect({
+                    ... this.area,
+                    color: this.lineColor,
+                    lineWidth: this.lineWidth,
+                    crispen: true,
+                    dash: [6, 2],
                 });
             } else {
                 console.warn(`Unsupported rectangle line style ${this.lineStyle}`);

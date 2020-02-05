@@ -59,20 +59,14 @@ export class RoundedRectangle extends Widget {
                 gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
                 gradient.addColorStop(1, this.backgroundColor.toString());
                 g.fillRect({
-                    x: this.x,
-                    y: this.y,
-                    width: this.width,
-                    height: this.height,
+                    ... this.area,
                     rx: this.cornerWidth / 2,
                     ry: this.cornerHeight / 2,
                     gradient,
                 });
             } else {
                 g.fillRect({
-                    x: this.x,
-                    y: this.y,
-                    width: this.width,
-                    height: this.height,
+                    ... this.area,
                     rx: this.cornerWidth / 2,
                     ry: this.cornerHeight / 2,
                     color: this.backgroundColor,
@@ -83,15 +77,22 @@ export class RoundedRectangle extends Widget {
         if (this.lineWidth) {
             if (this.lineStyle === 0) { // Solid
                 g.strokeRect({
-                    x: this.x,
-                    y: this.y,
-                    width: this.width,
-                    height: this.height,
+                    ... this.area,
                     rx: this.cornerWidth / 2,
                     ry: this.cornerHeight / 2,
                     color: this.lineColor,
                     lineWidth: this.lineWidth,
                     crispen: true,
+                });
+            } else if (this.lineStyle === 1) { // Dash
+                g.strokeRect({
+                    ... this.area,
+                    rx: this.cornerWidth / 2,
+                    ry: this.cornerHeight / 2,
+                    color: this.lineColor,
+                    lineWidth: this.lineWidth,
+                    crispen: true,
+                    dash: [6, 2],
                 });
             } else {
                 console.warn(`Unsupported RoundedRectangle line style ${this.lineStyle}`);
@@ -101,7 +102,7 @@ export class RoundedRectangle extends Widget {
 
     private drawFill(g: Graphics) {
         const rx = this.cornerWidth / 2;
-        const ry = this.cornerHeight / 2
+        const ry = this.cornerHeight / 2;
 
         const box = shrink(this, this.lineWidth);
 
