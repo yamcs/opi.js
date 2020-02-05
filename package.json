@@ -24,11 +24,11 @@
     "dist/"
   ],
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^11.0.1",
-    "@rollup/plugin-node-resolve": "^7.0.0",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/dygraphs": "^1.1.10",
     "@types/fontfaceobserver": "0.0.6",
-    "@types/node": "^13.5.0",
+    "@types/node": "^13.7.0",
     "@types/pegjs": "^0.10.0",
     "dygraphs": "^2.1.0",
     "express": "^4.17.1",
@@ -36,7 +36,7 @@
     "morgan": "^1.9.1",
     "nunjucks": "^3.2.0",
     "pegjs": "^0.10.0",
-    "rollup": "^1.29.1",
+    "rollup": "^1.31.0",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-terser": "^5.2.0",
     "rollup-plugin-typescript2": "^0.25.3",
