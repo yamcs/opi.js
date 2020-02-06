@@ -27,9 +27,11 @@ export class ScriptEngine {
   private context: Context;
 
   constructor(widget: Widget, readonly scriptText: string, pvs: PV[] = []) {
+    this.scriptText = scriptText
+      .replace(/importClass\([^\)]*\)\s*\;?/gi, '')
+      .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')
+      .trim();
     this.context = {
-      importClass: () => undefined,
-      importPackage: () => undefined,
       display: new DisplayWrapper(widget.display),
       pvs: pvs.map(pv => new PVWrapper(pv)),
       widget: new WidgetWrapper(widget),

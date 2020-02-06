@@ -9,53 +9,53 @@ export class CompiledFormula {
   // 'compiled' here really means 'parsed'.
   // The only reuse optimization is the AST.
 
-  private parameterValues = new Map<string, DataSourceStatus>();
+  private pvValues = new Map<string, DataSourceStatus>();
 
   constructor(public pvName: string, private formula: ast.Formula) {
   }
 
-  updateDataSource(parameter: string, status: DataSourceStatus) {
-    this.parameterValues.set(parameter, status);
+  updateDataSource(pvName: string, status: DataSourceStatus) {
+    this.pvValues.set(pvName, status);
   }
 
   clearState() {
-    this.parameterValues.clear();
+    this.pvValues.clear();
   }
 
-  getParameters(): string[] {
+  getPVNames(): string[] {
     const expression = this.formula.expression;
-    const parameters: string[] = [];
-    this.getExpressionParameters(expression, parameters);
-    return parameters;
+    const pvNames: string[] = [];
+    this.getExpressionParameters(expression, pvNames);
+    return pvNames;
   }
 
-  private getExpressionParameters(expression: ast.Expression, parameters: string[]) {
+  private getExpressionParameters(expression: ast.Expression, pvNames: string[]) {
     switch (expression.type) {
       case 'ParameterLiteral':
-        if (parameters.indexOf(expression.value) === -1) {
-          parameters.push(expression.value);
+        if (pvNames.indexOf(expression.value) === -1) {
+          pvNames.push(expression.value);
         }
         break;
       case 'ConditionalExpression':
-        this.getExpressionParameters(expression.consequent, parameters);
+        this.getExpressionParameters(expression.consequent, pvNames);
         if (expression.alternate) {
-          this.getExpressionParameters(expression.alternate, parameters);
+          this.getExpressionParameters(expression.alternate, pvNames);
         }
         break;
       case 'BinaryExpression':
-        this.getExpressionParameters(expression.left, parameters);
-        this.getExpressionParameters(expression.right, parameters);
+        this.getExpressionParameters(expression.left, pvNames);
+        this.getExpressionParameters(expression.right, pvNames);
         break;
       case 'LogicalExpression':
-        this.getExpressionParameters(expression.left, parameters);
-        this.getExpressionParameters(expression.right, parameters);
+        this.getExpressionParameters(expression.left, pvNames);
+        this.getExpressionParameters(expression.right, pvNames);
         break;
       case 'UnaryExpression':
-        this.getExpressionParameters(expression.argument, parameters);
+        this.getExpressionParameters(expression.argument, pvNames);
         break;
       case 'CallExpression':
         for (const argument of expression.arguments) {
-          this.getExpressionParameters(argument, parameters);
+          this.getExpressionParameters(argument, pvNames);
         }
         break;
     }
@@ -71,7 +71,7 @@ export class CompiledFormula {
       case 'BooleanLiteral':
         return expression.value;
       case 'ParameterLiteral':
-        const pval = this.parameterValues.get(expression.value);
+        const pval = this.pvValues.get(expression.value);
         return pval ? pval.value : undefined;
       case 'ConstantLiteral':
         return expression.value;
@@ -218,7 +218,7 @@ export class CompiledFormula {
   }
 
   private callParameterAcquisitionStatus(parameter: string) {
-    const status = this.parameterValues.get(parameter);
+    const status = this.pvValues.get(parameter);
     if (status) {
       return status.acquisitionStatus;
     }

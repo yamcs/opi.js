@@ -2,6 +2,7 @@ import { Color } from './Color';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
+import { FormulaPVProvider } from './pv/FormulaPVProvider';
 import { PVEngine } from './pv/PVEngine';
 import { PVProvider } from './pv/PVProvider';
 import { SimulatedPVProvider } from './pv/SimulatedPVProvider';
@@ -104,6 +105,7 @@ export class Display {
 
         this.pvEngine = new PVEngine(this);
         this.pvEngine.addProvider(new SimulatedPVProvider());
+        this.pvEngine.addProvider(new FormulaPVProvider());
 
         window.requestAnimationFrame(() => this.step());
 

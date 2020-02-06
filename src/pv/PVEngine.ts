@@ -4,8 +4,6 @@ import { Rule } from '../rules';
 import { ScriptEngine } from '../scripting/ScriptEngine';
 import { Script } from '../scripts';
 import { Widget } from '../Widget';
-import { CompiledFormula } from './formulas/CompiledFormula';
-import { FormulaCompiler } from './formulas/FormulaCompiler';
 import { LocalPV } from './LocalPV';
 import { AlarmSeverity, PV, PVListener } from './PV';
 import { PVProvider } from './PVProvider';
@@ -23,7 +21,6 @@ function stripInitializer(pvName: string) {
 
 export class PVEngine {
 
-    private formulas = new Map<string, CompiledFormula>();
     private rules: RuleInstance[] = [];
     private scripts: ScriptInstance[] = [];
     private pvs = new Map<string, PV>();
@@ -70,7 +67,6 @@ export class PVEngine {
             }
         }
         this.pvs.clear();
-        this.formulas.clear();
     }
 
     createPV(pvName: string) {
@@ -81,11 +77,6 @@ export class PVEngine {
         let pv = this.pvs.get(pvName);
         if (pv) {
             return pv;
-        }
-
-        if (pvName.startsWith('=')) {
-            this.createFormula(pvName);
-            return new LocalPV(pvName, this); // TODO
         }
 
         pv = new PV(pvName, this);
@@ -209,21 +200,6 @@ export class PVEngine {
                 const pvName = widget.expandMacro(input.pvName);
                 this.addListener(pvName, listener);
             }
-        }
-    }
-
-    private createFormula(pvName: string) {
-        let compiledFormula = this.formulas.get(pvName);
-        if (!compiledFormula) {
-            const compiler = new FormulaCompiler();
-            compiledFormula = compiler.compile(pvName);
-        }
-
-        const listener = () => compiledFormula?.execute();
-
-        for (const pvName of compiledFormula.getParameters()) {
-            this.createPV(pvName);
-            this.addListener(pvName, listener);
         }
     }
 

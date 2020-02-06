@@ -9,7 +9,7 @@ script.updateDataSource('/YSS/SIMULATOR/Altitude', {
   acquisitionStatus: 'good',
 });
 
-const parameters = script.getParameters();
+const parameters = script.getPVNames();
 console.log('haveparam', parameters);
 
 const output = script.execute();
