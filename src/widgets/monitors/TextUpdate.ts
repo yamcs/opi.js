@@ -1,6 +1,7 @@
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
+import { shrink } from '../../positioning';
 import { FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -35,25 +36,27 @@ export class TextUpdate extends Widget {
         ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
         ctx.font = this.font.getFontString();
 
-        let x = this.x;
+        const textBounds = shrink(this.area, 2, 2);
+
+        let x = textBounds.x;
         if (this.horizAlignment === 0) { // LEFT
             ctx.textAlign = 'start';
         } else if (this.horizAlignment === 1) { // CENTER
-            x += this.width / 2;
+            x += textBounds.width / 2;
             ctx.textAlign = 'center';
         } else if (this.horizAlignment === 2) { // RIGHT
-            x += this.width;
+            x += textBounds.width;
             ctx.textAlign = 'end';
         }
 
-        let y = this.y;
+        let y = textBounds.y;
         if (this.vertAlignment === 0) { // TOP
             ctx.textBaseline = 'top';
         } else if (this.vertAlignment === 1) { // MIDDLE
-            y = y + (this.height / 2);
+            y = y + (textBounds.height / 2);
             ctx.textBaseline = 'middle';
         } else if (this.vertAlignment === 2) { // BOTTOM
-            y = y + this.height;
+            y = y + textBounds.height;
             ctx.textBaseline = 'bottom';
         }
 
