@@ -401,6 +401,14 @@ export abstract class Widget {
                     color: Color.ORANGE,
                     crispen: true,
                 });
+            } else if (this.pv?.severity === AlarmSeverity.INVALID) {
+                g.strokeRect({
+                    ... this.bounds,
+                    dash: [2, 2],
+                    lineWidth: 2,
+                    color: Color.PINK,
+                    crispen: true,
+                });
             }
         }
     }

@@ -29,6 +29,10 @@ export class SimulatedPVProvider implements PVProvider {
         }
     }
 
+    isNavigable() {
+        return false;
+    }
+
     shutdown() {
         for (const pv of this.pvs.values()) {
             pv.fn.stop();

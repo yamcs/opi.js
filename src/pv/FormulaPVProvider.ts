@@ -23,6 +23,10 @@ export class FormulaPVProvider implements PVProvider {
         }
     }
 
+    isNavigable() {
+        return false;
+    }
+
     shutdown() {
     }
 }

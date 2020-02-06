@@ -84,6 +84,7 @@ export class PVEngine {
 
         for (const provider of this.providers) {
             if (provider.canProvide(pvName)) {
+                pv.navigable = provider.isNavigable();
                 provider.startProviding([pv]);
                 return pv;
             }

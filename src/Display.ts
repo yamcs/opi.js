@@ -86,6 +86,7 @@ export class Display {
     private eventListeners: OPIEventHandlers = {
         closedisplay: [],
         opendisplay: [],
+        openpv: [],
         selection: [],
     };
 

@@ -1,6 +1,8 @@
 import { Display } from '../../Display';
+import { OpenPVEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { shrink } from '../../positioning';
 import { FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -12,11 +14,33 @@ const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextUpdate extends Widget {
 
+    private hovered = false;
+    private areaRegion?: HitRegionSpecification;
+
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
+    }
+
+    init() {
+        this.areaRegion = {
+            id: `${this.wuid}-area`,
+            click: () => {
+                const event: OpenPVEvent = { pvName: this.pvName! };
+                this.display.fireEvent('openpv', event);
+            },
+            mouseEnter: () => {
+                this.hovered = true;
+                this.requestRepaint();
+            },
+            mouseOut: () => {
+                this.hovered = false;
+                this.requestRepaint();
+            },
+            cursor: 'pointer',
+        };
     }
 
     draw(g: Graphics) {
@@ -31,6 +55,11 @@ export class TextUpdate extends Widget {
                 ... this.area,
                 color: this.alarmSensitiveBackgroundColor,
             });
+        }
+
+        if (this.pv && this.pv.navigable) {
+            const area = g.addHitRegion(this.areaRegion!);
+            area.addRect(this.x, this.y, this.width, this.height);
         }
 
         ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();

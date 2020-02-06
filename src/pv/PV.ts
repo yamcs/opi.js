@@ -21,6 +21,7 @@ export class PV {
     private _precision = 3;
 
     private _disconnected = false;
+    navigable = false;
 
     constructor(readonly name: string, readonly pvEngine: PVEngine) {
     }

@@ -8,5 +8,7 @@ export interface PVProvider {
 
     stopProviding(pvs: PV[]): void;
 
+    isNavigable(): boolean;
+
     shutdown(): void;
 }
