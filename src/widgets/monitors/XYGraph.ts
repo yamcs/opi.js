@@ -315,7 +315,7 @@ export class XYGraph extends Widget {
                 }
             },
             drawPointCallback: (g: Dygraph, seriesName: string, ctx: CanvasRenderingContext2D, cx: number, cy: number, color: string, pointSize: number) => {
-                const style = 12;
+                const style = trace0.pointStyle;
                 this.drawPoint(ctx, cx, cy, pointSize / 2, color, style);
             }
         });

@@ -5,6 +5,7 @@ import { Graphics } from './Graphics';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
 import { PVEngine } from './pv/PVEngine';
 import { PVProvider } from './pv/PVProvider';
+import { Sample } from './pv/Sample';
 import { SimulatedPVProvider } from './pv/SimulatedPVProvider';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
@@ -408,5 +409,9 @@ export class Display {
 
     getPV(pvName: string) {
         return this.pvEngine.getPV(pvName);
+    }
+
+    setValues(samples: Map<string, Sample>) {
+        this.pvEngine.setValues(samples);
     }
 }
