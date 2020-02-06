@@ -404,7 +404,6 @@ export abstract class Widget {
             } else if (this.pv?.severity === AlarmSeverity.INVALID) {
                 g.strokeRect({
                     ... this.bounds,
-                    dash: [2, 2],
                     lineWidth: 2,
                     color: Color.PINK,
                     crispen: true,

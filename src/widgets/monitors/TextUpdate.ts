@@ -14,7 +14,6 @@ const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextUpdate extends Widget {
 
-    private hovered = false;
     private areaRegion?: HitRegionSpecification;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
@@ -30,14 +29,6 @@ export class TextUpdate extends Widget {
             click: () => {
                 const event: OpenPVEvent = { pvName: this.pvName! };
                 this.display.fireEvent('openpv', event);
-            },
-            mouseEnter: () => {
-                this.hovered = true;
-                this.requestRepaint();
-            },
-            mouseOut: () => {
-                this.hovered = false;
-                this.requestRepaint();
             },
             cursor: 'pointer',
         };

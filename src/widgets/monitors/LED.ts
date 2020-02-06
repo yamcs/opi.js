@@ -1,7 +1,9 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { OpenPVEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { Bounds, shrink, toBorderBox } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -32,6 +34,7 @@ const PROP_SHOW_BOOLEAN_LABEL = 'show_boolean_label';
 
 export class LED extends Widget {
 
+    private areaRegion?: HitRegionSpecification;
     private states: State[] = [];
 
     constructor(display: Display, parent: AbstractContainerWidget) {
@@ -78,6 +81,17 @@ export class LED extends Widget {
                 });
             }
         }
+    }
+
+    init() {
+        this.areaRegion = {
+            id: `${this.wuid}-area`,
+            click: () => {
+                const event: OpenPVEvent = { pvName: this.pvName! };
+                this.display.fireEvent('openpv', event);
+            },
+            cursor: 'pointer',
+        };
     }
 
     get booleanValue() {
@@ -163,6 +177,11 @@ export class LED extends Widget {
 
         g.fillEllipse({ cx, cy, rx, ry, color: this.bulbColor });
         g.strokeEllipse({ cx, cy, rx, ry, color: this.bulbBorderColor, lineWidth: this.bulbBorder });
+
+        if (this.pv && this.pv.navigable) {
+            const hitArea = g.addHitRegion(this.areaRegion!);
+            hitArea.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        }
     }
 
     private drawCircle3d(g: Graphics, area: Bounds) {
@@ -187,6 +206,11 @@ export class LED extends Widget {
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
         g.fillEllipse({ cx, cy, rx, ry, gradient });
+
+        if (this.pv && this.pv.navigable) {
+            const hitArea = g.addHitRegion(this.areaRegion!);
+            hitArea.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+        }
     }
 
     private drawSquare2d(g: Graphics, area: Bounds) {
@@ -200,6 +224,11 @@ export class LED extends Widget {
             color: this.bulbBorderColor,
             lineWidth: this.bulbBorder,
         });
+
+        if (this.pv && this.pv.navigable) {
+            const hitArea = g.addHitRegion(this.areaRegion!);
+            hitArea.addRect(area.x, area.y, area.width, area.height);
+        }
     }
 
     private drawSquare3d(g: Graphics, area: Bounds) {
@@ -207,6 +236,11 @@ export class LED extends Widget {
             ...area,
             color: this.bulbBorderColor,
         });
+
+        if (this.pv && this.pv.navigable) {
+            const hitArea = g.addHitRegion(this.areaRegion!);
+            hitArea.addRect(area.x, area.y, area.width, area.height);
+        }
 
         // Left border
         let gradient = g.createLinearGradient(area.x, area.y, area.x + area.width, area.y);

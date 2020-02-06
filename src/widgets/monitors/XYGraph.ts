@@ -3,6 +3,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
+import { Bounds, crispen, shrink } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { PV } from '../../pv/PV';
 import { Widget } from '../../Widget';
@@ -213,18 +214,18 @@ export class XYGraph extends Widget {
             });
         }
         if (!this.initialized) {
-            const area = this.absoluteArea;
+            const area = crispen(shrink(this.absoluteArea, 2)); // Make room for alarm border
             this.containerEl.style.left = `${area.x}px`;
             this.containerEl.style.top = `${area.y}px`;
             this.containerEl.style.width = `${area.width}px`;
             this.containerEl.style.height = `${area.height}px`;
-            this.initializeDygraphs();
+            this.initializeDygraphs(area);
             this.initialized = true;
         }
     }
 
     // We can only initialize when we know the target width/height
-    private initializeDygraphs() {
+    private initializeDygraphs(area: Bounds) {
         /*
          * X-AXIS (DOMAIN)
          */
@@ -276,8 +277,8 @@ export class XYGraph extends Widget {
             titleHeight: this.title ? this.titleFont.height : 0,
             fillGraph: false,
             interactionModel: {},
-            width: this.width,
-            height: this.height,
+            width: area.width,
+            height: area.height,
             xlabel: xAxis.axisTitle,
             ylabel: yAxis.axisTitle,
             xLabelHeight: xAxis.titleFont.height,
