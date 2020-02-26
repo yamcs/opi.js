@@ -184,7 +184,7 @@ export class XYGraph extends Widget {
                     buffer,
                 });
                 pv.addListener(() => {
-                    buffer.push([new Date(), pv.value]);
+                    buffer.push([pv.time || new Date(), pv.value]);
                     this.updateGraph();
                 });
             }
