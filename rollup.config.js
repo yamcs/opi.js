@@ -15,7 +15,6 @@ export default {
     }),
     typescript({
       useTsconfigDeclarationDir: true,
-      objectHashIgnoreUnknownHack: true,
     }),
     terser({
       output: {

@@ -24,23 +24,23 @@
     "dist/"
   ],
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-node-resolve": "^7.1.1",
-    "@types/dygraphs": "^1.1.10",
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.0.1",
+    "@types/dygraphs": "^1.1.11",
     "@types/fontfaceobserver": "0.0.6",
-    "@types/node": "^13.7.0",
-    "@types/pegjs": "^0.10.0",
+    "@types/node": "^13.13.12",
+    "@types/pegjs": "^0.10.2",
     "dygraphs": "^2.1.0",
     "express": "^4.17.1",
     "fontfaceobserver": "^2.0.13",
-    "morgan": "^1.9.1",
-    "nunjucks": "^3.2.0",
+    "morgan": "^1.10.0",
+    "nunjucks": "^3.2.1",
     "pegjs": "^0.10.0",
-    "rollup": "^1.31.0",
+    "rollup": "^2.17.0",
     "rollup-plugin-copy": "^3.3.0",
-    "rollup-plugin-terser": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.25.3",
+    "rollup-plugin-terser": "^6.1.0",
+    "rollup-plugin-typescript2": "^0.27.1",
     "ts-pegjs": "^0.2.1",
-    "typescript": "^3.7.5"
+    "typescript": "^3.9.5"
   }
 }
