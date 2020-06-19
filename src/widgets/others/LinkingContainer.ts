@@ -22,7 +22,11 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     init() {
         if (this.opiFile) {
-            fetch(this.display.baseUrl + this.opiFile).then(response => {
+            fetch(this.display.baseUrl + this.opiFile, {
+                // Send cookies too.
+                // Old versions of Firefox do not do this automatically.
+                credentials: 'same-origin'
+            }).then(response => {
                 if (response.ok) {
                     response.text().then(source => {
                         this.linkedDisplay = new DisplayWidget(this.display, this);

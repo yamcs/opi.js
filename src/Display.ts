@@ -310,7 +310,11 @@ export class Display {
             this.instance = undefined;
         }
         return new Promise((resolve, reject) => {
-            fetch(this.baseUrl + href).then(response => {
+            fetch(this.baseUrl + href, {
+                // Send cookies too.
+                // Old versions of Firefox do not do this automatically.
+                credentials: 'same-origin'
+            }).then(response => {
                 if (response.ok) {
                     response.text().then(text => {
                         this.setSourceString(text);

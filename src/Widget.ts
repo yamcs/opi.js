@@ -96,7 +96,11 @@ export abstract class Widget {
             if (script.embedded) {
                 this.display.pvEngine.createScript(this, script, script.text!);
             } else {
-                fetch(`${this.display.baseUrl}${script.path}`).then(response => {
+                fetch(`${this.display.baseUrl}${script.path}`, {
+                    // Send cookies too.
+                    // Old versions of Firefox do not do this automatically.
+                    credentials: 'same-origin'
+                }).then(response => {
                     if (response.ok) {
                         response.text().then(text => {
                             this.display.pvEngine.createScript(this, script, text);
@@ -564,7 +568,11 @@ export abstract class Widget {
                     const engine = new ScriptEngine(this.display.instance!, action.text!);
                     engine.run();
                 } else {
-                    fetch(`${this.display.baseUrl}${action.path}`).then(response => {
+                    fetch(`${this.display.baseUrl}${action.path}`, {
+                        // Send cookies too.
+                        // Old versions of Firefox do not do this automatically.
+                        credentials: 'same-origin'
+                    }).then(response => {
                         if (response.ok) {
                             response.text().then(text => {
                                 const engine = new ScriptEngine(this.display.instance!, text);
