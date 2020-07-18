@@ -2,18 +2,18 @@ import { PV } from '../pv/PV';
 
 export class PVWrapper {
 
-    constructor(private pv: PV) {
+    constructor(readonly _pv: PV) {
     }
 
     getName() {
-        return this.pv.name;
+        return this._pv.name;
     }
 
     getValue() {
-        return this.pv.value;
+        return this._pv.value;
     }
 
     setValue(value: any) {
-        this.pv.pvEngine.setValue(new Date(), this.pv.name, value);
+        this._pv.pvEngine.setValue(new Date(), this._pv.name, value);
     }
 }
