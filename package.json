@@ -1,6 +1,6 @@
 {
   "name": "@yamcs/opi",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "OPI Display Renderer",
   "author": "Yamcs Team <yamcs@spaceapplications.com>",
   "repository": {
@@ -14,7 +14,7 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
     "watch": "rollup -cw",
-    "pegjs": "cd src/pv/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts grammar.pegjs",
+    "pegjs": "cd src/pv/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts formula-grammar.pegjs",
     "start": "node ./demo/server.js"
   },
   "main": "dist/opi.umd.js",
@@ -24,11 +24,11 @@
     "dist/"
   ],
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^13.0.0",
-    "@rollup/plugin-node-resolve": "^8.0.1",
-    "@types/dygraphs": "^1.1.11",
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@types/dygraphs": "^1.1.12",
     "@types/fontfaceobserver": "0.0.6",
-    "@types/node": "^13.13.12",
+    "@types/node": "^14.0.23",
     "@types/pegjs": "^0.10.2",
     "dygraphs": "^2.1.0",
     "express": "^4.17.1",
@@ -36,11 +36,11 @@
     "morgan": "^1.10.0",
     "nunjucks": "^3.2.1",
     "pegjs": "^0.10.0",
-    "rollup": "^2.17.0",
+    "rollup": "^2.22.1",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-terser": "^6.1.0",
     "rollup-plugin-typescript2": "^0.27.1",
-    "ts-pegjs": "^0.2.1",
-    "typescript": "^3.9.5"
+    "ts-pegjs": "^0.2.7",
+    "typescript": "^3.9.7"
   }
 }
