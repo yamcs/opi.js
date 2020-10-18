@@ -194,6 +194,8 @@ export class CompiledFormula {
         return Math.log(args[0]);
       case 'log10':
         return Math.log10(args[0]);
+      case 'round':
+        return Math.round(args[0]);
       case 'signum':
         return Math.sign(args[0]);
       case 'sin':

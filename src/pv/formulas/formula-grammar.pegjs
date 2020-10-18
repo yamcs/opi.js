@@ -179,5 +179,20 @@ AdditiveExpression
       return buildBinaryExpression(head, tail);
     }
 
+RelationalExpression
+  = head:AdditiveExpression tail:(_ ('<=' / '>=' / '<' / '>') _ AdditiveExpression)* {
+      return buildBinaryExpression(head, tail);
+    }
+
+EqualityExpression
+  = head:RelationalExpression tail:(_ ('==' / '!=') _ RelationalExpression)* {
+      return buildBinaryExpression(head, tail);
+    }
+
+LogicalExpression
+ = head:EqualityExpression tail:(_ ('&&' / '||') _ EqualityExpression)* {
+   return buildLogicalExpression(head, tail);
+ }
+
 Expression
-  = AdditiveExpression
+  = LogicalExpression
