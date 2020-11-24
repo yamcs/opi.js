@@ -48,7 +48,7 @@ export class TextUpdate extends Widget {
             });
         }
 
-        if (this.pv && this.pv.navigable) {
+        if (this.pv && this.pv.navigable && !this.pv.disconnected) {
             const area = g.addHitRegion(this.areaRegion!);
             area.addRect(this.x, this.y, this.width, this.height);
         }

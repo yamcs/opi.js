@@ -1,7 +1,9 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { OpenPVEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
+import { HitRegionSpecification } from '../../HitCanvas';
 import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -37,6 +39,8 @@ const PROP_SHOW_RAMP = 'show_ramp';
 
 export class Meter extends Widget {
 
+    private areaRegion?: HitRegionSpecification;
+
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
         this.properties.add(new ColorProperty(PROP_COLOR_HI));
@@ -61,6 +65,17 @@ export class Meter extends Widget {
         this.properties.add(new BooleanProperty(PROP_SHOW_RAMP, true));
     }
 
+    init() {
+        this.areaRegion = {
+            id: `${this.wuid}-area`,
+            click: () => {
+                const event: OpenPVEvent = { pvName: this.pvName! };
+                this.display.fireEvent('openpv', event);
+            },
+            cursor: 'pointer',
+        };
+    }
+
     draw(g: Graphics) {
         g.fillRect({
             x: this.x,
@@ -71,6 +86,11 @@ export class Meter extends Widget {
         });
         if (this.showRamp) {
             this.drawRamp(g);
+        }
+
+        if (this.pv && this.pv.navigable && !this.pv.disconnected) {
+            const area = g.addHitRegion(this.areaRegion!);
+            area.addRect(this.x, this.y, this.width, this.height);
         }
     }
 

@@ -364,7 +364,7 @@ export abstract class Widget {
             return;
         }
 
-        if (this.pvName && !this.pv) { // Disconnected
+        if (this.pvName && (!this.pv || this.pv.disconnected)) { // Disconnected
             g.fillRect({
                 x: this.holderX - 0.5,
                 y: this.holderY - 0.5,

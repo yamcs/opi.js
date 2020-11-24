@@ -178,7 +178,7 @@ export class LED extends Widget {
         g.fillEllipse({ cx, cy, rx, ry, color: this.bulbColor });
         g.strokeEllipse({ cx, cy, rx, ry, color: this.bulbBorderColor, lineWidth: this.bulbBorder });
 
-        if (this.pv && this.pv.navigable) {
+        if (this.pv && this.pv.navigable && !this.pv.disconnected) {
             const hitArea = g.addHitRegion(this.areaRegion!);
             hitArea.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
         }
@@ -207,7 +207,7 @@ export class LED extends Widget {
         gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
         g.fillEllipse({ cx, cy, rx, ry, gradient });
 
-        if (this.pv && this.pv.navigable) {
+        if (this.pv && this.pv.navigable && !this.pv.disconnected) {
             const hitArea = g.addHitRegion(this.areaRegion!);
             hitArea.addEllipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
         }
@@ -225,7 +225,7 @@ export class LED extends Widget {
             lineWidth: this.bulbBorder,
         });
 
-        if (this.pv && this.pv.navigable) {
+        if (this.pv && this.pv.navigable && !this.pv.disconnected) {
             const hitArea = g.addHitRegion(this.areaRegion!);
             hitArea.addRect(area.x, area.y, area.width, area.height);
         }
@@ -237,7 +237,7 @@ export class LED extends Widget {
             color: this.bulbBorderColor,
         });
 
-        if (this.pv && this.pv.navigable) {
+        if (this.pv && this.pv.navigable && !this.pv.disconnected) {
             const hitArea = g.addHitRegion(this.areaRegion!);
             hitArea.addRect(area.x, area.y, area.width, area.height);
         }
