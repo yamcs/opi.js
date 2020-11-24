@@ -22,7 +22,7 @@ export class TextInput extends Widget {
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
         this.properties.add(new IntProperty(PROP_PRECISION));
         this.properties.add(new BooleanProperty(PROP_PRECISION_FROM_PV));
-        this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT, 0));
+        this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT, 1));
     }
 
     draw(g: Graphics) {
