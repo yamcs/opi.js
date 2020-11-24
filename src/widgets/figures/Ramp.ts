@@ -12,12 +12,19 @@ export class Ramp {
 
     lolo = 10;
     loloColor = Color.RED;
+    showLoLo = true;
+
     lo = 25;
     loColor = Color.ORANGE;
+    showLo = true;
+
     hi = 75;
     hiColor = Color.ORANGE;
+    showHi = true;
+
     hihi = 90;
     hihiColor = Color.RED;
+    showHiHi = true;
 
     minimum = 0;
     maximum = 100;
@@ -63,50 +70,19 @@ export class Ramp {
         const rx = area.width / 2;
         const ry = area.height / 2;
 
-        // LOLO
-        let startAngle;
-        let endAngle;
-        if (this.endAngle - this.startAngle > 0) { // Meter
-            startAngle = this.startAngle - 90;
-            endAngle = 360 - this.getValuePosition(this.lolo);
-        } else { // Gauge
-            startAngle = this.startAngle + 90;
-            endAngle = 360 - this.getValuePosition(this.lolo);
+        // Convert angles
+        let leftMostAngle;
+        let rightMostAngle = 360 - this.endAngle;
+        if (this.endAngle - this.startAngle > 0) { // Gauge
+            leftMostAngle = this.startAngle - 90;
+        } else { // Meter
+            leftMostAngle = this.startAngle + 90;
         }
-        g.strokeEllipse({
-            cx,
-            cy,
-            rx: rx - this.rampWidth / 2,
-            ry: ry - this.rampWidth / 2,
-            lineWidth: this.rampWidth,
-            startAngle: toRadians(startAngle),
-            endAngle: toRadians(endAngle),
-            color: this.loloColor,
-        });
 
-        // LO
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(this.lo);
-        if (this.effect3d && this.gradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(this.lolo) - RAMP_OVERLAP);
-            const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
-
-            const gradientRightAngle = toRadians(this.getValuePosition(this.lo) + RAMP_OVERLAP);
-            const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, this.loloColor.toString());
-            gradient.addColorStop(1, this.loColor.toString());
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - this.rampWidth / 2,
-                ry: ry - this.rampWidth / 2,
-                lineWidth: this.rampWidth,
-                startAngle: toRadians(startAngle - RAMP_OVERLAP / 2),
-                endAngle: toRadians(endAngle + RAMP_OVERLAP / 2),
-                gradient,
-            });
-        } else {
+        // LOLO
+        if (this.showLoLo) {
+            let startAngle = leftMostAngle;
+            let endAngle = 360 - this.getValuePosition(this.lolo, true);
             g.strokeEllipse({
                 cx,
                 cy,
@@ -115,23 +91,81 @@ export class Ramp {
                 lineWidth: this.rampWidth,
                 startAngle: toRadians(startAngle),
                 endAngle: toRadians(endAngle),
-                color: this.loColor,
+                color: this.loloColor,
             });
         }
 
-        const midNormal = (this.lo + this.hi) / 2;
+        // LO
+        if (this.showLo) {
+            let loLeft;
+            if (this.showLoLo) {
+                loLeft = this.lolo;
+            } else {
+                loLeft = this.minimum;
+            }
+            const startAngle = 360 - this.getValuePosition(loLeft, true);
+            const endAngle = 360 - this.getValuePosition(this.lo, true);
+
+            if (this.effect3d && this.gradient && this.showLoLo) {
+                const gradientLeftAngle = toRadians(this.getValuePosition(loLeft, true) - RAMP_OVERLAP);
+                const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
+
+                const gradientRightAngle = toRadians(this.getValuePosition(this.lo, true) + RAMP_OVERLAP);
+                const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
+                const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
+                gradient.addColorStop(0, this.loloColor.toString());
+                gradient.addColorStop(1, this.loColor.toString());
+                g.strokeEllipse({
+                    cx,
+                    cy,
+                    rx: rx - this.rampWidth / 2,
+                    ry: ry - this.rampWidth / 2,
+                    lineWidth: this.rampWidth,
+                    startAngle: toRadians(startAngle - RAMP_OVERLAP / 2),
+                    endAngle: toRadians(endAngle + RAMP_OVERLAP / 2),
+                    gradient,
+                });
+            } else {
+                g.strokeEllipse({
+                    cx,
+                    cy,
+                    rx: rx - this.rampWidth / 2,
+                    ry: ry - this.rampWidth / 2,
+                    lineWidth: this.rampWidth,
+                    startAngle: toRadians(startAngle),
+                    endAngle: toRadians(endAngle),
+                    color: this.loColor,
+                });
+            }
+        }
+
+        let midLeft = this.minimum;
+        if (this.showLo) {
+            midLeft = this.lo;
+        } else if (this.showLoLo) {
+            midLeft = this.lolo;
+        }
+
+        let midRight = this.maximum;
+        if (this.showHi) {
+            midRight = this.hi;
+        } else if (this.showHiHi) {
+            midRight = this.hihi;
+        }
+
+        const midNormal = (midLeft + midRight) / 2;
 
         // NORMAL (left part)
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(midNormal);
-        if (this.effect3d && this.gradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(this.lo) - RAMP_OVERLAP);
+        let startAngle = 360 - this.getValuePosition(midLeft, true);
+        let endAngle = 360 - this.getValuePosition(midNormal, true);
+        if (this.effect3d && this.gradient && (this.showLoLo || this.showLo)) {
+            const gradientLeftAngle = toRadians(this.getValuePosition(midLeft, true) - RAMP_OVERLAP);
             const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
 
-            const gradientRightAngle = toRadians(this.getValuePosition(midNormal) + RAMP_OVERLAP);
+            const gradientRightAngle = toRadians(this.getValuePosition(midNormal, true) + RAMP_OVERLAP);
             const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
             const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, this.loColor.toString());
+            gradient.addColorStop(0, (this.showLo ? this.loColor : this.loloColor).toString());
             gradient.addColorStop(1, Color.GREEN.toString());
             g.strokeEllipse({
                 cx,
@@ -157,17 +191,18 @@ export class Ramp {
         }
 
         // NORMAL (right part)
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(this.hi);
-        if (this.effect3d && this.gradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(midNormal) - RAMP_OVERLAP);
+        startAngle = 360 - this.getValuePosition(midNormal, true);
+        endAngle = 360 - this.getValuePosition(midRight, true);
+        if (this.effect3d && this.gradient && (this.showHi || this.showHiHi)) {
+            const gradientLeftAngle = toRadians(this.getValuePosition(midNormal, true) - RAMP_OVERLAP);
             const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
 
-            const gradientRightAngle = toRadians(this.getValuePosition(this.hi) + RAMP_OVERLAP);
+            const gradientRightAngle = toRadians(this.getValuePosition(midRight, true) + RAMP_OVERLAP);
             const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
             const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
             gradient.addColorStop(0, Color.GREEN.toString());
-            gradient.addColorStop(1, this.hiColor.toString());
+            gradient.addColorStop(1, (this.showHi ? this.hiColor : this.hihiColor).toString());
+            const overlap = endAngle !== rightMostAngle ? RAMP_OVERLAP / 2 : 0;
             g.strokeEllipse({
                 cx,
                 cy,
@@ -175,7 +210,7 @@ export class Ramp {
                 ry: ry - this.rampWidth / 2,
                 lineWidth: this.rampWidth,
                 startAngle: toRadians(startAngle - RAMP_OVERLAP / 2),
-                endAngle: toRadians(endAngle + RAMP_OVERLAP / 2),
+                endAngle: toRadians(endAngle + overlap),
                 gradient,
             });
         } else {
@@ -192,60 +227,77 @@ export class Ramp {
         }
 
         // HI
-        startAngle = endAngle;
-        endAngle = 360 - this.getValuePosition(this.hihi);
-        if (this.effect3d && this.gradient) {
-            const gradientLeftAngle = toRadians(this.getValuePosition(this.hi) - RAMP_OVERLAP);
-            const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
+        if (this.showHi) {
+            let hiRight;
+            if (this.showHiHi) {
+                hiRight = this.hihi;
+            } else {
+                hiRight = this.maximum;
+            }
+            const startAngle = 360 - this.getValuePosition(this.hi, true);
+            const endAngle = 360 - this.getValuePosition(hiRight, true);
 
-            const gradientRightAngle = toRadians(this.getValuePosition(this.hihi) + RAMP_OVERLAP);
-            const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
-            const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
-            gradient.addColorStop(0, this.hiColor.toString());
-            gradient.addColorStop(1, this.hihiColor.toString());
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - this.rampWidth / 2,
-                ry: ry - this.rampWidth / 2,
-                lineWidth: this.rampWidth,
-                startAngle: toRadians(startAngle - RAMP_OVERLAP / 2),
-                endAngle: toRadians(endAngle + RAMP_OVERLAP / 2),
-                gradient,
-            });
-        } else {
-            g.strokeEllipse({
-                cx,
-                cy,
-                rx: rx - this.rampWidth / 2,
-                ry: ry - this.rampWidth / 2,
-                lineWidth: this.rampWidth,
-                startAngle: toRadians(startAngle),
-                endAngle: toRadians(endAngle),
-                color: this.hiColor,
-            });
+            if (this.effect3d && this.gradient && this.showHiHi) {
+                const gradientLeftAngle = toRadians(this.getValuePosition(this.hi, true) - RAMP_OVERLAP);
+                const gradientLeft = convertPolarToCartesian(area.width / 2, gradientLeftAngle, area);
+
+                const gradientRightAngle = toRadians(this.getValuePosition(hiRight, true) + RAMP_OVERLAP);
+                const gradientRight = convertPolarToCartesian(area.width / 2, gradientRightAngle, area);
+                const gradient = g.createLinearGradient(gradientLeft.x, gradientLeft.y, gradientRight.x, gradientRight.y);
+                gradient.addColorStop(0, this.hiColor.toString());
+                gradient.addColorStop(1, this.hihiColor.toString());
+                const overlap = endAngle !== rightMostAngle ? RAMP_OVERLAP / 2 : 0;
+                g.strokeEllipse({
+                    cx,
+                    cy,
+                    rx: rx - this.rampWidth / 2,
+                    ry: ry - this.rampWidth / 2,
+                    lineWidth: this.rampWidth,
+                    startAngle: toRadians(startAngle - RAMP_OVERLAP / 2),
+                    endAngle: toRadians(endAngle + overlap),
+                    gradient,
+                });
+            } else {
+                g.strokeEllipse({
+                    cx,
+                    cy,
+                    rx: rx - this.rampWidth / 2,
+                    ry: ry - this.rampWidth / 2,
+                    lineWidth: this.rampWidth,
+                    startAngle: toRadians(startAngle),
+                    endAngle: toRadians(endAngle),
+                    color: this.hiColor,
+                });
+            }
         }
 
         // HIHI
-        startAngle = endAngle;
-        endAngle = 360 - this.endAngle;
-        g.strokeEllipse({
-            cx,
-            cy,
-            rx: rx - this.rampWidth / 2,
-            ry: ry - this.rampWidth / 2,
-            lineWidth: this.rampWidth,
-            startAngle: toRadians(startAngle),
-            endAngle: toRadians(endAngle),
-            color: this.hihiColor,
-        });
+        if (this.showHiHi) {
+            startAngle = 360 - this.getValuePosition(this.hihi, true);
+            endAngle = rightMostAngle;
+            const overlap = this.gradient ? RAMP_OVERLAP / 2 : 0;
+            g.strokeEllipse({
+                cx,
+                cy,
+                rx: rx - this.rampWidth / 2,
+                ry: ry - this.rampWidth / 2,
+                lineWidth: this.rampWidth,
+                startAngle: toRadians(startAngle - overlap),
+                endAngle: toRadians(endAngle),
+                color: this.hihiColor,
+            });
+        }
     }
 
     getRadius() {
         return this.radius;
     }
 
-    getValuePosition(v: number) {
+    getValuePosition(v: number, limit = false) {
+        if (limit) {
+            v = this.getValueInRange(v);
+        }
+
         let valuePosition;
         if (this.logScale) {
             valuePosition = this.startAngle - ((Math.log10(v) - Math.log10(this.range.min))

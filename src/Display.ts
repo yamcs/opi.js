@@ -309,7 +309,7 @@ export class Display {
             this.pvEngine.clearState();
             this.instance = undefined;
         }
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             fetch(this.baseUrl + href, {
                 // Send cookies too.
                 // Old versions of Firefox do not do this automatically.

@@ -29,6 +29,10 @@ const PROP_MAXIMUM = 'maximum';
 const PROP_NEEDLE_COLOR = 'needle_color';
 const PROP_RAMP_GRADIENT = 'ramp_gradient';
 const PROP_SCALE_FONT = 'scale_font';
+const PROP_SHOW_HI = 'show_hi';
+const PROP_SHOW_HIHI = 'show_hihi';
+const PROP_SHOW_LO = 'show_lo';
+const PROP_SHOW_LOLO = 'show_lolo';
 const PROP_SHOW_RAMP = 'show_ramp';
 
 export class Meter extends Widget {
@@ -50,6 +54,10 @@ export class Meter extends Widget {
         this.properties.add(new ColorProperty(PROP_NEEDLE_COLOR));
         this.properties.add(new BooleanProperty(PROP_RAMP_GRADIENT));
         this.properties.add(new FontProperty(PROP_SCALE_FONT));
+        this.properties.add(new BooleanProperty(PROP_SHOW_HI));
+        this.properties.add(new BooleanProperty(PROP_SHOW_HIHI));
+        this.properties.add(new BooleanProperty(PROP_SHOW_LO));
+        this.properties.add(new BooleanProperty(PROP_SHOW_LOLO));
         this.properties.add(new BooleanProperty(PROP_SHOW_RAMP, true));
     }
 
@@ -95,12 +103,16 @@ export class Meter extends Widget {
         const ramp = new Ramp(RAMP_WIDTH, 180 - 45, 45);
         ramp.lolo = this.levelLoLo;
         ramp.loloColor = this.colorLoLo;
+        ramp.showLoLo = true;
         ramp.lo = this.levelLo;
         ramp.loColor = this.colorLo;
+        ramp.showLo = true;
         ramp.hi = this.levelHi;
         ramp.hiColor = this.colorHi;
+        ramp.showHi = true;
         ramp.hihi = this.levelHiHi;
         ramp.hihiColor = this.colorHiHi;
+        ramp.showHiHi = true;
         ramp.minimum = this.minimum;
         ramp.maximum = this.maximum;
         ramp.gradient = this.rampGradient;
@@ -177,5 +189,9 @@ export class Meter extends Widget {
     get needleColor(): Color { return this.properties.getValue(PROP_NEEDLE_COLOR); }
     get rampGradient(): boolean { return this.properties.getValue(PROP_RAMP_GRADIENT); }
     get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT); }
+    get showLo(): boolean { return this.properties.getValue(PROP_SHOW_LO); }
+    get showLoLo(): boolean { return this.properties.getValue(PROP_SHOW_LOLO); }
+    get showHi(): boolean { return this.properties.getValue(PROP_SHOW_HI); }
+    get showHiHi(): boolean { return this.properties.getValue(PROP_SHOW_HIHI); }
     get showRamp(): boolean { return this.properties.getValue(PROP_SHOW_RAMP); }
 }
