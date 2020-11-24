@@ -39,29 +39,35 @@ export class TextInput extends Widget {
             });
         }
 
-        ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
-        ctx.font = this.font.getFontString();
+        // Draw text first to a temporary canvas, for clip reasons
+        const tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = this.area.width;
+        tmpCanvas.height = this.area.height;
+        const offscreenCtx = tmpCanvas.getContext('2d')!;
+
+        offscreenCtx.fillStyle = this.alarmSensitiveForegroundColor.toString();
+        offscreenCtx.font = this.font.getFontString();
 
         let x = this.x;
         if (this.horizAlignment === 0) { // LEFT
-            ctx.textAlign = 'start';
+            offscreenCtx.textAlign = 'start';
         } else if (this.horizAlignment === 1) { // CENTER
             x += this.width / 2;
-            ctx.textAlign = 'center';
+            offscreenCtx.textAlign = 'center';
         } else if (this.horizAlignment === 2) { // RIGHT
             x += this.width;
-            ctx.textAlign = 'end';
+            offscreenCtx.textAlign = 'end';
         }
 
         let y = this.y;
         if (this.vertAlignment === 0) { // TOP
-            ctx.textBaseline = 'top';
+            offscreenCtx.textBaseline = 'top';
         } else if (this.vertAlignment === 1) { // MIDDLE
             y = y + (this.height / 2);
-            ctx.textBaseline = 'middle';
+            offscreenCtx.textBaseline = 'middle';
         } else if (this.vertAlignment === 2) { // BOTTOM
             y = y + this.height;
-            ctx.textBaseline = 'bottom';
+            offscreenCtx.textBaseline = 'bottom';
         }
 
         let text = this.text;
@@ -69,7 +75,8 @@ export class TextInput extends Widget {
             text = this.formatValue(this.pv, this.pv.value);
         }
 
-        ctx.fillText(text, x, y);
+        offscreenCtx.fillText(text, x - this.area.x, y - this.area.y);
+        ctx.drawImage(tmpCanvas, this.area.x, this.area.y);
     }
 
     private formatValue(pv: PV, value: any) {
