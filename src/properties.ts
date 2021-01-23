@@ -126,6 +126,10 @@ export abstract class Property<T> {
         this.listeners = this.listeners || [];
         this.listeners.push(listener);
     }
+
+    printScriptValue(value: T) {
+        return String(value);
+    }
 }
 
 export type PropertyListener<T> = (newValue?: T, oldValue?: T) => void;
@@ -135,6 +139,10 @@ export class StringProperty extends Property<string> {
      * Has macros unexpanded
      */
     rawValue?: string;
+
+    printScriptValue(value: String) {
+        return `"${value.replace('"', '\\"')}"`;
+    }
 }
 
 export class IntProperty extends Property<number> {
@@ -147,9 +155,17 @@ export class BooleanProperty extends Property<boolean> {
 }
 
 export class ColorProperty extends Property<Color> {
+    printScriptValue(value: Color) {
+        const { red, green, blue } = { ...value };
+        return `ColorFontUtil.getColorFromRGB(${red}, ${green}, ${blue})`;
+    }
 }
 
 export class FontProperty extends Property<Font> {
+    printScriptValue(value: Font) {
+        const { name, height, style } = { ...value };
+        return `ColorFontUtil.getFont("${name}", ${height}, ${style})`;
+    }
 }
 
 export class PointsProperty extends Property<Point[]> {

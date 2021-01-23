@@ -1,5 +1,5 @@
 import { Display } from '../Display';
-import { StringProperty } from '../properties';
+import { Property } from '../properties';
 import { Rule } from '../rules';
 import { ScriptEngine } from '../scripting/ScriptEngine';
 import { Script } from '../scripts';
@@ -241,7 +241,6 @@ class RuleInstance {
         if (!property) {
             throw new Error(`Cannot create rule for unsupported property ${rule.propertyName}`);
         }
-        const quoteValues = property instanceof StringProperty;
         if (rule.expressions.length) {
             let usesDoubles = false;
             let usesInts = false;
@@ -251,25 +250,25 @@ class RuleInstance {
                 if (expr.expression.match(/pv[0-9]+/)) {
                     usesDoubles = true;
                 }
-                if (rule.outputExpression && expr.outputValue.match(/pv[0-9]+/)) {
+                if (rule.outputExpression && expr.outputValue.toString().match(/pv[0-9]+/)) {
                     usesDoubles = true;
                 }
                 if (expr.expression.indexOf('pvInt') !== -1) {
                     usesInts = true;
                 }
-                if (rule.outputExpression && expr.outputValue.indexOf('pvInt') !== -1) {
+                if (rule.outputExpression && expr.outputValue.toString().indexOf('pvInt') !== -1) {
                     usesInts = true;
                 }
                 if (expr.expression.indexOf('pvStr') !== -1) {
                     usesStrings = true;
                 }
-                if (rule.outputExpression && expr.outputValue.indexOf('pvStr') !== -1) {
+                if (rule.outputExpression && expr.outputValue.toString().indexOf('pvStr') !== -1) {
                     usesStrings = true;
                 }
                 if (expr.expression.indexOf('pvSev') !== -1) {
                     usesSeverities = true;
                 }
-                if (rule.outputExpression && expr.outputValue.indexOf('pvSev') !== -1) {
+                if (rule.outputExpression && expr.outputValue.toString().indexOf('pvSev') !== -1) {
                     usesSeverities = true;
                 }
             }
@@ -296,21 +295,27 @@ class RuleInstance {
                     scriptText += 'else ';
                 }
                 scriptText += `if (${expr}) widget.setPropertyValue("${rule.propertyName}", `;
-                if (rule.outputExpression || !quoteValues) {
+                if (rule.outputExpression) {
                     scriptText += `${outputValue});\n`;
                 } else {
-                    scriptText += `"${outputValue}");\n`;
+                    const outputValueStr = this.printScriptValue(property, outputValue);
+                    scriptText += `${outputValueStr});\n`;
                 }
             }
             const defaultValue = property.value;
+            const defaultValueStr = this.printScriptValue(property, defaultValue);
             scriptText += `else widget.setPropertyValue("${rule.propertyName}", `;
-            if (quoteValues) {
-                scriptText += `"${defaultValue}");\n`;
-            } else {
-                scriptText += `${defaultValue});\n`;
-            }
+            scriptText += `${defaultValueStr});\n`;
         }
 
         this.scriptEngine = new ScriptEngine(widget, scriptText, pvs);
+    }
+
+    private printScriptValue(property: Property<any>, value: any) {
+        if (value === null || value === undefined) {
+            return 'null';
+        } else {
+            return property.printScriptValue(value);
+        }
     }
 }

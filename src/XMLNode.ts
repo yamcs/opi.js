@@ -290,10 +290,20 @@ export class XMLNode {
             }
             const expressions: BooleanExpression[] = [];
             for (const expNode of ruleNode.getNodes('exp')) {
-                expressions.push({
-                    expression: expNode.getStringAttribute('bool_exp'),
-                    outputValue: expNode.getString('value'),
-                });
+                const valueNode = expNode.getNode('value');
+                if (valueNode.hasNode('color')) {
+                    expressions.push({
+                        type: 'color',
+                        expression: expNode.getStringAttribute('bool_exp'),
+                        outputValue: expNode.getColor('value'),
+                    });
+                } else {
+                    expressions.push({
+                        type: 'string',
+                        expression: expNode.getStringAttribute('bool_exp'),
+                        outputValue: expNode.getString('value'),
+                    });
+                }
             }
             rules.rules.push({
                 name: ruleNode.getStringAttribute('name'),
@@ -335,7 +345,7 @@ export class XMLNode {
                 actions.add(action);
             } else if (actionType === 'OPEN_FILE') {
                 const action = new OpenFileAction();
-                action.path = actionNode.getString('path')
+                action.path = actionNode.getString('path');
                 action.description = actionNode.getString('description');
                 actions.add(action);
             } else if (actionType === 'EXECUTE_CMD') {

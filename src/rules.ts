@@ -1,3 +1,5 @@
+import { Color } from './Color';
+
 export class RuleSet {
     rules: Rule[] = [];
 }
@@ -10,9 +12,18 @@ export interface Rule {
     inputs: RuleInput[];
 }
 
-export interface BooleanExpression {
+export type BooleanExpression = StringOutputBooleanExpression | ColorOutputBooleanExpression;
+
+export interface StringOutputBooleanExpression {
+    type: 'string';
     expression: string;
     outputValue: string;
+}
+
+export interface ColorOutputBooleanExpression {
+    type: 'color';
+    expression: string;
+    outputValue: Color;
 }
 
 export interface RuleInput {
