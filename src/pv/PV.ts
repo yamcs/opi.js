@@ -18,6 +18,8 @@ export class PV {
     private _value?: any;
     private _severity = AlarmSeverity.NONE;
 
+    private _indexValue?: number;
+
     private _precision = 3;
 
     private _disconnected = false;
@@ -88,12 +90,26 @@ export class PV {
 
     get time(): Date | undefined { return this._time; }
     get value(): any | undefined { return this._value; }
+    get indexValue(): number | undefined { return this._indexValue; }
     get severity(): AlarmSeverity { return this._severity; }
+
+    toNumber(): number | null | undefined {
+        if (this.value === null) {
+            return null;
+        } else if (typeof this.value === 'number') {
+            return this.value;
+        } else if (typeof this.value === 'boolean') {
+            return this.value ? 1 : 0;
+        } else if (typeof this.indexValue !== undefined) {
+            return this.indexValue;
+        }
+    }
 
     // Should be called by PVEngine only
     setSample(sample: Sample) {
         this._time = sample.time;
         this._value = sample.value;
+        this._indexValue = sample.valueIndex;
         this._severity = sample.severity;
         this.pvEngine.requestRepaint();
     }

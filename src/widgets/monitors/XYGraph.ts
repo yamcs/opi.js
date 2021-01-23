@@ -184,8 +184,11 @@ export class XYGraph extends Widget {
                     buffer,
                 });
                 pv.addListener(() => {
-                    buffer.push([pv.time || new Date(), pv.value]);
-                    this.updateGraph();
+                    const numberValue = pv.toNumber();
+                    if (numberValue !== undefined) {
+                        buffer.push([pv.time || new Date(), numberValue]);
+                        this.updateGraph();
+                    }
                 });
             }
         }
