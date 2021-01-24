@@ -56,7 +56,7 @@ export class ImageBooleanIndicator extends Widget {
 
     get booleanValue() {
         if (this.bit < 0) {
-            return this.pv?.value !== 0;
+            return Boolean(this.pv?.toNumber());
         } else if (this.pv?.value !== undefined) {
             return ((this.pv?.value >> this.bit) & 1) > 0;
         } else {

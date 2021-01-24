@@ -97,7 +97,7 @@ export class BooleanButton extends Widget {
         if (this.pv && this.pv.value !== undefined) {
             if (this.dataType === 0) { // Bit
                 if (this.bit < 0) {
-                    return this.pv?.value !== 0;
+                    return Boolean(this.pv?.toNumber());
                 } else {
                     return ((this.pv?.value >> this.bit) & 1) > 0;
                 }

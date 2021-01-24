@@ -97,7 +97,7 @@ export class LED extends Widget {
     get booleanValue() {
         if (this.dataType === 0) { // Bit
             if (this.bit < 0) {
-                return this.pv && this.pv.value !== 0;
+                return Boolean(this.pv?.toNumber());
             } else if (this.pv?.value !== undefined) {
                 return ((this.pv?.value >> this.bit) & 1) > 0;
             } else {
