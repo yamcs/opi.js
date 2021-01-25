@@ -1,8 +1,8 @@
 import { PV } from './PV';
 import { PVProvider } from './PVProvider';
-import { ConstantGenerator, Noise, Ramp, SimGenerator, Sine } from './sim';
+import { ConstantGenerator, GaussianNoise, Noise, Ramp, SimGenerator, Sine } from './sim';
 
-const PV_PATTERN = /sim\:\/\/([a-z]+)(\((.*)\))?/;
+const PV_PATTERN = /sim\:\/\/([a-zA-Z]+)(\((.*)\))?/;
 
 export class SimulatedPVProvider implements PVProvider {
 
@@ -53,7 +53,7 @@ class SimulatedPV {
             }
             this.fn = this.createGenerator(match[1], args);
         } else {
-            console.warn(`Unexpected pattern for PV ${name}`);
+            console.warn(`Unexpected pattern for PV ${pv.name}`);
             this.fn = new ConstantGenerator(pv, undefined);
         }
     }
@@ -62,6 +62,8 @@ class SimulatedPV {
         switch (fnName) {
             case 'const':
                 return new ConstantGenerator(this.pv, args[0]);
+            case 'gaussianNoise':
+                return this.createGaussianNoise(args);
             case 'noise':
                 return this.createNoise(args);
             case 'ramp':
@@ -82,6 +84,17 @@ class SimulatedPV {
             const max = parseFloat(args[1]);
             const interval = parseFloat(args[2]) * 1000;
             return new Noise(this.pv, min, max, interval);
+        }
+    }
+
+    private createGaussianNoise(args: string[]) {
+        if (args.length === 0) {
+            return new GaussianNoise(this.pv, 0, 1, 100);
+        } else {
+            const avg = parseFloat(args[0]);
+            const stddev = parseFloat(args[1]);
+            const interval = parseFloat(args[2]) * 1000;
+            return new GaussianNoise(this.pv, avg, stddev, interval);
         }
     }
 

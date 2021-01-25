@@ -90,7 +90,7 @@ export class Noise extends SimGenerator {
  */
 export class GaussianNoise extends SimGenerator {
 
-    constructor(pv: PV, interval: number, private avg: number, private stddev: number) {
+    constructor(pv: PV, private avg: number, private stddev: number, interval: number) {
         super(pv, interval);
         pv.units = 'x';
         pv.lowerDisplayLimit = avg - 4 * stddev;
