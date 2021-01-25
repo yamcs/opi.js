@@ -61,12 +61,8 @@ TRUE = 'true'i
 PI = 'PI'i
 E = 'E'i
 
-ReservedWord
-  = BooleanLiteral
-  / ConstantLiteral
-
 Identifier
-  = !ReservedWord symbol:IdentifierSymbol {
+  = symbol:IdentifierSymbol {
     return symbol;
   };
 

@@ -596,45 +596,16 @@ function peg$parse(input: string, options?: IParseOptions) {
     return s0;
   }
 
-  function peg$parseReservedWord(): any {
-    let s0;
-
-    s0 = peg$parseBooleanLiteral();
-    if (s0 === peg$FAILED) {
-      s0 = peg$parseConstantLiteral();
-    }
-
-    return s0;
-  }
-
   function peg$parseIdentifier(): any {
-    let s0, s1, s2;
+    let s0, s1;
 
     s0 = peg$currPos;
-    s1 = peg$currPos;
-    peg$silentFails++;
-    s2 = peg$parseReservedWord();
-    peg$silentFails--;
-    if (s2 === peg$FAILED) {
-      s1 = undefined;
-    } else {
-      peg$currPos = s1;
-      s1 = peg$FAILED;
-    }
+    s1 = peg$parseIdentifierSymbol();
     if (s1 !== peg$FAILED) {
-      s2 = peg$parseIdentifierSymbol();
-      if (s2 !== peg$FAILED) {
-        peg$savedPos = s0;
-        s1 = peg$c16(s2);
-        s0 = s1;
-      } else {
-        peg$currPos = s0;
-        s0 = peg$FAILED;
-      }
-    } else {
-      peg$currPos = s0;
-      s0 = peg$FAILED;
+      peg$savedPos = s0;
+      s1 = peg$c16(s1);
     }
+    s0 = s1;
 
     return s0;
   }

@@ -1,5 +1,5 @@
 Test this with:
 
-    ts-node -O '{"module":"commonjs"}' src/pv/formulas/test.ts
+    ts-node -O '{"module":"commonjs"}' src/pv/formulas/manual-test.ts
 
 You may need to tweak the tsconfig a bit.
