@@ -10,6 +10,7 @@ import { SimulatedPVProvider } from './pv/SimulatedPVProvider';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
+import { CheckBox } from './widgets/controls/CheckBox';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
 import { TextInput } from './widgets/controls/TextInput';
@@ -40,6 +41,7 @@ const TYPE_ACTION_BUTTON = 'Action Button';
 const TYPE_ARC = 'Arc';
 const TYPE_BOOLEAN_BUTTON = 'Boolean Button';
 const TYPE_BOOLEAN_SWITCH = 'Boolean Switch';
+const TYPE_CHECK_BOX = 'Check Box';
 const TYPE_ELLIPSE = 'Ellipse';
 const TYPE_GAUGE = 'Gauge';
 const TYPE_GROUPING_CONTAINER = 'Grouping Container';
@@ -252,6 +254,8 @@ export class Display {
                 return new BooleanButton(this, parent);
             case TYPE_BOOLEAN_SWITCH:
                 return new BooleanSwitch(this, parent);
+            case TYPE_CHECK_BOX:
+                return new CheckBox(this, parent);
             case TYPE_ELLIPSE:
                 return new Ellipse(this, parent);
             case TYPE_GAUGE:
