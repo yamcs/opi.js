@@ -171,7 +171,7 @@ export class XYGraph extends Widget {
             this.properties.add(pointStyleProperty);
 
             const pvName = this.expandMacro(yPVProperty.value);
-            const pv = this.display.pvEngine.getPV(pvName);
+            const pv = this.display.pvEngine.createPV(pvName);
             if (pv) {
                 const buffer = new SampleBuffer(bufferSizeProperty.value);
                 this.traceDataSet.push({
