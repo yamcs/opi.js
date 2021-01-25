@@ -105,6 +105,36 @@ export class PV {
         }
     }
 
+    formatValue(formatType: number, precision: number) {
+        if (this.value === null) {
+            return '';
+        } else if (typeof this.value === 'string') {
+            return this.value;
+        } else if (typeof this.value === 'number') {
+            return this.formatNumber(formatType, this.value, precision);
+        } else {
+            return String(this.value);
+        }
+    }
+
+    private formatNumber(formatType: number, value: number, precision: number) {
+        if (value == null || value == undefined) {
+            return '';
+        }
+        switch (formatType) {
+            case 0: // DEFAULT
+            case 1: // NORMAL
+                if (precision === -1) {
+                    return String(value);
+                } else {
+                    return value.toFixed(precision);
+                }
+            default:
+                console.warn(`Unexpected format type ${formatType}`);
+                return String(value);
+        }
+    }
+
     // Should be called by PVEngine only
     setSample(sample: Sample) {
         this._time = sample.time;

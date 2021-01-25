@@ -61,7 +61,8 @@ class SimulatedPV {
     private createGenerator(fnName: string, args: string[]) {
         switch (fnName) {
             case 'const':
-                return new ConstantGenerator(this.pv, args[0]);
+                const constValue = this.saferEval(args[0]);
+                return new ConstantGenerator(this.pv, constValue);
             case 'gaussianNoise':
                 return this.createGaussianNoise(args);
             case 'noise':
@@ -74,6 +75,10 @@ class SimulatedPV {
                 console.warn(`Unexpected function ${fnName} for PV ${this.pv.name}`);
                 return new ConstantGenerator(this.pv, undefined);
         }
+    }
+
+    private saferEval(obj: any) { // Preserve type of strings and numbers
+        return Function('"use strict";return (' + obj + ')')();
     }
 
     private createNoise(args: string[]) {

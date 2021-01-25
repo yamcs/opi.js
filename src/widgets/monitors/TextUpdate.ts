@@ -4,12 +4,15 @@ import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
 import { HitRegionSpecification } from '../../HitCanvas';
 import { shrink } from '../../positioning';
-import { FontProperty, IntProperty } from '../../properties';
+import { BooleanProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_FONT = 'font';
+const PROP_FORMAT_TYPE = 'format_type';
 const PROP_HORIZONTAL_ALIGNMENT = 'horizontal_alignment';
+const PROP_PRECISION = 'precision';
+const PROP_PRECISION_FROM_PV = 'precision_from_pv';
 const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextUpdate extends Widget {
@@ -19,7 +22,10 @@ export class TextUpdate extends Widget {
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
         this.properties.add(new FontProperty(PROP_FONT));
+        this.properties.add(new IntProperty(PROP_FORMAT_TYPE));
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
+        this.properties.add(new IntProperty(PROP_PRECISION));
+        this.properties.add(new BooleanProperty(PROP_PRECISION_FROM_PV));
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
     }
 
@@ -82,13 +88,16 @@ export class TextUpdate extends Widget {
 
         let text = this.text;
         if (this.pv && this.pv.value !== undefined) {
-            text = String(this.pv.value);
+            const precision = this.precisionFromPV ? 1 : this.precision;
+            text = this.pv.formatValue(this.formatType, precision);
         }
-
         ctx.fillText(text, x, y);
     }
 
     get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get formatType(): number { return this.properties.getValue(PROP_FORMAT_TYPE); }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
+    get precision(): number { return this.properties.getValue(PROP_PRECISION); }
+    get precisionFromPV(): boolean { return this.properties.getValue(PROP_PRECISION_FROM_PV); }
     get vertAlignment(): number { return this.properties.getValue(PROP_VERTICAL_ALIGNMENT); }
 }
