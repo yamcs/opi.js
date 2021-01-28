@@ -125,11 +125,10 @@ export abstract class Widget {
         let insets = [0, 0, 0, 0]; // T L B R
         switch (this.borderStyle) {
             case 0: // Empty
-                if (this.borderAlarmSensitive) {
-                    // TODO reevaluate the condition for these insets
-                    // (at least the TextUpdate does not seem to need this)
-                    ///this.insets = [2, 2, 2, 2];
-                }
+                // Not all widgets do this, so we shrink bounds inside the widget's draw
+                // if (this.borderAlarmSensitive) {
+                //    insets = [2, 2, 2, 2];
+                //}
                 break;
             case 1: // Line
                 insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
@@ -171,12 +170,7 @@ export abstract class Widget {
         this.height = this.holderHeight - insets[0] - insets[2];
 
         if (this.borderStyle === 0) { // No border
-            // This is a weird one. When there is no border the widget
-            // shrinks according to an inset of 2px. This only happens when
-            // the border is alarm-sensitive.
-            if (this.borderAlarmSensitive) {
-                // anything TODO ?
-            }
+            // Ignore
         } else if (this.borderStyle === 1) { // Line
             g.strokeRect({
                 x: this.holderX,

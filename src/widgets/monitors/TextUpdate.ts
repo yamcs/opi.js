@@ -62,7 +62,10 @@ export class TextUpdate extends Widget {
         ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
         ctx.font = this.font.getFontString();
 
-        const textBounds = shrink(this.area, 2, 2);
+        let textBounds = this.area;
+        if (this.borderAlarmSensitive) {
+            textBounds = shrink(textBounds, 2, 2);
+        }
 
         let x = textBounds.x;
         if (this.horizAlignment === 0) { // LEFT
