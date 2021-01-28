@@ -7,6 +7,8 @@ import { BooleanProperty, ColorProperty, IntProperty, StringProperty } from '../
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
+const PROP_BIT = 'bit';
+const PROP_DATA_TYPE = 'data_type';
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_OFF_COLOR = 'off_color';
 const PROP_OFF_LABEL = 'off_label';
@@ -18,12 +20,14 @@ const PROP_TOGGLE_BUTTON = 'toggle_button';
 
 export class BooleanSwitch extends Widget {
 
-    private enabled = false;
+    private manualToggleState = false; // Without PV
 
     private shaftRegion?: HitRegionSpecification;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
+        this.properties.add(new IntProperty(PROP_BIT));
+        this.properties.add(new IntProperty(PROP_DATA_TYPE));
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new ColorProperty(PROP_ON_COLOR));
         this.properties.add(new StringProperty(PROP_ON_LABEL));
@@ -37,42 +41,77 @@ export class BooleanSwitch extends Widget {
     init() {
         this.shaftRegion = {
             id: `${this.wuid}-shaft`,
-            mouseDown: () => this.toggle(),
+            mouseDown: () => {
+                this.manualToggleState ? this.toggleOff() : this.toggleOn();
+                this.requestRepaint();
+            },
             cursor: 'pointer'
-        }
-    }
-
-    private toggle() {
-        this.enabled = !this.enabled;
-        this.enabled ? this.toggleOn() : this.toggleOff();
-        this.requestRepaint();
+        };
     }
 
     private toggleOn() {
+        this.manualToggleState = true;
         if (this.pv && this.pv.writable) {
-            this.display.pvEngine.setValue(new Date(), this.pv.name, 1);
+            if (this.dataType === 0) { // Bit
+                if (this.bit < 0) {
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, 1);
+                } else {
+                    const value = this.pv.value | (1 << this.bit);
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                }
+            } else { // TODO
+            }
         }
         this.executeAction(this.pushActionIndex);
     }
 
     private toggleOff() {
+        this.manualToggleState = false;
         if (this.pv && this.pv.writable) {
-            this.display.pvEngine.setValue(new Date(), this.pv.name, 0);
+            if (this.dataType === 0) { // Bit
+                if (this.bit < 0) {
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, 0);
+                } else {
+                    const value = this.pv.value & ~(1 << this.bit);
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                }
+            } else { // TODO
+            }
         }
         if (this.releaseActionIndex !== undefined) {
             this.executeAction(this.releaseActionIndex);
         }
     }
 
-    draw(g: Graphics) {
-        if (this.width > this.height) {
-            this.drawHorizontal(g);
+    get booleanValue() {
+        if (this.pv && this.pv.value !== undefined) {
+            if (this.dataType === 0) { // Bit
+                if (this.bit < 0) {
+                    return Boolean(this.pv?.toNumber());
+                } else {
+                    return ((this.pv?.value >> this.bit) & 1) > 0;
+                }
+            } else if (this.dataType === 1) { // Enum
+                return false; // TODO
+            } else {
+                return false;
+            }
         } else {
-            this.drawVertical(g);
+            return this.manualToggleState;
         }
     }
 
-    private drawHorizontal(g: Graphics) {
+    draw(g: Graphics) {
+        const toggled = this.booleanValue;
+
+        if (this.width > this.height) {
+            this.drawHorizontal(g, toggled);
+        } else {
+            this.drawVertical(g, toggled);
+        }
+    }
+
+    private drawHorizontal(g: Graphics, toggled: boolean) {
         let areaWidth = this.width;
         let areaHeight = this.height;
         if (areaHeight > areaWidth / 2) {
@@ -87,7 +126,7 @@ export class BooleanSwitch extends Widget {
             width: areaHeight / 2,
             height: areaHeight / 2,
         };
-        this.drawPedestal(g, pedBounds);
+        this.drawPedestal(g, pedBounds, toggled);
 
         const largeWidth = Math.floor((35.0 / 218.0) * areaWidth);
         const largeHeight = Math.floor((45.0 / 105.0) * areaHeight);
@@ -96,7 +135,7 @@ export class BooleanSwitch extends Widget {
 
         const smallMove = Math.floor((1.0 / 7.0) * pedBounds.width);
 
-        if (this.enabled) {
+        if (toggled) {
             const onLargeBounds: Bounds = {
                 x: 2 * pedBounds.x + pedBounds.width - largeWidth,
                 y: pedBounds.height / 2 - largeHeight / 2,
@@ -127,7 +166,7 @@ export class BooleanSwitch extends Widget {
         }
     }
 
-    private drawVertical(g: Graphics) {
+    private drawVertical(g: Graphics, toggled: boolean) {
         let areaWidth = this.width;
         let areaHeight = this.height;
         if (areaWidth > areaHeight / 2) {
@@ -142,14 +181,14 @@ export class BooleanSwitch extends Widget {
             width: areaWidth / 2,
             height: areaWidth / 2,
         };
-        this.drawPedestal(g, pedBounds);
+        this.drawPedestal(g, pedBounds, toggled);
 
         const largeWidth = Math.floor((45.0 / 105.0) * areaWidth);
         const largeHeight = Math.floor((35.0 / 218.0) * areaHeight);
         const smallWidth = Math.floor((35.0 / 105.0) * areaWidth);
         const smallHeight = Math.floor((43.0 / 218.0) * areaHeight);
 
-        if (this.enabled) {
+        if (toggled) {
             const onLargeBounds: Bounds = {
                 x: pedBounds.width / 2 - largeWidth / 2,
                 y: 0,
@@ -183,7 +222,7 @@ export class BooleanSwitch extends Widget {
         }
     }
 
-    private drawPedestal(g: Graphics, bounds: Bounds) {
+    private drawPedestal(g: Graphics, bounds: Bounds, toggled: boolean) {
         let cx = this.x + bounds.x + (bounds.width / 2);
         let cy = this.y + bounds.y + (bounds.height / 2);
         let rx = bounds.width / 2;
@@ -197,7 +236,7 @@ export class BooleanSwitch extends Widget {
             const gradient = g.createLinearGradient(this.x + bounds.x, this.y + bounds.y,
                 this.x + bounds.x + bounds.width, this.y + bounds.y + bounds.height);
 
-            if (this.enabled) {
+            if (toggled) {
                 gradient.addColorStop(0, `rgba(255,255,255,${10 / 255})`);
                 gradient.addColorStop(1, `rgba(0,0,0,${100 / 255})`);
             } else {
@@ -372,6 +411,8 @@ export class BooleanSwitch extends Widget {
         }
     }
 
+    get bit(): number { return this.properties.getValue(PROP_BIT); }
+    get dataType(): number { return this.properties.getValue(PROP_DATA_TYPE); }
     get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
     get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }
     get releaseActionIndex(): number { return this.properties.getValue(PROP_RELEASE_ACTION_INDEX); }

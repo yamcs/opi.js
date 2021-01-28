@@ -71,8 +71,12 @@ export class BooleanButton extends Widget {
         this.manualToggleState = true;
         if (this.pv && this.pv.writable) {
             if (this.dataType === 0) { // Bit
-                const value = this.pv.value | (1 << this.bit);
-                this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                if (this.bit < 0) {
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, 1);
+                } else {
+                    const value = this.pv.value | (1 << this.bit);
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                }
             } else { // TODO
             }
         }
@@ -83,8 +87,12 @@ export class BooleanButton extends Widget {
         this.manualToggleState = false;
         if (this.pv && this.pv.writable) {
             if (this.dataType === 0) { // Bit
-                const value = this.pv.value & ~(1 << this.bit);
-                this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                if (this.bit < 0) {
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, 0);
+                } else {
+                    const value = this.pv.value & ~(1 << this.bit);
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                }
             } else { // TODO
             }
         }
