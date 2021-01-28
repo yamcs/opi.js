@@ -70,8 +70,24 @@ export class ImageBooleanButton extends Widget {
         this.areaRegion = {
             id: `${this.wuid}-area`,
             mouseDown: () => {
-                this.manualToggleState ? this.toggleOff() : this.toggleOn();
+                if (this.toggleButton) {
+                    this.manualToggleState ? this.toggleOff() : this.toggleOn();
+                } else {
+                    this.toggleOn();
+                }
                 this.requestRepaint();
+            },
+            mouseUp: () => {
+                if (this.manualToggleState && !this.toggleButton) {
+                    this.toggleOff();
+                    this.requestRepaint();
+                }
+            },
+            mouseOut: () => {
+                if (this.manualToggleState && !this.toggleButton) {
+                    this.toggleOff();
+                    this.requestRepaint();
+                }
             },
             cursor: 'pointer'
         };
