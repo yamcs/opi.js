@@ -22,6 +22,7 @@ import { Polygon } from './widgets/graphics/Polygon';
 import { Polyline } from './widgets/graphics/Polyline';
 import { Rectangle } from './widgets/graphics/Rectangle';
 import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
+import { ByteMonitor } from './widgets/monitors/ByteMonitor';
 import { Gauge } from './widgets/monitors/Gauge';
 import { ImageBooleanIndicator } from './widgets/monitors/ImageBooleanIndicator';
 import { LED } from './widgets/monitors/LED';
@@ -41,6 +42,7 @@ const TYPE_ACTION_BUTTON = 'Action Button';
 const TYPE_ARC = 'Arc';
 const TYPE_BOOLEAN_BUTTON = 'Boolean Button';
 const TYPE_BOOLEAN_SWITCH = 'Boolean Switch';
+const TYPE_BYTE_MONITOR = 'Byte Monitor';
 const TYPE_CHECK_BOX = 'Check Box';
 const TYPE_ELLIPSE = 'Ellipse';
 const TYPE_GAUGE = 'Gauge';
@@ -254,6 +256,8 @@ export class Display {
                 return new BooleanButton(this, parent);
             case TYPE_BOOLEAN_SWITCH:
                 return new BooleanSwitch(this, parent);
+            case TYPE_BYTE_MONITOR:
+                return new ByteMonitor(this, parent);
             case TYPE_CHECK_BOX:
                 return new CheckBox(this, parent);
             case TYPE_ELLIPSE:
