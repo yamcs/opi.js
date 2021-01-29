@@ -57,7 +57,7 @@ export class BooleanButton extends Widget {
             id: `${this.wuid}-area`,
             mouseDown: () => {
                 if (this.toggleButton) {
-                    this.manualToggleState ? this.toggleOff() : this.toggleOn();
+                    this.booleanValue ? this.toggleOff() : this.toggleOn();
                 } else {
                     this.toggleOn();
                 }
@@ -68,13 +68,13 @@ export class BooleanButton extends Widget {
                 this.requestRepaint();
             },
             mouseUp: () => {
-                if (this.manualToggleState && !this.toggleButton) {
+                if (this.booleanValue && !this.toggleButton) {
                     this.toggleOff();
                     this.requestRepaint();
                 }
             },
             mouseOut: () => {
-                if (this.manualToggleState && !this.toggleButton) {
+                if (this.booleanValue && !this.toggleButton) {
                     this.toggleOff();
                 }
                 this.hovered = false;
