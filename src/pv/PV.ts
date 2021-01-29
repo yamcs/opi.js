@@ -129,6 +129,10 @@ export class PV {
                 } else {
                     return value.toFixed(precision);
                 }
+            case 2: // EXPONENTIAL
+                return value.toExponential().replace('e+', 'E').toUpperCase();
+            case 3: // HEX
+                return '0x' + value.toString(16).toUpperCase();
             default:
                 console.warn(`Unexpected format type ${formatType}`);
                 return String(value);

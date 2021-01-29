@@ -2,7 +2,6 @@ import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
 import { BooleanProperty, FontProperty, IntProperty } from '../../properties';
-import { PV } from '../../pv/PV';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
@@ -72,31 +71,12 @@ export class TextInput extends Widget {
 
         let text = this.text;
         if (this.pv && this.pv.value !== undefined) {
-            text = this.formatValue(this.pv, this.pv.value);
+            const precision = this.precisionFromPV ? this.pv.precision : this.precision;
+            text = this.pv.formatValue(this.formatType, precision);
         }
 
         offscreenCtx.fillText(text, x - this.area.x, y - this.area.y);
         ctx.drawImage(tmpCanvas, this.area.x, this.area.y);
-    }
-
-    private formatValue(pv: PV, value: any) {
-        const precision = this.precisionFromPV ? pv.precision : this.precision;
-        if (typeof value === 'number') {
-            if (this.formatType === 0) { // "Default"
-                return String(Number(value.toFixed(precision)));
-            } else if (this.formatType === 1) { // Decimal
-                return String(Number(value.toFixed(precision)));
-            } else if (this.formatType === 2) { // Exponential
-                return value.toExponential();
-            } else if (this.formatType === 3) { // Hex
-                return value.toString(16);
-            } else {
-                console.log(`Unexpected format type ${this.formatType}`);
-                return String(value);
-            }
-        } else {
-            return String(value);
-        }
     }
 
     get font(): Font { return this.properties.getValue(PROP_FONT); }
