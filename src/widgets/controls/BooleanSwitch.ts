@@ -12,8 +12,10 @@ const PROP_DATA_TYPE = 'data_type';
 const PROP_EFFECT_3D = 'effect_3d';
 const PROP_OFF_COLOR = 'off_color';
 const PROP_OFF_LABEL = 'off_label';
+const PROP_OFF_STATE = 'off_state';
 const PROP_ON_COLOR = 'on_color';
 const PROP_ON_LABEL = 'on_label';
+const PROP_ON_STATE = 'on_state';
 const PROP_PUSH_ACTION_INDEX = 'push_action_index';
 const PROP_RELEASE_ACTION_INDEX = 'released_action_index'; // with 'd'
 const PROP_TOGGLE_BUTTON = 'toggle_button';
@@ -31,8 +33,10 @@ export class BooleanSwitch extends Widget {
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new ColorProperty(PROP_ON_COLOR));
         this.properties.add(new StringProperty(PROP_ON_LABEL));
+        this.properties.add(new StringProperty(PROP_ON_STATE));
         this.properties.add(new ColorProperty(PROP_OFF_COLOR));
         this.properties.add(new StringProperty(PROP_OFF_LABEL));
+        this.properties.add(new StringProperty(PROP_OFF_STATE));
         this.properties.add(new IntProperty(PROP_PUSH_ACTION_INDEX));
         this.properties.add(new IntProperty(PROP_RELEASE_ACTION_INDEX));
         this.properties.add(new BooleanProperty(PROP_TOGGLE_BUTTON));
@@ -75,7 +79,8 @@ export class BooleanSwitch extends Widget {
                     const value = this.pv.value | (1 << this.bit);
                     this.display.pvEngine.setValue(new Date(), this.pv.name, value);
                 }
-            } else { // TODO
+            } else {
+                this.display.pvEngine.setValue(new Date(), this.pv.name, this.onState);
             }
         }
         this.executeAction(this.pushActionIndex);
@@ -91,7 +96,8 @@ export class BooleanSwitch extends Widget {
                     const value = this.pv.value & ~(1 << this.bit);
                     this.display.pvEngine.setValue(new Date(), this.pv.name, value);
                 }
-            } else { // TODO
+            } else {
+                this.display.pvEngine.setValue(new Date(), this.pv.name, this.offState);
             }
         }
         if (this.releaseActionIndex !== undefined) {
@@ -108,7 +114,7 @@ export class BooleanSwitch extends Widget {
                     return ((this.pv?.value >> this.bit) & 1) > 0;
                 }
             } else if (this.dataType === 1) { // Enum
-                return false; // TODO
+                return this.pv.toString() === this.onState;
             } else {
                 return false;
             }
@@ -435,6 +441,8 @@ export class BooleanSwitch extends Widget {
     get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
     get onColor(): Color { return this.properties.getValue(PROP_ON_COLOR); }
     get onLabel(): string { return this.properties.getValue(PROP_ON_LABEL); }
+    get onState(): string { return this.properties.getValue(PROP_ON_STATE); }
     get offColor(): Color { return this.properties.getValue(PROP_OFF_COLOR); }
     get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
+    get offState(): string { return this.properties.getValue(PROP_OFF_STATE); }
 }
