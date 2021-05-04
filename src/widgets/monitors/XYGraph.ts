@@ -424,6 +424,14 @@ export class XYGraph extends Widget {
         }
     }
 
+    destroy() {
+        if (this.graph) {
+            this.graph.destroy();
+            this.graph = undefined;
+            this.initialized = false;
+        }
+    }
+
     get axisCount(): number { return this.properties.getValue(PROP_AXIS_COUNT); }
     get title(): string { return this.properties.getValue(PROP_TITLE); }
     get titleFont(): Font { return this.properties.getValue(PROP_TITLE_FONT); }

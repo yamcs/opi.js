@@ -690,5 +690,6 @@ export abstract class Widget {
     }
 
     init(): void { };
+    destroy(): void { };
     abstract draw(g: Graphics): void;
 }

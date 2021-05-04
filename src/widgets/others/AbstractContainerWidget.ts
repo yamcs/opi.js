@@ -60,9 +60,15 @@ export abstract class AbstractContainerWidget extends Widget {
         }
     }
 
+    destroy() {
+        for (const widget of this.widgets) {
+            widget.destroy();
+        }
+    }
+
     // Exposed as properties to make it easier to override them
     // (used by Linkingcontainer)
-    get widgets() { return this._widgets };
-    get connections() { return this._connections };
+    get widgets() { return this._widgets; };
+    get connections() { return this._connections; };
     get macros(): MacroSet { return this.properties.getValue(PROP_MACROS); }
 }

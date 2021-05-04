@@ -49,8 +49,10 @@ export class TabbedContainer extends AbstractContainerWidget {
                 headerRegion: {
                     id: `${this.wuid}-header-${i}`,
                     click: () => {
-                        this.properties.setValue(PROP_ACTIVE_TAB, i);
-                        this.requestRepaint();
+                        if (this.activeTab !== i) {
+                            this.properties.setValue(PROP_ACTIVE_TAB, i);
+                            this.requestRepaint();
+                        }
                     },
                     cursor: 'pointer'
                 }
@@ -152,6 +154,9 @@ export class TabbedContainer extends AbstractContainerWidget {
                 activeWidget.draw(offscreen);
                 activeWidget.drawDecoration(offscreen);
                 g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
+            } else {
+                const inactiveWidget = this.widgets[i];
+                inactiveWidget.destroy();
             }
         }
     }
@@ -240,6 +245,9 @@ export class TabbedContainer extends AbstractContainerWidget {
                 activeWidget.draw(offscreen);
                 activeWidget.drawDecoration(offscreen);
                 g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
+            } else {
+                const inactiveWidget = this.widgets[i];
+                inactiveWidget.destroy();
             }
         }
     }
