@@ -12,6 +12,7 @@ import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
 import { CheckBox } from './widgets/controls/CheckBox';
+import { ChoiceButton } from './widgets/controls/ChoiceButton';
 import { Combo } from './widgets/controls/Combo';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
@@ -47,6 +48,7 @@ const TYPE_BOOLEAN_BUTTON = 'Boolean Button';
 const TYPE_BOOLEAN_SWITCH = 'Boolean Switch';
 const TYPE_BYTE_MONITOR = 'Byte Monitor';
 const TYPE_CHECK_BOX = 'Check Box';
+const TYPE_CHOICE_BUTTON = 'Choice Button';
 const TYPE_COMBO = 'Combo';
 const TYPE_ELLIPSE = 'Ellipse';
 const TYPE_GAUGE = 'Gauge';
@@ -282,6 +284,8 @@ export class Display {
                 return new ByteMonitor(this, parent);
             case TYPE_CHECK_BOX:
                 return new CheckBox(this, parent);
+            case TYPE_CHOICE_BUTTON:
+                return new ChoiceButton(this, parent);
             case TYPE_COMBO:
                 return new Combo(this, parent);
             case TYPE_ELLIPSE:
