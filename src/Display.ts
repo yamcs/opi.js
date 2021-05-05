@@ -15,6 +15,7 @@ import { CheckBox } from './widgets/controls/CheckBox';
 import { Combo } from './widgets/controls/Combo';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
+import { RadioBox } from './widgets/controls/RadioBox';
 import { TextInput } from './widgets/controls/TextInput';
 import { Arc } from './widgets/graphics/Arc';
 import { Ellipse } from './widgets/graphics/Ellipse';
@@ -60,6 +61,7 @@ const TYPE_METER = 'Meter';
 const TYPE_NATIVE_BUTTON = 'Button'; // Only used in old displays
 const TYPE_POLYGON = 'Polygon';
 const TYPE_POLYLINE = 'Polyline';
+const TYPE_RADIO_BOX = 'Radio Box';
 const TYPE_RECTANGLE = 'Rectangle';
 const TYPE_ROUNDED_RECTANGLE = 'Rounded Rectangle';
 const TYPE_TABBED_CONTAINER = 'Tabbed Container';
@@ -308,6 +310,8 @@ export class Display {
                 return new Polygon(this, parent);
             case TYPE_POLYLINE:
                 return new Polyline(this, parent);
+            case TYPE_RADIO_BOX:
+                return new RadioBox(this, parent);
             case TYPE_RECTANGLE:
                 return new Rectangle(this, parent);
             case TYPE_ROUNDED_RECTANGLE:
