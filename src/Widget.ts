@@ -410,6 +410,9 @@ export abstract class Widget {
         }
     }
 
+    drawOverlay(g: Graphics) {
+    }
+
     drawSelection(ctx: CanvasRenderingContext2D) {
         ctx.lineWidth = 1;
         ctx.strokeStyle = 'black';
@@ -443,6 +446,13 @@ export abstract class Widget {
 
     requestRepaint() {
         this.display.requestRepaint();
+    }
+
+    /**
+     * May be called when an other widget
+     * wants to open a menu.
+     */
+    closeMenu() {
     }
 
     /**

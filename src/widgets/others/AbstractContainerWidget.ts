@@ -60,6 +60,12 @@ export abstract class AbstractContainerWidget extends Widget {
         }
     }
 
+    closeMenu() {
+        for (const widget of this.widgets) {
+            widget.closeMenu();
+        }
+    }
+
     destroy() {
         for (const widget of this.widgets) {
             widget.destroy();

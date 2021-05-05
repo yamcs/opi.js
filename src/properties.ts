@@ -33,29 +33,31 @@ export class PropertySet {
     loadXMLValues(node: XMLNode) {
         this.properties.forEach(property => {
             if (node.hasNode(property.name)) {
-                if (property instanceof StringProperty) {
-                    // The non-raw value is set below (after reading in other properties)
-                    (property as StringProperty).rawValue = node.getString(property.name);
-                } else if (property instanceof IntProperty) {
-                    property.value = node.getInt(property.name);
-                } else if (property instanceof FloatProperty) {
-                    property.value = node.getFloat(property.name);
+                if (property instanceof ActionsProperty) {
+                    property.value = node.getActions(property.name);
                 } else if (property instanceof BooleanProperty) {
                     property.value = node.getBoolean(property.name);
                 } else if (property instanceof ColorProperty) {
                     property.value = node.getColor(property.name);
+                } else if (property instanceof FloatProperty) {
+                    property.value = node.getFloat(property.name);
                 } else if (property instanceof FontProperty) {
                     property.value = node.getFont(property.name);
-                } else if (property instanceof ActionsProperty) {
-                    property.value = node.getActions(property.name);
-                } else if (property instanceof PointsProperty) {
-                    property.value = node.getPoints(property.name);
+                } else if (property instanceof IntProperty) {
+                    property.value = node.getInt(property.name);
                 } else if (property instanceof MacrosProperty) {
                     property.value = node.getMacros(property.name);
-                } else if (property instanceof ScriptsProperty) {
-                    property.value = node.getScripts(property.name);
+                } else if (property instanceof PointsProperty) {
+                    property.value = node.getPoints(property.name);
                 } else if (property instanceof RulesProperty) {
                     property.value = node.getRules(property.name);
+                } else if (property instanceof ScriptsProperty) {
+                    property.value = node.getScripts(property.name);
+                } else if (property instanceof StringProperty) {
+                    // The non-raw value is set below (after reading in other properties)
+                    (property as StringProperty).rawValue = node.getString(property.name);
+                } else if (property instanceof StringListProperty) {
+                    property.value = node.getStringList(property.name);
                 } else {
                     throw new Error(`Property ${property.name} has an unexpected type`);
                 }
@@ -178,6 +180,9 @@ export class MacrosProperty extends Property<MacroSet> {
 }
 
 export class ScriptsProperty extends Property<ScriptSet> {
+}
+
+export class StringListProperty extends Property<string[]> {
 }
 
 export class RulesProperty extends Property<RuleSet> {

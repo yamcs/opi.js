@@ -33,6 +33,9 @@ export class DisplayWidget extends AbstractContainerWidget {
         for (const connection of this.connections) {
             connection.draw(g);
         }
+        for (const widget of this.widgets) {
+            widget.drawOverlay(g);
+        }
     }
 
     measureContentBounds(): Bounds {

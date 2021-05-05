@@ -153,6 +153,7 @@ export class TabbedContainer extends AbstractContainerWidget {
                 activeWidget.drawHolder(offscreen);
                 activeWidget.draw(offscreen);
                 activeWidget.drawDecoration(offscreen);
+                activeWidget.drawOverlay(offscreen);
                 g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
             } else {
                 const inactiveWidget = this.widgets[i];
@@ -244,6 +245,7 @@ export class TabbedContainer extends AbstractContainerWidget {
                 activeWidget.drawHolder(offscreen);
                 activeWidget.draw(offscreen);
                 activeWidget.drawDecoration(offscreen);
+                activeWidget.drawOverlay(offscreen);
                 g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
             } else {
                 const inactiveWidget = this.widgets[i];

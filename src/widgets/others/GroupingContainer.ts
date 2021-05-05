@@ -34,6 +34,9 @@ export class GroupingContainer extends AbstractContainerWidget {
             widget.draw(offscreen);
             widget.drawDecoration(offscreen);
         }
+        for (const widget of this.widgets) {
+            widget.drawOverlay(offscreen);
+        }
 
         g.copy(offscreen, this.x, this.y);
     }

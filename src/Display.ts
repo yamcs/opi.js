@@ -2,6 +2,7 @@ import { Color } from './Color';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
+import { HitRegionSpecification } from './HitCanvas';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
 import { PVEngine } from './pv/PVEngine';
 import { PVProvider } from './pv/PVProvider';
@@ -11,6 +12,7 @@ import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
 import { CheckBox } from './widgets/controls/CheckBox';
+import { Combo } from './widgets/controls/Combo';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
 import { TextInput } from './widgets/controls/TextInput';
@@ -44,6 +46,7 @@ const TYPE_BOOLEAN_BUTTON = 'Boolean Button';
 const TYPE_BOOLEAN_SWITCH = 'Boolean Switch';
 const TYPE_BYTE_MONITOR = 'Byte Monitor';
 const TYPE_CHECK_BOX = 'Check Box';
+const TYPE_COMBO = 'Combo';
 const TYPE_ELLIPSE = 'Ellipse';
 const TYPE_GAUGE = 'Gauge';
 const TYPE_GROUPING_CONTAINER = 'Grouping Container';
@@ -94,6 +97,8 @@ export class Display {
         selection: [],
     };
 
+    private displayRegion: HitRegionSpecification;
+
     constructor(private readonly targetElement: HTMLElement) {
 
         // Wrapper to not modify the user element much more
@@ -112,6 +117,11 @@ export class Display {
         this.pvEngine = new PVEngine(this);
         this.pvEngine.addProvider(new SimulatedPVProvider());
         this.pvEngine.addProvider(new FormulaPVProvider());
+
+        this.displayRegion = {
+            id: `display-root`,
+            click: () => this.closeMenu(),
+        };
 
         window.requestAnimationFrame(() => this.step());
 
@@ -160,8 +170,11 @@ export class Display {
                 });
             }
         } else {
-            this.g.fillCanvas(this.instance ? this.instance.backgroundColor : Color.WHITE);
+            this.g.fillCanvas(this.instance?.backgroundColor || Color.WHITE);
         }
+
+        const displayArea = this.g.addHitRegion(this.displayRegion);
+        displayArea.addRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
         if (this.showGrid && this.instance) {
             const patternCanvas = document.createElement('canvas');
@@ -246,6 +259,13 @@ export class Display {
         this.repaintRequested = true;
     }
 
+    /**
+     * Closes the currently active menu (if any)
+     */
+    closeMenu() {
+        this.instance?.closeMenu();
+    }
+
     createWidget(kind: string, parent: AbstractContainerWidget) {
         switch (kind) {
             case TYPE_ACTION_BUTTON:
@@ -260,6 +280,8 @@ export class Display {
                 return new ByteMonitor(this, parent);
             case TYPE_CHECK_BOX:
                 return new CheckBox(this, parent);
+            case TYPE_COMBO:
+                return new Combo(this, parent);
             case TYPE_ELLIPSE:
                 return new Ellipse(this, parent);
             case TYPE_GAUGE:
@@ -306,6 +328,7 @@ export class Display {
     }
 
     destroy() {
+        this.instance?.destroy();
         this.instance = undefined;
         this.pvEngine.clearState();
         this.requestRepaint();

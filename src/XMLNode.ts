@@ -242,6 +242,15 @@ export class XMLNode {
         return points;
     }
 
+    getStringList(name: string) {
+        const listNode = this.getNode(name);
+        const list = [];
+        for (const stringNode of listNode.getNodes('s')) {
+            list.push(stringNode.getTextContent());
+        }
+        return list;
+    }
+
     getScripts(name: string) {
         const scriptsNode = this.getNode(name);
         const scripts = new ScriptSet();
