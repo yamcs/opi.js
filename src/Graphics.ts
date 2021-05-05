@@ -271,10 +271,11 @@ export class Graphics {
         if (stroke.dash) {
             this.ctx.setLineDash(stroke.dash);
         }
-        this.ctx.lineWidth = stroke.lineWidth || 1;
+        const lineWidth = stroke.lineWidth || 1;
+        this.ctx.lineWidth = lineWidth;
         this.ctx.strokeStyle = stroke.color.toString();
-        if (stroke.crispen && stroke.lineWidth) {
-            const box = shrink(stroke, stroke.lineWidth / 2, stroke.lineWidth / 2);
+        if (stroke.crispen && lineWidth) {
+            const box = shrink(stroke, lineWidth / 2, lineWidth / 2);
             if (stroke.rx || stroke.ry) {
                 utils.roundRect(this.ctx, box.x, box.y, box.width, box.height, stroke.rx || 0, stroke.ry || 0);
                 this.ctx.stroke();
