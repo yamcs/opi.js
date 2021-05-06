@@ -19,7 +19,7 @@ nunjucks.configure(path.join(__dirname, 'views'), {
     autoescape: true,
     express: app,
     noCache: true,
-    watch: true,
+    watch: false,
 });
 
 app.use(logger('dev'));
