@@ -1,18 +1,18 @@
 {
-  function extractList(list: any, index: any) {
-    return list.map(function(element: any) { return element[index]; });
+  function extractList(list, index) {
+    return list.map(function(element) { return element[index]; });
   }
 
-  function extractOptional(optional: any, index: any) {
+  function extractOptional(optional, index) {
     return optional ? optional[index] : null;
   }
 
-  function buildList(head: any, tail: any, index: any) {
+  function buildList(head, tail, index) {
     return [head].concat(extractList(tail, index));
   }
 
-  function buildBinaryExpression(head: any, tail: any) {
-    return tail.reduce(function(result: any, element: any) {
+  function buildBinaryExpression(head, tail) {
+    return tail.reduce(function(result, element) {
       return {
         type: 'BinaryExpression',
         operator: element[1],
@@ -22,8 +22,8 @@
     }, head);
   }
 
-  function buildLogicalExpression(head: any, tail: any) {
-    return tail.reduce(function(result: any, element: any) {
+  function buildLogicalExpression(head, tail) {
+    return tail.reduce(function(result, element) {
       return {
         type: 'LogicalExpression',
         operator: element[1],
@@ -33,7 +33,7 @@
     }, head);
   }
 
-  function optionalList(value: any) {
+  function optionalList(value) {
     return value !== null ? value : [];
   }
 }

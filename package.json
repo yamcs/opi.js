@@ -14,7 +14,7 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run build",
     "watch": "rollup -cw",
-    "pegjs": "cd src/pv/formulas && pegjs --plugin ts-pegjs/src/tspegjs -o parser.ts formula-grammar.pegjs",
+    "peggy": "cd src/pv/formulas && peggy --format es -o parser.js formula-grammar.peggy",
     "start": "node ./demo/server.js"
   },
   "main": "dist/opi.umd.js",
@@ -29,18 +29,16 @@
     "@types/dygraphs": "^2.1.2",
     "@types/fontfaceobserver": "0.0.6",
     "@types/node": "^15.0.2",
-    "@types/pegjs": "^0.10.2",
     "dygraphs": "^2.1.0",
     "express": "^4.17.1",
     "fontfaceobserver": "^2.0.13",
     "morgan": "^1.10.0",
     "nunjucks": "^3.2.2",
-    "pegjs": "^0.10.0",
+    "peggy": "^1.1.0",
     "rollup": "^2.33.3",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.30.0",
-    "ts-pegjs": "^0.3.0",
     "typescript": "^4.1.2"
   }
 }
