@@ -1,3 +1,4 @@
+
 const WHITE = 'rgb(255,255,255)';
 
 export interface HitRegionSpecification {
@@ -8,13 +9,14 @@ export interface HitRegionSpecification {
     mouseOut?: () => void;
     mouseDown?: () => void;
     mouseUp?: () => void;
+    grab?: (dx: number, dy: number) => void;
     cursor?: string;
 }
 
 export class HitCanvas {
 
     readonly ctx: CanvasRenderingContext2D;
-    private regions: { [key: string]: HitRegionSpecification } = {};
+    private regions: { [key: string]: HitRegionSpecification; } = {};
 
     // If present, use the parent instead of the local regions map.
     // This avoids color collisions.

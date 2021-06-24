@@ -17,6 +17,7 @@ import { Combo } from './widgets/controls/Combo';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
 import { NativeButton } from './widgets/controls/NativeButton';
 import { RadioBox } from './widgets/controls/RadioBox';
+import { Scrollbar } from './widgets/controls/Scrollbar';
 import { TextInput } from './widgets/controls/TextInput';
 import { Arc } from './widgets/graphics/Arc';
 import { Ellipse } from './widgets/graphics/Ellipse';
@@ -66,6 +67,7 @@ const TYPE_POLYLINE = 'Polyline';
 const TYPE_RADIO_BOX = 'Radio Box';
 const TYPE_RECTANGLE = 'Rectangle';
 const TYPE_ROUNDED_RECTANGLE = 'Rounded Rectangle';
+const TYPE_SCROLLBAR = 'Scrollbar';
 const TYPE_TABBED_CONTAINER = 'Tabbed Container';
 const TYPE_TEXT_INPUT = 'Text Input';
 const TYPE_TEXT_UPDATE = 'Text Update';
@@ -320,6 +322,8 @@ export class Display {
                 return new Rectangle(this, parent);
             case TYPE_ROUNDED_RECTANGLE:
                 return new RoundedRectangle(this, parent);
+            case TYPE_SCROLLBAR:
+                return new Scrollbar(this, parent);
             case TYPE_TABBED_CONTAINER:
                 return new TabbedContainer(this, parent);
             case TYPE_TEXT_INPUT:

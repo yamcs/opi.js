@@ -2,6 +2,34 @@ import { Display } from './Display';
 import { HitCanvas, HitRegionSpecification } from './HitCanvas';
 import { Point } from './positioning';
 
+/**
+ * Swallows any click event wherever they may originate.
+ * Usually there's 0 or 1 when the user ends the grab,
+ * depending on where the mouse is released.
+ */
+const clickBlocker = (e: MouseEvent) => {
+    // Remove ourself. This to prevent capturing unrelated events.
+    document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
+
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+};
+
+function isLeftPressed(e: MouseEvent) {
+    return (e.buttons & 1) === 1 || (e.buttons === undefined && e.which == 1);
+}
+
+/**
+ * Minimum movement required before a viewport is in "grab" mode.
+ * This allows to distinguish grab from regular clicks.
+ */
+const snap = 5;
+
+function measureDistance(x1: number, y1: number, x2: number, y2: number) {
+    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
 // Compare by id instead of references. HitRegions are allowed to be generated
 // on each draw, whereas the "id" could be something more long-term.
 function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpecification) {
@@ -10,14 +38,23 @@ function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpec
 
 export class EventHandler {
 
+    private grabbing = false;
+    private grabTarget?: HitRegionSpecification;
+    private grabPoint?: { x: number, y: number; }; // Relative to canvas
+
+    // Global handlers attached only during a grab action.
+    // Purpose is to support the user doing grab actions while leaving our canvas.
+    private documentMouseMoveListener = (e: MouseEvent) => this.onDocumentMouseMove(e);
+    private documentMouseUpListener = (e: MouseEvent) => this.onDocumentMouseUp(e);
+
     private prevEnteredRegion?: HitRegionSpecification;
 
     constructor(private display: Display, private canvas: HTMLCanvasElement, private hitCanvas: HitCanvas) {
-        canvas.addEventListener('click', e => this.onClick(e), false);
-        canvas.addEventListener('mousedown', e => this.onMouseDown(e), false);
-        canvas.addEventListener('mouseup', e => this.onMouseUp(e), false);
-        canvas.addEventListener('mouseout', e => this.onMouseOut(e), false);
-        canvas.addEventListener('mousemove', e => this.onMouseMove(e), false);
+        canvas.addEventListener('click', e => this.onCanvasClick(e), false);
+        canvas.addEventListener('mousedown', e => this.onCanvasMouseDown(e), false);
+        canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
+        canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
+        canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
 
         window.addEventListener('resize', () => display.requestRepaint());
     }
@@ -27,7 +64,7 @@ export class EventHandler {
         return { x: event.clientX - bbox.left, y: event.clientY - bbox.top };
     }
 
-    private onClick(event: MouseEvent) {
+    private onCanvasClick(event: MouseEvent) {
         this.display.clearSelection();
 
         const point = this.toPoint(event);
@@ -41,19 +78,33 @@ export class EventHandler {
         }
     }
 
-    private onMouseDown(event: MouseEvent) {
+    private onCanvasMouseDown(event: MouseEvent) {
         if (this.display.editMode) {
             return;
         }
+        document.removeEventListener('click', clickBlocker, true /* Must be same as when created */);
 
-        const point = this.toPoint(event);
-        const region = this.hitCanvas.getActiveRegion(point.x, point.y);
-        if (region && region.mouseDown) {
-            region.mouseDown();
+        if (isLeftPressed(event)) {
+            const point = this.toPoint(event);
+
+            const region = this.hitCanvas.getActiveRegion(point.x, point.y);
+            if (region && region.mouseDown) {
+                region.mouseDown();
+            }
+
+            if (region && region.grab) {
+                this.grabPoint = { ...point };
+                this.grabTarget = region;
+                // Actual grab initialisation is subject to snap (see mousemove)
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
         }
     }
 
-    private onMouseUp(event: MouseEvent) {
+    private onCanvasMouseUp(event: MouseEvent) {
         if (this.display.editMode) {
             return;
         }
@@ -65,11 +116,11 @@ export class EventHandler {
         }
     }
 
-    private onMouseOut(event: MouseEvent) {
+    private onCanvasMouseOut(event: MouseEvent) {
     }
 
-    private onMouseMove(event: MouseEvent) {
-        const point = this.toPoint(event);
+    private onCanvasMouseMove(domEvent: MouseEvent) {
+        const point = this.toPoint(domEvent);
         const region = this.hitCanvas.getActiveRegion(point.x, point.y);
 
         if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
@@ -90,6 +141,42 @@ export class EventHandler {
         if (cursor != this.canvas.style.cursor) {
             this.canvas.style.cursor = cursor;
         }
+
+        if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
+            const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, point.x, point.y);
+            if (Math.abs(distance) > snap) {
+                this.initiateGrab();
+                // Prevent stutter on first move
+                if (snap > 0 && this.grabPoint) {
+                    this.grabPoint = point;
+                }
+            }
+        }
+
+        if (this.grabbing && this.grabTarget && isLeftPressed(domEvent)) {
+            this.grabTarget.grab!(point.x - this.grabPoint!.x, point.y - this.grabPoint!.y);
+        }
+    }
+
+    private initiateGrab() {
+        document.addEventListener('click', clickBlocker, true /* capture ! */);
+        document.addEventListener('mouseup', this.documentMouseUpListener);
+        document.addEventListener('mousemove', this.documentMouseMoveListener);
+        this.grabbing = true;
+    }
+
+    private onDocumentMouseUp(event: MouseEvent) {
+        if (this.grabbing) {
+            document.removeEventListener('mouseup', this.documentMouseUpListener);
+            document.removeEventListener('mousemove', this.documentMouseMoveListener);
+            this.grabbing = false;
+            this.grabPoint = undefined;
+            this.grabTarget = undefined;
+        }
+    }
+
+    private onDocumentMouseMove(event: MouseEvent) {
+        this.onCanvasMouseMove(event);
     }
 
     private selectSingleWidget(x: number, y: number) {
