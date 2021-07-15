@@ -20,6 +20,71 @@ Compared to the Yamcs Studio desktop software, this library has these limitation
 And as this library is in incubation phase, many widgets are not or not fully supported.
 
 
+## Widget Support
+
+Ticked widgets are at least partially implemented.
+
+### Controls
+
+* [x] Action Button
+* [x] Boolean Button
+* [x] Boolean Switch
+* [x] Check Box
+* [x] Choice Button
+* [x] Combo
+* [x] Image Boolean Button
+* [ ] Knob
+* [ ] Menu Button
+* [x] Native Button
+* [x] Radio Box
+* [x] Scrollbar
+* [ ] Spinner
+* [ ] Scaled Slider
+* [x] Text Input
+* [ ] Thumb Wheel
+
+
+### Graphics
+
+* [x] Arc
+* [x] Ellipse
+* [x] Image
+* [x] Label
+* [x] Polygon
+* [x] Polyline
+* [x] Rectangle
+* [x] Rounded Rectangle
+
+
+### Monitors
+
+* [x] Byte Monitor
+* [x] Gauge
+* [x] Image Boolean Indicator
+* [ ] Intensity Graph
+* [x] LED
+* [x] Meter
+* [ ] Progress Bar
+* [ ] Tank
+* [x] Text Update
+* [ ] Thermometer
+* [x] XY Graph
+
+
+### Others
+
+* [ ] Array
+* [x] Connection
+* [x] Display
+* [ ] Grid Layout
+* [x] Grouping Container
+* [x] Linking Container
+* [ ] Sash Container
+* [x] Tabbed Container
+* [ ] Table
+* [x] Web Browser
+
+
 ## Usage
 
 ```
