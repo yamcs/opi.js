@@ -111,3 +111,39 @@ export function convertPolarToCartesian2(rx: number, ry: number, theta: number):
   const y = Math.floor(ry * Math.sin(theta));
   return { x, y };
 }
+
+/**
+ * Convert a point to a polar point
+ *
+ * @param pole pole of the polar coordinate system
+ * @param point the point to be converted
+ */
+export function convertCartesianToPolar(pole: Point, point: Point) {
+  const x = point.x - pole.x;
+  const y = point.y - pole.y;
+
+  const r = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+
+  let theta = Math.acos(x / r);
+  if (y > 0) {
+    theta = 2 * Math.PI - theta;
+  }
+  return new PolarPoint(Math.floor(r), theta);
+}
+
+export class PolarPoint {
+  constructor(readonly r: number, readonly theta: number) {
+  }
+
+  /**
+   * Transform the polar point to the {@link Point} in rectangular coordinates.
+   * The rectangular coordinates has the same origin as the polar coordinates.
+   *
+   * @return the point in rectangular coordinates
+   */
+  toPoint(): Point {
+    const x = Math.floor(this.r * Math.cos(this.theta));
+    const y = Math.floor(-this.r * Math.sin(this.theta));
+    return { x, y };
+  }
+}

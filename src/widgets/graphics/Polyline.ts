@@ -1,12 +1,15 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
-import { Point } from '../../positioning';
+import { convertCartesianToPolar, Point, PolarPoint, translatePoint } from '../../positioning';
 import { BooleanProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
 const PROP_ALPHA = 'alpha';
+const PROP_ARROWS = 'arrows';
+const PROP_ARROW_LENGTH = 'arrow_length';
+const PROP_FILL_ARROW = 'fill_arrow';
 const PROP_FILL_LEVEL = 'fill_level';
 const PROP_HORIZONTAL_FILL = 'horizontal_fill';
 const PROP_LINE_WIDTH = 'line_width';
@@ -21,6 +24,9 @@ export class Polyline extends Widget {
         this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
         this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
         this.properties.add(new PointsProperty(PROP_POINTS, []));
+        this.properties.add(new IntProperty(PROP_ARROW_LENGTH));
+        this.properties.add(new BooleanProperty(PROP_FILL_ARROW));
+        this.properties.add(new IntProperty(PROP_ARROWS));
     }
 
     draw(g: Graphics) {
@@ -70,13 +76,85 @@ export class Polyline extends Widget {
         ctx.lineWidth = this.lineWidth;
         ctx.beginPath();
         for (let i = 0; i < this.points.length; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 ctx.moveTo(this.points[i].x, this.points[i].y);
             } else {
                 ctx.lineTo(this.points[i].x, this.points[i].y);
             }
         }
         ctx.stroke();
+
+        if (this.points.length >= 2) {
+            const firstPoint = this.points[0];
+            const lastPoint = this.points[this.points.length - 1];
+            if (this.arrows === 2 || this.arrows === 3) { // To or Both
+                const arrowPoints = this.calculateArrowPoints(this.points[this.points.length - 2], lastPoint);
+                arrowPoints[2] = lastPoint;
+
+                if (this.fillArrow) {
+                    ctx.fillStyle = color.toString();
+                    ctx.beginPath();
+                    for (let i = 0; i < arrowPoints.length; i++) {
+                        if (i === 0) {
+                            ctx.moveTo(arrowPoints[i].x, arrowPoints[i].y);
+                        } else {
+                            ctx.lineTo(arrowPoints[i].x, arrowPoints[i].y);
+                        }
+                    }
+                    ctx.fill();
+                } else {
+                    ctx.strokeStyle = color.toString();
+                    ctx.lineWidth = this.lineWidth;
+                    ctx.beginPath();
+                    ctx.moveTo(lastPoint.x, lastPoint.y);
+                    ctx.lineTo(arrowPoints[0].x, arrowPoints[0].y);
+                    ctx.moveTo(lastPoint.x, lastPoint.y);
+                    ctx.lineTo(arrowPoints[1].x, arrowPoints[1].y);
+                    ctx.stroke();
+                }
+            }
+            if (this.arrows === 1 || this.arrows === 3) { // From or Both
+                const arrowPoints = this.calculateArrowPoints(this.points[1], firstPoint);
+                arrowPoints[2] = firstPoint;
+                if (this.fillArrow) {
+                    ctx.fillStyle = color.toString();
+                    ctx.beginPath();
+                    for (let i = 0; i < arrowPoints.length; i++) {
+                        if (i === 0) {
+                            ctx.moveTo(arrowPoints[i].x, arrowPoints[i].y);
+                        } else {
+                            ctx.lineTo(arrowPoints[i].x, arrowPoints[i].y);
+                        }
+                    }
+                    ctx.fill();
+                } else {
+                    ctx.strokeStyle = color.toString();
+                    ctx.lineWidth = this.lineWidth;
+                    ctx.beginPath();
+                    ctx.moveTo(firstPoint.x, firstPoint.y);
+                    ctx.lineTo(arrowPoints[0].x, arrowPoints[0].y);
+                    ctx.moveTo(firstPoint.x, firstPoint.y);
+                    ctx.lineTo(arrowPoints[1].x, arrowPoints[1].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    private calculateArrowPoints(startPoint: Point, endPoint: Point): Point[] {
+        const ppE = convertCartesianToPolar(endPoint, startPoint);
+        const angle = Math.PI / 10;
+
+        const ppR = new PolarPoint(this.arrowLength, ppE.theta - angle);
+        const ppL = new PolarPoint(this.arrowLength, ppE.theta + angle);
+
+        // Intersection point between arrow and line.
+        const ppI = new PolarPoint(Math.floor(this.arrowLength * Math.cos(angle)), ppE.theta);
+
+        const pR = translatePoint(ppR.toPoint(), endPoint.x, endPoint.y);
+        const pL = translatePoint(ppL.toPoint(), endPoint.x, endPoint.y);
+        const pI = translatePoint(ppI.toPoint(), endPoint.x, endPoint.y);
+        return [pR, pL, pI];
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
@@ -84,4 +162,7 @@ export class Polyline extends Widget {
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get points(): Point[] { return this.properties.getValue(PROP_POINTS); }
+    get arrows(): number { return this.properties.getValue(PROP_ARROWS); }
+    get fillArrow(): boolean { return this.properties.getValue(PROP_FILL_ARROW); }
+    get arrowLength(): number { return this.properties.getValue(PROP_ARROW_LENGTH); }
 }

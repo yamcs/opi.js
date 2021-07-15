@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics, Path } from '../../Graphics';
-import { Point } from '../../positioning';
+import { convertCartesianToPolar, Point, PolarPoint, translatePoint } from '../../positioning';
 import { BooleanProperty, ColorProperty, IntProperty, PointsProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
@@ -92,8 +92,8 @@ export class Connection extends Widget {
     const from = this.getPosition(this.sourceWidget!, this.sourceTerm);
     const to = this.getPosition(this.targetWidget!, this.targetTerm);
 
-    const path = Path.fromPoints([from, ... this.points, to])
-      .translate(0.5, 0.5);
+    const points = [from, ... this.points, to];
+    const path = Path.fromPoints(points).translate(0.5, 0.5);
 
     g.strokePath({
       path,
@@ -101,6 +101,9 @@ export class Connection extends Widget {
       color: this.lineColor,
       dash: this.getDashArray(),
     });
+
+    this.drawStartArrow(g, points[1], points[0]);
+    this.drawStopArrow(g, points[points.length - 2], points[points.length - 1]);
   }
 
   private drawManhattanConnection(g: Graphics) {
@@ -118,6 +121,9 @@ export class Connection extends Widget {
         dash: this.getDashArray(),
       });
     }
+
+    this.drawStartArrow(g, points[points.length - 2], points[points.length - 1]);
+    this.drawStopArrow(g, points[1], points[0]);
   }
 
   private getDashArray() {
@@ -149,6 +155,8 @@ export class Connection extends Widget {
         dash: this.getDashArray(),
       });
     }
+    this.drawStartArrow(g, to, from);
+    this.drawStopArrow(g, from, to);
   }
 
   // Gets the direction that a connector should have when connecting
@@ -377,6 +385,81 @@ export class Connection extends Widget {
     path = path.concat(this.route(fromAnchor, to));
     path.push(from);
     return path;
+  }
+
+  private drawStartArrow(g: Graphics, startPoint: Point, endPoint: Point) {
+    const ctx = g.ctx;
+    if (this.arrows === 1 || this.arrows === 3) { // From or Both
+      const arrowPoints = this.calculateArrowPoints(startPoint, endPoint);
+      arrowPoints[2] = endPoint;
+      if (this.fillArrow) {
+        ctx.fillStyle = this.lineColor.toString();
+        ctx.beginPath();
+        for (let i = 0; i < arrowPoints.length; i++) {
+          if (i === 0) {
+            ctx.moveTo(arrowPoints[i].x, arrowPoints[i].y);
+          } else {
+            ctx.lineTo(arrowPoints[i].x, arrowPoints[i].y);
+          }
+        }
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = this.lineColor.toString();
+        ctx.lineWidth = this.lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(endPoint.x, endPoint.y);
+        ctx.lineTo(arrowPoints[0].x, arrowPoints[0].y);
+        ctx.moveTo(endPoint.x, endPoint.y);
+        ctx.lineTo(arrowPoints[1].x, arrowPoints[1].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  private drawStopArrow(g: Graphics, startPoint: Point, endPoint: Point) {
+    const ctx = g.ctx;
+    if (this.arrows === 2 || this.arrows === 3) { // To or Both
+      const arrowPoints = this.calculateArrowPoints(startPoint, endPoint);
+      arrowPoints[2] = endPoint;
+
+      if (this.fillArrow) {
+        ctx.fillStyle = this.lineColor.toString();
+        ctx.beginPath();
+        for (let i = 0; i < arrowPoints.length; i++) {
+          if (i === 0) {
+            ctx.moveTo(arrowPoints[i].x, arrowPoints[i].y);
+          } else {
+            ctx.lineTo(arrowPoints[i].x, arrowPoints[i].y);
+          }
+        }
+        ctx.fill();
+      } else {
+        ctx.strokeStyle = this.lineColor.toString();
+        ctx.lineWidth = this.lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(endPoint.x, endPoint.y);
+        ctx.lineTo(arrowPoints[0].x, arrowPoints[0].y);
+        ctx.moveTo(endPoint.x, endPoint.y);
+        ctx.lineTo(arrowPoints[1].x, arrowPoints[1].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  private calculateArrowPoints(startPoint: Point, endPoint: Point): Point[] {
+    const ppE = convertCartesianToPolar(endPoint, startPoint);
+    const angle = Math.PI / 10;
+
+    const ppR = new PolarPoint(this.arrowLength, ppE.theta - angle);
+    const ppL = new PolarPoint(this.arrowLength, ppE.theta + angle);
+
+    // Intersection point between arrow and line.
+    const ppI = new PolarPoint(Math.floor(this.arrowLength * Math.cos(angle)), ppE.theta);
+
+    const pR = translatePoint(ppR.toPoint(), endPoint.x, endPoint.y);
+    const pL = translatePoint(ppL.toPoint(), endPoint.x, endPoint.y);
+    const pI = translatePoint(ppI.toPoint(), endPoint.x, endPoint.y);
+    return [pR, pL, pI];
   }
 
   get name(): string { return this.properties.getValue(PROP_NAME); }
