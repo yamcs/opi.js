@@ -154,8 +154,13 @@ export class Display {
     }
 
     private drawScreen() {
-        this.rootPanel.style.height = this.targetElement.clientHeight + 'px';
-        this.rootPanel.style.width = this.targetElement.clientWidth + 'px';
+        if (this.instance) {
+            this.rootPanel.style.height = this.instance.holderHeight + 'px';
+            this.rootPanel.style.width = this.instance.holderWidth + 'px';
+        } else {
+            this.rootPanel.style.height = '0px';
+            this.rootPanel.style.width = '0px';
+        }
         this.g.resize(this.rootPanel.clientWidth, this.rootPanel.clientHeight);
 
         if (this.editMode) {

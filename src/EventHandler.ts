@@ -55,8 +55,6 @@ export class EventHandler {
         canvas.addEventListener('mouseup', e => this.onCanvasMouseUp(e), false);
         canvas.addEventListener('mouseout', e => this.onCanvasMouseOut(e), false);
         canvas.addEventListener('mousemove', e => this.onCanvasMouseMove(e), false);
-
-        window.addEventListener('resize', () => display.requestRepaint());
     }
 
     private toPoint(event: MouseEvent): Point {

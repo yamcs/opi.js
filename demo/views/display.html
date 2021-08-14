@@ -20,7 +20,11 @@
 {% endblock %}
 
 {% block content %}
-    <div id="mydisplay" style="width: 100%; height: 100%"></div>
+    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch; justify-content: stretch">
+        <div style="overflow: auto; text-align: center">
+            <div id="mydisplay" style="display: inline-block"></div>
+        </div>
+    </div>
 
     <script type="module" src="/static/display.page.js"></script>
     <script>
