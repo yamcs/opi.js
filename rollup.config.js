@@ -41,5 +41,10 @@ export default {
   ],
   watch: {
     include: 'src/**',
-  }
+  },
+  onwarn: (warning, warn) => {
+    // Suppress circular dependency warnings coming from dygraphs
+    if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+    warn(warning);
+  },
 }
