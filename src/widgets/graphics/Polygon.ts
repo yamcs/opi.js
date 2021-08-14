@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics, Path } from '../../Graphics';
-import { Point, translatePoints } from '../../positioning';
+import { Point, scalePoints, translatePoints } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -99,9 +99,13 @@ export class Polygon extends Widget {
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
-    get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+    get lineWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+    }
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
-    get points(): Point[] { return this.properties.getValue(PROP_POINTS); }
+    get points(): Point[] {
+        return scalePoints(this.properties.getValue(PROP_POINTS), this.zoom);
+    }
 }

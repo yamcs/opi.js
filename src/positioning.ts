@@ -147,3 +147,7 @@ export class PolarPoint {
     return { x, y };
   }
 }
+
+export function scalePoints(points: Point[], scale: number): Point[] {
+  return points.map(p => ({x: p.x * scale, y: p.y * scale}));
+}

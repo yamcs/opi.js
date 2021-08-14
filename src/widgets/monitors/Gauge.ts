@@ -133,7 +133,7 @@ export class Gauge extends Widget {
             });
         }
 
-        const strokeWidth = this.effect3d ? 2 : 1;
+        const strokeWidth = (this.effect3d ? 2 : 1) * this.zoom;
         g.fillEllipse({
             cx: this.x + (width / 2),
             cy: this.y + (height / 2),
@@ -192,7 +192,7 @@ export class Gauge extends Widget {
         rampArea.width = Math.min(area.width, area.height);
         rampArea.height = area.width;
 
-        const ramp = new Ramp(10, 225, 315);
+        const ramp = new Ramp(10 * this.zoom, 225, 315);
         ramp.lolo = limits.lolo;
         ramp.loloColor = this.colorLoLo;
         ramp.lo = limits.lo;
@@ -211,7 +211,7 @@ export class Gauge extends Widget {
 
     private drawLabel(g: Graphics, width: number, height: number) {
         // A font property is exposed in the UI, but it seems to get ignored in favour of arial 12 bold.
-        const font = Font.ARIAL_12_BOLD;
+        const font = Font.ARIAL_12_BOLD.scale(this.zoom);
         if (this.pv?.value !== undefined) {
             const text = this.formatLabelValue(this.pv.value);
             const fm = g.measureText(text, font);
@@ -252,9 +252,11 @@ export class Gauge extends Widget {
         }
 
         const angle = toRadians(valuePosition);
-        const p1 = rotatePoint(cx, cy - NEEDLE_DIAMETER / 2 + 3, cx, cy, angle);
-        const p2 = rotatePoint(cx + width / 2 - MAJOR_TICK_LENGTH - GAP_BTW_NEEDLE_SCALE, cy, cx, cy, angle);
-        const p3 = rotatePoint(cx, cy + NEEDLE_DIAMETER / 2 - 3, cx, cy, angle);
+        const { zoom } = this;
+        const { needleDiameter, majorTickLength, gapBetweenNeedleScale } = this;
+        const p1 = rotatePoint(cx, cy - needleDiameter / 2 + (3 * zoom), cx, cy, angle);
+        const p2 = rotatePoint(cx + width / 2 - majorTickLength - gapBetweenNeedleScale, cy, cx, cy, angle);
+        const p3 = rotatePoint(cx, cy + needleDiameter / 2 - (3 * zoom), cx, cy, angle);
         g.fillPath({
             color: this.needleColor,
             path: new Path(p1.x, p1.y)
@@ -265,10 +267,11 @@ export class Gauge extends Widget {
     }
 
     private drawNeedleCenter(g: Graphics, width: number, height: number) {
+        const { needleDiameter } = this;
         const cx = this.x + (width / 2);
         const cy = this.y + (height / 2);
-        const rx = NEEDLE_DIAMETER / 2;
-        const ry = NEEDLE_DIAMETER / 2;
+        const rx = needleDiameter / 2;
+        const ry = needleDiameter / 2;
         if (this.effect3d) {
             const gradient = g.createLinearGradient(cx - rx, cy - ry, cx + rx, cy + ry);
             gradient.addColorStop(0, Color.WHITE.toString());
@@ -314,12 +317,30 @@ export class Gauge extends Widget {
         }
     }
 
+    get needleDiameter() {
+        return this.zoom * NEEDLE_DIAMETER;
+    }
+
+    get majorTickLength() {
+        return this.zoom * MAJOR_TICK_LENGTH;
+    }
+
+    get minorTickLength() {
+        return this.zoom * MINOR_TICK_LENGTH;
+    }
+
+    get gapBetweenNeedleScale() {
+        return this.zoom * GAP_BTW_NEEDLE_SCALE;
+    }
+
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
     get colorLoLo(): Color { return this.properties.getValue(PROP_COLOR_LOLO); }
     get colorHi(): Color { return this.properties.getValue(PROP_COLOR_HI); }
     get colorHiHi(): Color { return this.properties.getValue(PROP_COLOR_HIHI); }
     get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get levelLo(): number { return this.properties.getValue(PROP_LEVEL_LO); }
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
     get levelHi(): number { return this.properties.getValue(PROP_LEVEL_HI); }

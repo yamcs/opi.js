@@ -109,7 +109,9 @@ export class ImageBooleanIndicator extends Widget {
     get bit(): number { return this.properties.getValue(PROP_BIT); }
     get dataType(): number { return this.properties.getValue(PROP_DATA_TYPE); }
     get showBooleanLabel(): boolean { return this.properties.getValue(PROP_SHOW_BOOLEAN_LABEL); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
     get offImage(): string { return this.properties.getValue(PROP_OFF_IMAGE); }
     get onLabel(): string { return this.properties.getValue(PROP_ON_LABEL); }

@@ -80,13 +80,15 @@ export class ActionButton extends Widget {
         const hitRegion = g.addHitRegion(this.areaRegion!);
         hitRegion.addRect(this.x, this.y, this.width, this.height);
 
-        const top = this.holderY + 0.5;
-        const left = this.holderX + 0.5;
-        const bottom = this.holderY + this.holderHeight - 1 + 0.5;
-        const right = this.holderX + this.holderWidth - 1 + 0.5;
+        const lineWidth = 1 * this.zoom;
+
+        const top = this.holderY + (lineWidth / 2);
+        const left = this.holderX + (lineWidth / 2);
+        const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
+        const right = this.holderX + this.holderWidth - lineWidth + (lineWidth / 2);
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: this.pushed ? Color.BUTTON_LIGHTEST : Color.BLACK,
             path: new Path(right, bottom)
                 .lineTo(right, top)
@@ -95,30 +97,30 @@ export class ActionButton extends Widget {
         });
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: this.pushed ? this.backgroundColor : Color.BUTTON_DARKER,
-            path: new Path(right - 1, bottom - 1)
-                .lineTo(right - 1, top + 1)
-                .moveTo(right - 1, bottom - 1)
-                .lineTo(left + 1, bottom - 1),
+            path: new Path(right - lineWidth, bottom - lineWidth)
+                .lineTo(right - lineWidth, top + lineWidth)
+                .moveTo(right - lineWidth, bottom - lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth),
         });
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: this.pushed ? Color.BLACK : Color.BUTTON_LIGHTEST,
             path: new Path(left, top)
-                .lineTo(right - 1, top)
+                .lineTo(right - lineWidth, top)
                 .moveTo(left, top)
-                .lineTo(left, bottom - 1),
+                .lineTo(left, bottom - lineWidth),
         });
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: this.pushed ? Color.BUTTON_DARKER : this.backgroundColor,
-            path: new Path(left + 1, top + 1)
-                .lineTo(right - 1 - 1, top + 1)
-                .moveTo(left + 1, top + 1)
-                .lineTo(left + 1, bottom - 1 - 1),
+            path: new Path(left + lineWidth, top + lineWidth)
+                .lineTo(right - lineWidth - lineWidth, top + lineWidth)
+                .moveTo(left + lineWidth, top + lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth - lineWidth),
         });
 
         const lines = this.text.split('\n');
@@ -133,26 +135,30 @@ export class ActionButton extends Widget {
             const textWidth = ctx.measureText(lines[0]).width;
             const textHeight = this.font.height;
 
-            const hratio = (this.height - this.imageElement.naturalHeight) / textHeight;
-            const wratio = (this.width - this.imageElement.naturalWidth) / textWidth;
+            const naturalHeight = this.imageElement.naturalHeight * this.zoom;
+            const naturalWidth = this.imageElement.naturalWidth * this.zoom;
+
+            const hratio = (this.height - naturalHeight) / textHeight;
+            const wratio = (this.width - naturalWidth) / textWidth;
+            const magicSpacer = 5 * this.zoom;
             if (wratio > hratio) { // Text right of icon
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'left';
-                x = this.x + (this.width - textWidth) / 2 + 5 /* magic spacer */;
+                x = this.x + (this.width - textWidth) / 2 + magicSpacer;
                 y = this.y + (this.height / 2);
 
-                const imageX = this.x + (this.width - textWidth) / 2 - this.imageElement.naturalWidth;
-                const imageY = this.y + (this.height - this.imageElement.naturalHeight) / 2;
-                ctx.drawImage(this.imageElement, imageX, imageY);
+                const imageX = this.x + (this.width - textWidth) / 2 - naturalWidth;
+                const imageY = this.y + (this.height - naturalHeight) / 2;
+                ctx.drawImage(this.imageElement, imageX, imageY, naturalWidth, naturalHeight);
             } else { // Text under icon
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'top';
-                const contentHeight = textHeight + this.imageElement.naturalHeight;
+                const contentHeight = textHeight + naturalHeight;
                 x = this.x + (this.width / 2);
-                y = this.y + (this.height - contentHeight) / 2 + this.imageElement.naturalHeight;
-                const imageX = this.x + (this.width - this.imageElement.naturalWidth) / 2;
+                y = this.y + (this.height - contentHeight) / 2 + naturalHeight;
+                const imageX = this.x + (this.width - naturalWidth) / 2;
                 const imageY = this.y + (this.height - contentHeight) / 2;
-                ctx.drawImage(this.imageElement, imageX, imageY);
+                ctx.drawImage(this.imageElement, imageX, imageY, naturalWidth, naturalHeight);
             }
         } else {
             ctx.textBaseline = 'middle';
@@ -162,13 +168,15 @@ export class ActionButton extends Widget {
         }
 
         if (this.pushed) {
-            x += 1;
-            y += 1;
+            x += 1 * this.zoom;
+            y += 1 * this.zoom;
         }
         ctx.fillText(lines[0], x, y);
     }
 
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get image(): string { return this.properties.getValue(PROP_IMAGE); }
     get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }
     get pushActionIndex(): number { return this.properties.getValue(PROP_PUSH_ACTION_INDEX); }

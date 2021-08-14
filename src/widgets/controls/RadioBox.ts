@@ -97,6 +97,7 @@ export class RadioBox extends Widget {
     }
 
     private drawRadio(g: Graphics, area: Bounds, itemIndex: number) {
+        const { radioRadius, dotRadius, gap } = this;
         let backgroundColor = this.backgroundColor;
         if (itemIndex === this.hoveredItem) {
             backgroundColor = backgroundColor.mixWith(HOVER_MIX_COLOR, 0.7);
@@ -106,27 +107,29 @@ export class RadioBox extends Widget {
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, backgroundColor.toString());
         g.fillEllipse({
-            cx: area.x + RADIO_RADIUS,
+            cx: area.x + radioRadius,
             cy: area.y + (area.height / 2),
-            rx: RADIO_RADIUS,
-            ry: RADIO_RADIUS,
+            rx: radioRadius,
+            ry: radioRadius,
             gradient,
         });
+
+        const lineWidth = 1 * this.zoom;
         g.strokeEllipse({
-            cx: area.x + RADIO_RADIUS,
+            cx: area.x + radioRadius,
             cy: area.y + (area.height / 2),
-            rx: RADIO_RADIUS,
-            ry: RADIO_RADIUS,
+            rx: radioRadius,
+            ry: radioRadius,
             color: RADIO_BORDER_COLOR,
-            lineWidth: 1,
+            lineWidth,
         });
 
         if (this.pv?.value === this.items[itemIndex]) {
             g.fillEllipse({
-                cx: area.x + RADIO_RADIUS,
+                cx: area.x + radioRadius,
                 cy: area.y + (area.height / 2),
-                rx: DOT_RADIUS + 0.5,
-                ry: DOT_RADIUS + 0.5,
+                rx: dotRadius + (lineWidth / 2),
+                ry: dotRadius + (lineWidth / 2),
                 color: this.selectedColor,
             });
         }
@@ -135,7 +138,7 @@ export class RadioBox extends Widget {
         hitArea.addRect(area.x, area.y, area.width, area.height);
 
         g.fillText({
-            x: area.x + RADIO_RADIUS + RADIO_RADIUS + GAP,
+            x: area.x + radioRadius + radioRadius + gap,
             y: area.y + (area.height / 2),
             text: this.items[itemIndex],
             align: 'left',
@@ -151,8 +154,22 @@ export class RadioBox extends Widget {
         }
     }
 
+    get radioRadius() {
+        return this.zoom * RADIO_RADIUS;
+    }
+
+    get dotRadius() {
+        return this.zoom * DOT_RADIUS;
+    }
+
+    get gap() {
+        return this.zoom * GAP;
+    }
+
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get horizontal(): boolean { return this.properties.getValue(PROP_HORIZONTAL); }
     get items(): string[] { return this.properties.getValue(PROP_ITEMS); }
     get itemsFromPV(): boolean { return this.properties.getValue(PROP_ITEMS_FROM_PV); }

@@ -125,6 +125,7 @@ export abstract class Widget {
     }
 
     drawHolder(g: Graphics) {
+        const { zoom } = this;
         let insets = [0, 0, 0, 0]; // T L B R
         switch (this.borderStyle) {
             case 0: // Empty
@@ -138,15 +139,15 @@ export abstract class Widget {
                 break;
             case 2: // Raised
             case 3: // Lowered
-                insets = [1, 1, 1, 1];
+                insets = [1 * zoom, 1 * zoom, 1 * zoom, 1 * zoom];
                 break;
             case 4: // Etched
             case 5: // Ridged
             case 6: // Button Raised
-                insets = [2, 2, 2, 2];
+                insets = [2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom];
                 break;
             case 7: // Button Pressed
-                insets = [2, 2, 1, 1];
+                insets = [2 * zoom, 2 * zoom, 1 * zoom, 1 * zoom];
                 break;
             case 8: // Dot
             case 9: // Dash
@@ -155,10 +156,10 @@ export abstract class Widget {
                 insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
                 break;
             case 12: // Title Bar
-                insets = [16 + 1, 1, 1, 1];
+                insets = [(16 + 1) * zoom, 1 * zoom, 1 * zoom, 1 * zoom];
                 break;
             case 13: // Group Box
-                insets = [16, 16, 16, 16];
+                insets = [16 * zoom, 16 * zoom, 16 * zoom, 16 * zoom];
                 break;
             case 14: // Round Rectangle Background
                 const i = this.borderWidth * 2;
@@ -185,10 +186,11 @@ export abstract class Widget {
                 crispen: true,
             });
         } else if (this.borderStyle === 2) { // Raised
-            const top = this.holderY + 0.5;
-            const left = this.holderX + 0.5;
-            const bottom = this.holderY + this.holderHeight - 1 + 0.5;
-            const right = this.holderX + this.holderWidth - 1 + 0.5;
+            const lineWidth = 1 * zoom;
+            const top = this.holderY + (lineWidth / 2);
+            const left = this.holderX + (lineWidth / 2);
+            const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
+            const right = this.holderX + this.holderWidth - lineWidth + (lineWidth / 2);
             g.strokePath({
                 color: Color.BLACK,
                 path: new Path(right, bottom)
@@ -199,15 +201,16 @@ export abstract class Widget {
             g.strokePath({
                 color: Color.WHITE,
                 path: new Path(left, top)
-                    .lineTo(right - 1, top)
+                    .lineTo(right - lineWidth, top)
                     .moveTo(left, top)
-                    .lineTo(left, bottom - 1)
+                    .lineTo(left, bottom - lineWidth)
             });
         } else if (this.borderStyle === 3) { // Lowered
-            const top = this.holderY + 0.5;
-            const left = this.holderX + 0.5;
-            const bottom = this.holderY + this.holderHeight - 1 + 0.5;
-            const right = this.holderX + this.holderWidth - 1 + 0.5;
+            const lineWidth = 1 * zoom;
+            const top = this.holderY + (lineWidth / 2);
+            const left = this.holderX + (lineWidth / 2);
+            const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
+            const right = this.holderX + this.holderWidth - lineWidth + (lineWidth / 2);
             g.strokePath({
                 color: Color.WHITE,
                 path: new Path(right, bottom)
@@ -218,9 +221,9 @@ export abstract class Widget {
             g.strokePath({
                 color: Color.BLACK,
                 path: new Path(left, top)
-                    .lineTo(right - 1, top)
+                    .lineTo(right - lineWidth, top)
                     .moveTo(left, top)
-                    .lineTo(left, bottom - 1)
+                    .lineTo(left, bottom - lineWidth)
             });
         } else if (this.borderStyle === 4) { // Etched
             this.drawShadowBorder(g, Color.BUTTON_LIGHTEST, Color.BUTTON_DARKER,
@@ -235,27 +238,27 @@ export abstract class Widget {
             this.drawShadowBorder(g, Color.BUTTON_LIGHTEST, Color.BUTTON_LIGHTEST,
                 Color.BUTTON_DARKEST, Color.BUTTON_DARKER);
         } else if (this.borderStyle === 8) { // Dot
-            this.drawDashedBorder(g, [2, 2]);
+            this.drawDashedBorder(g, [2 * zoom, 2 * zoom]);
         } else if (this.borderStyle === 9) { // Dash
-            this.drawDashedBorder(g, [6, 2]);
+            this.drawDashedBorder(g, [6 * zoom, 2 * zoom]);
         } else if (this.borderStyle === 10) { // Dash Dot
-            this.drawDashedBorder(g, [6, 2, 2, 2]);
+            this.drawDashedBorder(g, [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom]);
         } else if (this.borderStyle === 11) { // Dash Dot Dot
-            this.drawDashedBorder(g, [6, 2, 2, 2, 2, 2]);
+            this.drawDashedBorder(g, [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom]);
         } else if (this.borderStyle === 12) { // Title bar
             g.fillRect({
                 x: this.holderX,
-                y: this.holderY + 1,
+                y: this.holderY + (1 * zoom),
                 width: this.holderWidth,
-                height: 16,
+                height: 16 * zoom,
                 color: this.borderColor,
             });
             g.fillText({
-                x: this.holderX + 1 + 3,
-                y: this.holderY + 1 + (16 / 2),
+                x: this.holderX + (1 * zoom) + (3 * zoom),
+                y: this.holderY + (1 * zoom) + (16 / 2 * zoom),
                 baseline: 'middle',
                 align: 'left',
-                font: Font.ARIAL_11,
+                font: Font.ARIAL_11.scale(zoom),
                 color: Color.BLACK,
                 text: this.name,
             });
@@ -279,38 +282,51 @@ export abstract class Widget {
             }
 
             g.fillText({
-                x: this.holderX + 16,
-                y: this.holderY + 8,
+                x: this.holderX + (16 * zoom),
+                y: this.holderY + (8 * zoom),
                 baseline: 'middle',
                 align: 'left',
-                font: Font.ARIAL_11,
+                font: Font.ARIAL_11.scale(zoom),
                 color: this.borderColor,
                 text: this.name,
             });
 
             // Avoid drawing border over text
-            const fm = g.measureText(this.name, Font.ARIAL_11);
+            const fm = g.measureText(this.name, Font.ARIAL_11.scale(zoom));
 
-            let box = toBorderBox(this.holderX + 8, this.holderY + 8, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
+            const lineWidth = 1;
+            let box = toBorderBox(
+                this.holderX + (8 * zoom),
+                this.holderY + (8 * zoom),
+                this.holderWidth - (16 * zoom) - lineWidth,
+                this.holderHeight - (16 * zoom) - lineWidth,
+                lineWidth,
+            );
 
             g.strokePath({
                 color: this.backgroundColor.darker(),
                 path: new Path(box.x, box.y)
-                    .lineTo(box.x + 8, box.y)
-                    .moveTo(box.x + 8 + fm.width, box.y)
+                    .lineTo(box.x + (8 * zoom), box.y)
+                    .moveTo(box.x + (8 * zoom) + fm.width, box.y)
                     .lineTo(box.x + box.width, box.y)
                     .lineTo(box.x + box.width, box.y + box.height)
                     .lineTo(box.x, box.y + box.height)
                     .lineTo(box.x, box.y)
             });
 
-            box = toBorderBox(this.holderX + 8 + 1, this.holderY + 8 + 1, this.holderWidth - 16 - 1, this.holderHeight - 16 - 1, 1);
+            box = toBorderBox(
+                this.holderX + (8 * zoom) + lineWidth,
+                this.holderY + (8 * zoom) + lineWidth,
+                this.holderWidth - (16 * zoom) - lineWidth,
+                this.holderHeight - (16 * zoom) - lineWidth,
+                lineWidth,
+            );
 
             g.strokePath({
                 color: this.backgroundColor.brighter(),
                 path: new Path(box.x, box.y)
-                    .lineTo(box.x + 8 - 1, box.y)
-                    .moveTo(box.x + 8 - 1 + fm.width, box.y)
+                    .lineTo(box.x + (8 * zoom) - lineWidth, box.y)
+                    .moveTo(box.x + (8 * zoom) - lineWidth + fm.width, box.y)
                     .lineTo(box.x + box.width, box.y)
                     .lineTo(box.x + box.width, box.y + box.height)
                     .lineTo(box.x, box.y + box.height)
@@ -322,16 +338,16 @@ export abstract class Widget {
             if (this.fillRoundRectangleBackgroundBorder) {
                 g.fillRect({
                     ...box,
-                    rx: 4,
-                    ry: 4,
+                    rx: 4 * zoom,
+                    ry: 4 * zoom,
                     color: this.backgroundColor,
                 });
             }
             if (this.borderWidth) {
                 g.strokeRect({
                     ...box,
-                    rx: 4,
-                    ry: 4,
+                    rx: 4 * zoom,
+                    ry: 4 * zoom,
                     color: this.borderColor,
                     lineWidth: this.borderWidth,
                 });
@@ -360,28 +376,30 @@ export abstract class Widget {
         if (this.display.editMode) {
             return;
         }
+        const { zoom } = this;
 
         if (this.pvName && (!this.pv || this.pv.disconnected)) { // Disconnected
+            const lineWidth = 1 * zoom;
             g.fillRect({
-                x: this.holderX - 0.5,
-                y: this.holderY - 0.5,
-                width: this.holderWidth + 1,
-                height: this.holderHeight + 1,
+                x: this.holderX - (lineWidth / 2),
+                y: this.holderY - (lineWidth / 2),
+                width: this.holderWidth + lineWidth,
+                height: this.holderHeight + lineWidth,
                 color: Color.PURPLE,
                 opacity: 0.4,
             });
             g.strokeRect({
-                x: this.holderX - 0.5,
-                y: this.holderY - 0.5,
-                width: this.holderWidth + 1,
-                height: this.holderHeight + 1,
+                x: this.holderX - (lineWidth / 2),
+                y: this.holderY - (lineWidth / 2),
+                width: this.holderWidth + lineWidth,
+                height: this.holderHeight + lineWidth,
                 color: Color.PURPLE,
             });
         } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
             g.strokeRect({
                 ...this.bounds,
-                dash: [2, 2],
-                lineWidth: 2,
+                dash: [2 * zoom, 2 * zoom],
+                lineWidth: 2 * zoom,
                 color: Color.PINK,
                 crispen: true,
             });
@@ -391,21 +409,21 @@ export abstract class Widget {
             if (this.pv?.severity === AlarmSeverity.MAJOR) {
                 g.strokeRect({
                     ... this.bounds,
-                    lineWidth: 2,
+                    lineWidth: 2 * zoom,
                     color: Color.RED,
                     crispen: true,
                 });
             } else if (this.pv?.severity === AlarmSeverity.MINOR) {
                 g.strokeRect({
                     ... this.bounds,
-                    lineWidth: 2,
+                    lineWidth: 2 * zoom,
                     color: Color.ORANGE,
                     crispen: true,
                 });
             } else if (this.pv?.severity === AlarmSeverity.INVALID) {
                 g.strokeRect({
                     ... this.bounds,
-                    lineWidth: 2,
+                    lineWidth: 2 * zoom,
                     color: Color.PINK,
                     crispen: true,
                 });
@@ -507,10 +525,11 @@ export abstract class Widget {
     }
 
     private drawShadowBorder(g: Graphics, c1: Color, c2: Color, c3: Color, c4: Color) {
-        const top = this.holderY + 0.5;
-        const left = this.holderX + 0.5;
-        const bottom = this.holderY + this.holderHeight - 1 + 0.5;
-        const right = this.holderX + this.holderWidth - 1 + 0.5;
+        const lineWidth = 1 * this.zoom;
+        const top = this.holderY + (lineWidth / 2);
+        const left = this.holderX + (lineWidth / 2);
+        const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
+        const right = this.holderX + this.holderWidth - lineWidth + (lineWidth / 2);
         g.strokePath({
             color: c1,
             path: new Path(right, bottom)
@@ -520,24 +539,24 @@ export abstract class Widget {
         });
         g.strokePath({
             color: c2,
-            path: new Path(right - 1, bottom - 1)
-                .lineTo(right - 1, top + 1)
-                .moveTo(right - 1, bottom - 1)
-                .lineTo(left + 1, bottom - 1)
+            path: new Path(right - lineWidth, bottom - lineWidth)
+                .lineTo(right - lineWidth, top + lineWidth)
+                .moveTo(right - lineWidth, bottom - lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth)
         });
         g.strokePath({
             color: c3,
             path: new Path(left, top)
-                .lineTo(right - 1, top)
+                .lineTo(right - lineWidth, top)
                 .moveTo(left, top)
-                .lineTo(left, bottom - 1)
+                .lineTo(left, bottom - lineWidth)
         });
         g.strokePath({
             color: c4,
-            path: new Path(left + 1, top + 1)
-                .lineTo(right - 1 - 1, top + 1)
-                .moveTo(left + 1, top + 1)
-                .lineTo(left + 1, bottom - 1 - 1)
+            path: new Path(left + lineWidth, top + lineWidth)
+                .lineTo(right - lineWidth - lineWidth, top + lineWidth)
+                .moveTo(left + lineWidth, top + lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth - lineWidth)
         });
     }
 
@@ -665,12 +684,24 @@ export abstract class Widget {
         return this.foregroundColor;
     }
 
+    get zoom() {
+        return this.display.zoom;
+    }
+
     get wuid(): string { return this.properties.getValue(PROP_WUID); }
     get name(): string { return this.properties.getValue(PROP_NAME); }
-    get holderX(): number { return this.properties.getValue(PROP_X); }
-    get holderY(): number { return this.properties.getValue(PROP_Y); }
-    get holderWidth(): number { return this.properties.getValue(PROP_WIDTH); }
-    get holderHeight(): number { return this.properties.getValue(PROP_HEIGHT); }
+    get holderX(): number {
+        return this.zoom * this.properties.getValue(PROP_X);
+    }
+    get holderY(): number {
+        return this.zoom * this.properties.getValue(PROP_Y);
+    }
+    get holderWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_WIDTH);
+    }
+    get holderHeight(): number {
+        return this.zoom * this.properties.getValue(PROP_HEIGHT);
+    }
     get borderAlarmSensitive(): boolean {
         return this.properties.getValue(PROP_BORDER_ALARM_SENSITIVE);
     }
@@ -683,7 +714,9 @@ export abstract class Widget {
     get pvName(): string | undefined { return this.properties.getValue(PROP_PV_NAME, true); }
     get borderColor(): Color { return this.properties.getValue(PROP_BORDER_COLOR); }
     get borderStyle(): number { return this.properties.getValue(PROP_BORDER_STYLE); }
-    get borderWidth(): number { return this.properties.getValue(PROP_BORDER_WIDTH); }
+    get borderWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_BORDER_WIDTH);
+    }
     get backgroundColor(): Color { return this.properties.getValue(PROP_BACKGROUND_COLOR); }
     get foregroundColor(): Color { return this.properties.getValue(PROP_FOREGROUND_COLOR); }
     get transparent(): boolean { return this.properties.getValue(PROP_TRANSPARENT); }

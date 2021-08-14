@@ -1,6 +1,6 @@
 import { Color } from './Color';
 import { EventHandler } from './EventHandler';
-import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent } from './events';
+import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent, ZoomEvent } from './events';
 import { Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
@@ -102,6 +102,7 @@ export class Display {
         opendisplay: [],
         openpv: [],
         selection: [],
+        zoom: [],
     };
 
     private displayRegion: HitRegionSpecification;
@@ -156,14 +157,13 @@ export class Display {
 
     private drawScreen() {
         if (this.instance) {
-            this.rootPanel.style.height = (this.zoom * this.instance.holderHeight) + 'px';
-            this.rootPanel.style.width = (this.zoom * this.instance.holderWidth) + 'px';
+            this.rootPanel.style.height = this.instance.holderHeight + 'px';
+            this.rootPanel.style.width = this.instance.holderWidth + 'px';
         } else {
             this.rootPanel.style.height = '0px';
             this.rootPanel.style.width = '0px';
         }
-        this.g.scaleCanvas(this.rootPanel.clientWidth, this.rootPanel.clientHeight);
-        this.g.resize(this.instance?.holderWidth || 0, this.instance?.holderHeight || 0);
+        this.g.resize(this.rootPanel.clientWidth, this.rootPanel.clientHeight);
 
         if (this.editMode) {
             const patternCanvas = document.createElement('canvas');
@@ -442,6 +442,8 @@ export class Display {
     set zoom(zoom: number) {
         this._zoom = zoom;
         this.requestRepaint();
+        const zoomEvent: ZoomEvent = { zoom };
+        this.fireEvent('zoom', zoomEvent);
     }
 
     get widgets() { return this.instance ? this.instance.widgets : []; }

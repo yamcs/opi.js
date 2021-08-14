@@ -226,7 +226,7 @@ export class BooleanSwitch extends Widget {
             onSmallBounds.y -= Math.floor((1.0 / 7.0) * pedBounds.height);
             this.drawVerticalBar(g, onSmallBounds, onLargeBounds, true);
         } else {
-            const barHeight = pedBounds.y + pedBounds.height / 2 + smallHeight / 2 + 2;
+            const barHeight = pedBounds.y + pedBounds.height / 2 + smallHeight / 2 + (2 * this.zoom);
             const offLargeBounds: Bounds = {
                 x: pedBounds.width / 2 - largeWidth / 2,
                 y: pedBounds.y + pedBounds.height / 2 - smallHeight / 2 + barHeight - largeHeight,
@@ -343,12 +343,13 @@ export class BooleanSwitch extends Widget {
         g.ctx.fillStyle = booleanValue ? this.onColor.toString() : this.offColor.toString();
         g.ctx.fill();
         if (this.effect3d) {
+            const { zoom } = this;
             const w = Math.sqrt(rx * rx + ry * ry);
             const wp = ry - rx;
-            const x1 = this.x + lg.x + rx + (wp - w) / 2 - 1;
-            const y1 = this.x + lg.y + ry - (wp + w) / 2 - 1;
-            const x2 = this.x + lg.x + rx + (wp + w) / 2 + 5;
-            const y2 = this.x + lg.y + ry - (wp - w) / 2 + 5;
+            const x1 = this.x + lg.x + rx + (wp - w) / 2 - (1 * zoom);
+            const y1 = this.x + lg.y + ry - (wp + w) / 2 - (1 * zoom);
+            const x2 = this.x + lg.x + rx + (wp + w) / 2 + (5 * zoom);
+            const y2 = this.x + lg.y + ry - (wp - w) / 2 + (5 * zoom);
             const gradient = g.createLinearGradient(x1, y1, x2, y2);
             gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
             gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);

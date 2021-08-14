@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics, Path } from '../../Graphics';
-import { convertCartesianToPolar, Point, PolarPoint, translatePoint } from '../../positioning';
+import { convertCartesianToPolar, Point, PolarPoint, scalePoints, translatePoint } from '../../positioning';
 import { BooleanProperty, ColorProperty, IntProperty, PointsProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { XMLNode } from '../../XMLNode';
@@ -25,10 +25,6 @@ const DIRECTION_LEFT = 'LEFT';
 const DIRECTION_UP = 'UP';
 const DIRECTION_DOWN = 'DOWN';
 const DIRECTION_RIGHT = 'RIGHT';
-
-const MINDIST = 20;
-const TOL = 0.1;
-const TOLxTOL = 0.01;
 
 interface RoutePoint extends Point {
   x: number;
@@ -93,7 +89,7 @@ export class Connection extends Widget {
     const to = this.getPosition(this.targetWidget!, this.targetTerm);
 
     const points = [from, ... this.points, to];
-    const path = Path.fromPoints(points).translate(0.5, 0.5);
+    const path = Path.fromPoints(points).translate(0.5 * this.zoom, 0.5 * this.zoom);
 
     g.strokePath({
       path,
@@ -127,17 +123,18 @@ export class Connection extends Widget {
   }
 
   private getDashArray() {
+    const { zoom } = this;
     if (this.lineWidth) {
       if (this.lineStyle === 0) { // Solid
         return [];
       } else if (this.lineStyle === 1) { // Dash
-        return [6, 2];
+        return [6 * zoom, 2 * zoom];
       } else if (this.lineStyle === 2) { // Dot
-        return [2, 2];
+        return [2 * zoom, 2 * zoom];
       } else if (this.lineStyle === 3) { // Dash Dot
-        return [6, 2, 2, 2];
+        return [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom];
       } else if (this.lineStyle === 4) { // Dash Dot Dot
-        return [6, 2, 2, 2, 2, 2];
+        return [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom];
       } else {
         console.warn(`Unsupported connection line style ${this.lineStyle}`);
       }
@@ -263,25 +260,26 @@ export class Connection extends Widget {
     let dir;
     let pos;
     let path: Point[] = [];
+    const { tolxtol, tol, minDist } = this;
 
-    if (((xDiff * xDiff) < TOLxTOL) && ((yDiff * yDiff) < TOLxTOL)) {
+    if (((xDiff * xDiff) < tolxtol) && ((yDiff * yDiff) < tolxtol)) {
       return [{ x: to.x, y: to.y }];
     }
 
     if (from.direction === DIRECTION_LEFT) {
-      if ((xDiff > 0) && ((yDiff * yDiff) < TOL) && (to.direction === DIRECTION_RIGHT)) {
+      if ((xDiff > 0) && ((yDiff * yDiff) < tol) && (to.direction === DIRECTION_RIGHT)) {
         point = to;
         dir = to.direction;
       }
       else {
         if (xDiff < 0) {
-          point = { x: from.x - MINDIST, y: from.y };
+          point = { x: from.x - minDist, y: from.y };
         }
         else if (((yDiff > 0) && (to.direction === DIRECTION_DOWN)) || ((yDiff < 0) && (to.direction === DIRECTION_UP))) {
           point = { x: to.x, y: from.y };
         }
         else if (from.direction === to.direction) {
-          pos = Math.min(from.x, to.x) - MINDIST;
+          pos = Math.min(from.x, to.x) - minDist;
           point = { x: pos, y: from.y };
         }
         else {
@@ -297,19 +295,19 @@ export class Connection extends Widget {
       }
     }
     else if (from.direction === DIRECTION_RIGHT) {
-      if ((xDiff < 0) && ((yDiff * yDiff) < TOL) && (to.direction === DIRECTION_LEFT)) {
+      if ((xDiff < 0) && ((yDiff * yDiff) < tol) && (to.direction === DIRECTION_LEFT)) {
         point = to;
         dir = to.direction;
       }
       else {
         if (xDiff > 0) {
-          point = { x: from.x + MINDIST, y: from.y };
+          point = { x: from.x + minDist, y: from.y };
         }
         else if (((yDiff > 0) && (to.direction === DIRECTION_DOWN)) || ((yDiff < 0) && (to.direction === DIRECTION_UP))) {
           point = { x: to.x, y: from.y };
         }
         else if (from.direction === to.direction) {
-          pos = Math.max(from.x, to.x) + MINDIST;
+          pos = Math.max(from.x, to.x) + minDist;
           point = { x: pos, y: from.y };
         }
         else {
@@ -325,19 +323,19 @@ export class Connection extends Widget {
       }
     }
     else if (from.direction === DIRECTION_DOWN) {
-      if (((xDiff * xDiff) < TOL) && (yDiff < 0) && (to.direction === DIRECTION_UP)) {
+      if (((xDiff * xDiff) < tol) && (yDiff < 0) && (to.direction === DIRECTION_UP)) {
         point = to;
         dir = to.direction;
       }
       else {
         if (yDiff > 0) {
-          point = { x: from.x, y: from.y + MINDIST };
+          point = { x: from.x, y: from.y + minDist };
         }
         else if (((xDiff > 0) && (to.direction === DIRECTION_RIGHT)) || ((xDiff < 0) && (to.direction === DIRECTION_LEFT))) {
           point = { x: from.x, y: to.y };
         }
         else if (from.direction === to.direction) {
-          pos = Math.max(from.y, to.y) + MINDIST;
+          pos = Math.max(from.y, to.y) + minDist;
           point = { x: from.x, y: pos };
         }
         else {
@@ -353,19 +351,19 @@ export class Connection extends Widget {
       }
     }
     else if (from.direction === DIRECTION_UP) {
-      if (((xDiff * xDiff) < TOL) && (yDiff > 0) && (to.direction === DIRECTION_DOWN)) {
+      if (((xDiff * xDiff) < tol) && (yDiff > 0) && (to.direction === DIRECTION_DOWN)) {
         point = to;
         dir = to.direction;
       }
       else {
         if (yDiff < 0) {
-          point = { x: from.x, y: from.y - MINDIST };
+          point = { x: from.x, y: from.y - minDist };
         }
         else if (((xDiff > 0) && (to.direction === DIRECTION_RIGHT)) || ((xDiff < 0) && (to.direction === DIRECTION_LEFT))) {
           point = { x: from.x, y: to.y };
         }
         else if (from.direction === to.direction) {
-          pos = Math.min(from.y, to.y) - MINDIST;
+          pos = Math.min(from.y, to.y) - minDist;
           point = { x: from.x, y: pos };
         }
         else {
@@ -462,17 +460,35 @@ export class Connection extends Widget {
     return [pR, pL, pI];
   }
 
+  get minDist() {
+    return this.zoom * 20;
+  }
+
+  get tol() {
+    return this.zoom * 0.1;
+  }
+
+  get tolxtol() {
+    return this.zoom * 0.01;
+  }
+
   get name(): string { return this.properties.getValue(PROP_NAME); }
   get arrows(): number { return this.properties.getValue(PROP_ARROWS); }
   get fillArrow(): boolean { return this.properties.getValue(PROP_FILL_ARROW); }
-  get arrowLength(): number { return this.properties.getValue(PROP_ARROW_LENGTH); }
+  get arrowLength(): number {
+    return this.zoom * this.properties.getValue(PROP_ARROW_LENGTH);
+  }
   get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
   get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
-  get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+  get lineWidth(): number {
+    return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+  }
   get router(): number { return this.properties.getValue(PROP_ROUTER); }
   get sourceTerm(): string { return this.properties.getValue(PROP_SRC_TERM); }
   get sourceWuid(): string { return this.properties.getValue(PROP_SRC_WUID); }
   get targetTerm(): string { return this.properties.getValue(PROP_TGT_TERM); }
   get targetWuid(): string { return this.properties.getValue(PROP_TGT_WUID); }
-  get points(): Point[] { return this.properties.getValue(PROP_POINTS); }
+  get points(): Point[] {
+    return scalePoints(this.properties.getValue(PROP_POINTS), this.zoom);
+  }
 }

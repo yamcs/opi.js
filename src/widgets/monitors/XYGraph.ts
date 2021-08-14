@@ -1,6 +1,7 @@
 import Dygraph from 'dygraphs';
 import { Color } from '../../Color';
 import { Display } from '../../Display';
+import { ZoomEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
 import { Bounds, crispen, shrink } from '../../positioning';
@@ -58,6 +59,7 @@ export class XYGraph extends Widget {
     private initialized = false;
 
     private graph?: Dygraph;
+    private zoomListener: (evt: ZoomEvent) => void;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
@@ -86,6 +88,20 @@ export class XYGraph extends Widget {
         this.containerEl.appendChild(this.styleEl);
 
         this.display.rootPanel.appendChild(this.containerEl);
+
+        // Upon zoom, we must reposition dy
+        this.zoomListener = () => {
+            this.destroyGraph();
+
+            // Recreate graphEl, because dygraphs remembers its dimensions
+            // even after destroying the Dygraph instance.
+            this.graphEl = document.createElement('div');
+            this.graphEl.style.backgroundColor = this.backgroundColor.toString();
+            this.containerEl.appendChild(this.graphEl);
+
+            this.requestRepaint();
+        };
+        this.display.addEventListener('zoom', this.zoomListener);
     }
 
     parseNode(node: XMLNode) {
@@ -208,16 +224,12 @@ export class XYGraph extends Widget {
 
     draw(g: Graphics) {
         if (!this.transparent) {
-            g.fillRect({
-                x: this.x,
-                y: this.y,
-                width: this.width,
-                height: this.height,
-                color: this.backgroundColor,
-            });
+            const { x, y, width, height } = this;
+            g.fillRect({ x, y, width, height, color: this.backgroundColor });
         }
         if (!this.initialized) {
-            const area = crispen(shrink(this.absoluteArea, 2)); // Make room for alarm border
+            const { zoom } = this;
+            const area = crispen(shrink(this.absoluteArea, 2 * zoom)); // Make room for alarm border
             this.containerEl.style.left = `${area.x}px`;
             this.containerEl.style.top = `${area.y}px`;
             this.containerEl.style.width = `${area.width}px`;
@@ -229,6 +241,7 @@ export class XYGraph extends Widget {
 
     // We can only initialize when we know the target width/height
     private initializeDygraphs(area: Bounds) {
+        const { zoom } = this;
         /*
          * X-AXIS (DOMAIN)
          */
@@ -236,12 +249,12 @@ export class XYGraph extends Widget {
         const xAxisOptions: { [key: string]: any; } = {
             axisLineColor: xAxis.axisColor,
             gridLineColor: xAxis.gridColor,
-            axisLabelWidth: 70,
+            axisLabelWidth: 70 * zoom,
             drawGrid: true,
             logscale: xAxis.logScale,
         };
         if (xAxis.dashGridLine) {
-            xAxisOptions.gridLinePattern = [1, 5];
+            xAxisOptions.gridLinePattern = [1 * zoom, 5 * zoom];
         }
 
         /*
@@ -253,8 +266,8 @@ export class XYGraph extends Widget {
         const series: { [key: string]: any; } = {};
         series[yAxis.axisTitle] = {
             drawPoints: true,
-            strokeWidth: 1,
-            pointSize: trace0.pointSize,
+            strokeWidth: 1 * zoom,
+            pointSize: trace0.pointSize * zoom,
             color: trace0.traceColor.toString(),
         };
 
@@ -264,15 +277,15 @@ export class XYGraph extends Widget {
         const yAxisOptions: { [key: string]: any; } = {
             axisLineColor: yAxis.axisColor,
             gridLineColor: yAxis.gridColor,
-            axisLabelFontSize: yAxis.scaleFont.height,
-            yLabelHeight: yAxis.titleFont.height,
+            axisLabelFontSize: yAxis.scaleFont.scale(zoom).height,
+            yLabelHeight: yAxis.titleFont.scale(zoom).height,
             // pixelsPerLabel: 12,
             valueRange: yAxis.autoScale ? [null, null] : [yAxis.minimum, yAxis.maximum],
             drawGrid: true,
             logscale: yAxis.logScale,
         };
         if (yAxis.dashGridLine) {
-            yAxisOptions.gridLinePattern = [1, 5];
+            yAxisOptions.gridLinePattern = [1 * zoom, 5 * zoom];
         }
 
         this.graph = new Dygraph(this.graphEl, 'X\n', {
@@ -284,8 +297,8 @@ export class XYGraph extends Widget {
             height: area.height,
             xlabel: xAxis.axisTitle,
             ylabel: yAxis.axisTitle,
-            xLabelHeight: xAxis.titleFont.height,
-            yLabelWidth: yAxis.titleFont.height,
+            xLabelHeight: xAxis.titleFont.scale(zoom).height,
+            yLabelWidth: yAxis.titleFont.scale(zoom).height,
             labels: [xAxis.axisTitle, yAxis.axisTitle, ...extraLabels],
             series,
             labelsUTC: true,
@@ -302,7 +315,7 @@ export class XYGraph extends Widget {
 
                 if (this.showPlotAreaBorder) {
                     // Add plot area contours
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 1 * zoom;
                     ctx.strokeStyle = '#000';
 
                     // Plot Area Top
@@ -328,13 +341,13 @@ export class XYGraph extends Widget {
             id: this.containerId,
             titleColor: this.foregroundColor.toString(),
             titleFont: this.titleFont.getFontString(),
-            xScaleFont: xAxis.scaleFont.getFontString(),
+            xScaleFont: xAxis.scaleFont.scale(zoom).getFontString(),
             xAxisColor: xAxis.axisColor.toString(),
-            xLabelFont: xAxis.titleFont.getFontString(),
+            xLabelFont: xAxis.titleFont.scale(zoom).getFontString(),
             xLabelColor: xAxis.axisColor.toString(),
-            yScaleFont: yAxis.scaleFont.getFontString(),
+            yScaleFont: yAxis.scaleFont.scale(zoom).getFontString(),
             yAxisColor: yAxis.axisColor.toString(),
-            yLabelFont: yAxis.titleFont.getFontString(),
+            yLabelFont: yAxis.titleFont.scale(zoom).getFontString(),
             yLabelColor: yAxis.axisColor.toString(),
         });
     }
@@ -359,7 +372,7 @@ export class XYGraph extends Widget {
                 ctx.fill();
                 break;
             case 4: // Triangle
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 1 * this.zoom;
                 ctx.beginPath();
                 ctx.moveTo(cx - r, cy + r);
                 ctx.lineTo(cx, cy - r);
@@ -368,7 +381,7 @@ export class XYGraph extends Widget {
                 ctx.stroke();
                 break;
             case 5: // Filled triangle
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 1 * this.zoom;
                 ctx.beginPath();
                 ctx.moveTo(cx - r, cy + r);
                 ctx.lineTo(cx, cy - r);
@@ -425,16 +438,24 @@ export class XYGraph extends Widget {
     }
 
     destroy() {
+        this.display.removeEventListener('zoom', this.zoomListener);
+        this.destroyGraph();
+    }
+
+    private destroyGraph() {
         if (this.graph) {
             this.graph.destroy();
             this.graph = undefined;
+            this.containerEl.removeChild(this.graphEl);
             this.initialized = false;
         }
     }
 
     get axisCount(): number { return this.properties.getValue(PROP_AXIS_COUNT); }
     get title(): string { return this.properties.getValue(PROP_TITLE); }
-    get titleFont(): Font { return this.properties.getValue(PROP_TITLE_FONT); }
+    get titleFont(): Font {
+        return this.properties.getValue(PROP_TITLE_FONT).scale(this.zoom);
+    }
     get traceCount(): number { return this.properties.getValue(PROP_TRACE_COUNT); }
     get plotAreaBackgroundColor(): Color {
         return this.properties.getValue(PROP_PLOT_AREA_BACKGROUND_COLOR);

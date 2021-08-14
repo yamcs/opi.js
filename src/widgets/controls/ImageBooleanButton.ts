@@ -154,7 +154,7 @@ export class ImageBooleanButton extends Widget {
     draw(g: Graphics) {
         let bounds = this.bounds;
         if (this.borderAlarmSensitive) {
-            bounds = shrink(bounds, 2, 2);
+            bounds = shrink(bounds, 2 * this.zoom, 2 * this.zoom);
         }
 
         const toggled = this.booleanValue;
@@ -197,5 +197,7 @@ export class ImageBooleanButton extends Widget {
     get offImage(): string { return this.properties.getValue(PROP_OFF_IMAGE); }
     get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
     get offState(): string { return this.properties.getValue(PROP_OFF_STATE); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
 }

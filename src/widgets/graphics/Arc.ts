@@ -57,12 +57,13 @@ export class Arc extends Widget {
 
         if (this.lineWidth && this.totalAngle !== 0 && this.totalAngle !== 360) {
             let dash;
+            const { zoom } = this;
             if (this.lineStyle === 0) { // Solid
                 dash = [];
             } else if (this.lineStyle === 1) { // Dash
-                dash = [6, 2];
+                dash = [6 * zoom, 2 * zoom];
             } else if (this.lineStyle === 2) { // Dot
-                dash = [2, 2];
+                dash = [2 * zoom, 2 * zoom];
             } else {
                 console.warn(`Unsupported arc line style ${this.lineStyle}`);
             }
@@ -105,7 +106,9 @@ export class Arc extends Widget {
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
-    get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+    get lineWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+    }
     get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
     get startAngle(): number { return this.properties.getValue(PROP_START_ANGLE); }
     get totalAngle(): number { return this.properties.getValue(PROP_TOTAL_ANGLE); }

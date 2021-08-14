@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
-import { convertCartesianToPolar, Point, PolarPoint, translatePoint } from '../../positioning';
+import { convertCartesianToPolar, Point, PolarPoint, scalePoints, translatePoint } from '../../positioning';
 import { BooleanProperty, FloatProperty, IntProperty, PointsProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -158,10 +158,14 @@ export class Polyline extends Widget {
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
-    get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+    get lineWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+    }
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
-    get points(): Point[] { return this.properties.getValue(PROP_POINTS); }
+    get points(): Point[] {
+        return scalePoints(this.properties.getValue(PROP_POINTS), this.zoom);
+    }
     get arrows(): number { return this.properties.getValue(PROP_ARROWS); }
     get fillArrow(): boolean { return this.properties.getValue(PROP_FILL_ARROW); }
     get arrowLength(): number { return this.properties.getValue(PROP_ARROW_LENGTH); }

@@ -79,7 +79,9 @@ export class TextInput extends Widget {
         ctx.drawImage(tmpCanvas, this.area.x, this.area.y);
     }
 
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get formatType(): number { return this.properties.getValue(PROP_FORMAT_TYPE); }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
     get precision(): number { return this.properties.getValue(PROP_PRECISION); }

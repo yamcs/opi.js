@@ -7,9 +7,6 @@ import { BooleanProperty, IntProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 
-const MARGIN = 10;
-const GAP = 2;
-
 const PROP_MINIMUM_TAB_HEIGHT = 'minimum_tab_height';
 const PROP_ACTIVE_TAB = 'active_tab';
 const PROP_HORIZONTAL_TABS = 'horizontal_tabs';
@@ -78,10 +75,12 @@ export class TabbedContainer extends AbstractContainerWidget {
     }
 
     private drawHorizontalTabs(g: Graphics) {
+        const { margin, gap, zoom } = this;
         let x = this.x;
         for (let i = 0; i < this.tabs.length; i++) {
             const tab = this.tabs[i];
-            const fm = g.measureText(tab.title, tab.font);
+            const font = tab.font.scale(zoom);
+            const fm = g.measureText(tab.title, font);
             let rectX;
             let rectY;
             let rectWidth;
@@ -90,14 +89,14 @@ export class TabbedContainer extends AbstractContainerWidget {
             if (this.activeTab === i) {
                 rectX = x;
                 rectY = this.y;
-                rectWidth = fm.width + MARGIN + GAP;
+                rectWidth = fm.width + margin + gap;
                 rectHeight = this.minimumTabHeight;
                 rectFill = tab.backgroundColor;
             } else {
-                rectX = x + GAP;
-                rectY = this.y + 2;
-                rectWidth = fm.width + MARGIN - GAP;
-                rectHeight = this.minimumTabHeight - 2;
+                rectX = x + gap;
+                rectY = this.y + (2 * zoom);
+                rectWidth = fm.width + margin - gap;
+                rectHeight = this.minimumTabHeight - (2 * zoom);
                 rectFill = this.darken(tab.backgroundColor);
             }
             g.fillRect({
@@ -127,12 +126,12 @@ export class TabbedContainer extends AbstractContainerWidget {
                 y: rectY + (rectHeight / 2),
                 baseline: 'middle',
                 align: 'center',
-                font: tab.font,
+                font: font,
                 color: tab.foregroundColor,
                 text: tab.title,
             });
 
-            x += fm.width + MARGIN - 1;
+            x += fm.width + margin - 1;
 
             if (this.activeTab === i) {
                 const contentX = this.x;
@@ -163,9 +162,10 @@ export class TabbedContainer extends AbstractContainerWidget {
     }
 
     private drawVerticalTabs(g: Graphics) {
+        const { margin, gap, zoom } = this;
         let tabWidth = 0;
         for (const tab of this.tabs) {
-            const fm = g.measureText(tab.title, tab.font);
+            const fm = g.measureText(tab.title, tab.font.scale(zoom));
             if (fm.width > tabWidth) {
                 tabWidth = fm.width;
             }
@@ -174,6 +174,7 @@ export class TabbedContainer extends AbstractContainerWidget {
         let y = this.y;
         for (let i = 0; i < this.tabs.length; i++) {
             const tab = this.tabs[i];
+            const font = tab.font.scale(zoom);
             let rectX;
             let rectY;
             let rectWidth;
@@ -183,13 +184,13 @@ export class TabbedContainer extends AbstractContainerWidget {
                 rectX = this.x;
                 rectY = y;
                 rectWidth = tabWidth;
-                rectHeight = this.minimumTabHeight + MARGIN + GAP;
+                rectHeight = this.minimumTabHeight + margin + gap;
                 rectFill = tab.backgroundColor;
             } else {
-                rectX = this.x + 2;
-                rectY = y + GAP;
-                rectWidth = tabWidth - 2;
-                rectHeight = this.minimumTabHeight + MARGIN - GAP;
+                rectX = this.x + (2 * zoom);
+                rectY = y + gap;
+                rectWidth = tabWidth - (2 * zoom);
+                rectHeight = this.minimumTabHeight + margin - gap;
                 rectFill = this.darken(tab.backgroundColor);
             }
             g.fillRect({
@@ -219,12 +220,12 @@ export class TabbedContainer extends AbstractContainerWidget {
                 y: rectY + (rectHeight / 2),
                 baseline: 'middle',
                 align: 'center',
-                font: tab.font,
+                font,
                 color: tab.foregroundColor,
                 text: tab.title,
             });
 
-            y += this.minimumTabHeight + MARGIN - 1;
+            y += this.minimumTabHeight + margin - 1;
 
             if (this.activeTab === i) {
                 const contentX = this.x + tabWidth - 1;
@@ -261,7 +262,17 @@ export class TabbedContainer extends AbstractContainerWidget {
         return new Color(r, g, b);
     }
 
-    get minimumTabHeight(): number { return this.properties.getValue(PROP_MINIMUM_TAB_HEIGHT); }
+    get margin() {
+        return this.zoom * 10;
+    }
+
+    get gap() {
+        return this.zoom * 2;
+    }
+
+    get minimumTabHeight(): number {
+        return this.zoom * this.properties.getValue(PROP_MINIMUM_TAB_HEIGHT);
+    }
     get activeTab(): number { return this.properties.getValue(PROP_ACTIVE_TAB); }
     get tabCount(): number { return this.properties.getValue(PROP_TAB_COUNT); }
     get horizontalTabs(): boolean { return this.properties.getValue(PROP_HORIZONTAL_TABS); }

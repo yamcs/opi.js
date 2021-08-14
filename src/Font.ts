@@ -27,6 +27,10 @@ export class Font {
     }
   }
 
+  scale(zoom: number) {
+    return new Font(this.name, zoom * this.height, this.style, true);
+  }
+
   getFontString() {
     if (this.style === 1) {
       return `bold ${this.height}px ${this.name}`;

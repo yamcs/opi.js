@@ -8,6 +8,7 @@ export interface OPIEventMap {
     'opendisplay': OpenDisplayEvent;
     'openpv': OpenPVEvent;
     'selection': SelectionEvent;
+    'zoom': ZoomEvent;
 }
 
 export interface SelectionEvent extends OPIEvent {
@@ -33,6 +34,13 @@ export interface OpenPVEvent extends OPIEvent {
  * A script or a button requested to close the current display.
  */
 export interface CloseDisplayEvent extends OPIEvent {
+}
+
+/**
+ * This display zoom level has changed.
+ */
+export interface ZoomEvent extends OPIEvent {
+    zoom: number;
 }
 
 export type OPIEventHandlers = {

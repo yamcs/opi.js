@@ -138,14 +138,20 @@ export class RoundedRectangle extends Widget {
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
-    get lineWidth(): number { return this.properties.getValue(PROP_LINE_WIDTH); }
+    get lineWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+    }
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
     get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
     get gradient(): boolean { return this.properties.getValue(PROP_GRADIENT); }
-    get cornerWidth(): number { return this.properties.getValue(PROP_CORNER_WIDTH); }
-    get cornerHeight(): number { return this.properties.getValue(PROP_CORNER_HEIGHT); }
+    get cornerWidth(): number {
+        return this.zoom * this.properties.getValue(PROP_CORNER_WIDTH);
+    }
+    get cornerHeight(): number {
+        return this.zoom * this.properties.getValue(PROP_CORNER_HEIGHT);
+    }
     get backgroundGradientStartColor(): Color {
         return this.properties.getValue(PROP_BG_GRADIENT_COLOR);
     }

@@ -101,7 +101,9 @@ export class Label extends Widget {
         return lines;
     }
 
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
     get vertAlignment(): number { return this.properties.getValue(PROP_VERTICAL_ALIGNMENT); }
     get wrapWords(): boolean { return this.properties.getValue(PROP_WRAP_WORDS); }

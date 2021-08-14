@@ -105,13 +105,14 @@ export class ChoiceButton extends Widget {
         const hitRegion = g.addHitRegion(this.itemRegions[itemIndex]);
         hitRegion.addRect(area.x, area.y, area.width, area.height);
 
-        const top = area.y + 0.5;
-        const left = area.x + 0.5;
-        const bottom = area.y + area.height - 1 + 0.5;
-        const right = area.x + area.width - 1 + 0.5;
+        const lineWidth = 1 * this.zoom;
+        const top = area.y + (lineWidth / 2);
+        const left = area.x + (lineWidth / 2);
+        const bottom = area.y + area.height - lineWidth + (lineWidth / 2);
+        const right = area.x + area.width - lineWidth + (lineWidth / 2);
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: pushed ? Color.BUTTON_LIGHTEST : Color.BLACK,
             path: new Path(right, bottom)
                 .lineTo(right, top)
@@ -120,30 +121,30 @@ export class ChoiceButton extends Widget {
         });
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: pushed ? this.backgroundColor : Color.BUTTON_DARKER,
-            path: new Path(right - 1, bottom - 1)
-                .lineTo(right - 1, top + 1)
-                .moveTo(right - 1, bottom - 1)
-                .lineTo(left + 1, bottom - 1),
+            path: new Path(right - lineWidth, bottom - lineWidth)
+                .lineTo(right - lineWidth, top + lineWidth)
+                .moveTo(right - lineWidth, bottom - lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth),
         });
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: pushed ? Color.BLACK : Color.BUTTON_LIGHTEST,
             path: new Path(left, top)
-                .lineTo(right - 1, top)
+                .lineTo(right - lineWidth, top)
                 .moveTo(left, top)
-                .lineTo(left, bottom - 1),
+                .lineTo(left, bottom - lineWidth),
         });
 
         g.strokePath({
-            lineWidth: 1,
+            lineWidth,
             color: pushed ? Color.BUTTON_DARKER : this.backgroundColor,
-            path: new Path(left + 1, top + 1)
-                .lineTo(right - 1 - 1, top + 1)
-                .moveTo(left + 1, top + 1)
-                .lineTo(left + 1, bottom - 1 - 1),
+            path: new Path(left + lineWidth, top + lineWidth)
+                .lineTo(right - lineWidth - lineWidth, top + lineWidth)
+                .moveTo(left + lineWidth, top + lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth - lineWidth),
         });
 
         g.fillText({
@@ -164,7 +165,9 @@ export class ChoiceButton extends Widget {
     }
 
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get horizontal(): boolean { return this.properties.getValue(PROP_HORIZONTAL); }
     get items(): string[] { return this.properties.getValue(PROP_ITEMS); }
     get itemsFromPV(): boolean { return this.properties.getValue(PROP_ITEMS_FROM_PV); }

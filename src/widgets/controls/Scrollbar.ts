@@ -147,7 +147,8 @@ export class Scrollbar extends Widget {
     }
 
     private drawHorizontal(g: Graphics) {
-        const bounds = shrink(this.bounds, 2);
+        const { zoom } = this;
+        const bounds = shrink(this.bounds, 2 * zoom);
         g.fillRect({ ...bounds, color: BACKGROUND_COLOR });
 
         const buttonWidth = Math.min(bounds.height, bounds.width / 2);
@@ -171,7 +172,7 @@ export class Scrollbar extends Widget {
         const totalRange = max - min;
         const valueRange = totalRange - extent;
         const trackWidth = bounds.width - buttonWidth - buttonWidth;
-        const thumbWidth = Math.floor(Math.max(6, trackWidth * extent / totalRange));
+        const thumbWidth = Math.floor(Math.max(6 * zoom, trackWidth * extent / totalRange));
         this.dragRange = trackWidth - thumbWidth;
 
         const currentValue = this.getCoercedValue();
@@ -218,7 +219,8 @@ export class Scrollbar extends Widget {
     }
 
     private drawVertical(g: Graphics) {
-        const bounds = shrink(this.bounds, 2);
+        const { zoom } = this;
+        const bounds = shrink(this.bounds, zoom);
         g.fillRect({ ...bounds, color: BACKGROUND_COLOR });
 
         const buttonHeight = Math.min(bounds.width, bounds.height / 2);
@@ -242,7 +244,7 @@ export class Scrollbar extends Widget {
         const totalRange = max - min;
         const valueRange = totalRange - extent;
         const trackHeight = bounds.height - buttonHeight - buttonHeight;
-        const thumbHeight = Math.floor(Math.max(6, trackHeight * extent / totalRange));
+        const thumbHeight = Math.floor(Math.max(6 * zoom, trackHeight * extent / totalRange));
         this.dragRange = trackHeight - thumbHeight;
 
         const currentValue = this.getCoercedValue();
@@ -295,7 +297,7 @@ export class Scrollbar extends Widget {
         const area = g.addHitRegion(this.decreaseRegion!);
         area.addRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        const triangleBounds = shrink(bounds, 3);
+        const triangleBounds = shrink(bounds, 3 * this.zoom);
         let triangleSize = Math.min(triangleBounds.height / 2, triangleBounds.width);
         triangleBounds.x += (triangleBounds.width - triangleSize) / 2;
         triangleSize = Math.max(triangleSize, 1); // No negative
@@ -317,7 +319,7 @@ export class Scrollbar extends Widget {
         const area = g.addHitRegion(this.increaseRegion!);
         area.addRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        const triangleBounds = shrink(bounds, 3);
+        const triangleBounds = shrink(bounds, 3 * this.zoom);
         let triangleSize = Math.min(triangleBounds.height / 2, triangleBounds.width);
         triangleBounds.x += (triangleBounds.width - triangleSize) / 2;
         triangleSize = Math.max(triangleSize, 1); // No negative
@@ -339,7 +341,7 @@ export class Scrollbar extends Widget {
         const area = g.addHitRegion(this.decreaseRegion!);
         area.addRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        const triangleBounds = shrink(bounds, 3);
+        const triangleBounds = shrink(bounds, 3 * this.zoom);
         let triangleSize = Math.min(triangleBounds.height, triangleBounds.width / 2);
         triangleBounds.y += (triangleBounds.height - triangleSize) / 2;
         triangleSize = Math.max(triangleSize, 1); // No negative
@@ -361,7 +363,7 @@ export class Scrollbar extends Widget {
         const area = g.addHitRegion(this.increaseRegion!);
         area.addRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        const triangleBounds = shrink(bounds, 3);
+        const triangleBounds = shrink(bounds, 3 * this.zoom);
         let triangleSize = Math.min(triangleBounds.height, triangleBounds.width / 2);
         triangleBounds.y += (triangleBounds.height - triangleSize) / 2;
         triangleSize = Math.max(triangleSize, 1); // No negative
@@ -387,10 +389,11 @@ export class Scrollbar extends Widget {
     }
 
     private drawButtonBorder(g: Graphics, bounds: Bounds, c1: Color, c2: Color, c3: Color, c4: Color) {
-        const top = bounds.y + 0.5;
-        const left = bounds.x + 0.5;
-        const bottom = bounds.y + bounds.height - 1 + 0.5;
-        const right = bounds.x + bounds.width - 1 + 0.5;
+        const lineWidth = 1 * this.zoom;
+        const top = bounds.y + (lineWidth / 2);
+        const left = bounds.x + (lineWidth / 2);
+        const bottom = bounds.y + bounds.height - lineWidth + (lineWidth / 2);
+        const right = bounds.x + bounds.width - lineWidth + (lineWidth / 2);
         g.strokePath({
             color: c1,
             path: new Path(right, bottom)
@@ -400,24 +403,24 @@ export class Scrollbar extends Widget {
         });
         g.strokePath({
             color: c2,
-            path: new Path(right - 1, bottom - 1)
-                .lineTo(right - 1, top + 1)
-                .moveTo(right - 1, bottom - 1)
-                .lineTo(left + 1, bottom - 1)
+            path: new Path(right - lineWidth, bottom - lineWidth)
+                .lineTo(right - lineWidth, top + lineWidth)
+                .moveTo(right - lineWidth, bottom - lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth)
         });
         g.strokePath({
             color: c3,
             path: new Path(left, top)
-                .lineTo(right - 1, top)
+                .lineTo(right - lineWidth, top)
                 .moveTo(left, top)
-                .lineTo(left, bottom - 1)
+                .lineTo(left, bottom - lineWidth)
         });
         g.strokePath({
             color: c4,
-            path: new Path(left + 1, top + 1)
-                .lineTo(right - 1 - 1, top + 1)
-                .moveTo(left + 1, top + 1)
-                .lineTo(left + 1, bottom - 1 - 1)
+            path: new Path(left + lineWidth, top + lineWidth)
+                .lineTo(right - lineWidth - lineWidth, top + lineWidth)
+                .moveTo(left + lineWidth, top + lineWidth)
+                .lineTo(left + lineWidth, bottom - lineWidth - lineWidth)
         });
     }
 
@@ -488,7 +491,9 @@ export class Scrollbar extends Widget {
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
     get horizontal(): boolean { return this.properties.getValue(PROP_HORIZONTAL); }
     get showValueTip(): boolean { return this.properties.getValue(PROP_SHOW_VALUE_TIP); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
     get stepIncrement(): number { return this.properties.getValue(PROP_STEP_INCREMENT); }

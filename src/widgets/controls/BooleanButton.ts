@@ -179,6 +179,7 @@ export class BooleanButton extends Widget {
         const area = g.addHitRegion(this.areaRegion!);
         area.addRect(this.x, this.y, this.width, this.height);
 
+        const lineWidth = 2 * this.zoom;
         const tlColor = toggled ? Color.DARK_GRAY : Color.WHITE;
         const brColor = toggled ? Color.WHITE : Color.DARK_GRAY;
         if (this.effect3d) {
@@ -186,9 +187,9 @@ export class BooleanButton extends Widget {
                 color: tlColor,
                 path: new Path(this.x, this.y)
                     .lineTo(this.x, this.y + this.height)
-                    .lineTo(this.x + 2, this.y + this.height - 2)
-                    .lineTo(this.x + 2, this.y + 2)
-                    .lineTo(this.x + this.width - 2, this.y + 2)
+                    .lineTo(this.x + lineWidth, this.y + this.height - lineWidth)
+                    .lineTo(this.x + lineWidth, this.y + lineWidth)
+                    .lineTo(this.x + this.width - lineWidth, this.y + lineWidth)
                     .lineTo(this.x + this.width, this.y)
                     .closePath()
             });
@@ -198,9 +199,9 @@ export class BooleanButton extends Widget {
                 path: new Path(this.x, this.y + this.height)
                     .lineTo(this.x + this.width, this.y + this.height)
                     .lineTo(this.x + this.width, this.y)
-                    .lineTo(this.x + this.width - 2, this.y + 2)
-                    .lineTo(this.x + this.width - 2, this.y + this.height - 2)
-                    .lineTo(this.x + 2, this.y + this.height - 2)
+                    .lineTo(this.x + this.width - lineWidth, this.y + lineWidth)
+                    .lineTo(this.x + this.width - lineWidth, this.y + this.height - lineWidth)
+                    .lineTo(this.x + lineWidth, this.y + this.height - lineWidth)
                     .closePath()
             });
         }
@@ -210,23 +211,24 @@ export class BooleanButton extends Widget {
             color = this.backgroundColor.mixWith(Color.WHITE, 0.5);
         }
         g.fillRect({
-            x: this.x + 2,
-            y: this.y + 2,
-            width: this.width - 2 - 2,
-            height: this.height - 2 - 2,
+            x: this.x + lineWidth,
+            y: this.y + lineWidth,
+            width: this.width - lineWidth - lineWidth,
+            height: this.height - lineWidth - lineWidth,
             color,
         });
     }
 
     private drawEllipse(g: Graphics, toggled: boolean) {
+        const { zoom } = this;
         if (this.effect3d) {
             const a = this.width / 2;
             const b = this.height / 2;
             const w = Math.sqrt(a * a + b * b);
-            const x1 = this.x + a + (b - a - w) / 2 - 1;
-            const y1 = this.y + b - (b - a + w) / 2 - 1;
-            const x2 = this.x + a + (b - a + w) / 2 + 5;
-            const y2 = this.y + b - (b - a - w) / 2 + 5;
+            const x1 = this.x + a + (b - a - w) / 2 - (1 * zoom);
+            const y1 = this.y + b - (b - a + w) / 2 - (1 * zoom);
+            const x2 = this.x + a + (b - a + w) / 2 + (5 * zoom);
+            const y2 = this.y + b - (b - a - w) / 2 + (5 * zoom);
 
             const gradient = g.createLinearGradient(x1, y1, x2, y2);
             if (toggled) {
@@ -260,22 +262,23 @@ export class BooleanButton extends Widget {
             g.ctx.fillStyle = this.backgroundColor.toString();
         }
         g.ctx.beginPath();
-        g.ctx.ellipse(x, y, rx - 2, ry - 2, 0, 0, 2 * Math.PI);
+        g.ctx.ellipse(x, y, rx - (zoom * 2), ry - (zoom * 2), 0, 0, 2 * Math.PI);
         g.ctx.fill();
     }
 
     private drawHorizontal(g: Graphics, toggled: boolean) {
+        const { zoom } = this;
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
                 diameter = Math.floor(0.3 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - 2;
+                    diameter = Math.min(this.width, this.height) - (2 * zoom);
                 }
             } else {
                 diameter = Math.floor(0.25 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - 8;
+                    diameter = Math.min(this.width, this.height) - (8 * zoom);
                 }
             }
             const ledArea: Bounds = {
@@ -307,17 +310,18 @@ export class BooleanButton extends Widget {
     }
 
     private drawVertical(g: Graphics, toggled: boolean) {
+        const { zoom } = this;
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
                 diameter = Math.floor(0.3 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - 2;
+                    diameter = Math.min(this.width, this.height) - (2 * zoom);
                 }
             } else {
                 diameter = Math.floor(0.25 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - 8;
+                    diameter = Math.min(this.width, this.height) - (8 * zoom);
                 }
             }
             const ledArea: Bounds = {
@@ -362,5 +366,7 @@ export class BooleanButton extends Widget {
     get offColor(): Color { return this.properties.getValue(PROP_OFF_COLOR); }
     get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
     get offState(): string { return this.properties.getValue(PROP_OFF_STATE); }
-    get font(): Font { return this.properties.getValue(PROP_FONT); }
+    get font(): Font {
+        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+    }
 }
