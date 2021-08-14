@@ -181,6 +181,17 @@ export class Graphics {
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
+    /**
+     * Perform a CSS-level rescale of the Canvas.
+     *
+     * This resamples the bitmapped canvas area to fit the area made available
+     * by CSS.
+     */
+    scaleCanvas(width: number, height: number) {
+        this.ctx.canvas.style.width = width + 'px';
+        this.ctx.canvas.style.height = height + 'px';
+    }
+
     resize(width: number, height: number) {
         // Careful not to reset dimensions all the time (it does lots of stuff)
         if (this.ctx.canvas.width != width || this.ctx.canvas.height != height) {

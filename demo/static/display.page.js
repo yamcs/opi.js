@@ -49,5 +49,11 @@ window.page = (function () {
                 display.editMode = true;
             }
         },
+        zoomIn: () => {
+            display.zoom += 0.1;
+        },
+        zoomOut: () => {
+            display.zoom -= 0.1;
+        },
     };
 })();
