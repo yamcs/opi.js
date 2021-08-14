@@ -64,7 +64,7 @@ export class ByteMonitor extends Widget {
 
         let bounds = this.bounds;
         if (this.borderAlarmSensitive) {
-            bounds = shrink(bounds, 2 * this.zoom);
+            bounds = shrink(bounds, 2 * this.scale);
         }
 
         if (this.horizontal) {
@@ -297,7 +297,7 @@ export class ByteMonitor extends Widget {
     get startBit(): number { return this.properties.getValue(PROP_START_BIT); }
     get ledPacked(): boolean { return this.properties.getValue(PROP_LED_PACKED); }
     get ledBorder(): number {
-        return this.zoom * this.properties.getValue(PROP_LED_BORDER);
+        return this.scale * this.properties.getValue(PROP_LED_BORDER);
     }
     get ledBorderColor(): Color { return this.properties.getValue(PROP_LED_BORDER_COLOR); }
     get offColor(): Color { return this.properties.getValue(PROP_OFF_COLOR); }

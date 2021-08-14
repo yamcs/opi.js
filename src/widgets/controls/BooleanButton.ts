@@ -179,7 +179,7 @@ export class BooleanButton extends Widget {
         const area = g.addHitRegion(this.areaRegion!);
         area.addRect(this.x, this.y, this.width, this.height);
 
-        const lineWidth = 2 * this.zoom;
+        const lineWidth = 2 * this.scale;
         const tlColor = toggled ? Color.DARK_GRAY : Color.WHITE;
         const brColor = toggled ? Color.WHITE : Color.DARK_GRAY;
         if (this.effect3d) {
@@ -220,15 +220,15 @@ export class BooleanButton extends Widget {
     }
 
     private drawEllipse(g: Graphics, toggled: boolean) {
-        const { zoom } = this;
+        const { scale } = this;
         if (this.effect3d) {
             const a = this.width / 2;
             const b = this.height / 2;
             const w = Math.sqrt(a * a + b * b);
-            const x1 = this.x + a + (b - a - w) / 2 - (1 * zoom);
-            const y1 = this.y + b - (b - a + w) / 2 - (1 * zoom);
-            const x2 = this.x + a + (b - a + w) / 2 + (5 * zoom);
-            const y2 = this.y + b - (b - a - w) / 2 + (5 * zoom);
+            const x1 = this.x + a + (b - a - w) / 2 - (1 * scale);
+            const y1 = this.y + b - (b - a + w) / 2 - (1 * scale);
+            const x2 = this.x + a + (b - a + w) / 2 + (5 * scale);
+            const y2 = this.y + b - (b - a - w) / 2 + (5 * scale);
 
             const gradient = g.createLinearGradient(x1, y1, x2, y2);
             if (toggled) {
@@ -262,23 +262,23 @@ export class BooleanButton extends Widget {
             g.ctx.fillStyle = this.backgroundColor.toString();
         }
         g.ctx.beginPath();
-        g.ctx.ellipse(x, y, rx - (zoom * 2), ry - (zoom * 2), 0, 0, 2 * Math.PI);
+        g.ctx.ellipse(x, y, rx - (scale * 2), ry - (scale * 2), 0, 0, 2 * Math.PI);
         g.ctx.fill();
     }
 
     private drawHorizontal(g: Graphics, toggled: boolean) {
-        const { zoom } = this;
+        const { scale } = this;
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
                 diameter = Math.floor(0.3 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - (2 * zoom);
+                    diameter = Math.min(this.width, this.height) - (2 * scale);
                 }
             } else {
                 diameter = Math.floor(0.25 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - (8 * zoom);
+                    diameter = Math.min(this.width, this.height) - (8 * scale);
                 }
             }
             const ledArea: Bounds = {
@@ -310,18 +310,18 @@ export class BooleanButton extends Widget {
     }
 
     private drawVertical(g: Graphics, toggled: boolean) {
-        const { zoom } = this;
+        const { scale } = this;
         if (this.showLed) {
             let diameter: number;
             if (this.squareButton) {
                 diameter = Math.floor(0.3 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - (2 * zoom);
+                    diameter = Math.min(this.width, this.height) - (2 * scale);
                 }
             } else {
                 diameter = Math.floor(0.25 * (this.width + this.height) / 2);
                 if (diameter > Math.min(this.width, this.height)) {
-                    diameter = Math.min(this.width, this.height) - (8 * zoom);
+                    diameter = Math.min(this.width, this.height) - (8 * scale);
                 }
             }
             const ledArea: Bounds = {
@@ -367,6 +367,6 @@ export class BooleanButton extends Widget {
     get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }
     get offState(): string { return this.properties.getValue(PROP_OFF_STATE); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
 }

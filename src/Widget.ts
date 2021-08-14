@@ -125,7 +125,7 @@ export abstract class Widget {
     }
 
     drawHolder(g: Graphics) {
-        const { zoom } = this;
+        const { scale } = this;
         let insets = [0, 0, 0, 0]; // T L B R
         switch (this.borderStyle) {
             case 0: // Empty
@@ -139,15 +139,15 @@ export abstract class Widget {
                 break;
             case 2: // Raised
             case 3: // Lowered
-                insets = [1 * zoom, 1 * zoom, 1 * zoom, 1 * zoom];
+                insets = [1 * scale, 1 * scale, 1 * scale, 1 * scale];
                 break;
             case 4: // Etched
             case 5: // Ridged
             case 6: // Button Raised
-                insets = [2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom];
+                insets = [2 * scale, 2 * scale, 2 * scale, 2 * scale];
                 break;
             case 7: // Button Pressed
-                insets = [2 * zoom, 2 * zoom, 1 * zoom, 1 * zoom];
+                insets = [2 * scale, 2 * scale, 1 * scale, 1 * scale];
                 break;
             case 8: // Dot
             case 9: // Dash
@@ -156,10 +156,10 @@ export abstract class Widget {
                 insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
                 break;
             case 12: // Title Bar
-                insets = [(16 + 1) * zoom, 1 * zoom, 1 * zoom, 1 * zoom];
+                insets = [(16 + 1) * scale, 1 * scale, 1 * scale, 1 * scale];
                 break;
             case 13: // Group Box
-                insets = [16 * zoom, 16 * zoom, 16 * zoom, 16 * zoom];
+                insets = [16 * scale, 16 * scale, 16 * scale, 16 * scale];
                 break;
             case 14: // Round Rectangle Background
                 const i = this.borderWidth * 2;
@@ -186,7 +186,7 @@ export abstract class Widget {
                 crispen: true,
             });
         } else if (this.borderStyle === 2) { // Raised
-            const lineWidth = 1 * zoom;
+            const lineWidth = 1 * scale;
             const top = this.holderY + (lineWidth / 2);
             const left = this.holderX + (lineWidth / 2);
             const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
@@ -206,7 +206,7 @@ export abstract class Widget {
                     .lineTo(left, bottom - lineWidth)
             });
         } else if (this.borderStyle === 3) { // Lowered
-            const lineWidth = 1 * zoom;
+            const lineWidth = 1 * scale;
             const top = this.holderY + (lineWidth / 2);
             const left = this.holderX + (lineWidth / 2);
             const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
@@ -238,27 +238,27 @@ export abstract class Widget {
             this.drawShadowBorder(g, Color.BUTTON_LIGHTEST, Color.BUTTON_LIGHTEST,
                 Color.BUTTON_DARKEST, Color.BUTTON_DARKER);
         } else if (this.borderStyle === 8) { // Dot
-            this.drawDashedBorder(g, [2 * zoom, 2 * zoom]);
+            this.drawDashedBorder(g, [2 * scale, 2 * scale]);
         } else if (this.borderStyle === 9) { // Dash
-            this.drawDashedBorder(g, [6 * zoom, 2 * zoom]);
+            this.drawDashedBorder(g, [6 * scale, 2 * scale]);
         } else if (this.borderStyle === 10) { // Dash Dot
-            this.drawDashedBorder(g, [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom]);
+            this.drawDashedBorder(g, [6 * scale, 2 * scale, 2 * scale, 2 * scale]);
         } else if (this.borderStyle === 11) { // Dash Dot Dot
-            this.drawDashedBorder(g, [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom]);
+            this.drawDashedBorder(g, [6 * scale, 2 * scale, 2 * scale, 2 * scale, 2 * scale, 2 * scale]);
         } else if (this.borderStyle === 12) { // Title bar
             g.fillRect({
                 x: this.holderX,
-                y: this.holderY + (1 * zoom),
+                y: this.holderY + (1 * scale),
                 width: this.holderWidth,
-                height: 16 * zoom,
+                height: 16 * scale,
                 color: this.borderColor,
             });
             g.fillText({
-                x: this.holderX + (1 * zoom) + (3 * zoom),
-                y: this.holderY + (1 * zoom) + (16 / 2 * zoom),
+                x: this.holderX + (1 * scale) + (3 * scale),
+                y: this.holderY + (1 * scale) + (16 / 2 * scale),
                 baseline: 'middle',
                 align: 'left',
-                font: Font.ARIAL_11.scale(zoom),
+                font: Font.ARIAL_11.scale(scale),
                 color: Color.BLACK,
                 text: this.name,
             });
@@ -282,32 +282,32 @@ export abstract class Widget {
             }
 
             g.fillText({
-                x: this.holderX + (16 * zoom),
-                y: this.holderY + (8 * zoom),
+                x: this.holderX + (16 * scale),
+                y: this.holderY + (8 * scale),
                 baseline: 'middle',
                 align: 'left',
-                font: Font.ARIAL_11.scale(zoom),
+                font: Font.ARIAL_11.scale(scale),
                 color: this.borderColor,
                 text: this.name,
             });
 
             // Avoid drawing border over text
-            const fm = g.measureText(this.name, Font.ARIAL_11.scale(zoom));
+            const fm = g.measureText(this.name, Font.ARIAL_11.scale(scale));
 
             const lineWidth = 1;
             let box = toBorderBox(
-                this.holderX + (8 * zoom),
-                this.holderY + (8 * zoom),
-                this.holderWidth - (16 * zoom) - lineWidth,
-                this.holderHeight - (16 * zoom) - lineWidth,
+                this.holderX + (8 * scale),
+                this.holderY + (8 * scale),
+                this.holderWidth - (16 * scale) - lineWidth,
+                this.holderHeight - (16 * scale) - lineWidth,
                 lineWidth,
             );
 
             g.strokePath({
                 color: this.backgroundColor.darker(),
                 path: new Path(box.x, box.y)
-                    .lineTo(box.x + (8 * zoom), box.y)
-                    .moveTo(box.x + (8 * zoom) + fm.width, box.y)
+                    .lineTo(box.x + (8 * scale), box.y)
+                    .moveTo(box.x + (8 * scale) + fm.width, box.y)
                     .lineTo(box.x + box.width, box.y)
                     .lineTo(box.x + box.width, box.y + box.height)
                     .lineTo(box.x, box.y + box.height)
@@ -315,18 +315,18 @@ export abstract class Widget {
             });
 
             box = toBorderBox(
-                this.holderX + (8 * zoom) + lineWidth,
-                this.holderY + (8 * zoom) + lineWidth,
-                this.holderWidth - (16 * zoom) - lineWidth,
-                this.holderHeight - (16 * zoom) - lineWidth,
+                this.holderX + (8 * scale) + lineWidth,
+                this.holderY + (8 * scale) + lineWidth,
+                this.holderWidth - (16 * scale) - lineWidth,
+                this.holderHeight - (16 * scale) - lineWidth,
                 lineWidth,
             );
 
             g.strokePath({
                 color: this.backgroundColor.brighter(),
                 path: new Path(box.x, box.y)
-                    .lineTo(box.x + (8 * zoom) - lineWidth, box.y)
-                    .moveTo(box.x + (8 * zoom) - lineWidth + fm.width, box.y)
+                    .lineTo(box.x + (8 * scale) - lineWidth, box.y)
+                    .moveTo(box.x + (8 * scale) - lineWidth + fm.width, box.y)
                     .lineTo(box.x + box.width, box.y)
                     .lineTo(box.x + box.width, box.y + box.height)
                     .lineTo(box.x, box.y + box.height)
@@ -338,16 +338,16 @@ export abstract class Widget {
             if (this.fillRoundRectangleBackgroundBorder) {
                 g.fillRect({
                     ...box,
-                    rx: 4 * zoom,
-                    ry: 4 * zoom,
+                    rx: 4 * scale,
+                    ry: 4 * scale,
                     color: this.backgroundColor,
                 });
             }
             if (this.borderWidth) {
                 g.strokeRect({
                     ...box,
-                    rx: 4 * zoom,
-                    ry: 4 * zoom,
+                    rx: 4 * scale,
+                    ry: 4 * scale,
                     color: this.borderColor,
                     lineWidth: this.borderWidth,
                 });
@@ -376,10 +376,10 @@ export abstract class Widget {
         if (this.display.editMode) {
             return;
         }
-        const { zoom } = this;
+        const { scale } = this;
 
         if (this.pvName && (!this.pv || this.pv.disconnected)) { // Disconnected
-            const lineWidth = 1 * zoom;
+            const lineWidth = 1 * scale;
             g.fillRect({
                 x: this.holderX - (lineWidth / 2),
                 y: this.holderY - (lineWidth / 2),
@@ -398,8 +398,8 @@ export abstract class Widget {
         } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
             g.strokeRect({
                 ...this.bounds,
-                dash: [2 * zoom, 2 * zoom],
-                lineWidth: 2 * zoom,
+                dash: [2 * scale, 2 * scale],
+                lineWidth: 2 * scale,
                 color: Color.PINK,
                 crispen: true,
             });
@@ -409,21 +409,21 @@ export abstract class Widget {
             if (this.pv?.severity === AlarmSeverity.MAJOR) {
                 g.strokeRect({
                     ... this.bounds,
-                    lineWidth: 2 * zoom,
+                    lineWidth: 2 * scale,
                     color: Color.RED,
                     crispen: true,
                 });
             } else if (this.pv?.severity === AlarmSeverity.MINOR) {
                 g.strokeRect({
                     ... this.bounds,
-                    lineWidth: 2 * zoom,
+                    lineWidth: 2 * scale,
                     color: Color.ORANGE,
                     crispen: true,
                 });
             } else if (this.pv?.severity === AlarmSeverity.INVALID) {
                 g.strokeRect({
                     ... this.bounds,
-                    lineWidth: 2 * zoom,
+                    lineWidth: 2 * scale,
                     color: Color.PINK,
                     crispen: true,
                 });
@@ -525,7 +525,7 @@ export abstract class Widget {
     }
 
     private drawShadowBorder(g: Graphics, c1: Color, c2: Color, c3: Color, c4: Color) {
-        const lineWidth = 1 * this.zoom;
+        const lineWidth = 1 * this.scale;
         const top = this.holderY + (lineWidth / 2);
         const left = this.holderX + (lineWidth / 2);
         const bottom = this.holderY + this.holderHeight - lineWidth + (lineWidth / 2);
@@ -684,23 +684,23 @@ export abstract class Widget {
         return this.foregroundColor;
     }
 
-    get zoom() {
-        return this.display.zoom;
+    get scale() {
+        return this.display.scale;
     }
 
     get wuid(): string { return this.properties.getValue(PROP_WUID); }
     get name(): string { return this.properties.getValue(PROP_NAME); }
     get holderX(): number {
-        return this.zoom * this.properties.getValue(PROP_X);
+        return this.scale * this.properties.getValue(PROP_X);
     }
     get holderY(): number {
-        return this.zoom * this.properties.getValue(PROP_Y);
+        return this.scale * this.properties.getValue(PROP_Y);
     }
     get holderWidth(): number {
-        return this.zoom * this.properties.getValue(PROP_WIDTH);
+        return this.scale * this.properties.getValue(PROP_WIDTH);
     }
     get holderHeight(): number {
-        return this.zoom * this.properties.getValue(PROP_HEIGHT);
+        return this.scale * this.properties.getValue(PROP_HEIGHT);
     }
     get borderAlarmSensitive(): boolean {
         return this.properties.getValue(PROP_BORDER_ALARM_SENSITIVE);
@@ -715,7 +715,7 @@ export abstract class Widget {
     get borderColor(): Color { return this.properties.getValue(PROP_BORDER_COLOR); }
     get borderStyle(): number { return this.properties.getValue(PROP_BORDER_STYLE); }
     get borderWidth(): number {
-        return this.zoom * this.properties.getValue(PROP_BORDER_WIDTH);
+        return this.scale * this.properties.getValue(PROP_BORDER_WIDTH);
     }
     get backgroundColor(): Color { return this.properties.getValue(PROP_BACKGROUND_COLOR); }
     get foregroundColor(): Color { return this.properties.getValue(PROP_FOREGROUND_COLOR); }

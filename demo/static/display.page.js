@@ -50,10 +50,10 @@ window.page = (function () {
             }
         },
         zoomIn: () => {
-            display.zoom += 0.1;
+            display.scale += 0.1;
         },
         zoomOut: () => {
-            display.zoom -= 0.1;
+            display.scale -= 0.1;
         },
     };
 })();

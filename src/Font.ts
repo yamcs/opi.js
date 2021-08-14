@@ -27,8 +27,8 @@ export class Font {
     }
   }
 
-  scale(zoom: number) {
-    return new Font(this.name, zoom * this.height, this.style, true);
+  scale(scale: number) {
+    return new Font(this.name, scale * this.height, this.style, true);
   }
 
   getFontString() {

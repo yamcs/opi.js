@@ -80,7 +80,7 @@ export class TextInput extends Widget {
     }
 
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get formatType(): number { return this.properties.getValue(PROP_FORMAT_TYPE); }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }

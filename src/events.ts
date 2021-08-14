@@ -8,7 +8,7 @@ export interface OPIEventMap {
     'opendisplay': OpenDisplayEvent;
     'openpv': OpenPVEvent;
     'selection': SelectionEvent;
-    'zoom': ZoomEvent;
+    'scale': ScaleEvent;
 }
 
 export interface SelectionEvent extends OPIEvent {
@@ -37,10 +37,10 @@ export interface CloseDisplayEvent extends OPIEvent {
 }
 
 /**
- * This display zoom level has changed.
+ * This display scale has changed.
  */
-export interface ZoomEvent extends OPIEvent {
-    zoom: number;
+export interface ScaleEvent extends OPIEvent {
+    scale: number;
 }
 
 export type OPIEventHandlers = {

@@ -89,7 +89,7 @@ export class Connection extends Widget {
     const to = this.getPosition(this.targetWidget!, this.targetTerm);
 
     const points = [from, ... this.points, to];
-    const path = Path.fromPoints(points).translate(0.5 * this.zoom, 0.5 * this.zoom);
+    const path = Path.fromPoints(points).translate(0.5 * this.scale, 0.5 * this.scale);
 
     g.strokePath({
       path,
@@ -123,18 +123,18 @@ export class Connection extends Widget {
   }
 
   private getDashArray() {
-    const { zoom } = this;
+    const { scale } = this;
     if (this.lineWidth) {
       if (this.lineStyle === 0) { // Solid
         return [];
       } else if (this.lineStyle === 1) { // Dash
-        return [6 * zoom, 2 * zoom];
+        return [6 * scale, 2 * scale];
       } else if (this.lineStyle === 2) { // Dot
-        return [2 * zoom, 2 * zoom];
+        return [2 * scale, 2 * scale];
       } else if (this.lineStyle === 3) { // Dash Dot
-        return [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom];
+        return [6 * scale, 2 * scale, 2 * scale, 2 * scale];
       } else if (this.lineStyle === 4) { // Dash Dot Dot
-        return [6 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom, 2 * zoom];
+        return [6 * scale, 2 * scale, 2 * scale, 2 * scale, 2 * scale, 2 * scale];
       } else {
         console.warn(`Unsupported connection line style ${this.lineStyle}`);
       }
@@ -461,27 +461,27 @@ export class Connection extends Widget {
   }
 
   get minDist() {
-    return this.zoom * 20;
+    return this.scale * 20;
   }
 
   get tol() {
-    return this.zoom * 0.1;
+    return this.scale * 0.1;
   }
 
   get tolxtol() {
-    return this.zoom * 0.01;
+    return this.scale * 0.01;
   }
 
   get name(): string { return this.properties.getValue(PROP_NAME); }
   get arrows(): number { return this.properties.getValue(PROP_ARROWS); }
   get fillArrow(): boolean { return this.properties.getValue(PROP_FILL_ARROW); }
   get arrowLength(): number {
-    return this.zoom * this.properties.getValue(PROP_ARROW_LENGTH);
+    return this.scale * this.properties.getValue(PROP_ARROW_LENGTH);
   }
   get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
   get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
   get lineWidth(): number {
-    return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+    return this.scale * this.properties.getValue(PROP_LINE_WIDTH);
   }
   get router(): number { return this.properties.getValue(PROP_ROUTER); }
   get sourceTerm(): string { return this.properties.getValue(PROP_SRC_TERM); }
@@ -489,6 +489,6 @@ export class Connection extends Widget {
   get targetTerm(): string { return this.properties.getValue(PROP_TGT_TERM); }
   get targetWuid(): string { return this.properties.getValue(PROP_TGT_WUID); }
   get points(): Point[] {
-    return scalePoints(this.properties.getValue(PROP_POINTS), this.zoom);
+    return scalePoints(this.properties.getValue(PROP_POINTS), this.scale);
   }
 }

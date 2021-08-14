@@ -137,7 +137,7 @@ export class LED extends Widget {
     }
 
     draw(g: Graphics) {
-        const area = shrink(this.bounds, 3 * this.zoom);
+        const area = shrink(this.bounds, 3 * this.scale);
         if (this.squareLed) {
             if (this.effect3d) {
                 this.drawSquare3d(g, area);
@@ -310,12 +310,12 @@ export class LED extends Widget {
     get squareLed(): boolean { return this.properties.getValue(PROP_SQUARE_LED); }
     get showBooleanLabel(): boolean { return this.properties.getValue(PROP_SHOW_BOOLEAN_LABEL); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
     get stateCount(): number { return this.properties.getValue(PROP_STATE_COUNT); }
     get bulbBorder(): number {
-        return this.zoom * this.properties.getValue(PROP_BULB_BORDER);
+        return this.scale * this.properties.getValue(PROP_BULB_BORDER);
     }
     get bulbBorderColor(): Color { return this.properties.getValue(PROP_BULB_BORDER_COLOR); }
     get offLabel(): string { return this.properties.getValue(PROP_OFF_LABEL); }

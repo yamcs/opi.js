@@ -105,7 +105,7 @@ export class ChoiceButton extends Widget {
         const hitRegion = g.addHitRegion(this.itemRegions[itemIndex]);
         hitRegion.addRect(area.x, area.y, area.width, area.height);
 
-        const lineWidth = 1 * this.zoom;
+        const lineWidth = 1 * this.scale;
         const top = area.y + (lineWidth / 2);
         const left = area.x + (lineWidth / 2);
         const bottom = area.y + area.height - lineWidth + (lineWidth / 2);
@@ -166,7 +166,7 @@ export class ChoiceButton extends Widget {
 
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get horizontal(): boolean { return this.properties.getValue(PROP_HORIZONTAL); }
     get items(): string[] { return this.properties.getValue(PROP_ITEMS); }

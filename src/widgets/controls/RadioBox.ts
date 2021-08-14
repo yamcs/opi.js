@@ -114,7 +114,7 @@ export class RadioBox extends Widget {
             gradient,
         });
 
-        const lineWidth = 1 * this.zoom;
+        const lineWidth = 1 * this.scale;
         g.strokeEllipse({
             cx: area.x + radioRadius,
             cy: area.y + (area.height / 2),
@@ -155,20 +155,20 @@ export class RadioBox extends Widget {
     }
 
     get radioRadius() {
-        return this.zoom * RADIO_RADIUS;
+        return this.scale * RADIO_RADIUS;
     }
 
     get dotRadius() {
-        return this.zoom * DOT_RADIUS;
+        return this.scale * DOT_RADIUS;
     }
 
     get gap() {
-        return this.zoom * GAP;
+        return this.scale * GAP;
     }
 
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get horizontal(): boolean { return this.properties.getValue(PROP_HORIZONTAL); }
     get items(): string[] { return this.properties.getValue(PROP_ITEMS); }

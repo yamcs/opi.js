@@ -100,12 +100,12 @@ export class Polygon extends Widget {
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
     get lineWidth(): number {
-        return this.zoom * this.properties.getValue(PROP_LINE_WIDTH);
+        return this.scale * this.properties.getValue(PROP_LINE_WIDTH);
     }
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
     get points(): Point[] {
-        return scalePoints(this.properties.getValue(PROP_POINTS), this.zoom);
+        return scalePoints(this.properties.getValue(PROP_POINTS), this.scale);
     }
 }

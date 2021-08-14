@@ -71,6 +71,7 @@ export class ActionButton extends Widget {
 
     draw(g: Graphics) {
         const ctx = g.ctx;
+        const { scale } = this;
 
         g.fillRect({
             ...this.area,
@@ -80,7 +81,7 @@ export class ActionButton extends Widget {
         const hitRegion = g.addHitRegion(this.areaRegion!);
         hitRegion.addRect(this.x, this.y, this.width, this.height);
 
-        const lineWidth = 1 * this.zoom;
+        const lineWidth = 1 * scale;
 
         const top = this.holderY + (lineWidth / 2);
         const left = this.holderX + (lineWidth / 2);
@@ -135,12 +136,12 @@ export class ActionButton extends Widget {
             const textWidth = ctx.measureText(lines[0]).width;
             const textHeight = this.font.height;
 
-            const naturalHeight = this.imageElement.naturalHeight * this.zoom;
-            const naturalWidth = this.imageElement.naturalWidth * this.zoom;
+            const naturalHeight = this.imageElement.naturalHeight * scale;
+            const naturalWidth = this.imageElement.naturalWidth * scale;
 
             const hratio = (this.height - naturalHeight) / textHeight;
             const wratio = (this.width - naturalWidth) / textWidth;
-            const magicSpacer = 5 * this.zoom;
+            const magicSpacer = 5 * scale;
             if (wratio > hratio) { // Text right of icon
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'left';
@@ -168,14 +169,14 @@ export class ActionButton extends Widget {
         }
 
         if (this.pushed) {
-            x += 1 * this.zoom;
-            y += 1 * this.zoom;
+            x += 1 * scale;
+            y += 1 * scale;
         }
         ctx.fillText(lines[0], x, y);
     }
 
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get image(): string { return this.properties.getValue(PROP_IMAGE); }
     get toggleButton(): boolean { return this.properties.getValue(PROP_TOGGLE_BUTTON); }

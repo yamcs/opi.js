@@ -142,7 +142,7 @@ export class Meter extends Widget {
 
         this.drawNeedle(g, scaleBounds, ramp);
 
-        const font = Font.ARIAL_12_BOLD.scale(this.zoom);
+        const font = Font.ARIAL_12_BOLD.scale(this.scale);
         if (this.pv && this.pv.value !== undefined) {
             const stringValue = String(this.pv.value);
             const fm = g.measureText(stringValue, font);
@@ -183,10 +183,10 @@ export class Meter extends Widget {
         }
 
         const angle = toRadians(valuePosition);
-        const { needleWidth, gapBetweenNeedleScale, zoom } = this;
-        const p1 = rotatePoint(cx + area.width / 4, cy - needleWidth / 2 + (3 * zoom), cx, cy, angle);
+        const { needleWidth, gapBetweenNeedleScale, scale } = this;
+        const p1 = rotatePoint(cx + area.width / 4, cy - needleWidth / 2 + (3 * scale), cx, cy, angle);
         const p2 = rotatePoint(cx + ramp.getRadius() - gapBetweenNeedleScale, cy, cx, cy, angle);
-        const p3 = rotatePoint(cx + area.width / 4, cy + needleWidth / 2 - (3 * zoom), cx, cy, angle);
+        const p3 = rotatePoint(cx + area.width / 4, cy + needleWidth / 2 - (3 * scale), cx, cy, angle);
         g.fillPath({
             color: this.needleColor,
             path: new Path(p1.x, p1.y)
@@ -197,15 +197,15 @@ export class Meter extends Widget {
     }
 
     get needleWidth() {
-        return this.zoom * NEEDLE_WIDTH;
+        return this.scale * NEEDLE_WIDTH;
     }
 
     get gapBetweenNeedleScale() {
-        return this.zoom * GAP_BTW_NEEDLE_SCALE;
+        return this.scale * GAP_BTW_NEEDLE_SCALE;
     }
 
     get rampWidth() {
-        return this.zoom * RAMP_WIDTH;
+        return this.scale * RAMP_WIDTH;
     }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
@@ -213,7 +213,7 @@ export class Meter extends Widget {
     get colorHi(): Color { return this.properties.getValue(PROP_COLOR_HI); }
     get colorHiHi(): Color { return this.properties.getValue(PROP_COLOR_HIHI); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get levelLo(): number { return this.properties.getValue(PROP_LEVEL_LO); }
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
@@ -225,7 +225,7 @@ export class Meter extends Widget {
     get needleColor(): Color { return this.properties.getValue(PROP_NEEDLE_COLOR); }
     get rampGradient(): boolean { return this.properties.getValue(PROP_RAMP_GRADIENT); }
     get scaleFont(): Font {
-        return this.properties.getValue(PROP_SCALE_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale);
     }
     get showLo(): boolean { return this.properties.getValue(PROP_SHOW_LO); }
     get showLoLo(): boolean { return this.properties.getValue(PROP_SHOW_LOLO); }

@@ -95,7 +95,7 @@ export class CheckBox extends Widget {
         area.addRect(this.x, this.y, this.width, this.height);
 
         const toggled = this.booleanValue;
-        const { boxSize, gap, zoom } = this;
+        const { boxSize, gap, scale } = this;
 
         let backgroundColor = this.backgroundColor;
         if (this.hovered) {
@@ -108,32 +108,32 @@ export class CheckBox extends Widget {
             width: boxSize,
             height: boxSize,
         };
-        const gradient = g.createLinearGradient(box.x, box.y + (1 * zoom), box.x, box.y + box.height);
+        const gradient = g.createLinearGradient(box.x, box.y + (1 * scale), box.x, box.y + box.height);
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, backgroundColor.toString());
         g.fillRect({
             ...box,
-            rx: 2 * zoom,
-            ry: 2 * zoom,
+            rx: 2 * scale,
+            ry: 2 * scale,
             gradient,
         });
         g.strokeRect({
-            x: box.x + (0.5 * zoom),
-            y: box.y + (0.5 * zoom),
-            width: box.width - (1 * zoom),
-            height: box.height - (1 * zoom),
-            rx: 2 * zoom,
-            ry: 2 * zoom,
+            x: box.x + (0.5 * scale),
+            y: box.y + (0.5 * scale),
+            width: box.width - (1 * scale),
+            height: box.height - (1 * scale),
+            rx: 2 * scale,
+            ry: 2 * scale,
             color: BOX_BORDER_COLOR,
         });
 
         if (toggled) {
             g.strokePath({
-                lineWidth: 3 * zoom,
+                lineWidth: 3 * scale,
                 color: this.selectedColor,
-                path: new Path(box.x + (3 * zoom), box.y + Math.floor(boxSize * 0.45))
-                    .lineTo(box.x + Math.floor(boxSize * 0.45), box.y + boxSize * 3 / 4 - (1 * zoom))
-                    .lineTo(box.x + boxSize - (2 * zoom), box.y + (3 * zoom))
+                path: new Path(box.x + (3 * scale), box.y + Math.floor(boxSize * 0.45))
+                    .lineTo(box.x + Math.floor(boxSize * 0.45), box.y + boxSize * 3 / 4 - (1 * scale))
+                    .lineTo(box.x + boxSize - (2 * scale), box.y + (3 * scale))
             });
         }
 
@@ -149,8 +149,8 @@ export class CheckBox extends Widget {
             });
         } else {
             g.fillText({
-                x: box.x + box.width + gap + (1 * zoom),
-                y: box.y + box.height / 2 + (1 * zoom),
+                x: box.x + box.width + gap + (1 * scale),
+                y: box.y + box.height / 2 + (1 * scale),
                 align: 'left',
                 baseline: 'middle',
                 color: Color.BUTTON_LIGHTEST,
@@ -170,18 +170,18 @@ export class CheckBox extends Widget {
     }
 
     get boxSize() {
-        return this.zoom * BOX_SIZE;
+        return this.scale * BOX_SIZE;
     }
 
     get gap() {
-        return this.zoom * GAP;
+        return this.scale * GAP;
     }
 
     get bit(): number { return this.properties.getValue(PROP_BIT); }
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
     get selectedColor(): Color { return this.properties.getValue(PROP_SELECTED_COLOR); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get label(): string { return this.properties.getValue(PROP_LABEL); }
 }

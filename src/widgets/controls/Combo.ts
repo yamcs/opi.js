@@ -68,7 +68,7 @@ export class Combo extends Widget {
     }
 
     draw(g: Graphics) {
-        let bounds = shrink(this.bounds, 2 * this.zoom);
+        let bounds = shrink(this.bounds, 2 * this.scale);
         g.fillRect({
             ...bounds,
             color: this.backgroundColor,
@@ -84,7 +84,7 @@ export class Combo extends Widget {
 
         if (this.pv?.value && this.items.indexOf(this.pv.value) !== -1) {
             g.fillText({
-                x: (5 * this.zoom) + bounds.x,
+                x: (5 * this.scale) + bounds.x,
                 y: bounds.y + (bounds.height / 2),
                 align: 'left',
                 baseline: 'middle',
@@ -97,7 +97,7 @@ export class Combo extends Widget {
         const { selectorWidth } = this;
         const size = Math.min(bounds.height, selectorWidth / 2);
         const head: Point = {
-            x: bounds.x + bounds.width - selectorWidth - (5 * this.zoom) + (selectorWidth / 2),
+            x: bounds.x + bounds.width - selectorWidth - (5 * this.scale) + (selectorWidth / 2),
             y: bounds.y + ((bounds.height - size) / 2) + size,
         };
         g.fillPath({
@@ -127,14 +127,14 @@ export class Combo extends Widget {
             textHeight = Math.max(textHeight, fm.height);
         }
 
-        const { zoom } = this;
-        const padding = 5 * zoom;
+        const { scale } = this;
+        const padding = 5 * scale;
         const itemHeight = padding + textHeight + padding;
         const box: Bounds = {
-            x: this.bounds.x + (5 * zoom),
-            y: this.bounds.y + this.bounds.height - (5 * zoom),
+            x: this.bounds.x + (5 * scale),
+            y: this.bounds.y + this.bounds.height - (5 * scale),
             width: padding + textWidth + padding,
-            height: itemHeight * this.items.length + (2 * zoom) + (2 * zoom),
+            height: itemHeight * this.items.length + (2 * scale) + (2 * scale),
         };
         g.fillRect({
             ...box,
@@ -143,7 +143,7 @@ export class Combo extends Widget {
         for (let i = 0; i < this.items.length; i++) {
             const itemBounds = {
                 x: box.x,
-                y: box.y + (2 * zoom) + (i * itemHeight),
+                y: box.y + (2 * scale) + (i * itemHeight),
                 width: box.width,
                 height: itemHeight,
             };
@@ -162,14 +162,14 @@ export class Combo extends Widget {
         g.strokeRect({
             ...box,
             color: BORDER_COLOR,
-            lineWidth: 1 * zoom,
+            lineWidth: 1 * scale,
             crispen: true,
         });
 
         for (let i = 0; i < this.items.length; i++) {
             g.fillText({
                 x: box.x + padding,
-                y: box.y + (2 * zoom) + (i * itemHeight) + (itemHeight / 2),
+                y: box.y + (2 * scale) + (i * itemHeight) + (itemHeight / 2),
                 font: this.font,
                 color: this.foregroundColor,
                 align: 'left',
@@ -186,12 +186,12 @@ export class Combo extends Widget {
     }
 
     get selectorWidth() {
-        return this.zoom * SELECTOR_WIDTH;
+        return this.scale * SELECTOR_WIDTH;
     }
 
     get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get items(): string[] { return this.properties.getValue(PROP_ITEMS); }
     get itemsFromPV(): boolean { return this.properties.getValue(PROP_ITEMS_FROM_PV); }

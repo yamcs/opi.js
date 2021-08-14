@@ -1,6 +1,6 @@
 import { Color } from './Color';
 import { EventHandler } from './EventHandler';
-import { OPIEvent, OPIEventHandlers, OPIEventMap, SelectionEvent, ZoomEvent } from './events';
+import { OPIEvent, OPIEventHandlers, OPIEventMap, ScaleEvent, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitCanvas';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
@@ -88,7 +88,7 @@ export class Display {
     private _showOutline = false;
     private _showRuler = false;
     private _selection: string[] = [];
-    private _zoom = 1;
+    private _scale = 1;
 
     /**
      * Prefix for external path references (images, scripts, dispays)
@@ -102,7 +102,7 @@ export class Display {
         opendisplay: [],
         openpv: [],
         selection: [],
-        zoom: [],
+        scale: [],
     };
 
     private displayRegion: HitRegionSpecification;
@@ -438,12 +438,12 @@ export class Display {
         this.requestRepaint();
     }
 
-    get zoom() { return this._zoom; }
-    set zoom(zoom: number) {
-        this._zoom = zoom;
+    get scale() { return this._scale; }
+    set scale(scale: number) {
+        this._scale = scale;
         this.requestRepaint();
-        const zoomEvent: ZoomEvent = { zoom };
-        this.fireEvent('zoom', zoomEvent);
+        const scaleEvent: ScaleEvent = { scale };
+        this.fireEvent('scale', scaleEvent);
     }
 
     get widgets() { return this.instance ? this.instance.widgets : []; }

@@ -4,7 +4,7 @@ export class AutoScaleWidgets {
         /**
          * If true, ScaleOptions from widgets are applied.
          *
-         * This is not the same as optical zoom, but acts more like
+         * This is not the same as "scaling", but acts more like
          * a stretch to fillup some externally set dimension. It somehow
          * distributes space among all the widgets (repositioning x/y coordinates),
          * and then the widgets that mark themselves as "scalable", may also have

@@ -102,7 +102,7 @@ export class Label extends Widget {
     }
 
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
     get vertAlignment(): number { return this.properties.getValue(PROP_VERTICAL_ALIGNMENT); }

@@ -62,10 +62,10 @@ export class TextUpdate extends Widget {
         ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
         ctx.font = this.font.getFontString();
 
-        const { zoom } = this;
+        const { scale } = this;
         let textBounds = this.area;
         if (this.borderAlarmSensitive) {
-            textBounds = shrink(textBounds, 2 * zoom, 2 * zoom);
+            textBounds = shrink(textBounds, 2 * scale, 2 * scale);
         }
 
         let x = textBounds.x;
@@ -99,7 +99,7 @@ export class TextUpdate extends Widget {
     }
 
     get font(): Font {
-        return this.properties.getValue(PROP_FONT).scale(this.zoom);
+        return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
     get formatType(): number { return this.properties.getValue(PROP_FORMAT_TYPE); }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
