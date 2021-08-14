@@ -3,6 +3,7 @@ import { Color } from './Color';
 import { Font } from './Font';
 import { MacroSet } from './macros';
 import { BooleanExpression, RuleInput, RuleSet } from './rules';
+import { AutoScaleWidgets, ScaleOptions } from './scale';
 import { ScriptInput, ScriptSet } from './scripts';
 
 export class XMLNode {
@@ -284,6 +285,24 @@ export class XMLNode {
             }
         }
         return scripts;
+    }
+
+    getScaleOptions(name: string) {
+        const node = this.getNode(name);
+        return new ScaleOptions(
+            node.getBoolean('width_scalable'),
+            node.getBoolean('height_scalable'),
+            node.getBoolean('keep_wh_ratio'),
+        );
+    }
+
+    getAutoScaleWidgets(name: string) {
+        const node = this.getNode(name);
+        return new AutoScaleWidgets(
+            node.getBoolean('auto_scale_widgets'),
+            node.getInt('min_width'),
+            node.getInt('min_height'),
+        );
     }
 
     getRules(name: string) {

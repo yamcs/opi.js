@@ -4,6 +4,7 @@ import { Font } from './Font';
 import { MacroSet } from './macros';
 import { Point } from './positioning';
 import { RuleSet } from './rules';
+import { AutoScaleWidgets, ScaleOptions } from './scale';
 import { ScriptSet } from './scripts';
 import { Widget } from './Widget';
 import { XMLNode } from './XMLNode';
@@ -53,6 +54,10 @@ export class PropertySet {
                     property.value = node.getRules(property.name);
                 } else if (property instanceof ScriptsProperty) {
                     property.value = node.getScripts(property.name);
+                } else if (property instanceof ScaleOptionsProperty) {
+                    property.value = node.getScaleOptions(property.name);
+                } else if (property instanceof AutoScaleWidgetsProperty) {
+                    property.value = node.getAutoScaleWidgets(property.name);
                 } else if (property instanceof StringProperty) {
                     // The non-raw value is set below (after reading in other properties)
                     (property as StringProperty).rawValue = node.getString(property.name);
@@ -186,4 +191,10 @@ export class StringListProperty extends Property<string[]> {
 }
 
 export class RulesProperty extends Property<RuleSet> {
+}
+
+export class ScaleOptionsProperty extends Property<ScaleOptions> {
+}
+
+export class AutoScaleWidgetsProperty extends Property<AutoScaleWidgets> {
 }

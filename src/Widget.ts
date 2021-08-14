@@ -5,9 +5,10 @@ import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
 import { Bounds, toBorderBox } from './positioning';
-import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntProperty, PropertySet, RulesProperty, ScriptsProperty, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntProperty, PropertySet, RulesProperty, ScaleOptionsProperty, ScriptsProperty, StringProperty } from './properties';
 import { AlarmSeverity, PV } from './pv/PV';
 import { RuleSet } from './rules';
+import { ScaleOptions } from './scale';
 import { ScriptEngine } from './scripting/ScriptEngine';
 import { ScriptSet } from './scripts';
 import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
@@ -26,6 +27,7 @@ const PROP_HEIGHT = 'height';
 const PROP_NAME = 'name';
 const PROP_PV_NAME = 'pv_name';
 const PROP_RULES = 'rules';
+const PROP_SCALE_OPTIONS = 'scale_options';
 const PROP_SCRIPTS = 'scripts';
 const PROP_TEXT = 'text';
 const PROP_TRANSPARENT = 'transparent';
@@ -74,6 +76,7 @@ export abstract class Widget {
             new StringProperty(PROP_WUID),
             new IntProperty(PROP_X),
             new IntProperty(PROP_Y),
+            new ScaleOptionsProperty(PROP_SCALE_OPTIONS),
         ]);
     }
 
@@ -688,6 +691,7 @@ export abstract class Widget {
     get actions(): ActionSet { return this.properties.getValue(PROP_ACTIONS); }
     get scripts(): ScriptSet { return this.properties.getValue(PROP_SCRIPTS); }
     get rules(): RuleSet { return this.properties.getValue(PROP_RULES); }
+    get scaleOptions(): ScaleOptions { return this.properties.getValue(PROP_SCALE_OPTIONS); }
 
     get text(): string {
         if (this.display.editMode) {

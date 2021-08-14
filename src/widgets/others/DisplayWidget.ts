@@ -1,10 +1,20 @@
+import { Display } from '../../Display';
 import { Graphics } from '../../Graphics';
 import { Bounds } from '../../positioning';
+import { AutoScaleWidgetsProperty } from '../../properties';
+import { AutoScaleWidgets } from '../../scale';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { Connection } from './Connection';
 
+const PROP_AUTO_SCALE_WIDGETS = 'auto_scale_widgets';
+
 export class DisplayWidget extends AbstractContainerWidget {
+
+    constructor(display: Display, parent?: AbstractContainerWidget) {
+        super(display, parent);
+        this.properties.add(new AutoScaleWidgetsProperty(PROP_AUTO_SCALE_WIDGETS));
+    }
 
     parseNode(node: XMLNode) {
         super.parseNode(node);
@@ -50,5 +60,9 @@ export class DisplayWidget extends AbstractContainerWidget {
             y2 = Math.max(y2, widget.holderY + widget.holderHeight);
         }
         return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
+    }
+
+    get autoScaleWidgets(): AutoScaleWidgets {
+        return this.properties.getValue(PROP_AUTO_SCALE_WIDGETS);
     }
 }
