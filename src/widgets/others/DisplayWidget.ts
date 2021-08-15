@@ -48,16 +48,17 @@ export class DisplayWidget extends AbstractContainerWidget {
         }
     }
 
-    measureContentBounds(): Bounds {
+    measureContentBounds(scaled: boolean): Bounds {
         let x1 = 0;
         let y1 = 0;
         let x2 = 0;
         let y2 = 0;
         for (const widget of this.widgets) {
-            x1 = Math.min(x1, widget.holderX);
-            y1 = Math.min(y1, widget.holderY);
-            x2 = Math.max(x2, widget.holderX + widget.holderWidth);
-            y2 = Math.max(y2, widget.holderY + widget.holderHeight);
+            const bounds = scaled ? widget.bounds : widget.unscaledBounds;
+            x1 = Math.min(x1, bounds.x);
+            y1 = Math.min(y1, bounds.y);
+            x2 = Math.max(x2, bounds.x + bounds.width);
+            y2 = Math.max(y2, bounds.y + bounds.height);
         }
         return { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
     }

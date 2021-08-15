@@ -11,6 +11,11 @@ export abstract class AbstractContainerWidget extends Widget {
     _widgets: Widget[] = [];
     _connections: Connection[] = [];
 
+    /**
+     * Scale relative to immediate parent.
+     */
+    relativeScale = 1;
+
     constructor(display: Display, parent?: AbstractContainerWidget) {
         super(display, parent);
         this.properties.add(new MacrosProperty(PROP_MACROS));

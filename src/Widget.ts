@@ -504,6 +504,15 @@ export abstract class Widget {
         };
     }
 
+    get unscaledBounds(): Bounds {
+        return {
+            x: this.properties.getValue(PROP_X),
+            y: this.properties.getValue(PROP_Y),
+            width: this.properties.getValue(PROP_WIDTH),
+            height: this.properties.getValue(PROP_HEIGHT),
+        };
+    }
+
     get absoluteArea(): Bounds {
         const bounds = this.absoluteBounds;
         bounds.x += (this.x - this.holderX);
@@ -685,7 +694,13 @@ export abstract class Widget {
     }
 
     get scale() {
-        return this.display.scale;
+        let scale = this.display.scale;
+        let parent = this.parent;
+        while (parent) {
+            scale *= parent.relativeScale;
+            parent = parent.parent;
+        }
+        return scale;
     }
 
     get wuid(): string { return this.properties.getValue(PROP_WUID); }

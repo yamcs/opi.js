@@ -155,8 +155,7 @@ export class Graphics {
     }
 
     copyFitted(g: Graphics, dx: number, dy: number, dw: number, dh: number) {
-        const sw = g.canvas.width;
-        const sh = g.canvas.height;
+        const { width: sw, height: sh } = g.canvas;
         const ratio = sw / sh;
         let fitw = dw;
         let fith = fitw / ratio;
