@@ -1,6 +1,6 @@
 import { Display } from '../../Display';
-import { Graphics, Path } from '../../Graphics';
-import { convertPolarToCartesian2, findRelativePoint, toRadians } from '../../positioning';
+import { Graphics } from '../../Graphics';
+import { toRadians } from '../../positioning';
 import { BooleanProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -39,23 +39,17 @@ export class Arc extends Widget {
         const startAngle = -toRadians(this.startAngle);
         const endAngle = -toRadians(this.totalAngle + this.startAngle);
 
-        if (!this.transparent && this.fill) {
-            if (this.totalAngle < 180) {
-                this.drawSlice(g, startAngle, endAngle);
-            } else { // Draw two slices
-                let midAngle = -toRadians(this.startAngle + 180 + 2 /* overlap */);
-                // this.drawSlice(g, startAngle, midAngle);
-                g.fillEllipse({
-                    cx, cy, rx, ry, startAngle, endAngle: midAngle,
-                    anticlockwise: true,
-                    color: this.alarmSensitiveBackgroundColor,
-                });
-                midAngle = -toRadians(this.startAngle + 180);
-                this.drawSlice(g, midAngle, endAngle);
-            }
+        if (this.fill) {
+            // Path tricks to draw a wedge
+            g.ctx.fillStyle = this.alarmSensitiveBackgroundColor.toString();
+            g.ctx.beginPath();
+            g.ctx.moveTo(cx, cy);
+            g.ctx.ellipse(cx, cy, rx, ry, 0, startAngle, endAngle, true);
+            g.ctx.closePath();
+            g.ctx.fill();
         }
 
-        if (this.lineWidth && this.totalAngle !== 0 && this.totalAngle !== 360) {
+        if (this.lineWidth && this.totalAngle !== 0) {
             let dash;
             const { scale } = this;
             if (this.lineStyle === 0) { // Solid
@@ -76,33 +70,6 @@ export class Arc extends Widget {
                 dash,
             });
         }
-    }
-
-    private drawSlice(g: Graphics, startAngle: number, endAngle: number) {
-        const cx = this.x + (this.width / 2);
-        const cy = this.y + (this.height / 2);
-        const rx = this.width / 2;
-        const ry = this.height / 2;
-
-        const p1 = convertPolarToCartesian2(rx, ry, startAngle);
-        const p2 = convertPolarToCartesian2(rx, ry, endAngle);
-
-        g.ctx.save();
-        g.ctx.beginPath();
-        g.ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
-        g.ctx.clip();
-
-        const triangleP1 = findRelativePoint({ x: 0, y: 0 }, p1, 1000);
-        const triangleP2 = findRelativePoint({ x: 0, y: 0 }, p2, 1000);
-
-        g.fillPath({
-            color: this.alarmSensitiveBackgroundColor,
-            path: new Path(cx, cy)
-                .lineTo(cx + triangleP1.x, cy + triangleP1.y)
-                .lineTo(cx + triangleP2.x, cy + triangleP2.y)
-                .closePath()
-        });
-        g.ctx.restore();
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
