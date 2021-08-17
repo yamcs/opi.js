@@ -89,6 +89,7 @@ export class Display {
     private _showRuler = false;
     private _selection: string[] = [];
     private _scale = 1;
+    private _transparent = false;
 
     /**
      * Prefix for external path references (images, scripts, dispays)
@@ -165,6 +166,10 @@ export class Display {
         }
         this.g.resize(this.rootPanel.clientWidth, this.rootPanel.clientHeight);
 
+        if (this.transparent) {
+            this.g.clearCanvas();
+        }
+
         if (this.editMode) {
             const patternCanvas = document.createElement('canvas');
             const patternContext = patternCanvas.getContext('2d')!;
@@ -182,7 +187,7 @@ export class Display {
                     color: this.instance.backgroundColor
                 });
             }
-        } else {
+        } else if (!this.transparent) {
             this.g.fillCanvas(this.instance?.backgroundColor || Color.WHITE);
         }
 
@@ -444,6 +449,12 @@ export class Display {
         this.requestRepaint();
         const scaleEvent: ScaleEvent = { scale };
         this.fireEvent('scale', scaleEvent);
+    }
+
+    get transparent() { return this._transparent; }
+    set transparent(transparent: boolean) {
+        this._transparent = transparent;
+        this.requestRepaint();
     }
 
     get widgets() { return this.instance ? this.instance.widgets : []; }

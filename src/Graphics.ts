@@ -180,6 +180,10 @@ export class Graphics {
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+
     /**
      * Perform a CSS-level rescale of the Canvas.
      *
