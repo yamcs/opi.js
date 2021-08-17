@@ -74,8 +74,42 @@ export class TabbedContainer extends AbstractContainerWidget {
         }
     }
 
+    private measureLabelHeight(g: Graphics) {
+        const { scale } = this;
+        const lineWidth = 1 * scale;
+        let h = this.minimumTabHeight;
+        for (let i = 0; i < this.tabs.length; i++) {
+            const tab = this.tabs[i];
+            const font = tab.font.scale(scale);
+            const fm = g.measureText(tab.title, font);
+            const labelHeight = fm.height + lineWidth;
+            if (labelHeight > h) {
+                h = labelHeight;
+            }
+        }
+        return h + this.margin;
+    }
+
+    private measureLabelWidth(g: Graphics) {
+        const { scale } = this;
+        const lineWidth = 1 * scale;
+        let w = this.minimumTabWidth;
+        for (let i = 0; i < this.tabs.length; i++) {
+            const tab = this.tabs[i];
+            const font = tab.font.scale(scale);
+            const fm = g.measureText(tab.title, font);
+            const labelWidth = fm.width + lineWidth;
+            if (labelWidth > w) {
+                w = labelWidth;
+            }
+        }
+        return w + this.margin;
+    }
+
     private drawHorizontalTabs(g: Graphics) {
         const { margin, gap, scale } = this;
+        const labelHeight = this.measureLabelHeight(g);
+        const lineWidth = 1 * scale;
         let x = this.x;
         for (let i = 0; i < this.tabs.length; i++) {
             const tab = this.tabs[i];
@@ -89,14 +123,14 @@ export class TabbedContainer extends AbstractContainerWidget {
             if (this.activeTab === i) {
                 rectX = x;
                 rectY = this.y;
-                rectWidth = fm.width + margin + gap;
-                rectHeight = this.minimumTabHeight;
+                rectWidth = (fm.width + lineWidth) + margin + gap;
+                rectHeight = labelHeight;
                 rectFill = tab.backgroundColor;
             } else {
                 rectX = x + gap;
                 rectY = this.y + (2 * scale);
-                rectWidth = fm.width + margin - gap;
-                rectHeight = this.minimumTabHeight - (2 * scale);
+                rectWidth = (fm.width + lineWidth) + margin - gap;
+                rectHeight = labelHeight - (2 * scale);
                 rectFill = this.darken(tab.backgroundColor);
             }
             g.fillRect({
@@ -131,13 +165,13 @@ export class TabbedContainer extends AbstractContainerWidget {
                 text: tab.title,
             });
 
-            x += fm.width + margin - 1;
+            x += fm.width + lineWidth + margin - (1 * scale);
 
             if (this.activeTab === i) {
                 const contentX = this.x;
-                const contentY = this.y + this.minimumTabHeight - 1;
-                const contentWidth = this.width - 1;
-                const contentHeight = this.height - this.minimumTabHeight;
+                const contentY = this.y + labelHeight;
+                const contentWidth = this.width;
+                const contentHeight = this.height - labelHeight;
                 g.fillRect({
                     x: contentX,
                     y: contentY,
@@ -153,7 +187,7 @@ export class TabbedContainer extends AbstractContainerWidget {
                 activeWidget.draw(offscreen);
                 activeWidget.drawDecoration(offscreen);
                 activeWidget.drawOverlay(offscreen);
-                g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
+                g.copy(offscreen, contentX, contentY);
             } else {
                 const inactiveWidget = this.widgets[i];
                 inactiveWidget.destroy();
@@ -163,18 +197,14 @@ export class TabbedContainer extends AbstractContainerWidget {
 
     private drawVerticalTabs(g: Graphics) {
         const { margin, gap, scale } = this;
-        let tabWidth = 0;
-        for (const tab of this.tabs) {
-            const fm = g.measureText(tab.title, tab.font.scale(scale));
-            if (fm.width > tabWidth) {
-                tabWidth = fm.width;
-            }
-        }
-
+        const tabWidth = this.measureLabelWidth(g);
+        const lineWidth = 1 * scale;
         let y = this.y;
         for (let i = 0; i < this.tabs.length; i++) {
             const tab = this.tabs[i];
             const font = tab.font.scale(scale);
+            const fm = g.measureText(tab.title, font);
+            const labelHeight = Math.max(fm.height + lineWidth + lineWidth, this.minimumTabHeight);
             let rectX;
             let rectY;
             let rectWidth;
@@ -184,13 +214,13 @@ export class TabbedContainer extends AbstractContainerWidget {
                 rectX = this.x;
                 rectY = y;
                 rectWidth = tabWidth;
-                rectHeight = this.minimumTabHeight + margin + gap;
+                rectHeight = labelHeight + margin + gap;
                 rectFill = tab.backgroundColor;
             } else {
                 rectX = this.x + (2 * scale);
                 rectY = y + gap;
                 rectWidth = tabWidth - (2 * scale);
-                rectHeight = this.minimumTabHeight + margin - gap;
+                rectHeight = labelHeight + margin - gap;
                 rectFill = this.darken(tab.backgroundColor);
             }
             g.fillRect({
@@ -225,13 +255,13 @@ export class TabbedContainer extends AbstractContainerWidget {
                 text: tab.title,
             });
 
-            y += this.minimumTabHeight + margin - 1;
+            y += labelHeight + margin - (1 * scale);
 
             if (this.activeTab === i) {
-                const contentX = this.x + tabWidth - 1;
+                const contentX = this.x + tabWidth - (1 * scale);
                 const contentY = this.y;
                 const contentWidth = this.width - tabWidth;
-                const contentHeight = this.height - 1;
+                const contentHeight = this.height - (1 * scale);
                 g.fillRect({
                     x: contentX,
                     y: contentY,
@@ -247,7 +277,7 @@ export class TabbedContainer extends AbstractContainerWidget {
                 activeWidget.draw(offscreen);
                 activeWidget.drawDecoration(offscreen);
                 activeWidget.drawOverlay(offscreen);
-                g.copyFitted(offscreen, contentX, contentY, contentWidth, contentHeight);
+                g.copy(offscreen, contentX, contentY);
             } else {
                 const inactiveWidget = this.widgets[i];
                 inactiveWidget.destroy();
@@ -268,6 +298,10 @@ export class TabbedContainer extends AbstractContainerWidget {
 
     get gap() {
         return this.scale * 2;
+    }
+
+    get minimumTabWidth(): number {
+        return this.scale * 20;
     }
 
     get minimumTabHeight(): number {
