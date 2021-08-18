@@ -48,12 +48,13 @@ export class Rectangle extends Widget {
 
     private drawBackground(g: Graphics) {
         if (!this.transparent) {
+            const backgroundColor = this.alarmSensitiveBackgroundColor;
             if (this.gradient) {
                 const x2 = this.horizontalFill ? this.x : this.x + this.width;
                 const y2 = this.horizontalFill ? this.y + this.height : this.y;
                 const gradient = g.createLinearGradient(this.x, this.y, x2, y2);
                 gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
-                gradient.addColorStop(1, this.backgroundColor.toString());
+                gradient.addColorStop(1, backgroundColor.toString());
                 g.fillRect({
                     ... this.area,
                     gradient,
@@ -61,7 +62,7 @@ export class Rectangle extends Widget {
             } else {
                 g.fillRect({
                     ... this.area,
-                    color: this.backgroundColor,
+                    color: backgroundColor,
                 });
             }
         }
@@ -106,15 +107,16 @@ export class Rectangle extends Widget {
         g.ctx.clip();
 
         // With clip active, draw the actual fill
+        const foregroundColor = this.alarmSensitiveForegroundColor;
         if (this.gradient) {
             const x2 = this.horizontalFill ? box.x : box.x + box.width;
             const y2 = this.horizontalFill ? box.y + box.height : box.y;
             const gradient = g.createLinearGradient(box.x, box.y, x2, y2);
             gradient.addColorStop(0, this.foregroundGradientStartColor.toString());
-            gradient.addColorStop(1, this.foregroundColor.toString());
+            gradient.addColorStop(1, foregroundColor.toString());
             g.fillRect({ ...box, gradient });
         } else {
-            g.fillRect({ ...box, color: this.foregroundColor });
+            g.fillRect({ ...box, color: foregroundColor });
         }
 
         // Reset clip

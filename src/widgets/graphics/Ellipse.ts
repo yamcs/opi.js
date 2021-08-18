@@ -49,15 +49,16 @@ export class Ellipse extends Widget {
         const ry = this.height / 2;
 
         if (!this.transparent) {
+            const backgroundColor = this.alarmSensitiveBackgroundColor;
             if (this.gradient) {
                 const x2 = this.horizontalFill ? this.x : this.x + this.width;
                 const y2 = this.horizontalFill ? this.y + this.height : this.y;
                 const gradient = g.createLinearGradient(this.x, this.y, x2, y2);
                 gradient.addColorStop(0, this.backgroundGradientStartColor.toString());
-                gradient.addColorStop(1, this.backgroundColor.toString());
+                gradient.addColorStop(1, backgroundColor.toString());
                 g.fillEllipse({ cx, cy, rx, ry, gradient });
             } else {
-                g.fillEllipse({ cx, cy, rx, ry, color: this.backgroundColor });
+                g.fillEllipse({ cx, cy, rx, ry, color: backgroundColor });
             }
         }
 
@@ -65,12 +66,14 @@ export class Ellipse extends Widget {
             if (this.lineStyle === 0) {
                 g.strokeEllipse({
                     cx, cy, rx, ry,
-                    color: this.lineColor, lineWidth: this.lineWidth,
+                    color: this.lineColor,
+                    lineWidth: this.lineWidth,
                 });
             } else if (this.lineStyle === 1) {
                 g.strokeEllipse({
                     cx, cy, rx, ry,
-                    color: this.lineColor, lineWidth: this.lineWidth,
+                    color: this.lineColor,
+                    lineWidth: this.lineWidth,
                     dash: [6, 2],
                 });
             } else {
@@ -104,15 +107,16 @@ export class Ellipse extends Widget {
         const rx = (this.width - this.lineWidth) / 2;
         const ry = (this.height - this.lineWidth) / 2;
 
+        const foregroundColor = this.alarmSensitiveForegroundColor;
         if (this.gradient) {
             const x2 = this.horizontalFill ? this.x : this.x + this.width;
             const y2 = this.horizontalFill ? this.y + this.height : this.y;
             const gradient = g.createLinearGradient(this.x, this.y, x2, y2);
             gradient.addColorStop(0, this.foregroundGradientStartColor.toString());
-            gradient.addColorStop(1, this.foregroundColor.toString());
+            gradient.addColorStop(1, foregroundColor.toString());
             g.fillEllipse({ cx, cy, rx, ry, gradient });
         } else {
-            g.fillEllipse({ cx, cy, rx, ry, color: this.foregroundColor });
+            g.fillEllipse({ cx, cy, rx, ry, color: foregroundColor });
         }
 
         // Reset clip
