@@ -10,6 +10,7 @@ const PROP_ALPHA = 'alpha';
 const PROP_FILL_LEVEL = 'fill_level';
 const PROP_HORIZONTAL_FILL = 'horizontal_fill';
 const PROP_LINE_COLOR = 'line_color';
+const PROP_LINE_STYLE = 'line_style';
 const PROP_LINE_WIDTH = 'line_width';
 const PROP_POINTS = 'points';
 
@@ -22,6 +23,7 @@ export class Polygon extends Widget {
         this.properties.add(new FloatProperty(PROP_FILL_LEVEL));
         this.properties.add(new BooleanProperty(PROP_HORIZONTAL_FILL));
         this.properties.add(new ColorProperty(PROP_LINE_COLOR));
+        this.properties.add(new IntProperty(PROP_LINE_STYLE));
         this.properties.add(new PointsProperty(PROP_POINTS, []));
     }
 
@@ -47,20 +49,30 @@ export class Polygon extends Widget {
 
     draw(g: Graphics) {
         g.ctx.globalAlpha = this.alpha / 255;
-        if (this.transparent) {
-            g.ctx.globalAlpha = 0;
-        }
 
         const path = Path.fromPoints(this.points).closePath();
-
-        g.fillPath({ path, color: this.backgroundColor });
+        if (!this.transparent) {
+            const backgroundColor = this.alarmSensitiveBackgroundColor;
+            g.fillPath({ path, color: backgroundColor });
+        }
 
         if (this.lineWidth) {
-            g.strokePath({
-                path,
-                lineWidth: this.lineWidth,
-                color: this.lineColor,
-            });
+            if (this.lineStyle === 0) {
+                g.strokePath({
+                    path,
+                    lineWidth: this.lineWidth,
+                    color: this.lineColor,
+                });
+            } else if (this.lineStyle === 2) {
+                g.strokePath({
+                    path,
+                    lineWidth: this.lineWidth,
+                    color: this.lineColor,
+                    dash: [6, 2],
+                });
+            } else {
+                console.warn(`Unsupported polygon line style ${this.lineStyle}`);
+            }
         }
 
         if (this.fillLevel) {
@@ -92,7 +104,8 @@ export class Polygon extends Widget {
         g.ctx.clip();
 
         // With clip active, draw the actual fill
-        g.fillPath({ path, color: this.foregroundColor });
+        const foregroundColor = this.alarmSensitiveForegroundColor;
+        g.fillPath({ path, color: foregroundColor });
 
         // Reset clip
         g.ctx.restore();
@@ -105,6 +118,7 @@ export class Polygon extends Widget {
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }
+    get lineStyle(): number { return this.properties.getValue(PROP_LINE_STYLE); }
     get points(): Point[] {
         return scalePoints(this.properties.getValue(PROP_POINTS), this.scale);
     }
