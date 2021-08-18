@@ -343,7 +343,7 @@ export class Graphics {
         } else {
             this.ctx.fillStyle = fill.gradient;
         }
-        this.ctx.fill();
+        this.ctx.fill("evenodd"); // Match with Draw2D behavior
     }
 
     addHitRegion(region: HitRegionSpecification) {
