@@ -32,6 +32,7 @@ import { Gauge } from './widgets/monitors/Gauge';
 import { ImageBooleanIndicator } from './widgets/monitors/ImageBooleanIndicator';
 import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
+import { Tank } from './widgets/monitors/Tank';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { XYGraph } from './widgets/monitors/XYGraph';
 import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
@@ -69,6 +70,7 @@ const TYPE_RECTANGLE = 'Rectangle';
 const TYPE_ROUNDED_RECTANGLE = 'Rounded Rectangle';
 const TYPE_SCROLLBAR = 'Scrollbar';
 const TYPE_TABBED_CONTAINER = 'Tabbed Container';
+const TYPE_TANK = 'Tank';
 const TYPE_TEXT_INPUT = 'Text Input';
 const TYPE_TEXT_UPDATE = 'Text Update';
 const TYPE_WEB_BROWSER = 'Web Browser';
@@ -338,6 +340,8 @@ export class Display {
                 return new Scrollbar(this, parent);
             case TYPE_TABBED_CONTAINER:
                 return new TabbedContainer(this, parent);
+            case TYPE_TANK:
+                return new Tank(this, parent);
             case TYPE_TEXT_INPUT:
                 return new TextInput(this, parent);
             case TYPE_TEXT_UPDATE:
