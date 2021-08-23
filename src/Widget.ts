@@ -127,7 +127,12 @@ export abstract class Widget {
     drawHolder(g: Graphics) {
         const { scale } = this;
         let insets = [0, 0, 0, 0]; // T L B R
-        switch (this.borderStyle) {
+
+        const alarmBorder = this.borderAlarmSensitive &&
+            (this.pv?.severity === AlarmSeverity.MINOR || this.pv?.severity === AlarmSeverity.MAJOR);
+
+        if (!alarmBorder) {
+            switch (this.borderStyle) {
             case 0: // Empty
                 // Not all widgets do this, so we shrink bounds inside the widget's draw
                 // if (this.borderAlarmSensitive) {
@@ -165,6 +170,7 @@ export abstract class Widget {
                 const i = this.borderWidth * 2;
                 insets = [i, i, i, i];
                 break;
+            }
         }
 
         // Shrink the available widget area
@@ -173,6 +179,26 @@ export abstract class Widget {
         this.width = this.holderWidth - insets[1] - insets[3];
         this.height = this.holderHeight - insets[0] - insets[2];
 
+        if (!alarmBorder) {
+            this.drawBorderStyle(g);
+        }
+
+        if (this.actions.isClickable()) {
+            const hitRegion = g.addHitRegion({
+                id: `${this.wuid}-holder`,
+                click: () => {
+                    for (const idx of this.actions.getClickActions()) {
+                        this.executeAction(idx);
+                    }
+                },
+                cursor: 'pointer'
+            });
+            hitRegion.addRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
+        }
+    }
+
+    private drawBorderStyle(g: Graphics) {
+        const { scale } = this;
         if (this.borderStyle === 0) { // No border
             // Ignore
         } else if (this.borderStyle === 1) { // Line
@@ -357,19 +383,6 @@ export abstract class Widget {
         } else {
             console.warn(`Unsupported border style: ${this.borderStyle}`);
         }
-
-        if (this.actions.isClickable()) {
-            const hitRegion = g.addHitRegion({
-                id: `${this.wuid}-holder`,
-                click: () => {
-                    for (const idx of this.actions.getClickActions()) {
-                        this.executeAction(idx);
-                    }
-                },
-                cursor: 'pointer'
-            });
-            hitRegion.addRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
-        }
     }
 
     drawDecoration(g: Graphics) {
@@ -406,12 +419,23 @@ export abstract class Widget {
         }
 
         if (this.borderAlarmSensitive) {
+            let dash;
+            if (this.borderStyle === 8) { // Dot
+                dash = [2 * scale, 2 * scale];
+            } else if (this.borderStyle === 9) { // Dash
+                dash = [6 * scale, 2 * scale];
+            } else if (this.borderStyle === 10) { // Dash Dot
+                dash = [6 * scale, 2 * scale, 2 * scale, 2 * scale];
+            } else if (this.borderStyle === 11) { // Dash Dot Dot
+                dash = [6 * scale, 2 * scale, 2 * scale, 2 * scale, 2 * scale, 2 * scale];
+            }
             if (this.pv?.severity === AlarmSeverity.MAJOR) {
                 g.strokeRect({
                     ... this.bounds,
                     lineWidth: 2 * scale,
                     color: Color.RED,
                     crispen: true,
+                    dash,
                 });
             } else if (this.pv?.severity === AlarmSeverity.MINOR) {
                 g.strokeRect({
@@ -419,6 +443,7 @@ export abstract class Widget {
                     lineWidth: 2 * scale,
                     color: Color.ORANGE,
                     crispen: true,
+                    dash
                 });
             } else if (this.pv?.severity === AlarmSeverity.INVALID) {
                 g.strokeRect({
