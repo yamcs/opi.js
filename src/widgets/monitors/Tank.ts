@@ -45,9 +45,9 @@ export class Tank extends Widget {
         this.properties.add(new ColorProperty(PROP_COLOR_LO));
         this.properties.add(new ColorProperty(PROP_COLOR_LOLO));
         this.properties.add(new ColorProperty(PROP_COLOR_FILLBACKGROUND));
+        this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new ColorProperty(PROP_FILL_COLOR));
         this.properties.add(new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false));
-        this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
         this.properties.add(new FloatProperty(PROP_LEVEL_HI));
         this.properties.add(new FloatProperty(PROP_LEVEL_HIHI));
         this.properties.add(new FloatProperty(PROP_LEVEL_LO));
@@ -74,10 +74,7 @@ export class Tank extends Widget {
         }
         const backgroundColor = this.alarmSensitiveBackgroundColor;
         if (!this.transparentBackground) {
-            g.fillRect({
-                ...area,
-                color: backgroundColor,
-            });
+            g.fillRect({ ...area, color: backgroundColor });
         }
 
         const foregroundColor = this.alarmSensitiveForegroundColor;
@@ -119,7 +116,7 @@ export class Tank extends Widget {
             const y = Math.round(linearScale.getValuePosition(this.levelLoLo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.RED,
+                color: this.colorLoLo,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -128,7 +125,7 @@ export class Tank extends Widget {
                 text: 'LOLO',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.RED,
+                color: this.colorLoLo,
                 font,
             });
         }
@@ -136,7 +133,7 @@ export class Tank extends Widget {
             const y = Math.round(linearScale.getValuePosition(this.levelLo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.ORANGE,
+                color: this.colorLo,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -145,7 +142,7 @@ export class Tank extends Widget {
                 text: 'LO',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.ORANGE,
+                color: this.colorLo,
                 font,
             });
         }
@@ -153,7 +150,7 @@ export class Tank extends Widget {
             const y = Math.round(linearScale.getValuePosition(this.levelHi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.ORANGE,
+                color: this.colorHi,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -162,15 +159,15 @@ export class Tank extends Widget {
                 text: 'HI',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.ORANGE,
+                color: this.colorHi,
                 font,
             });
         }
-        if (this.showHi) {
+        if (this.showHiHi) {
             const y = Math.round(linearScale.getValuePosition(this.levelHiHi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.RED,
+                color: this.colorHiHi,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -179,7 +176,7 @@ export class Tank extends Widget {
                 text: 'HIHI',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.RED,
+                color: this.colorHiHi,
                 font,
             });
         }
@@ -188,21 +185,11 @@ export class Tank extends Widget {
 
     private drawTank(g: Graphics, area: Bounds, scaleWidth: number, markerWidth: number, linearScale: LinearScale) {
         const foregroundColor = this.alarmSensitiveForegroundColor;
-        const { scale } = this;
-        const outlineWidth = scale * 1;
+        const { scale, outlineWidth } = this;
         const x = area.x + scaleWidth;
         const y = area.y + linearScale.margin;
         const width = area.width - scaleWidth - markerWidth;
         const height = area.height - (2 * linearScale.margin);
-
-        let fillColor = this.fillColor;
-        if (this.fillColorAlarmSensitive) {
-            if (this.isMajorSeverity()) {
-                fillColor = Color.RED;
-            } else if (this.isMinorSeverity()) {
-                fillColor = Color.ORANGE;
-            }
-        }
 
         let fillCorner = this.defaultCorner;
         let intersectFactor = 11.0 / 20.0;
@@ -215,6 +202,7 @@ export class Tank extends Widget {
         }
 
         const valuePosition = linearScale.getValuePosition(this.getFillValue());
+        const fillColor = this.alarmSensitiveFillColor;
         if (this.effect3d) {
             g.fillRect({
                 x,
@@ -317,6 +305,17 @@ export class Tank extends Widget {
     get markerTickLength() { return this.scale * 10; }
     get markerTickLineWidth() { return this.scale * 2; }
     get markerGap() { return this.scale * 3; }
+    get outlineWidth() { return this.scale * 1; }
+    get alarmSensitiveFillColor() {
+        if (this.fillColorAlarmSensitive) {
+            if (this.isMajorSeverity()) {
+                return Color.RED;
+            } else if (this.isMinorSeverity()) {
+                return Color.ORANGE;
+            }
+        }
+        return this.fillColor;
+    }
 
     private getFillValue() {
         let value = this.pv?.value ?? this.minimum;
@@ -342,12 +341,12 @@ export class Tank extends Widget {
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get majorTickStepHint(): number { return this.scale * this.properties.getValue(PROP_MAJOR_TICK_STEP_HINT); }
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
-    get showMarkers(): boolean { return this.properties.getValue(PROP_SHOW_MARKERS); }
-    get showMinorTicks(): boolean { return this.properties.getValue(PROP_SHOW_MINOR_TICKS); }
     get showLo(): boolean { return this.properties.getValue(PROP_SHOW_LO); }
     get showLoLo(): boolean { return this.properties.getValue(PROP_SHOW_LOLO); }
     get showHi(): boolean { return this.properties.getValue(PROP_SHOW_HI); }
     get showHiHi(): boolean { return this.properties.getValue(PROP_SHOW_HIHI); }
+    get showMarkers(): boolean { return this.properties.getValue(PROP_SHOW_MARKERS); }
+    get showMinorTicks(): boolean { return this.properties.getValue(PROP_SHOW_MINOR_TICKS); }
     get showScale(): boolean { return this.properties.getValue(PROP_SHOW_SCALE); }
     get transparentBackground(): boolean { return this.properties.getValue(PROP_TRANSPARENT_BACKGROUND); }
 }

@@ -75,9 +75,9 @@ export class LinearScale {
         }
     }
 
+    // (x, y) is coordinate of bottom-left corner
     drawHorizontal(g: Graphics, x: number, y: number, width: number) {
-        this.x = x;
-        this.y = y;
+        const { scale } = this;
         this.length = width;
         this.horizontal = true;
         this.margin = this.calculateMargin(g, this.horizontal);
@@ -85,6 +85,80 @@ export class LinearScale {
         if (l > 0) {
             this.updateLabels(g, l);
         }
+        let maxHeight = 0;
+        for (let i = 0; i < this.labels.length; i++) {
+            const fm = g.measureText(this.labels[i], this.scaleFont);
+            if (fm.height > maxHeight) {
+                maxHeight = fm.height;
+            }
+        }
+
+        const scaleHeight = this.showScale ? maxHeight + this.spaceBetweenMarkAndLabel + this.majorTickLength : 0;
+        y = y - scaleHeight;
+        this.x = x;
+        this.y = y;
+
+        if (this.logScale) {
+            for (let i = 0; i < this.labelPositions.length; i++) {
+                const x = this.x + this.labelPositions[i];
+                const y = this.y;
+                let tickLength = 0;
+                if (this.labelVisibilities[i]) {
+                    tickLength = this.majorTickLength;
+                } else {
+                    tickLength = this.minorTickLength;
+                }
+
+                if (this.labelVisibilities[i] || this.showMinorTicks) {
+                    const pathX = Math.round(x) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(pathX, y).lineTo(pathX, y + tickLength),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
+                if (this.labelVisibilities[i]) {
+                    g.fillText({
+                        x,
+                        y: this.y + this.spaceBetweenMarkAndLabel + this.majorTickLength,
+                        align: 'center',
+                        baseline: 'top',
+                        font: this.scaleFont,
+                        color: this.foregroundColor,
+                        text: this.labels[i],
+                    });
+                }
+            }
+        } else {
+            for (let i = 0; i < this.labels.length; i++) {
+                if (!this.labelVisibilities[i]) {
+                    continue;
+                }
+                const textX = x + this.labelPositions[i];
+                g.fillText({
+                    x: textX,
+                    y: y + this.majorTickLength + this.spaceBetweenMarkAndLabel,
+                    align: 'center',
+                    baseline: 'top',
+                    font: this.scaleFont,
+                    color: this.foregroundColor,
+                    text: this.labels[i],
+                });
+                const pathX = Math.round(textX) - (scale * 0.5);
+                g.strokePath({
+                    path: new Path(pathX, y).lineTo(pathX, y + this.majorTickLength),
+                    color: this.foregroundColor,
+                    lineWidth: scale * 1,
+                    opacity: 100 / 255,
+                });
+
+                if (this.showMinorTicks) {
+                    this.drawMinorXTicks(g, i, x, y);
+                }
+            }
+        }
+        return scaleHeight;
     }
 
     // If leftCoordinate, the provided (x, y) is used as the fixed top left corner.
@@ -109,7 +183,6 @@ export class LinearScale {
         const scaleWidth = this.showScale ? maxWidth + this.spaceBetweenMarkAndLabel + this.majorTickLength : 0;
         if (!leftCoordinate) {
             x = x - scaleWidth;
-            y = y;
         }
         this.x = x;
         this.y = y;
@@ -167,6 +240,7 @@ export class LinearScale {
                     path: new Path(startX, pathY).lineTo(startX + this.majorTickLength, pathY),
                     color: this.foregroundColor,
                     lineWidth: scale * 1,
+                    opacity: 100 / 255,
                 });
 
                 if (this.showMinorTicks) {
@@ -175,6 +249,32 @@ export class LinearScale {
             }
         }
         return scaleWidth;
+    }
+
+    private drawMinorXTicks(g: Graphics, i: number, x0: number, y: number) {
+        let minorTicksNumber;
+        if (this.gridStepInPixel / 5 >= this.minorTickMarkStepHint) {
+            minorTicksNumber = 5;
+        } else if (this.gridStepInPixel / 4 >= this.minorTickMarkStepHint) {
+            minorTicksNumber = 4;
+        } else {
+            minorTicksNumber = 2;
+        }
+        if (i > 0) {
+            let xs = [];
+            for (let j = 0; j < minorTicksNumber; j++) {
+                let tickX = x0 + this.labelPositions[i - 1]
+                    + (this.labelPositions[i] - this.labelPositions[i - 1]) * j / minorTicksNumber;
+                tickX = Math.round(tickX) - (this.scale * 0.5);
+                xs.push(tickX);
+                g.strokePath({
+                    path: new Path(tickX, y).lineTo(tickX, y + this.minorTickLength),
+                    color: this.foregroundColor,
+                    lineWidth: this.scale * 1,
+                    opacity: 100 / 255,
+                });
+            }
+        }
     }
 
     private drawMinorYTicks(g: Graphics, i: number, x: number, scaleY2: number) {
@@ -196,6 +296,7 @@ export class LinearScale {
                         .lineTo(x + this.majorTickLength, y),
                     color: this.foregroundColor,
                     lineWidth: this.scale * 1,
+                    opacity: 100 / 255,
                 });
             }
         }

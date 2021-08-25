@@ -5527,7 +5527,7 @@ tooltip.</tooltip>
           <scripts />
           <show_toolbar>true</show_toolbar>
           <tooltip></tooltip>
-          <url>http://cs-studio.sourceforge.net/</url>
+          <url>https://yamcs.org/</url>
           <visible>true</visible>
           <widget_type>Web Browser</widget_type>
           <width>350</width>

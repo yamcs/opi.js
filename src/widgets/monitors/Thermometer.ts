@@ -287,7 +287,7 @@ export class Thermometer extends Widget {
             const y = Math.round(linearScale.getValuePosition(this.levelLoLo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.RED,
+                color: this.colorLoLo,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -296,7 +296,7 @@ export class Thermometer extends Widget {
                 text: 'LOLO',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.RED,
+                color: this.colorLoLo,
                 font,
             });
         }
@@ -304,7 +304,7 @@ export class Thermometer extends Widget {
             const y = Math.round(linearScale.getValuePosition(this.levelLo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.ORANGE,
+                color: this.colorLo,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -313,7 +313,7 @@ export class Thermometer extends Widget {
                 text: 'LO',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.ORANGE,
+                color: this.colorLo,
                 font,
             });
         }
@@ -321,7 +321,7 @@ export class Thermometer extends Widget {
             const y = Math.round(linearScale.getValuePosition(this.levelHi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.ORANGE,
+                color: this.colorHi,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -330,15 +330,15 @@ export class Thermometer extends Widget {
                 text: 'HI',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.ORANGE,
+                color: this.colorHi,
                 font,
             });
         }
-        if (this.showHi) {
+        if (this.showHiHi) {
             const y = Math.round(linearScale.getValuePosition(this.levelHiHi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
-                color: Color.RED,
+                color: this.colorHiHi,
                 lineWidth: this.markerTickLineWidth,
             });
             g.fillText({
@@ -347,7 +347,7 @@ export class Thermometer extends Widget {
                 text: 'HIHI',
                 align: 'left',
                 baseline: 'middle',
-                color: Color.RED,
+                color: this.colorHiHi,
                 font,
             });
         }

@@ -32,6 +32,7 @@ import { Gauge } from './widgets/monitors/Gauge';
 import { ImageBooleanIndicator } from './widgets/monitors/ImageBooleanIndicator';
 import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
+import { ProgressBar } from './widgets/monitors/ProgressBar';
 import { Tank } from './widgets/monitors/Tank';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { Thermometer } from './widgets/monitors/Thermometer';
@@ -53,6 +54,7 @@ const TYPE_BYTE_MONITOR = 'Byte Monitor';
 const TYPE_CHECK_BOX = 'Check Box';
 const TYPE_CHOICE_BUTTON = 'Choice Button';
 const TYPE_COMBO = 'Combo';
+const TYPE_COMBO_BOX = 'Combo Box'; // Only used in old displays
 const TYPE_ELLIPSE = 'Ellipse';
 const TYPE_GAUGE = 'Gauge';
 const TYPE_GROUPING_CONTAINER = 'Grouping Container';
@@ -66,6 +68,7 @@ const TYPE_METER = 'Meter';
 const TYPE_NATIVE_BUTTON = 'Button'; // Only used in old displays
 const TYPE_POLYGON = 'Polygon';
 const TYPE_POLYLINE = 'Polyline';
+const TYPE_PROGRESS_BAR = 'Progress Bar';
 const TYPE_RADIO_BOX = 'Radio Box';
 const TYPE_RECTANGLE = 'Rectangle';
 const TYPE_ROUNDED_RECTANGLE = 'Rounded Rectangle';
@@ -305,6 +308,7 @@ export class Display {
             case TYPE_CHOICE_BUTTON:
                 return new ChoiceButton(this, parent);
             case TYPE_COMBO:
+            case TYPE_COMBO_BOX:
                 return new Combo(this, parent);
             case TYPE_ELLIPSE:
                 return new Ellipse(this, parent);
@@ -332,6 +336,8 @@ export class Display {
                 return new Polygon(this, parent);
             case TYPE_POLYLINE:
                 return new Polyline(this, parent);
+            case TYPE_PROGRESS_BAR:
+                return new ProgressBar(this, parent);
             case TYPE_RADIO_BOX:
                 return new RadioBox(this, parent);
             case TYPE_RECTANGLE:
