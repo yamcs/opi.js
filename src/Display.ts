@@ -34,6 +34,7 @@ import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
 import { Tank } from './widgets/monitors/Tank';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
+import { Thermometer } from './widgets/monitors/Thermometer';
 import { XYGraph } from './widgets/monitors/XYGraph';
 import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
@@ -73,6 +74,7 @@ const TYPE_TABBED_CONTAINER = 'Tabbed Container';
 const TYPE_TANK = 'Tank';
 const TYPE_TEXT_INPUT = 'Text Input';
 const TYPE_TEXT_UPDATE = 'Text Update';
+const TYPE_THERMOMETER = 'Thermometer';
 const TYPE_WEB_BROWSER = 'Web Browser';
 const TYPE_XY_GRAPH = 'XY Graph';
 
@@ -346,6 +348,8 @@ export class Display {
                 return new TextInput(this, parent);
             case TYPE_TEXT_UPDATE:
                 return new TextUpdate(this, parent);
+            case TYPE_THERMOMETER:
+                return new Thermometer(this, parent);
             case TYPE_WEB_BROWSER:
                 return new WebBrowser(this, parent);
             case TYPE_XY_GRAPH:

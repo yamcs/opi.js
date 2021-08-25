@@ -7,6 +7,7 @@ const WEB_SAFE = ['Arial', 'Arial Black', 'Courier New', 'Helvetica', 'Tahoma', 
 export class Font {
 
   static ARIAL_9 = new Font('Arial', 9, 0, false);
+  static ARIAL_10 = new Font('Arial', 10, 0, false);
   static ARIAL_11 = new Font('Arial', 11, 0, false);
   static ARIAL_12_BOLD = new Font('Arial', 12, 1, false);
 

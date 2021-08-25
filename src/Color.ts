@@ -58,9 +58,11 @@ export class Color {
       b = i;
     }
 
-    return new Color(Math.min(Math.floor(this.red / 0.7), 255),
+    return new Color(
+      Math.min(Math.floor(this.red / 0.7), 255),
       Math.min(Math.floor(this.green / 0.7), 255),
-      Math.min(Math.floor(this.blue / 0.7), 255));
+      Math.min(Math.floor(this.blue / 0.7), 255),
+    );
   }
 
   darker() {
@@ -69,6 +71,10 @@ export class Color {
       Math.max(Math.floor(this.green * 0.7), 0),
       Math.max(Math.floor(this.blue * 0.7), 0),
     );
+  }
+
+  contrast() {
+    return new Color(this.red, 255 - this.green, 255 - this.blue);
   }
 
   toString() {

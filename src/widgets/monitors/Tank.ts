@@ -3,7 +3,7 @@ import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
 import { Bounds, shrink } from '../../positioning';
-import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FloatProperty, FontProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 import { LinearScale } from './LinearScale';
@@ -48,14 +48,14 @@ export class Tank extends Widget {
         this.properties.add(new ColorProperty(PROP_FILL_COLOR));
         this.properties.add(new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false));
         this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
-        this.properties.add(new IntProperty(PROP_LEVEL_HI));
-        this.properties.add(new IntProperty(PROP_LEVEL_HIHI));
-        this.properties.add(new IntProperty(PROP_LEVEL_LO));
-        this.properties.add(new IntProperty(PROP_LEVEL_LOLO));
+        this.properties.add(new FloatProperty(PROP_LEVEL_HI));
+        this.properties.add(new FloatProperty(PROP_LEVEL_HIHI));
+        this.properties.add(new FloatProperty(PROP_LEVEL_LO));
+        this.properties.add(new FloatProperty(PROP_LEVEL_LOLO));
         this.properties.add(new BooleanProperty(PROP_LOG_SCALE));
-        this.properties.add(new IntProperty(PROP_MAXIMUM));
-        this.properties.add(new IntProperty(PROP_MAJOR_TICK_STEP_HINT));
-        this.properties.add(new IntProperty(PROP_MINIMUM));
+        this.properties.add(new FloatProperty(PROP_MAXIMUM));
+        this.properties.add(new FloatProperty(PROP_MAJOR_TICK_STEP_HINT));
+        this.properties.add(new FloatProperty(PROP_MINIMUM));
         this.properties.add(new FontProperty(PROP_SCALE_FONT));
         this.properties.add(new BooleanProperty(PROP_SHOW_HI));
         this.properties.add(new BooleanProperty(PROP_SHOW_HIHI));
@@ -68,11 +68,11 @@ export class Tank extends Widget {
     }
 
     draw(g: Graphics) {
-        const backgroundColor = this.alarmSensitiveBackgroundColor;
         let area = this.area;
         if (this.borderAlarmSensitive) {
             area = shrink(area, 2 * this.scale);
         }
+        const backgroundColor = this.alarmSensitiveBackgroundColor;
         if (!this.transparentBackground) {
             g.fillRect({
                 ...area,
@@ -84,7 +84,7 @@ export class Tank extends Widget {
         const linearScale = new LinearScale(this.scale, this.scaleFont, this.minimum,
             this.maximum, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
-        const scaleWidth = linearScale.drawVertical(g, area.x, area.y, area.height);
+        const scaleWidth = linearScale.drawVertical(g, area.x, area.y, area.height, true);
 
         let markerWidth = 0;
         if (this.showMarkers) {

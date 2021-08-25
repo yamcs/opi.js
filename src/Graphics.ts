@@ -48,6 +48,7 @@ interface EllipseColorFill {
     startAngle?: number;
     endAngle?: number;
     anticlockwise?: boolean;
+    opacity?: number;
 }
 
 interface EllipseGradientFill {
@@ -59,6 +60,7 @@ interface EllipseGradientFill {
     startAngle?: number;
     endAngle?: number;
     anticlockwise?: boolean;
+    opacity?: number;
 }
 
 type EllipseFill = EllipseColorFill | EllipseGradientFill;
@@ -109,6 +111,7 @@ interface PathStroke {
     color: Color;
     lineWidth?: number;
     dash?: number[];
+    opacity?: number;
 }
 
 interface PathColorFill {
@@ -247,7 +250,16 @@ export class Graphics {
         } else {
             this.ctx.fillStyle = fill.gradient;
         }
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = fill.opacity;
+        }
+
         this.ctx.fill();
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
     }
 
     strokeEllipse(stroke: EllipseStroke) {
@@ -323,7 +335,16 @@ export class Graphics {
         }
         this.ctx.lineWidth = stroke.lineWidth || 1;
         this.ctx.strokeStyle = stroke.color.toString();
+
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = stroke.opacity;
+        }
+
         this.ctx.stroke();
+
+        if (stroke.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
         if (stroke.dash) {
             this.ctx.setLineDash([]);
         }

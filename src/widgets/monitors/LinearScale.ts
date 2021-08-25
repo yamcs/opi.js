@@ -10,10 +10,10 @@ export class LinearScale {
     private labelVisibilities: boolean[] = [];
     private gridStepInPixel = 0;
     private horizontal = false;
-    private length = 0;
     private x = 0;
     private y = 0;
 
+    public length = 0;
     public margin = 0;
 
     constructor(
@@ -27,6 +27,10 @@ export class LinearScale {
         private showMinorTicks: boolean,
         private showScale: boolean,
     ) { }
+
+    get scaleLength() {
+        return this.length - (2 * this.margin);
+    }
 
     getValuePosition(value: number) {
         let min = this.minimum;
@@ -57,37 +61,39 @@ export class LinearScale {
         return this.horizontal ? pixelsToStart + this.x : this.length - pixelsToStart + this.y;
     }
 
+    calculateMargin(g: Graphics, horizontal: boolean) {
+        if (this.showScale) {
+            const fm1 = g.measureText(this.format(this.minimum), this.scaleFont);
+            const fm2 = g.measureText(this.format(this.maximum), this.scaleFont);
+            if (horizontal) {
+                return Math.ceil(Math.max(fm1.width, fm2.width) / 2);
+            } else {
+                return Math.ceil(Math.max(fm1.height, fm2.height) / 2);
+            }
+        } else {
+            return 0;
+        }
+    }
+
     drawHorizontal(g: Graphics, x: number, y: number, width: number) {
         this.x = x;
         this.y = y;
         this.length = width;
         this.horizontal = true;
-        if (this.showScale) {
-            const fm1 = g.measureText(this.format(this.minimum), this.scaleFont);
-            const fm2 = g.measureText(this.format(this.maximum), this.scaleFont);
-            this.margin = Math.ceil(Math.max(fm1.width, fm2.width) / 2);
-        } else {
-            this.margin = 0;
-        }
+        this.margin = this.calculateMargin(g, this.horizontal);
         const l = width - (2 * this.margin);
         if (l > 0) {
             this.updateLabels(g, l);
         }
     }
 
-    drawVertical(g: Graphics, x: number, y: number, height: number) {
+    // If leftCoordinate, the provided (x, y) is used as the fixed top left corner.
+    // Else, the provided (x, y) is used as the fixed top right corner.
+    drawVertical(g: Graphics, x: number, y: number, height: number, leftCoordinate: boolean) {
         const { scale } = this;
-        this.x = x;
-        this.y = y;
         this.length = height;
         this.horizontal = false;
-        if (this.showScale) {
-            const fm1 = g.measureText(this.format(this.minimum), this.scaleFont);
-            const fm2 = g.measureText(this.format(this.maximum), this.scaleFont);
-            this.margin = Math.ceil(Math.max(fm1.height, fm2.height) / 2);
-        } else {
-            this.margin = 0;
-        }
+        this.margin = this.calculateMargin(g, this.horizontal);
         const l = height - (2 * this.margin);
         if (l > 0) {
             this.updateLabels(g, l);
@@ -99,6 +105,14 @@ export class LinearScale {
                 maxWidth = fm.width;
             }
         }
+
+        const scaleWidth = this.showScale ? maxWidth + this.spaceBetweenMarkAndLabel + this.majorTickLength : 0;
+        if (!leftCoordinate) {
+            x = x - scaleWidth;
+            y = y;
+        }
+        this.x = x;
+        this.y = y;
 
         if (this.logScale) {
             for (let i = 0; i < this.labelPositions.length; i++) {
@@ -116,6 +130,7 @@ export class LinearScale {
                         path: new Path(startX, pathY).lineTo(startX + tickLength, pathY),
                         color: this.foregroundColor,
                         lineWidth: scale * 1,
+                        opacity: 100 / 255,
                     });
                 }
                 if (this.labelVisibilities[i]) {
@@ -159,7 +174,7 @@ export class LinearScale {
                 }
             }
         }
-        return this.showScale ? maxWidth + this.spaceBetweenMarkAndLabel + this.majorTickLength : 0;
+        return scaleWidth;
     }
 
     private drawMinorYTicks(g: Graphics, i: number, x: number, scaleY2: number) {
