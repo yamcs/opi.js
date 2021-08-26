@@ -190,7 +190,7 @@ export class TabbedContainer extends AbstractContainerWidget {
                 g.copy(offscreen, contentX, contentY);
             } else {
                 const inactiveWidget = this.widgets[i];
-                inactiveWidget.destroy();
+                inactiveWidget.hide();
             }
         }
     }

@@ -26,16 +26,30 @@ export class WebBrowser extends Widget {
 
     draw(g: Graphics) {
         if (this.iframe) {
+            const { x, y, width, height } = this.absoluteArea;
             this.iframe.style.position = 'absolute';
             this.iframe.style.display = 'block';
-            this.iframe.style.left = `${this.x}px`;
-            this.iframe.style.top = `${this.y}px`;
-            this.iframe.style.width = `${this.width}px`;
-            this.iframe.style.height = `${this.height}px`;
+            this.iframe.style.left = `${x}px`;
+            this.iframe.style.top = `${y}px`;
+            this.iframe.style.width = `${width}px`;
+            this.iframe.style.height = `${height}px`;
             if (this.url && this.prevUrl !== this.url) {
                 this.iframe.src = this.url;
                 this.prevUrl = this.url;
             }
+        }
+    }
+
+    hide() {
+        if (this.iframe) {
+            this.iframe.style.display = 'none';
+        }
+    }
+
+    destroy() {
+        if (this.iframe) {
+            this.display.rootPanel.removeChild(this.iframe);
+            this.iframe = undefined;
         }
     }
 

@@ -227,6 +227,10 @@ export class XYGraph extends Widget {
             const { x, y, width, height } = this;
             g.fillRect({ x, y, width, height, color: this.backgroundColor });
         }
+
+        // Always call this, because hide() may have been called
+        this.containerEl.style.display = 'block';
+
         if (!this.initialized) {
             const { scale } = this;
             const area = crispen(shrink(this.absoluteArea, 2 * scale)); // Make room for alarm border
@@ -437,9 +441,14 @@ export class XYGraph extends Widget {
         }
     }
 
+    hide() {
+        this.containerEl.style.display = 'none';
+    }
+
     destroy() {
         this.display.removeEventListener('scale', this.scaleListener);
         this.destroyGraph();
+        this.display.rootPanel.removeChild(this.containerEl);
     }
 
     private destroyGraph() {

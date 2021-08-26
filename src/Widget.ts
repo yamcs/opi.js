@@ -133,43 +133,43 @@ export abstract class Widget {
 
         if (!alarmBorder) {
             switch (this.borderStyle) {
-            case 0: // Empty
-                // Not all widgets do this, so we shrink bounds inside the widget's draw
-                // if (this.borderAlarmSensitive) {
-                //    insets = [2, 2, 2, 2];
-                //}
-                break;
-            case 1: // Line
-                insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
-                break;
-            case 2: // Raised
-            case 3: // Lowered
-                insets = [1 * scale, 1 * scale, 1 * scale, 1 * scale];
-                break;
-            case 4: // Etched
-            case 5: // Ridged
-            case 6: // Button Raised
-                insets = [2 * scale, 2 * scale, 2 * scale, 2 * scale];
-                break;
-            case 7: // Button Pressed
-                insets = [2 * scale, 2 * scale, 1 * scale, 1 * scale];
-                break;
-            case 8: // Dot
-            case 9: // Dash
-            case 10: // Dash Dot
-            case 11: // Dash Dot Dot
-                insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
-                break;
-            case 12: // Title Bar
-                insets = [(16 + 1) * scale, 1 * scale, 1 * scale, 1 * scale];
-                break;
-            case 13: // Group Box
-                insets = [16 * scale, 16 * scale, 16 * scale, 16 * scale];
-                break;
-            case 14: // Round Rectangle Background
-                const i = this.borderWidth * 2;
-                insets = [i, i, i, i];
-                break;
+                case 0: // Empty
+                    // Not all widgets do this, so we shrink bounds inside the widget's draw
+                    // if (this.borderAlarmSensitive) {
+                    //    insets = [2, 2, 2, 2];
+                    //}
+                    break;
+                case 1: // Line
+                    insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
+                    break;
+                case 2: // Raised
+                case 3: // Lowered
+                    insets = [1 * scale, 1 * scale, 1 * scale, 1 * scale];
+                    break;
+                case 4: // Etched
+                case 5: // Ridged
+                case 6: // Button Raised
+                    insets = [2 * scale, 2 * scale, 2 * scale, 2 * scale];
+                    break;
+                case 7: // Button Pressed
+                    insets = [2 * scale, 2 * scale, 1 * scale, 1 * scale];
+                    break;
+                case 8: // Dot
+                case 9: // Dash
+                case 10: // Dash Dot
+                case 11: // Dash Dot Dot
+                    insets = [this.borderWidth, this.borderWidth, this.borderWidth, this.borderWidth];
+                    break;
+                case 12: // Title Bar
+                    insets = [(16 + 1) * scale, 1 * scale, 1 * scale, 1 * scale];
+                    break;
+                case 13: // Group Box
+                    insets = [16 * scale, 16 * scale, 16 * scale, 16 * scale];
+                    break;
+                case 14: // Round Rectangle Background
+                    const i = this.borderWidth * 2;
+                    insets = [i, i, i, i];
+                    break;
             }
         }
 
@@ -776,7 +776,28 @@ export abstract class Widget {
         }
     }
 
-    init(): void { };
-    destroy(): void { };
+    /**
+     * Called exactly once post-construct. A destroyed widget will
+     * never be re-inited.
+     */
+    init(): void { }
+
+    /**
+     * Called when a widget should temporarily hide content
+     * (tab switch).
+     *
+     * Most widgets don't need to override, but it used by some
+     * that position HTML on top of the canvas.
+     *
+     * Unhide should occur upon the next draw request.
+     */
+    hide(): void { }
+
+    /**
+     * Called when a widget will never be used again.
+     * (display close).
+     */
+    destroy(): void { }
+
     abstract draw(g: Graphics): void;
 }
