@@ -3,6 +3,7 @@ import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
 import { HitRegionSpecification } from '../../HitCanvas';
+import { Point } from '../../positioning';
 import { BooleanProperty, IntProperty } from '../../properties';
 import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
@@ -71,6 +72,14 @@ export class TabbedContainer extends AbstractContainerWidget {
             this.drawHorizontalTabs(g);
         } else {
             this.drawVerticalTabs(g);
+        }
+    }
+
+    measureTabOffset(g: Graphics): Point {
+        if (this.horizontalTabs) {
+            return { x: 0, y: this.measureLabelHeight(g) };
+        } else {
+            return { x: this.measureLabelWidth(g), y: 0 };
         }
     }
 

@@ -8,6 +8,7 @@ import { PVEngine } from './pv/PVEngine';
 import { PVProvider } from './pv/PVProvider';
 import { Sample } from './pv/Sample';
 import { SimulatedPVProvider } from './pv/SimulatedPVProvider';
+import { Widget } from './Widget';
 import { ActionButton } from './widgets/controls/ActionButton';
 import { BooleanButton } from './widgets/controls/BooleanButton';
 import { BooleanSwitch } from './widgets/controls/BooleanSwitch';
@@ -399,6 +400,35 @@ export class Display {
         const displayNode = XMLNode.parseFromXML(source);
         this.instance.parseNode(displayNode);
         this.requestRepaint();
+    }
+
+    /**
+     * Bounds of this widget relative to the root
+     * of all of its parents.
+     */
+    measureAbsoluteArea(g: Graphics, widget: Widget) {
+        const bounds = widget.bounds;
+        let parent = widget.parent;
+        while (parent) {
+            bounds.x += parent.holderX;
+            bounds.y += parent.holderY;
+            if (parent instanceof TabbedContainer) {
+                const { x: xo, y: yo } = parent.measureTabOffset(g);
+                bounds.x += xo;
+                bounds.y += yo;
+            }
+            parent = parent.parent;
+        }
+
+        bounds.x += widget.x - widget.holderX;
+        bounds.y += widget.y - widget.holderY;
+        bounds.width += widget.width - widget.holderWidth;
+        bounds.height += widget.height - widget.holderHeight;
+
+        // Not sure why
+        bounds.x += this.scale * 1;
+        bounds.y += this.scale * 1;
+        return bounds;
     }
 
     addEventListener<K extends keyof OPIEventMap>(type: K, listener: ((ev: OPIEventMap[K]) => void)): void;

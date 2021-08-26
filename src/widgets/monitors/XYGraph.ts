@@ -233,7 +233,8 @@ export class XYGraph extends Widget {
 
         if (!this.initialized) {
             const { scale } = this;
-            const area = crispen(shrink(this.absoluteArea, 2 * scale)); // Make room for alarm border
+            let area = this.display.measureAbsoluteArea(g, this);
+            area = crispen(shrink(area, 2 * scale)); // Make room for alarm border
             this.containerEl.style.left = `${area.x}px`;
             this.containerEl.style.top = `${area.y}px`;
             this.containerEl.style.width = `${area.width}px`;

@@ -502,21 +502,6 @@ export abstract class Widget {
     }
 
     /**
-     * Bounds of this widget relative to the root
-     * of all of its parents.
-     */
-    get absoluteBounds(): Bounds {
-        const bounds = this.bounds;
-        let parent = this.parent;
-        while (parent) {
-            bounds.x += parent.holderX;
-            bounds.y += parent.holderY;
-            parent = parent.parent;
-        }
-        return bounds;
-    }
-
-    /**
      * Bounds of this widget (within its parent).
      * Bounds cover the entire widget: area + ornaments.
      */
@@ -536,13 +521,6 @@ export abstract class Widget {
             width: this.properties.getValue(PROP_WIDTH),
             height: this.properties.getValue(PROP_HEIGHT),
         };
-    }
-
-    get absoluteArea(): Bounds {
-        const bounds = this.absoluteBounds;
-        bounds.x += (this.x - this.holderX);
-        bounds.y += (this.y - this.holderY);
-        return bounds;
     }
 
     /**
