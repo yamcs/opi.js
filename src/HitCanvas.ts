@@ -18,19 +18,16 @@ export class HitCanvas {
     readonly ctx: CanvasRenderingContext2D;
     private regions: { [key: string]: HitRegionSpecification; } = {};
 
-    // If present, use the parent instead of the local regions map.
+    // If present, use the root instead of the local regions map.
     // This avoids color collisions.
-    private parent?: HitCanvas;
+    private root?: HitCanvas;
 
-    constructor(parent?: HitCanvas, width?: number, height?: number) {
+    constructor(private parent?: HitCanvas, width?: number, height?: number) {
         const canvas = document.createElement('canvas');
-        canvas.width = width || canvas.width;
-        canvas.height = height || canvas.height;
+        canvas.width = width ?? canvas.width;
+        canvas.height = height ?? canvas.height;
         this.ctx = canvas.getContext('2d')!;
-        while (parent) { // find the root
-            this.parent = parent;
-            parent = parent.parent;
-        }
+        this.root = parent?.root || parent;
     }
 
     clear() {
@@ -40,8 +37,8 @@ export class HitCanvas {
     }
 
     beginHitRegion(hitRegion: HitRegionSpecification) {
-        const color = (this.parent || this).generateUniqueColor();
-        (this.parent || this).regions[color] = hitRegion;
+        const color = (this.root || this).generateUniqueColor();
+        (this.root || this).regions[color] = hitRegion;
 
         this.ctx.beginPath();
         this.ctx.fillStyle = color;
