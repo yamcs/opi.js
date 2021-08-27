@@ -374,11 +374,7 @@ export class Display {
     }
 
     setSource(href: string) {
-        if (this.instance) {
-            this.clearSelection();
-            this.pvEngine.clearState();
-            this.instance = undefined;
-        }
+        this.reset();
         return new Promise<void>((resolve, reject) => {
             fetch(this.baseUrl + href, {
                 // Send cookies too.
@@ -396,10 +392,20 @@ export class Display {
     }
 
     setSourceString(source: string) {
+        this.reset();
         this.instance = new DisplayWidget(this);
         const displayNode = XMLNode.parseFromXML(source);
         this.instance.parseNode(displayNode);
         this.requestRepaint();
+    }
+
+    private reset() {
+        if (this.instance) {
+            this.clearSelection();
+            this.pvEngine.clearState();
+            this.instance.destroy();
+            this.instance = undefined;
+        }
     }
 
     /**
