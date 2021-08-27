@@ -73,14 +73,14 @@ export class Gauge extends Widget {
 
     draw(g: Graphics) {
         let limits: DisplayLimits;
-        if (this.pv) {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
             limits = {
-                min: this.pv.lowerDisplayLimit!,
+                min: this.pv.lowerDisplayLimit ?? this.minimum,
                 lolo: this.pv.lowerAlarmLimit!,
                 lo: this.pv.lowerWarningLimit!,
                 hi: this.pv.upperWarningLimit!,
                 hihi: this.pv.upperAlarmLimit!,
-                max: this.pv.upperDisplayLimit!,
+                max: this.pv.upperDisplayLimit ?? this.maximum,
             };
         } else {
             limits = {
