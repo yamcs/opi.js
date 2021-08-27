@@ -11,15 +11,21 @@ import { WidgetWrapper } from './WidgetWrapper';
 
 interface Context { [key: string]: any; }
 
-const iframe = document.createElement('iframe');
-iframe.style.display = 'none';
-document.body.appendChild(iframe);
+let iframe: HTMLIFrameElement;
+let contentWindow: any;
+let wEval: any;
+function createIframe() {
+  iframe = document.createElement('iframe');
+  iframe.id = 'script-e';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
 
-const contentWindow = iframe.contentWindow as any;
-let wEval = contentWindow.eval;
-if (!wEval && contentWindow.execScript) { // IE
-  contentWindow.execScript.call(contentWindow, 'null');
+  contentWindow = iframe.contentWindow as any;
   wEval = contentWindow.eval;
+  if (!wEval && contentWindow.execScript) { // IE
+    contentWindow.execScript.call(contentWindow, 'null');
+    wEval = contentWindow.eval;
+  }
 }
 
 export class ScriptEngine {
@@ -27,6 +33,9 @@ export class ScriptEngine {
   private context: Context;
 
   constructor(widget: Widget, readonly scriptText: string, pvs: PV[] = []) {
+    if (!iframe) {
+      createIframe();
+    }
     this.scriptText = scriptText
       .replace(/importClass\([^\)]*\)\s*\;?/gi, '')
       .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')
