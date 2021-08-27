@@ -20,6 +20,7 @@ const PROP_LEVEL_HI = 'level_hi';
 const PROP_LEVEL_HIHI = 'level_hihi';
 const PROP_LEVEL_LO = 'level_lo';
 const PROP_LEVEL_LOLO = 'level_lolo';
+const PROP_LIMITS_FROM_PV = 'limits_from_pv';
 const PROP_LOG_SCALE = 'log_scale';
 const PROP_MAXIMUM = 'maximum';
 const PROP_MAJOR_TICK_STEP_HINT = 'major_tick_step_hint';
@@ -52,6 +53,7 @@ export class Tank extends Widget {
         this.properties.add(new FloatProperty(PROP_LEVEL_HIHI));
         this.properties.add(new FloatProperty(PROP_LEVEL_LO));
         this.properties.add(new FloatProperty(PROP_LEVEL_LOLO));
+        this.properties.add(new BooleanProperty(PROP_LIMITS_FROM_PV));
         this.properties.add(new BooleanProperty(PROP_LOG_SCALE));
         this.properties.add(new FloatProperty(PROP_MAXIMUM));
         this.properties.add(new FloatProperty(PROP_MAJOR_TICK_STEP_HINT));
@@ -68,9 +70,10 @@ export class Tank extends Widget {
     }
 
     draw(g: Graphics) {
+        const { scale, min, max } = this;
         let area = this.area;
         if (this.borderAlarmSensitive) {
-            area = shrink(area, 2 * this.scale);
+            area = shrink(area, 2 * scale);
         }
         const backgroundColor = this.alarmSensitiveBackgroundColor;
         if (!this.transparentBackground) {
@@ -78,8 +81,8 @@ export class Tank extends Widget {
         }
 
         const foregroundColor = this.alarmSensitiveForegroundColor;
-        const linearScale = new LinearScale(this.scale, this.scaleFont, this.minimum,
-            this.maximum, this.logScale, this.majorTickStepHint, foregroundColor,
+        const linearScale = new LinearScale(scale, this.scaleFont, min,
+            max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
         const scaleWidth = linearScale.drawVertical(g, area.x, area.y, area.height, true);
 
@@ -92,28 +95,29 @@ export class Tank extends Widget {
     }
 
     private drawMarkers(g: Graphics, area: Bounds, linearScale: LinearScale) {
+        const { lolo, lo, hi, hihi } = this;
         const font = Font.ARIAL_9.scale(this.scale);
         let markerWidth = 0;
-        if (this.showLoLo) {
+        if (this.showLoLo && lolo !== undefined) {
             const fm = g.measureText("LOLO", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
-        if (this.showLo) {
+        if (this.showLo && lo !== undefined) {
             const fm = g.measureText("LO", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
-        if (this.showHi) {
+        if (this.showHi && hi !== undefined) {
             const fm = g.measureText("HI", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
-        if (this.showHiHi) {
+        if (this.showHiHi && hihi !== undefined) {
             const fm = g.measureText("HIHI", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
 
         const x = area.x + area.width - markerWidth - this.markerGap - this.markerTickLength;
-        if (this.showLoLo) {
-            const y = Math.round(linearScale.getValuePosition(this.levelLoLo));
+        if (this.showLoLo && lolo !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(lolo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorLoLo,
@@ -129,8 +133,8 @@ export class Tank extends Widget {
                 font,
             });
         }
-        if (this.showLo) {
-            const y = Math.round(linearScale.getValuePosition(this.levelLo));
+        if (this.showLo && lo !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(lo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorLo,
@@ -146,8 +150,8 @@ export class Tank extends Widget {
                 font,
             });
         }
-        if (this.showHi) {
-            const y = Math.round(linearScale.getValuePosition(this.levelHi));
+        if (this.showHi && hi !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(hi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorHi,
@@ -163,8 +167,8 @@ export class Tank extends Widget {
                 font,
             });
         }
-        if (this.showHiHi) {
-            const y = Math.round(linearScale.getValuePosition(this.levelHiHi));
+        if (this.showHiHi && hihi !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(hihi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorHiHi,
@@ -301,6 +305,54 @@ export class Tank extends Widget {
         });
     }
 
+    get min() {
+        if (this.limitsFromPv) {
+            return this.pv?.lowerDisplayLimit ?? this.minimum;
+        } else {
+            return this.minimum;
+        }
+    }
+
+    get max() {
+        if (this.limitsFromPv) {
+            return this.pv?.upperDisplayLimit ?? this.maximum;
+        } else {
+            return this.maximum;
+        }
+    }
+
+    get lolo() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.lowerAlarmLimit;
+        } else {
+            return this.levelLoLo;
+        }
+    }
+
+    get lo() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.lowerWarningLimit;
+        } else {
+            return this.levelLo;
+        }
+    }
+
+    get hi() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.upperWarningLimit;
+        } else {
+            return this.levelHi;
+        }
+    }
+
+    get hihi() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.upperAlarmLimit;
+        } else {
+            return this.levelHiHi;
+        }
+    }
+
     get defaultCorner() { return this.scale * 15; }
     get markerTickLength() { return this.scale * 10; }
     get markerTickLineWidth() { return this.scale * 2; }
@@ -318,9 +370,9 @@ export class Tank extends Widget {
     }
 
     private getFillValue() {
-        let value = this.pv?.value ?? this.minimum;
-        value = Math.max(this.minimum, value);
-        value = Math.min(this.maximum, value);
+        let value = this.pv?.value ?? this.min;
+        value = Math.max(this.min, value);
+        value = Math.min(this.max, value);
         return value;
     }
 
@@ -337,6 +389,7 @@ export class Tank extends Widget {
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
     get levelHi(): number { return this.properties.getValue(PROP_LEVEL_HI); }
     get levelHiHi(): number { return this.properties.getValue(PROP_LEVEL_HIHI); }
+    get limitsFromPv(): boolean { return this.properties.getValue(PROP_LIMITS_FROM_PV); }
     get logScale(): boolean { return this.properties.getValue(PROP_LOG_SCALE); }
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get majorTickStepHint(): number { return this.scale * this.properties.getValue(PROP_MAJOR_TICK_STEP_HINT); }

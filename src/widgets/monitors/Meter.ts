@@ -144,7 +144,7 @@ export class Meter extends Widget {
 
         const font = Font.ARIAL_12_BOLD.scale(this.scale);
         if (this.pv && this.pv.value !== undefined) {
-            const stringValue = String(this.pv.value);
+            const stringValue = this.format(this.pv.value);
             const fm = g.measureText(stringValue, font);
             g.fillText({
                 x: scaleBounds.x + scaleBounds.width / 2 - fm.width / 2,
@@ -206,6 +206,10 @@ export class Meter extends Widget {
 
     get rampWidth() {
         return this.scale * RAMP_WIDTH;
+    }
+
+    private format(v: number) {
+        return String(Number(v.toFixed(3)));
     }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }

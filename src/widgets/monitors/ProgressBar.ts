@@ -23,6 +23,7 @@ const PROP_LEVEL_HI = 'level_hi';
 const PROP_LEVEL_HIHI = 'level_hihi';
 const PROP_LEVEL_LO = 'level_lo';
 const PROP_LEVEL_LOLO = 'level_lolo';
+const PROP_LIMITS_FROM_PV = 'limits_from_pv';
 const PROP_LOG_SCALE = 'log_scale';
 const PROP_MAXIMUM = 'maximum';
 const PROP_MAJOR_TICK_STEP_HINT = 'major_tick_step_hint';
@@ -59,6 +60,7 @@ export class ProgressBar extends Widget {
         this.properties.add(new FloatProperty(PROP_LEVEL_HIHI));
         this.properties.add(new FloatProperty(PROP_LEVEL_LO));
         this.properties.add(new FloatProperty(PROP_LEVEL_LOLO));
+        this.properties.add(new BooleanProperty(PROP_LIMITS_FROM_PV));
         this.properties.add(new BooleanProperty(PROP_LOG_SCALE));
         this.properties.add(new FloatProperty(PROP_MAXIMUM));
         this.properties.add(new FloatProperty(PROP_MAJOR_TICK_STEP_HINT));
@@ -97,8 +99,8 @@ export class ProgressBar extends Widget {
     private drawVertical(g: Graphics, area: Bounds) {
         const foregroundColor = this.alarmSensitiveForegroundColor;
 
-        const linearScale = new LinearScale(this.scale, this.scaleFont, this.minimum,
-            this.maximum, this.logScale, this.majorTickStepHint, foregroundColor,
+        const linearScale = new LinearScale(this.scale, this.scaleFont, this.min,
+            this.max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
         const scaleWidth = linearScale.drawVertical(g, area.x, area.y, area.height, true);
 
@@ -116,29 +118,30 @@ export class ProgressBar extends Widget {
     }
 
     private drawVerticalMarkers(g: Graphics, linearScale: LinearScale, area: Bounds) {
+        const { lolo, lo, hi, hihi } = this;
         const font = Font.ARIAL_9.scale(this.scale);
         let markerWidth = 0;
-        if (this.showLoLo) {
+        if (this.showLoLo && lolo !== undefined) {
             const fm = g.measureText("LOLO", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
-        if (this.showLo) {
+        if (this.showLo && lo !== undefined) {
             const fm = g.measureText("LO", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
-        if (this.showHi) {
+        if (this.showHi && hi !== undefined) {
             const fm = g.measureText("HI", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
-        if (this.showHiHi) {
+        if (this.showHiHi && hihi !== undefined) {
             const fm = g.measureText("HIHI", font);
             markerWidth = Math.max(markerWidth, fm.width);
         }
 
         const x2 = area.x + area.width; // Stick to right side
-        if (this.showLoLo) {
+        if (this.showLoLo && lolo !== undefined) {
             const tickX = x2 - markerWidth - this.markerGap;
-            const y = Math.round(linearScale.getValuePosition(this.levelLoLo));
+            const y = Math.round(linearScale.getValuePosition(lolo));
             g.strokePath({
                 path: new Path(tickX, y).lineTo(tickX - this.markerTickLength, y),
                 color: this.colorLoLo,
@@ -154,9 +157,9 @@ export class ProgressBar extends Widget {
                 font,
             });
         }
-        if (this.showLo) {
+        if (this.showLo && lo !== undefined) {
             const tickX = x2 - markerWidth - this.markerGap;
-            const y = Math.round(linearScale.getValuePosition(this.levelLo));
+            const y = Math.round(linearScale.getValuePosition(lo));
             g.strokePath({
                 path: new Path(tickX, y).lineTo(tickX - this.markerTickLength, y),
                 color: this.colorLo,
@@ -172,9 +175,9 @@ export class ProgressBar extends Widget {
                 font,
             });
         }
-        if (this.showHi) {
+        if (this.showHi && hi !== undefined) {
             const tickX = x2 - markerWidth - this.markerGap;
-            const y = Math.round(linearScale.getValuePosition(this.levelHi));
+            const y = Math.round(linearScale.getValuePosition(hi));
             g.strokePath({
                 path: new Path(tickX, y).lineTo(tickX - this.markerTickLength, y),
                 color: this.colorHi,
@@ -190,9 +193,9 @@ export class ProgressBar extends Widget {
                 font,
             });
         }
-        if (this.showHiHi) {
+        if (this.showHiHi && hihi !== undefined) {
             const tickX = x2 - markerWidth - this.markerGap;
-            const y = Math.round(linearScale.getValuePosition(this.levelHiHi));
+            const y = Math.round(linearScale.getValuePosition(hihi));
             g.strokePath({
                 path: new Path(tickX, y).lineTo(tickX - this.markerTickLength, y),
                 color: this.colorHiHi,
@@ -293,8 +296,8 @@ export class ProgressBar extends Widget {
     private drawHorizontal(g: Graphics, area: Bounds) {
         const foregroundColor = this.alarmSensitiveForegroundColor;
 
-        const linearScale = new LinearScale(this.scale, this.scaleFont, this.minimum,
-            this.maximum, this.logScale, this.majorTickStepHint, foregroundColor,
+        const linearScale = new LinearScale(this.scale, this.scaleFont, this.min,
+            this.max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
         const scaleHeight = linearScale.drawHorizontal(g, area.x, area.y + area.height, area.width);
 
@@ -312,28 +315,29 @@ export class ProgressBar extends Widget {
     }
 
     private drawHorizontalMarkers(g: Graphics, linearScale: LinearScale, area: Bounds) {
+        const { lolo, lo, hi, hihi } = this;
         const font = Font.ARIAL_9.scale(this.scale);
         let markerHeight = 0;
-        if (this.showLoLo) {
+        if (this.showLoLo && lolo !== undefined) {
             const fm = g.measureText("LOLO", font);
             markerHeight = Math.max(markerHeight, fm.height);
         }
-        if (this.showLo) {
+        if (this.showLo && lo !== undefined) {
             const fm = g.measureText("LO", font);
             markerHeight = Math.max(markerHeight, fm.height);
         }
-        if (this.showHi) {
+        if (this.showHi && hi !== undefined) {
             const fm = g.measureText("HI", font);
             markerHeight = Math.max(markerHeight, fm.height);
         }
-        if (this.showHiHi) {
+        if (this.showHiHi && hihi !== undefined) {
             const fm = g.measureText("HIHI", font);
             markerHeight = Math.max(markerHeight, fm.height);
         }
 
         const y = area.y;
-        if (this.showLoLo) {
-            const x = Math.round(linearScale.getValuePosition(this.levelLoLo));
+        if (this.showLoLo && lolo !== undefined) {
+            const x = Math.round(linearScale.getValuePosition(lolo));
             const tickY = y + markerHeight + this.markerGap;
             g.strokePath({
                 path: new Path(x, tickY).lineTo(x, tickY + this.markerTickLength),
@@ -350,8 +354,8 @@ export class ProgressBar extends Widget {
                 font,
             });
         }
-        if (this.showLo) {
-            const x = Math.round(linearScale.getValuePosition(this.levelLo));
+        if (this.showLo && lo !== undefined) {
+            const x = Math.round(linearScale.getValuePosition(lo));
             const tickY = y + markerHeight + this.markerGap;
             g.strokePath({
                 path: new Path(x, tickY).lineTo(x, tickY + this.markerTickLength),
@@ -368,8 +372,8 @@ export class ProgressBar extends Widget {
                 font,
             });
         }
-        if (this.showHi) {
-            const x = Math.round(linearScale.getValuePosition(this.levelHi));
+        if (this.showHi && hi !== undefined) {
+            const x = Math.round(linearScale.getValuePosition(hi));
             const tickY = y + markerHeight + this.markerGap;
             g.strokePath({
                 path: new Path(x, tickY).lineTo(x, tickY + this.markerTickLength),
@@ -386,8 +390,8 @@ export class ProgressBar extends Widget {
                 font,
             });
         }
-        if (this.showHiHi) {
-            const x = Math.round(linearScale.getValuePosition(this.levelHiHi));
+        if (this.showHiHi && hihi !== undefined) {
+            const x = Math.round(linearScale.getValuePosition(hihi));
             const tickY = y + markerHeight + this.markerGap;
             g.strokePath({
                 path: new Path(x, tickY).lineTo(x, tickY + this.markerTickLength),
@@ -485,6 +489,54 @@ export class ProgressBar extends Widget {
         }
     }
 
+    get min() {
+        if (this.limitsFromPv) {
+            return this.pv?.lowerDisplayLimit ?? this.minimum;
+        } else {
+            return this.minimum;
+        }
+    }
+
+    get max() {
+        if (this.limitsFromPv) {
+            return this.pv?.upperDisplayLimit ?? this.maximum;
+        } else {
+            return this.maximum;
+        }
+    }
+
+    get lolo() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.lowerAlarmLimit;
+        } else {
+            return this.levelLoLo;
+        }
+    }
+
+    get lo() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.lowerWarningLimit;
+        } else {
+            return this.levelLo;
+        }
+    }
+
+    get hi() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.upperWarningLimit;
+        } else {
+            return this.levelHi;
+        }
+    }
+
+    get hihi() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.upperAlarmLimit;
+        } else {
+            return this.levelHiHi;
+        }
+    }
+
     get markerTickLength() { return this.scale * 10; }
     get markerTickLineWidth() { return this.scale * 2; }
     get markerGap() { return this.scale * 3; }
@@ -502,9 +554,9 @@ export class ProgressBar extends Widget {
     }
 
     private getFillValue() {
-        let value = this.pv?.value ?? this.minimum;
-        value = Math.max(this.minimum, value);
-        value = Math.min(this.maximum, value);
+        let value = this.pv?.value ?? this.min;
+        value = Math.max(this.min, value);
+        value = Math.min(this.max, value);
         return value;
     }
 
@@ -528,6 +580,7 @@ export class ProgressBar extends Widget {
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
     get levelHi(): number { return this.properties.getValue(PROP_LEVEL_HI); }
     get levelHiHi(): number { return this.properties.getValue(PROP_LEVEL_HIHI); }
+    get limitsFromPv(): boolean { return this.properties.getValue(PROP_LIMITS_FROM_PV); }
     get logScale(): boolean { return this.properties.getValue(PROP_LOG_SCALE); }
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get majorTickStepHint(): number { return this.scale * this.properties.getValue(PROP_MAJOR_TICK_STEP_HINT); }

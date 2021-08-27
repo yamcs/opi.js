@@ -21,6 +21,7 @@ const PROP_LEVEL_HI = 'level_hi';
 const PROP_LEVEL_HIHI = 'level_hihi';
 const PROP_LEVEL_LO = 'level_lo';
 const PROP_LEVEL_LOLO = 'level_lolo';
+const PROP_LIMITS_FROM_PV = 'limits_from_pv';
 const PROP_LOG_SCALE = 'log_scale';
 const PROP_MAXIMUM = 'maximum';
 const PROP_MAJOR_TICK_STEP_HINT = 'major_tick_step_hint';
@@ -55,6 +56,7 @@ export class Thermometer extends Widget {
         this.properties.add(new FloatProperty(PROP_LEVEL_HIHI));
         this.properties.add(new FloatProperty(PROP_LEVEL_LO));
         this.properties.add(new FloatProperty(PROP_LEVEL_LOLO));
+        this.properties.add(new BooleanProperty(PROP_LIMITS_FROM_PV));
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new BooleanProperty(PROP_LOG_SCALE));
         this.properties.add(new FloatProperty(PROP_MAXIMUM));
@@ -74,7 +76,7 @@ export class Thermometer extends Widget {
     }
 
     draw(g: Graphics) {
-        const { scale } = this;
+        const { scale, min, max } = this;
         let area = this.area;
         if (this.borderAlarmSensitive) {
             area = shrink(this.area, 2 * this.scale);
@@ -93,8 +95,8 @@ export class Thermometer extends Widget {
         }
         let pipeArea = { ...area, height: pipeHeight };
 
-        const linearScale = new LinearScale(scale, this.scaleFont, this.minimum,
-            this.maximum, this.logScale, this.majorTickStepHint, foregroundColor,
+        const linearScale = new LinearScale(scale, this.scaleFont, min,
+            max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
 
         let unitHeight = 0;
@@ -133,7 +135,7 @@ export class Thermometer extends Widget {
 
         pipeArea = {
             ...pipeArea,
-            y: linearScale.getValuePosition(this.maximum) - cornerSize,
+            y: linearScale.getValuePosition(max) - cornerSize,
             height: linearScale.scaleLength + (2 * cornerSize),
         };
 
@@ -169,7 +171,7 @@ export class Thermometer extends Widget {
             // Cover border between pipe and bulb
             const joint: Bounds = {
                 x: Math.round(pipeArea.x + (pipeArea.width / 2) - (this.pipeWidth / 2)) + this.outlineWidth,
-                y: Math.floor(linearScale.getValuePosition(this.minimum)),
+                y: Math.floor(linearScale.getValuePosition(min)),
                 width: this.pipeWidth - (2 * this.outlineWidth),
                 height: scale * 3,
             };
@@ -202,7 +204,7 @@ export class Thermometer extends Widget {
     }
 
     private drawPipe(g: Graphics, area: Bounds, linearScale: LinearScale) {
-        const { scale, outlineWidth } = this;
+        const { scale, outlineWidth, min, max } = this;
         const foregroundColor = this.alarmSensitiveForegroundColor;
         const fillColor = this.alarmSensitiveFillColor;
         const pipeBounds: Bounds = {
@@ -214,16 +216,16 @@ export class Thermometer extends Widget {
 
         const value = this.getFillValue();
         let valuePosition = linearScale.getValuePosition(value);
-        if (this.maximum > this.minimum) {
-            if (value > this.maximum) {
+        if (max > min) {
+            if (value > max) {
                 valuePosition -= (10 * scale);
-            } else if (value < this.minimum) {
+            } else if (value < min) {
                 valuePosition += (10 * scale);
             }
         } else {
-            if (value > this.minimum) {
+            if (value > min) {
                 valuePosition += (10 * scale);
-            } else if (value < this.maximum) {
+            } else if (value < max) {
                 valuePosition -= (10 * scale);
             }
         }
@@ -281,10 +283,11 @@ export class Thermometer extends Widget {
     }
 
     private drawMarkers(g: Graphics, area: Bounds, linearScale: LinearScale) {
+        const { lolo, lo, hi, hihi } = this;
         const font = Font.ARIAL_9.scale(this.scale);
         const x = area.x + (area.width / 2) + (this.pipeWidth / 2);
-        if (this.showLoLo) {
-            const y = Math.round(linearScale.getValuePosition(this.levelLoLo));
+        if (this.showLoLo && lolo !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(lolo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorLoLo,
@@ -300,8 +303,8 @@ export class Thermometer extends Widget {
                 font,
             });
         }
-        if (this.showLo) {
-            const y = Math.round(linearScale.getValuePosition(this.levelLo));
+        if (this.showLo && lo !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(lo));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorLo,
@@ -317,8 +320,8 @@ export class Thermometer extends Widget {
                 font,
             });
         }
-        if (this.showHi) {
-            const y = Math.round(linearScale.getValuePosition(this.levelHi));
+        if (this.showHi && hi !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(hi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorHi,
@@ -334,8 +337,8 @@ export class Thermometer extends Widget {
                 font,
             });
         }
-        if (this.showHiHi) {
-            const y = Math.round(linearScale.getValuePosition(this.levelHiHi));
+        if (this.showHiHi && hihi !== undefined) {
+            const y = Math.round(linearScale.getValuePosition(hihi));
             g.strokePath({
                 path: new Path(x, y).lineTo(x + this.markerTickLength, y),
                 color: this.colorHiHi,
@@ -350,6 +353,54 @@ export class Thermometer extends Widget {
                 color: this.colorHiHi,
                 font,
             });
+        }
+    }
+
+    get min() {
+        if (this.limitsFromPv) {
+            return this.pv?.lowerDisplayLimit ?? this.minimum;
+        } else {
+            return this.minimum;
+        }
+    }
+
+    get max() {
+        if (this.limitsFromPv) {
+            return this.pv?.upperDisplayLimit ?? this.maximum;
+        } else {
+            return this.maximum;
+        }
+    }
+
+    get lolo() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.lowerAlarmLimit;
+        } else {
+            return this.levelLoLo;
+        }
+    }
+
+    get lo() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.lowerWarningLimit;
+        } else {
+            return this.levelLo;
+        }
+    }
+
+    get hi() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.upperWarningLimit;
+        } else {
+            return this.levelHi;
+        }
+    }
+
+    get hihi() {
+        if (this.limitsFromPv && this.pv && !this.pv.disconnected) {
+            return this.pv.upperAlarmLimit;
+        } else {
+            return this.levelHiHi;
         }
     }
 
@@ -371,9 +422,9 @@ export class Thermometer extends Widget {
     }
 
     private getFillValue() {
-        let value = this.pv?.value ?? this.minimum;
-        value = Math.max(this.minimum, value);
-        value = Math.min(this.maximum, value);
+        let value = this.pv?.value ?? this.min;
+        value = Math.max(this.min, value);
+        value = Math.min(this.max, value);
         return value;
     }
 
@@ -395,6 +446,7 @@ export class Thermometer extends Widget {
     get levelLoLo(): number { return this.properties.getValue(PROP_LEVEL_LOLO); }
     get levelHi(): number { return this.properties.getValue(PROP_LEVEL_HI); }
     get levelHiHi(): number { return this.properties.getValue(PROP_LEVEL_HIHI); }
+    get limitsFromPv(): boolean { return this.properties.getValue(PROP_LIMITS_FROM_PV); }
     get logScale(): boolean { return this.properties.getValue(PROP_LOG_SCALE); }
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get majorTickStepHint(): number { return this.scale * this.properties.getValue(PROP_MAJOR_TICK_STEP_HINT); }
