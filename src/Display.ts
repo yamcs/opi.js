@@ -528,7 +528,7 @@ export class Display {
     }
 
     getPVNames() {
-        this.pvEngine.getPVNames();
+        return this.pvEngine.getPVNames();
     }
 
     getPV(pvName: string) {

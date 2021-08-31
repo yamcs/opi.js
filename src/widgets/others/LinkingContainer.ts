@@ -55,10 +55,6 @@ export class LinkingContainer extends AbstractContainerWidget {
                 color: this.linkedDisplay.backgroundColor,
             });
 
-            //if (linkedWidget) {
-            // console.log('need to link to ', linkedWidget.name);
-            //}
-
             // This is complicated. Notes for future self:
             // -------------------------------------------
             // 1) To be compatible with Yamcs Studio, we ignore the declared

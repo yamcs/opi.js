@@ -167,7 +167,7 @@ export class PVEngine {
     }
 
     createScript(widget: Widget, model: Script, scriptText: string) {
-        const pvs = [];
+        const pvs: PV[] = [];
         for (const input of model.inputs) {
             const pvName = widget.expandMacro(input.pvName);
             pvs.push(this.createPV(pvName));
@@ -175,7 +175,16 @@ export class PVEngine {
         const script = new ScriptInstance(widget, model, scriptText, pvs);
         this.scripts.push(script);
 
-        const listener = () => script.scriptEngine.run();
+        const listener = () => {
+            if (model.checkConnect) {
+                for (const pv of pvs) {
+                    if (pv.disconnected || (pv.value === null) || (pv.value === undefined)) {
+                        return;
+                    }
+                }
+            }
+            script.scriptEngine.run();
+        };
 
         for (const input of model.inputs) {
             if (input.trigger) {

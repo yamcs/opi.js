@@ -40,9 +40,7 @@ export class Color {
   }
 
   brighter() {
-    let r = this.red;
-    let g = this.green;
-    let b = this.blue;
+    let { red: r, green: g, blue: b } = this;
 
     const i = Math.floor(1.0 / (1.0 - 0.7));
     if (r === 0 && g === 0 && b === 0) {
@@ -75,6 +73,18 @@ export class Color {
 
   contrast() {
     return new Color(this.red, 255 - this.green, 255 - this.blue);
+  }
+
+  hex() {
+    let r = this.red.toString(16);
+    r = r.length == 1 ? '0' + r : r;
+    let g = this.green.toString(16);
+    g = g.length == 1 ? '0' + g : g;
+    let b = this.blue.toString(16);
+    b = b.length == 1 ? '0' + b : b;
+    let a = this.alpha.toString(16);
+    a = a.length == 1 ? '0' + a : a;
+    return `#${r}${g}${b}${a}`;
   }
 
   toString() {

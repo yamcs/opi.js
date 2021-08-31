@@ -9,7 +9,8 @@ export interface Script {
     text?: string;
 
     /**
-     * If true, the script may only run if all PVs are connected
+     * If true, the script may only run if all PVs are connected, and
+     * have a non-null value.
      */
     checkConnect: boolean;
 
