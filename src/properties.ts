@@ -1,5 +1,6 @@
 import { ActionSet } from './actions';
 import { Color } from './Color';
+import { ColorMap } from './ColorMap';
 import { Font } from './Font';
 import { MacroSet } from './macros';
 import { Point } from './positioning';
@@ -58,6 +59,8 @@ export class PropertySet {
                     property.value = node.getScaleOptions(property.name);
                 } else if (property instanceof AutoScaleWidgetsProperty) {
                     property.value = node.getAutoScaleWidgets(property.name);
+                } else if (property instanceof ColorMapProperty) {
+                    property.value = node.getColorMap(property.name);
                 } else if (property instanceof StringProperty) {
                     // The non-raw value is set below (after reading in other properties)
                     (property as StringProperty).rawValue = node.getString(property.name);
@@ -172,6 +175,12 @@ export class FontProperty extends Property<Font> {
     printScriptValue(value: Font) {
         const { name, height, style } = { ...value };
         return `ColorFontUtil.getFont("${name}", ${height}, ${style})`;
+    }
+}
+
+export class ColorMapProperty extends Property<ColorMap> {
+    printScriptValue(value: ColorMap) {
+        return `${value.code}`;
     }
 }
 

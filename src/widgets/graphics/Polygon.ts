@@ -29,22 +29,18 @@ export class Polygon extends Widget {
 
     init() {
         const xProperty = this.properties.getProperty('x');
-        if (xProperty) {
-            xProperty.addListener((newValue, oldValue) => {
-                const newPoints = translatePoints(this.points, newValue - oldValue, 0);
-                this.properties.setValue(PROP_POINTS, newPoints);
-                this.requestRepaint();
-            });
-        }
+        xProperty?.addListener((newValue, oldValue) => {
+            const newPoints = translatePoints(this.points, newValue - oldValue, 0);
+            this.properties.setValue(PROP_POINTS, newPoints);
+            this.requestRepaint();
+        });
 
         const yProperty = this.properties.getProperty('y');
-        if (yProperty) {
-            yProperty.addListener((newValue, oldValue) => {
-                const newPoints = translatePoints(this.points, 0, newValue - oldValue);
-                this.properties.setValue(PROP_POINTS, newPoints);
-                this.requestRepaint();
-            });
-        }
+        yProperty?.addListener((newValue, oldValue) => {
+            const newPoints = translatePoints(this.points, 0, newValue - oldValue);
+            this.properties.setValue(PROP_POINTS, newPoints);
+            this.requestRepaint();
+        });
     }
 
     draw(g: Graphics) {

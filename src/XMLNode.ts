@@ -1,5 +1,6 @@
 import { ActionSet, ExecuteCommandAction, ExecuteJavaScriptAction, OpenDisplayAction, OpenFileAction, OpenWebpageAction, PlaySoundAction, WritePVAction } from './actions';
 import { Color } from './Color';
+import { ColorMap } from './ColorMap';
 import { Font } from './Font';
 import { MacroSet } from './macros';
 import { BooleanExpression, RuleInput, RuleSet } from './rules';
@@ -303,6 +304,30 @@ export class XMLNode {
             node.getInt('min_width'),
             node.getInt('min_height'),
         );
+    }
+
+    getColorMap(name: string) {
+        const node = this.getNode(name);
+        if (node.hasNode('e')) { // Custom mapping
+            const colorMap = new ColorMap(
+                0,
+                node.getBoolean('interpolate'),
+                node.getBoolean('autoscale'),
+            );
+            for (const entry of node.getNodes('e')) {
+                const value = Number(entry.getTextContent());
+                const r = entry.getIntAttribute('red');
+                const g = entry.getIntAttribute('green');
+                const b = entry.getIntAttribute('blue');
+                colorMap.addMapping(value, r, g, b);
+            }
+        } else { // Predefined mapping
+            return new ColorMap(
+                node.getInt('map'),
+                node.getBoolean('interpolate'),
+                node.getBoolean('autoscale'),
+            );
+        }
     }
 
     getRules(name: string) {

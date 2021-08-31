@@ -46,6 +46,11 @@ export abstract class Widget {
     width = 0;
     height = 0;
 
+    // Intrinsic value of the widget. PV widgets write to
+    // this value upon PV update, but it may also be updated
+    // directly through scripting.
+    private _value: any;
+
     // Some widgets ignore the fill of this border (only the stroke).
     // (Rectangle, RoundedRectangle)
     protected fillRoundRectangleBackgroundBorder = true;
@@ -704,6 +709,15 @@ export abstract class Widget {
             parent = parent.parent;
         }
         return scale;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    set value(value: any) {
+        this._value = value;
+        this.requestRepaint();
     }
 
     get wuid(): string { return this.properties.getValue(PROP_WUID); }

@@ -31,6 +31,7 @@ import { RoundedRectangle } from './widgets/graphics/RoundedRectangle';
 import { ByteMonitor } from './widgets/monitors/ByteMonitor';
 import { Gauge } from './widgets/monitors/Gauge';
 import { ImageBooleanIndicator } from './widgets/monitors/ImageBooleanIndicator';
+import { IntensityGraph } from './widgets/monitors/IntensityGraph';
 import { LED } from './widgets/monitors/LED';
 import { Meter } from './widgets/monitors/Meter';
 import { ProgressBar } from './widgets/monitors/ProgressBar';
@@ -62,6 +63,7 @@ const TYPE_GROUPING_CONTAINER = 'Grouping Container';
 const TYPE_IMAGE = 'Image';
 const TYPE_IMAGE_BOOLEAN_BUTTON = 'Image Boolean Button';
 const TYPE_IMAGE_BOOLEAN_INDICATOR = 'Image Boolean Indicator';
+const TYPE_INTENSITY_GRAPH = 'Intensity Graph';
 const TYPE_LABEL = 'Label';
 const TYPE_LED = 'LED';
 const TYPE_LINKING_CONTAINER = 'Linking Container';
@@ -323,6 +325,8 @@ export class Display {
                 return new ImageBooleanButton(this, parent);
             case TYPE_IMAGE_BOOLEAN_INDICATOR:
                 return new ImageBooleanIndicator(this, parent);
+            case TYPE_INTENSITY_GRAPH:
+                return new IntensityGraph(this, parent);
             case TYPE_LABEL:
                 return new Label(this, parent);
             case TYPE_LED:

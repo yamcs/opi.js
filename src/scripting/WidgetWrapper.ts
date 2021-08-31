@@ -1,4 +1,5 @@
-import { StringProperty } from '../properties';
+import { ColorMap } from '../ColorMap';
+import { ColorMapProperty, StringProperty } from '../properties';
 import { Widget } from '../Widget';
 
 /**
@@ -23,10 +24,73 @@ export class WidgetWrapper {
         if (property instanceof StringProperty) {
             value = (value !== undefined) ? String(value) : value;
             this.widget.properties.setValue(propertyName, value);
+        } else if (property instanceof ColorMapProperty) {
+            let code = 0;
+            switch (value) {
+                case 'GrayScale':
+                    code = 1;
+                    break;
+                case 'JET':
+                    code = 2;
+                    break;
+                case 'ColorSpectrum':
+                    code = 3;
+                    break;
+                case 'Hot':
+                    code = 4;
+                    break;
+                case 'Cool':
+                    code = 5;
+                    break;
+                case 'Shaded':
+                    code = 6;
+                    break;
+            }
+            // It is unfortunate that autoscale and interpolate are fixed
+            // to true, instead of keeping their previous values. But that
+            // is consistent with current Yamcs Studio behaviour.
+            const colorMap = new ColorMap(code, true, true);
+            this.widget.properties.setValue(propertyName, colorMap);
         } else {
             this.widget.properties.setValue(propertyName, value);
         }
 
         this.widget.requestRepaint();
+    }
+
+    getName(): string {
+        return this.getPropertyValue('name');
+    }
+
+    setX(x: number) {
+        this.setPropertyValue('x', x);
+    }
+
+    setY(y: number) {
+        this.setPropertyValue('y', y);
+    }
+
+    setWidth(width: number) {
+        this.setPropertyValue('width', width);
+    }
+
+    setHeight(height: number) {
+        this.setPropertyValue('height', height);
+    }
+
+    setVisible(visible: boolean) {
+        this.setPropertyValue('visible', visible);
+    }
+
+    getValue() {
+        return this.widget.value ?? null;
+    }
+
+    setValue(value: any) {
+        this.widget.value = value;
+    }
+
+    setValueInUIThread(value: any) {
+        this.setValue(value);
     }
 }
