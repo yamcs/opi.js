@@ -2,6 +2,7 @@ import { PV } from '../pv/PV';
 import { Widget } from '../Widget';
 import { ColorFontUtil } from './ColorFontUtil';
 import { ConsoleUtil } from './ConsoleUtil';
+import { DataUtil } from './DataUtil';
 import { DisplayWrapper } from './DisplayWrapper';
 import { MessageDialog } from './MessageDialog';
 import { PVUtil } from './PVUtil';
@@ -46,6 +47,7 @@ export class ScriptEngine {
       widget: new WidgetWrapper(widget),
       ConsoleUtil: new ConsoleUtil(),
       ColorFontUtil: new ColorFontUtil(),
+      DataUtil: new DataUtil(),
       MessageDialog: new MessageDialog(),
       PVUtil: new PVUtil(widget.display.pvEngine),
       ScriptUtil: new ScriptUtil(widget.display),
