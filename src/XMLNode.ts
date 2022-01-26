@@ -270,7 +270,7 @@ export class XMLNode {
                     embedded: true,
                     text: pathNode.getString('scriptText'),
                     checkConnect: pathNode.getBooleanAttribute('checkConnect'),
-                    skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
+                    skipFirstExecution: pathNode.getBooleanAttribute('sfe', false),
                     inputs,
                 });
             } else if (path === 'EmbeddedPy') {
@@ -280,7 +280,7 @@ export class XMLNode {
                     embedded: false,
                     path,
                     checkConnect: pathNode.getBooleanAttribute('checkConnect'),
-                    skipFirstExecution: pathNode.getBooleanAttribute('sfe'),
+                    skipFirstExecution: pathNode.getBooleanAttribute('sfe', false),
                     inputs,
                 });
             }
