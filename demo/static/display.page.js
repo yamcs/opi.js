@@ -22,6 +22,7 @@ window.page = (function () {
 
     return {
         loadDisplay: (baseUrl, name) => {
+            display.imagesPrefix = '/dist/images/';
             display.baseUrl = baseUrl;
             display.setSource(name).then(() => {
                 let html = '';
