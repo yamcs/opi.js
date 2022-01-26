@@ -1,9 +1,10 @@
 import { Color } from '../../Color';
+import { DecimalFormat } from '../../DecimalFormat';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
 import { Bounds, shrink, translatePoints } from '../../positioning';
-import { BooleanProperty, ColorProperty, FloatProperty, FontProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 import { LinearScale } from './LinearScale';
@@ -31,6 +32,7 @@ const PROP_MINIMUM = 'minimum';
 const PROP_ORIGIN = 'origin';
 const PROP_ORIGIN_IGNORED = 'origin_ignored';
 const PROP_SCALE_FONT = 'scale_font';
+const PROP_SCALE_FORMAT = 'scale_format';
 const PROP_SHOW_HI = 'show_hi';
 const PROP_SHOW_HIHI = 'show_hihi';
 const PROP_SHOW_LABEL = 'show_label';
@@ -40,6 +42,7 @@ const PROP_SHOW_MARKERS = 'show_markers';
 const PROP_SHOW_MINOR_TICKS = 'show_minor_ticks';
 const PROP_SHOW_SCALE = 'show_scale';
 const PROP_TRANSPARENT_BACKGROUND = 'transparent_background';
+const PROP_VALUE_LABEL_FORMAT = 'value_label_format';
 
 export class ProgressBar extends Widget {
 
@@ -68,6 +71,7 @@ export class ProgressBar extends Widget {
         this.properties.add(new FloatProperty(PROP_ORIGIN, 0));
         this.properties.add(new BooleanProperty(PROP_ORIGIN_IGNORED, true));
         this.properties.add(new FontProperty(PROP_SCALE_FONT));
+        this.properties.add(new StringProperty(PROP_SCALE_FORMAT));
         this.properties.add(new BooleanProperty(PROP_SHOW_HI));
         this.properties.add(new BooleanProperty(PROP_SHOW_HIHI));
         this.properties.add(new BooleanProperty(PROP_SHOW_LABEL));
@@ -77,6 +81,7 @@ export class ProgressBar extends Widget {
         this.properties.add(new BooleanProperty(PROP_SHOW_MINOR_TICKS));
         this.properties.add(new BooleanProperty(PROP_SHOW_SCALE));
         this.properties.add(new BooleanProperty(PROP_TRANSPARENT_BACKGROUND));
+        this.properties.add(new StringProperty(PROP_VALUE_LABEL_FORMAT));
     }
 
     draw(g: Graphics) {
@@ -102,6 +107,7 @@ export class ProgressBar extends Widget {
         const linearScale = new LinearScale(this.scale, this.scaleFont, this.min,
             this.max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
+        linearScale.scaleFormat = this.scaleFormat;
         const scaleWidth = linearScale.drawVertical(g, area.x, area.y, area.height, true);
 
         let markerWidth = 0;
@@ -299,6 +305,7 @@ export class ProgressBar extends Widget {
         const linearScale = new LinearScale(this.scale, this.scaleFont, this.min,
             this.max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
+        linearScale.scaleFormat = this.scaleFormat;
         const scaleHeight = linearScale.drawHorizontal(g, area.x, area.y + area.height, area.width);
 
         let markerHeight = 0;
@@ -561,14 +568,17 @@ export class ProgressBar extends Widget {
     }
 
     private format(v: number) {
-        return String(Number(v.toFixed(2)));
+        if (this.valueLabelFormat) {
+            return new DecimalFormat(this.valueLabelFormat).format(v);
+        } else {
+            return String(Number(v.toFixed(2)));
+        }
     }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
     get colorLoLo(): Color { return this.properties.getValue(PROP_COLOR_LOLO); }
     get colorHi(): Color { return this.properties.getValue(PROP_COLOR_HI); }
     get colorHiHi(): Color { return this.properties.getValue(PROP_COLOR_HIHI); }
-    get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale); }
     get colorFillbackground(): Color { return this.properties.getValue(PROP_COLOR_FILLBACKGROUND); }
     get effect3d(): boolean { return this.properties.getValue(PROP_EFFECT_3D); }
     get fillColorAlarmSensitive(): boolean { return this.properties.getValue(PROP_FILLCOLOR_ALARM_SENSITIVE); }
@@ -587,6 +597,8 @@ export class ProgressBar extends Widget {
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
     get origin(): number { return this.properties.getValue(PROP_ORIGIN); }
     get originIgnored(): boolean { return this.properties.getValue(PROP_ORIGIN_IGNORED); }
+    get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale); }
+    get scaleFormat(): string { return this.properties.getValue(PROP_SCALE_FORMAT); }
     get showHi(): boolean { return this.properties.getValue(PROP_SHOW_HI); }
     get showHiHi(): boolean { return this.properties.getValue(PROP_SHOW_HIHI); }
     get showLabel(): boolean { return this.properties.getValue(PROP_SHOW_LABEL); }
@@ -596,4 +608,5 @@ export class ProgressBar extends Widget {
     get showMinorTicks(): boolean { return this.properties.getValue(PROP_SHOW_MINOR_TICKS); }
     get showScale(): boolean { return this.properties.getValue(PROP_SHOW_SCALE); }
     get transparentBackground(): boolean { return this.properties.getValue(PROP_TRANSPARENT_BACKGROUND); }
+    get valueLabelFormat(): string { return this.properties.getValue(PROP_VALUE_LABEL_FORMAT); }
 }

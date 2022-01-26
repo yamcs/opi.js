@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, StringListProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -53,7 +53,8 @@ export class RadioBox extends Widget {
                 mouseOut: () => {
                     this.hoveredItem = undefined;
                     this.requestRepaint();
-                }
+                },
+                tooltip: () => this.tooltip,
             });
         }
     }

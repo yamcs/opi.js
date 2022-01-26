@@ -3,7 +3,7 @@ import { Display } from '../../Display';
 import { OpenPVEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds, shrink, toBorderBox } from '../../positioning';
 import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -91,6 +91,7 @@ export class LED extends Widget {
                 this.display.fireEvent('openpv', event);
             },
             cursor: 'pointer',
+            tooltip: () => this.tooltip,
         };
     }
 

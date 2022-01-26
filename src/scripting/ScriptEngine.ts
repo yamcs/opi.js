@@ -8,7 +8,7 @@ import { MessageDialog } from './MessageDialog';
 import { PVUtil } from './PVUtil';
 import { PVWrapper } from './PVWrapper';
 import { ScriptUtil } from './ScriptUtil';
-import { WidgetWrapper } from './WidgetWrapper';
+import { wrapWidget } from './utils';
 
 interface Context { [key: string]: any; }
 
@@ -44,7 +44,7 @@ export class ScriptEngine {
     this.context = {
       display: new DisplayWrapper(widget.display),
       pvs: pvs.map(pv => new PVWrapper(pv)),
-      widget: new WidgetWrapper(widget),
+      widget: wrapWidget(widget),
       ConsoleUtil: new ConsoleUtil(),
       ColorFontUtil: new ColorFontUtil(),
       DataUtil: new DataUtil(),

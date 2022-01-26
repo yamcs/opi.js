@@ -1,9 +1,10 @@
 import { Color } from '../../Color';
+import { DecimalFormat } from '../../DecimalFormat';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
 import { Bounds, shrink } from '../../positioning';
-import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 import { LinearScale } from './LinearScale';
@@ -27,6 +28,7 @@ const PROP_MAXIMUM = 'maximum';
 const PROP_MAJOR_TICK_STEP_HINT = 'major_tick_step_hint';
 const PROP_MINIMUM = 'minimum';
 const PROP_SCALE_FONT = 'scale_font';
+const PROP_SCALE_FORMAT = 'scale_format';
 const PROP_SHOW_BULB = 'show_bulb';
 const PROP_SHOW_HI = 'show_hi';
 const PROP_SHOW_HIHI = 'show_hihi';
@@ -37,6 +39,7 @@ const PROP_SHOW_MINOR_TICKS = 'show_minor_ticks';
 const PROP_SHOW_SCALE = 'show_scale';
 const PROP_TRANSPARENT_BACKGROUND = 'transparent_background';
 const PROP_UNIT = 'unit';
+const PROP_VALUE_LABEL_FORMAT = 'value_label_format';
 
 const OUTLINE_COLOR_3D = new Color(160, 160, 160);
 
@@ -63,6 +66,7 @@ export class Thermometer extends Widget {
         this.properties.add(new FloatProperty(PROP_MAJOR_TICK_STEP_HINT));
         this.properties.add(new FloatProperty(PROP_MINIMUM));
         this.properties.add(new FontProperty(PROP_SCALE_FONT));
+        this.properties.add(new StringProperty(PROP_SCALE_FORMAT));
         this.properties.add(new BooleanProperty(PROP_SHOW_BULB));
         this.properties.add(new BooleanProperty(PROP_SHOW_HI));
         this.properties.add(new BooleanProperty(PROP_SHOW_HIHI));
@@ -73,6 +77,7 @@ export class Thermometer extends Widget {
         this.properties.add(new BooleanProperty(PROP_SHOW_SCALE));
         this.properties.add(new BooleanProperty(PROP_TRANSPARENT_BACKGROUND));
         this.properties.add(new IntProperty(PROP_UNIT));
+        this.properties.add(new StringProperty(PROP_VALUE_LABEL_FORMAT));
     }
 
     draw(g: Graphics) {
@@ -98,6 +103,7 @@ export class Thermometer extends Widget {
         const linearScale = new LinearScale(scale, this.scaleFont, min,
             max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
+        linearScale.scaleFormat = this.scaleFormat;
 
         let unitHeight = 0;
         let unitText = '';
@@ -429,14 +435,17 @@ export class Thermometer extends Widget {
     }
 
     private format(v: number) {
-        return String(Number(v.toFixed(3)));
+        if (this.valueLabelFormat) {
+            return new DecimalFormat(this.valueLabelFormat).format(v);
+        } else {
+            return String(Number(v.toFixed(3)));
+        }
     }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
     get colorLoLo(): Color { return this.properties.getValue(PROP_COLOR_LOLO); }
     get colorHi(): Color { return this.properties.getValue(PROP_COLOR_HI); }
     get colorHiHi(): Color { return this.properties.getValue(PROP_COLOR_HIHI); }
-    get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale); }
     get colorFillbackground(): Color { return this.properties.getValue(PROP_COLOR_FILLBACKGROUND); }
     get fillColorAlarmSensitive(): boolean { return this.properties.getValue(PROP_FILLCOLOR_ALARM_SENSITIVE); }
     get fillColor(): Color { return this.properties.getValue(PROP_FILL_COLOR); }
@@ -451,6 +460,8 @@ export class Thermometer extends Widget {
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get majorTickStepHint(): number { return this.scale * this.properties.getValue(PROP_MAJOR_TICK_STEP_HINT); }
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
+    get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale); }
+    get scaleFormat(): string { return this.properties.getValue(PROP_SCALE_FORMAT); }
     get showBulb(): boolean { return this.properties.getValue(PROP_SHOW_BULB); }
     get showMarkers(): boolean { return this.properties.getValue(PROP_SHOW_MARKERS); }
     get showMinorTicks(): boolean { return this.properties.getValue(PROP_SHOW_MINOR_TICKS); }
@@ -461,4 +472,5 @@ export class Thermometer extends Widget {
     get showScale(): boolean { return this.properties.getValue(PROP_SHOW_SCALE); }
     get transparentBackground(): boolean { return this.properties.getValue(PROP_TRANSPARENT_BACKGROUND); }
     get unit(): number { return this.properties.getValue(PROP_UNIT); }
+    get valueLabelFormat(): string { return this.properties.getValue(PROP_VALUE_LABEL_FORMAT); }
 }

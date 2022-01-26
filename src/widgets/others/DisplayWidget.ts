@@ -7,6 +7,8 @@ import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { Connection } from './Connection';
 
+let DID_SEQUENCE = 0;
+
 const PROP_AUTO_SCALE_WIDGETS = 'auto_scale_widgets';
 
 export class DisplayWidget extends AbstractContainerWidget {
@@ -18,6 +20,11 @@ export class DisplayWidget extends AbstractContainerWidget {
 
     parseNode(node: XMLNode) {
         super.parseNode(node);
+
+        const displayId = DID_SEQUENCE++;
+        this.macros.set('DID', `DID_${displayId}`);
+        const displayName = this.properties.getValue('name');
+        this.macros.set('DNAME', displayName);
 
         for (const widgetNode of node.getNodes('widget')) {
             const kind = widgetNode.getString('widget_type');
@@ -35,7 +42,7 @@ export class DisplayWidget extends AbstractContainerWidget {
     }
 
     draw(g: Graphics) {
-        for (const widget of this.widgets) {
+        for (const widget of this.widgets.filter(w => w.visible)) {
             widget.drawHolder(g);
             widget.draw(g);
             widget.drawDecoration(g);
@@ -43,7 +50,7 @@ export class DisplayWidget extends AbstractContainerWidget {
         for (const connection of this.connections) {
             connection.draw(g);
         }
-        for (const widget of this.widgets) {
+        for (const widget of this.widgets.filter(w => w.visible)) {
             widget.drawOverlay(g);
         }
     }
@@ -53,7 +60,7 @@ export class DisplayWidget extends AbstractContainerWidget {
         let y1 = 0;
         let x2 = 0;
         let y2 = 0;
-        for (const widget of this.widgets) {
+        for (const widget of this.widgets.filter(w => w.visible)) {
             const bounds = scaled ? widget.bounds : widget.unscaledBounds;
             x1 = Math.min(x1, bounds.x);
             y1 = Math.min(y1, bounds.y);

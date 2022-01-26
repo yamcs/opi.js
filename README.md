@@ -21,8 +21,6 @@ And as this library is in incubation phase, many widgets are not or not fully su
 
 ## Widget Support
 
-## Widget Support
-
 Ticked widgets are at least partially implemented.
 
 ### Controls
@@ -62,13 +60,13 @@ Ticked widgets are at least partially implemented.
 * [x] Byte Monitor
 * [x] Gauge
 * [x] Image Boolean Indicator
-* [ ] Intensity Graph
+* [x] Intensity Graph
 * [x] LED
 * [x] Meter
-* [ ] Progress Bar
-* [ ] Tank
+* [x] Progress Bar
+* [x] Tank
 * [x] Text Update
-* [ ] Thermometer
+* [x] Thermometer
 * [x] XY Graph
 
 

@@ -1,5 +1,5 @@
 import { Display } from '../Display';
-import { WidgetWrapper } from './WidgetWrapper';
+import { wrapWidget } from './utils';
 
 export class DisplayWrapper {
 
@@ -9,7 +9,7 @@ export class DisplayWrapper {
     getWidget(name: string) {
         const widget = this.display.findWidgetByName(name);
         if (widget) {
-            return new WidgetWrapper(widget);
+            return wrapWidget(widget);
         }
     }
 }

@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -32,7 +32,7 @@ export class CheckBox extends Widget {
         this.properties.add(new BooleanProperty(PROP_ENABLED));
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new StringProperty(PROP_LABEL));
-        this.properties.add(new ColorProperty(PROP_SELECTED_COLOR));
+        this.properties.add(new ColorProperty(PROP_SELECTED_COLOR, new Color(64, 64, 64)));
     }
 
     init() {
@@ -50,6 +50,7 @@ export class CheckBox extends Widget {
                 this.hovered = false;
                 this.requestRepaint();
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer'
         };
     }

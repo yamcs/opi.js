@@ -134,7 +134,7 @@ export class ColorMap {
      */
     private binarySearch(value: number): number {
         let m = 0;
-        let n = this.entries.length;
+        let n = this.entries.length - 1;
         while (m <= n) {
             const k = (n + m) >> 1;
             if (value > this.entries[k][0]) {

@@ -1,5 +1,6 @@
 import { Display } from './Display';
-import { HitCanvas, HitRegionSpecification } from './HitCanvas';
+import { HitCanvas } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Point } from './positioning';
 
 /**
@@ -16,9 +17,11 @@ const clickBlocker = (e: MouseEvent) => {
     return false;
 };
 
+
 function isLeftPressed(e: MouseEvent) {
     return (e.buttons & 1) === 1 || (e.buttons === undefined && e.which == 1);
 }
+
 
 /**
  * Minimum movement required before a viewport is in "grab" mode.
@@ -26,15 +29,30 @@ function isLeftPressed(e: MouseEvent) {
  */
 const snap = 5;
 
+
 function measureDistance(x1: number, y1: number, x2: number, y2: number) {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
+
 
 // Compare by id instead of references. HitRegions are allowed to be generated
 // on each draw, whereas the "id" could be something more long-term.
 function regionMatches(region1?: HitRegionSpecification, region2?: HitRegionSpecification) {
     return region1 && region2 && region1.id === region2.id;
 }
+
+
+export interface OpiMouseEvent {
+    clientX: number;
+    clientY: number;
+    point: Point;
+}
+
+export interface OpiGrabEvent extends OpiMouseEvent {
+    dx: number;
+    dy: number;
+}
+
 
 export class EventHandler {
 
@@ -71,7 +89,11 @@ export class EventHandler {
         } else {
             const region = this.hitCanvas.getActiveRegion(point.x, point.y);
             if (region && region.click) {
-                region.click();
+                region.click({
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    point,
+                });
             }
         }
     }
@@ -87,7 +109,11 @@ export class EventHandler {
 
             const region = this.hitCanvas.getActiveRegion(point.x, point.y);
             if (region && region.mouseDown) {
-                region.mouseDown();
+                region.mouseDown({
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    point,
+                });
             }
 
             if (region && region.grab) {
@@ -115,6 +141,13 @@ export class EventHandler {
     }
 
     private onCanvasMouseOut(event: MouseEvent) {
+        if (this.prevEnteredRegion && this.prevEnteredRegion.mouseOut) {
+            this.prevEnteredRegion.mouseOut();
+        }
+        this.prevEnteredRegion = undefined;
+
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     private onCanvasMouseMove(domEvent: MouseEvent) {
@@ -140,6 +173,12 @@ export class EventHandler {
             this.canvas.style.cursor = cursor;
         }
 
+        if (!this.grabbing && region && region.tooltip) {
+            this.display.setTooltip(region.tooltip());
+        } else {
+            this.display.setTooltip(undefined);
+        }
+
         if (this.grabPoint && !this.grabbing && isLeftPressed(domEvent)) {
             const distance = measureDistance(this.grabPoint.x, this.grabPoint.y, point.x, point.y);
             if (Math.abs(distance) > snap) {
@@ -152,7 +191,13 @@ export class EventHandler {
         }
 
         if (this.grabbing && this.grabTarget && isLeftPressed(domEvent)) {
-            this.grabTarget.grab!(point.x - this.grabPoint!.x, point.y - this.grabPoint!.y);
+            this.grabTarget.grab!({
+                clientX: domEvent.clientX,
+                clientY: domEvent.clientY,
+                point,
+                dx: point.x - this.grabPoint!.x,
+                dy: point.y - this.grabPoint!.y,
+            });
         }
     }
 
@@ -167,9 +212,13 @@ export class EventHandler {
         if (this.grabbing) {
             document.removeEventListener('mouseup', this.documentMouseUpListener);
             document.removeEventListener('mousemove', this.documentMouseMoveListener);
+            const grabTarget = this.grabTarget;
             this.grabbing = false;
             this.grabPoint = undefined;
             this.grabTarget = undefined;
+            if (grabTarget?.grabEnd) {
+                grabTarget.grabEnd();
+            }
         }
     }
 

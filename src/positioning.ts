@@ -69,6 +69,47 @@ export function crispen(original: Bounds): Bounds {
   };
 }
 
+export function intersect(area1: Bounds, area2: Bounds): Bounds {
+  let x1a = area1.x;
+  let y1a = area1.y;
+  let x2a = x1a + area1.width;
+  let y2a = y1a + area1.height;
+  if (x2a < x1a) {
+    const swap = x1a;
+    x1a = x2a;
+    x2a = swap;
+  }
+  if (y2a < y1a) {
+    const swap = y1a;
+    y1a = y2a;
+    y2a = swap;
+  }
+
+  let x1b = area2.x;
+  let y1b = area2.y;
+  let x2b = x1b + area2.width;
+  let y2b = y1b + area2.height;
+  if (x2b < x1b) {
+    const swap = x1b;
+    x1b = x2b;
+    x2b = swap;
+  }
+  if (y2b < y1b) {
+    const swap = y1b;
+    y1b = y2b;
+    y2b = swap;
+  }
+
+  const x = Math.max(x1a, x1b);
+  const y = Math.max(y1a, y1b);
+  return {
+    x,
+    y,
+    width: Math.min(x2a, x2b) - x,
+    height: Math.min(y2a, y2b) - y,
+  }
+}
+
 export function translatePoint(point: Point, dx: number, dy: number) {
   return {
     x: point.x + dx,
@@ -149,5 +190,5 @@ export class PolarPoint {
 }
 
 export function scalePoints(points: Point[], scale: number): Point[] {
-  return points.map(p => ({x: p.x * scale, y: p.y * scale}));
+  return points.map(p => ({ x: p.x * scale, y: p.y * scale }));
 }

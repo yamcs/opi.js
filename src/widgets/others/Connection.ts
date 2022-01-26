@@ -244,9 +244,11 @@ export class Connection extends Widget {
         };
       default:
         const idx = parseInt(term, 10);
-        const points = widget.properties.getProperty('points');
-        if (points) {
-          return (points.value as Point[])[idx];
+        let pointsProperty = widget.properties.getProperty('points');
+        if (pointsProperty) {
+          let points = pointsProperty.value as Point[];
+          points = scalePoints(points, this.scale);
+          return points[idx];
         } else {
           throw Error(`Unexpected term ${term}`);
         }
@@ -460,17 +462,9 @@ export class Connection extends Widget {
     return [pR, pL, pI];
   }
 
-  get minDist() {
-    return this.scale * 20;
-  }
-
-  get tol() {
-    return this.scale * 0.1;
-  }
-
-  get tolxtol() {
-    return this.scale * 0.01;
-  }
+  get minDist() { return this.scale * 20; }
+  get tol() { return this.scale * 0.1; }
+  get tolxtol() { return this.scale * 0.01; }
 
   get name(): string { return this.properties.getValue(PROP_NAME); }
   get arrows(): number { return this.properties.getValue(PROP_ARROWS); }

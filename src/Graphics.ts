@@ -1,6 +1,7 @@
 import { Color } from './Color';
 import { Font } from './Font';
-import { HitCanvas, HitRegionSpecification } from './HitCanvas';
+import { HitCanvas } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Bounds, Point, shrink } from './positioning';
 import * as utils from './utils';
 
@@ -117,11 +118,13 @@ interface PathStroke {
 interface PathColorFill {
     path: Path;
     color: Color;
+    opacity?: number;
 }
 
 interface PathGradientFill {
     path: Path;
     gradient: CanvasGradient;
+    opacity?: number;
 }
 
 type PathFill = PathColorFill | PathGradientFill;
@@ -285,8 +288,9 @@ export class Graphics {
 
     measureText(text: string, font: Font) {
         this.ctx.font = font.getFontString();
-        const fm = this.ctx.measureText(text);
-        return { width: fm.width, height: font.height };
+        const width = this.ctx.measureText(text).width;
+        const height = font.height;
+        return { width, height };
     }
 
     createLinearGradient(x0: number, y0: number, x1: number, y1: number) {
@@ -364,7 +368,16 @@ export class Graphics {
         } else {
             this.ctx.fillStyle = fill.gradient;
         }
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = fill.opacity;
+        }
+
         this.ctx.fill("evenodd"); // Match with Draw2D behavior
+
+        if (fill.opacity !== undefined) {
+            this.ctx.globalAlpha = 1;
+        }
     }
 
     addHitRegion(region: HitRegionSpecification) {

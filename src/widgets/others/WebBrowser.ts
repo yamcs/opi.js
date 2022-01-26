@@ -26,7 +26,7 @@ export class WebBrowser extends Widget {
 
     draw(g: Graphics) {
         if (this.iframe) {
-            const { x, y, width, height } = this.display.measureAbsoluteArea(g, this);
+            const { x, y, width, height } = this.display.measureAbsoluteArea(this);
             this.iframe.style.position = 'absolute';
             this.iframe.style.display = 'block';
             this.iframe.style.left = `${x}px`;

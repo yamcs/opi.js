@@ -87,6 +87,16 @@ export class Color {
     return `#${r}${g}${b}${a}`;
   }
 
+  /** @scriptapi */
+  getRGBValue() {
+    return this;
+  }
+
+  /** @scriptapi */
+  equals(other: Color) {
+    return other && this.toString() === other.toString();
+  }
+
   toString() {
     return `rgba(${this.red},${this.green},${this.blue},${this.alpha})`;
   }

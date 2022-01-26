@@ -10,9 +10,12 @@ import { ScriptSet } from './scripts';
 import { Widget } from './Widget';
 import { XMLNode } from './XMLNode';
 
+export type PropertyGenerator = () => Property<any>[];
+
 export class PropertySet {
 
     private properties = new Map<string, Property<any>>();
+    private generators: PropertyGenerator[] = [];
 
     constructor(private widget: Widget, properties: Property<any>[] = []) {
         for (const property of properties) {
@@ -28,62 +31,92 @@ export class PropertySet {
         this.properties.set(property.name, property);
     }
 
+    /**
+     * Add a property generator. Generators can access the effective
+     * value of static properties to determine property names.
+     */
+    addGenerator(generator: PropertyGenerator) {
+        this.generators.push(generator);
+    }
+
     all() {
         return this.properties.values();
     }
 
+    private loadProperty(node: XMLNode, property: Property<any>) {
+        if (node.hasNode(property.name)) {
+            if (property instanceof ActionsProperty) {
+                property.value = node.getActions(property.name);
+            } else if (property instanceof AutoScaleWidgetsProperty) {
+                property.value = node.getAutoScaleWidgets(property.name);
+            } else if (property instanceof BooleanProperty) {
+                property.value = node.getBoolean(property.name);
+            } else if (property instanceof ColorMapProperty) {
+                property.value = node.getColorMap(property.name);
+            } else if (property instanceof ColorProperty) {
+                property.value = node.getColor(property.name);
+            } else if (property instanceof FloatProperty) {
+                property.value = node.getFloat(property.name);
+            } else if (property instanceof FontProperty) {
+                property.value = node.getFont(property.name);
+            } else if (property instanceof IntProperty) {
+                property.value = node.getInt(property.name);
+            } else if (property instanceof MacrosProperty) {
+                property.value = node.getMacros(property.name);
+            } else if (property instanceof PointsProperty) {
+                property.value = node.getPoints(property.name);
+            } else if (property instanceof PVValueProperty) {
+                // Value determined when needed.
+            } else if (property instanceof RulesProperty) {
+                property.value = node.getRules(property.name);
+            } else if (property instanceof ScaleOptionsProperty) {
+                property.value = node.getScaleOptions(property.name);
+            } else if (property instanceof ScriptsProperty) {
+                property.value = node.getScripts(property.name);
+            } else if (property instanceof StringProperty) {
+                // The non-raw value is set below (after reading in other properties)
+                (property as StringProperty).rawValue = node.getString(property.name);
+            } else if (property instanceof StringListProperty) {
+                property.value = node.getStringList(property.name);
+            } else {
+                throw new Error(`Property ${property.name} has an unexpected type`);
+            }
+        }
+    }
+
     loadXMLValues(node: XMLNode) {
         this.properties.forEach(property => {
-            if (node.hasNode(property.name)) {
-                if (property instanceof ActionsProperty) {
-                    property.value = node.getActions(property.name);
-                } else if (property instanceof BooleanProperty) {
-                    property.value = node.getBoolean(property.name);
-                } else if (property instanceof ColorProperty) {
-                    property.value = node.getColor(property.name);
-                } else if (property instanceof FloatProperty) {
-                    property.value = node.getFloat(property.name);
-                } else if (property instanceof FontProperty) {
-                    property.value = node.getFont(property.name);
-                } else if (property instanceof IntProperty) {
-                    property.value = node.getInt(property.name);
-                } else if (property instanceof MacrosProperty) {
-                    property.value = node.getMacros(property.name);
-                } else if (property instanceof PointsProperty) {
-                    property.value = node.getPoints(property.name);
-                } else if (property instanceof RulesProperty) {
-                    property.value = node.getRules(property.name);
-                } else if (property instanceof ScriptsProperty) {
-                    property.value = node.getScripts(property.name);
-                } else if (property instanceof ScaleOptionsProperty) {
-                    property.value = node.getScaleOptions(property.name);
-                } else if (property instanceof AutoScaleWidgetsProperty) {
-                    property.value = node.getAutoScaleWidgets(property.name);
-                } else if (property instanceof ColorMapProperty) {
-                    property.value = node.getColorMap(property.name);
-                } else if (property instanceof StringProperty) {
-                    // The non-raw value is set below (after reading in other properties)
-                    (property as StringProperty).rawValue = node.getString(property.name);
-                } else if (property instanceof StringListProperty) {
-                    property.value = node.getStringList(property.name);
-                } else {
-                    throw new Error(`Property ${property.name} has an unexpected type`);
-                }
-            }
-        });
+            this.loadProperty(node, property);
+        })
 
+        // Do this a first time, so that string properties
+        // are available to generators (e.g. wuid).
+        this.resolveStringProperties();
+
+        for (const generator of this.generators) {
+            for (const property of generator()) {
+                this.properties.set(property.name, property);
+                this.loadProperty(node, property);
+            }
+        }
+        this.resolveStringProperties();
+    }
+
+    private resolveStringProperties() {
         // Expand macros only after reading in all properties
         // (we need the values of other properties)
-        this.properties.forEach(property => {
-            if (property instanceof StringProperty) {
-                const stringProperty = property as StringProperty;
-                if (stringProperty.rawValue !== undefined) {
-                    property.value = this.widget.expandMacro(stringProperty.rawValue);
-                } else {
-                    property.value = stringProperty.rawValue;
+        for (let i = 0; i < 2; i++) { // Twice, in case properties depend on each other.
+            this.properties.forEach(property => {
+                if (property instanceof StringProperty) {
+                    const stringProperty = property as StringProperty;
+                    if (stringProperty.rawValue !== undefined) {
+                        property.value = this.widget.expandMacro(stringProperty.rawValue);
+                    } else {
+                        property.value = stringProperty.rawValue;
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     getProperty(propertyName: string) {
@@ -137,6 +170,14 @@ export abstract class Property<T> {
         this.listeners.push(listener);
     }
 
+    removeListener(listener: PropertyListener<T>) {
+        const listeners = this.listeners || [];
+        const idx = listeners.indexOf(listener);
+        if (idx !== -1) {
+            listeners.splice(idx, 1);
+        }
+    }
+
     printScriptValue(value: T) {
         return String(value);
     }
@@ -152,6 +193,12 @@ export class StringProperty extends Property<string> {
 
     printScriptValue(value: String) {
         return `"${value.replace('"', '\\"')}"`;
+    }
+}
+
+export class PVValueProperty extends Property<any> {
+    constructor(name: string, readonly pvPropertyName: string) {
+        super(name);
     }
 }
 

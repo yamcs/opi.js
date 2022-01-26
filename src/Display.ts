@@ -2,7 +2,8 @@ import { Color } from './Color';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, ScaleEvent, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
-import { HitRegionSpecification } from './HitCanvas';
+import { HitRegionSpecification } from './HitRegionSpecification';
+import { Bounds } from './positioning';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
 import { PVEngine } from './pv/PVEngine';
 import { PVProvider } from './pv/PVProvider';
@@ -38,7 +39,7 @@ import { ProgressBar } from './widgets/monitors/ProgressBar';
 import { Tank } from './widgets/monitors/Tank';
 import { TextUpdate } from './widgets/monitors/TextUpdate';
 import { Thermometer } from './widgets/monitors/Thermometer';
-import { XYGraph } from './widgets/monitors/XYGraph';
+import { XYGraph } from './widgets/monitors/xygraph/XYGraph';
 import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
 import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
@@ -102,7 +103,13 @@ export class Display {
     private _transparent = false;
 
     /**
-     * Prefix for external path references (images, scripts, dispays)
+     * Prefix for images sourced during draw.
+     * (does not include workspace images)
+     */
+    imagesPrefix = '';
+
+    /**
+     * Prefix for workspace references (images, scripts, displays)
      */
     baseUrl = '';
 
@@ -287,6 +294,10 @@ export class Display {
         this.repaintRequested = true;
     }
 
+    setTooltip(tooltip: string | undefined) {
+        this.rootPanel.title = tooltip?.trim() ?? '';
+    }
+
     /**
      * Closes the currently active menu (if any)
      */
@@ -416,14 +427,14 @@ export class Display {
      * Bounds of this widget relative to the root
      * of all of its parents.
      */
-    measureAbsoluteArea(g: Graphics, widget: Widget) {
+    measureAbsoluteArea(widget: Widget) {
         const bounds = widget.bounds;
         let parent = widget.parent;
         while (parent) {
             bounds.x += parent.holderX;
             bounds.y += parent.holderY;
             if (parent instanceof TabbedContainer) {
-                const { x: xo, y: yo } = parent.measureTabOffset(g);
+                const { x: xo, y: yo } = parent.measureTabOffset(this.g);
                 bounds.x += xo;
                 bounds.y += yo;
             }
@@ -541,5 +552,30 @@ export class Display {
 
     setValues(samples: Map<string, Sample>) {
         this.pvEngine.setValues(samples);
+    }
+
+    copyCanvas(area?: Bounds) {
+        if (!area) {
+            area = {
+                x: 0,
+                y: 0,
+                width: this.g.canvas.width,
+                height: this.g.canvas.height,
+            };
+        }
+        const copy = document.createElement('canvas');
+        copy.width = area.width;
+        copy.height = area.height;
+        copy.getContext('2d')!.drawImage(
+            this.g.canvas, area.x, area.y, area.width, area.height,
+            0, 0, area.width, area.height);
+        return copy;
+    }
+
+    /**
+     * Returns this display as an image.
+     */
+    toDataURL(type = 'image/png', quality?: any) {
+        return this.g.ctx.canvas.toDataURL(type, quality);
     }
 }

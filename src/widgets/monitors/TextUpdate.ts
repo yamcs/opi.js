@@ -2,7 +2,7 @@ import { Display } from '../../Display';
 import { OpenPVEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { shrink } from '../../positioning';
 import { BooleanProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -36,6 +36,7 @@ export class TextUpdate extends Widget {
                 const event: OpenPVEvent = { pvName: this.pvName! };
                 this.display.fireEvent('openpv', event);
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer',
         };
     }

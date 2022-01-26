@@ -1,7 +1,7 @@
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -65,6 +65,7 @@ export class BooleanSwitch extends Widget {
                     this.requestRepaint();
                 }
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer'
         };
     }

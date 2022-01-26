@@ -3,7 +3,7 @@ import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
 import { Bounds, shrink } from '../../positioning';
-import { BooleanProperty, ColorProperty, FloatProperty, FontProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FloatProperty, FontProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 import { LinearScale } from './LinearScale';
@@ -26,6 +26,7 @@ const PROP_MAXIMUM = 'maximum';
 const PROP_MAJOR_TICK_STEP_HINT = 'major_tick_step_hint';
 const PROP_MINIMUM = 'minimum';
 const PROP_SCALE_FONT = 'scale_font';
+const PROP_SCALE_FORMAT = 'scale_format';
 const PROP_SHOW_HI = 'show_hi';
 const PROP_SHOW_HIHI = 'show_hihi';
 const PROP_SHOW_LO = 'show_lo';
@@ -59,6 +60,7 @@ export class Tank extends Widget {
         this.properties.add(new FloatProperty(PROP_MAJOR_TICK_STEP_HINT));
         this.properties.add(new FloatProperty(PROP_MINIMUM));
         this.properties.add(new FontProperty(PROP_SCALE_FONT));
+        this.properties.add(new StringProperty(PROP_SCALE_FORMAT));
         this.properties.add(new BooleanProperty(PROP_SHOW_HI));
         this.properties.add(new BooleanProperty(PROP_SHOW_HIHI));
         this.properties.add(new BooleanProperty(PROP_SHOW_LO));
@@ -84,6 +86,7 @@ export class Tank extends Widget {
         const linearScale = new LinearScale(scale, this.scaleFont, min,
             max, this.logScale, this.majorTickStepHint, foregroundColor,
             this.showMinorTicks, this.showScale);
+        linearScale.scaleFormat = this.scaleFormat;
         const scaleWidth = linearScale.drawVertical(g, area.x, area.y, area.height, true);
 
         let markerWidth = 0;
@@ -380,7 +383,6 @@ export class Tank extends Widget {
     get colorLoLo(): Color { return this.properties.getValue(PROP_COLOR_LOLO); }
     get colorHi(): Color { return this.properties.getValue(PROP_COLOR_HI); }
     get colorHiHi(): Color { return this.properties.getValue(PROP_COLOR_HIHI); }
-    get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale); }
     get colorFillbackground(): Color { return this.properties.getValue(PROP_COLOR_FILLBACKGROUND); }
     get fillColorAlarmSensitive(): boolean { return this.properties.getValue(PROP_FILLCOLOR_ALARM_SENSITIVE); }
     get fillColor(): Color { return this.properties.getValue(PROP_FILL_COLOR); }
@@ -394,6 +396,8 @@ export class Tank extends Widget {
     get minimum(): number { return this.properties.getValue(PROP_MINIMUM); }
     get majorTickStepHint(): number { return this.scale * this.properties.getValue(PROP_MAJOR_TICK_STEP_HINT); }
     get maximum(): number { return this.properties.getValue(PROP_MAXIMUM); }
+    get scaleFont(): Font { return this.properties.getValue(PROP_SCALE_FONT).scale(this.scale); }
+    get scaleFormat(): string { return this.properties.getValue(PROP_SCALE_FORMAT); }
     get showLo(): boolean { return this.properties.getValue(PROP_SHOW_LO); }
     get showLoLo(): boolean { return this.properties.getValue(PROP_SHOW_LOLO); }
     get showHi(): boolean { return this.properties.getValue(PROP_SHOW_HI); }

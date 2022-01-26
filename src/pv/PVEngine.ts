@@ -101,26 +101,60 @@ export class PVEngine {
 
     private createLocalPV(pvName: string) {
         const match = pvName.match(PV_PATTERN);
-        let initializer;
+        let initializer: any;
         if (match) {
             pvName = match[1];
             if (match[3] !== undefined) {
-                initializer = match[3];
+                const spec = match[3];
+                if (spec.startsWith('"') && spec.endsWith('"')) {
+                    initializer = spec.substring(1, spec.length - 1);
+                } else if (spec.indexOf(',') !== -1) {
+                    initializer = spec.split(',').map(part => Number(part.trim()));
+                } else {
+                    initializer = Number(spec);
+                }
             }
         }
 
         let pv = this.pvs.get(pvName);
-        if (pv && (pv as LocalPV).initializer !== initializer) {
-            console.warn(`PV ${pvName} is defined with different initializers.`);
+        let mayInitialize = false;
+        if (pv) {
+            const localPV = pv as LocalPV;
+            if (localPV.initializer !== undefined
+                && initializer !== undefined
+                && !this.initializerEquals(localPV.initializer, initializer)) {
+                console.warn(`PV ${pvName} is defined with different ` +
+                    `initializers: ${localPV.initializer} !== ${initializer}`);
+            } else if (localPV.initializer === undefined && initializer !== undefined) {
+                mayInitialize = true;
+            }
         }
         if (!pv) {
             pv = new LocalPV(pvName, this, initializer);
             this.pvs.set(pvName, pv);
-            if (initializer !== undefined) {
-                this.setValue(new Date(), pvName, initializer);
-            }
+            mayInitialize = true;
+        }
+
+        if (mayInitialize && initializer !== undefined) {
+            this.setValue(new Date(), pvName, initializer);
         }
         return pv;
+    }
+
+    private initializerEquals(a: any, b: any) {
+        if (Array.isArray(a) && Array.isArray(b)) {
+            if (a.length !== b.length) {
+                return false;
+            }
+            for (let i = 0; i < a.length; i++) {
+                if (a[i] !== b[i]) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return a === b;
+        }
     }
 
     getValue(pvName: string) {
@@ -222,11 +256,30 @@ export class PVEngine {
     }
 
     addListener(pvName: string, listener: PVListener) {
-        const listeners = this.listeners.get(pvName);
+        const stripped = stripInitializer(pvName);
+        const listeners = this.listeners.get(stripped);
         if (listeners) {
             listeners.push(listener);
         } else {
-            this.listeners.set(pvName, [listener]);
+            this.listeners.set(stripped, [listener]);
+        }
+
+        // In case of loc with initializer, we want to trigger
+        // a first update.
+        const pv = this.pvs.get(stripped);
+        if (pv && pv.value !== null && pv.value !== undefined) {
+            listener();
+        }
+    }
+
+    removeListener(pvName: string, listener: PVListener) {
+        const stripped = stripInitializer(pvName);
+        const listeners = this.listeners.get(stripped);
+        if (listeners) {
+            const idx = listeners.indexOf(listener);
+            if (idx !== -1) {
+                listeners.splice(idx, 1);
+            }
         }
     }
 }

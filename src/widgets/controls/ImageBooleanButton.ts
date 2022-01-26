@@ -1,7 +1,7 @@
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { shrink } from '../../positioning';
 import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -93,6 +93,7 @@ export class ImageBooleanButton extends Widget {
                     this.requestRepaint();
                 }
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer'
         };
     }

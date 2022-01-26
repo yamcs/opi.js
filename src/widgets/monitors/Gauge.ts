@@ -1,4 +1,5 @@
 import { Color } from '../../Color';
+import { DecimalFormat } from '../../DecimalFormat';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
@@ -310,8 +311,7 @@ export class Gauge extends Widget {
 
     private formatLabelValue(value: number) {
         if (this.valueLabelFormat) {
-            console.log(`Custom format ${this.valueLabelFormat} not supported.`);
-            return String(value);
+            return new DecimalFormat(this.valueLabelFormat).format(value);
         } else {
             return String(Number(value.toFixed(3)));
         }

@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -80,6 +80,7 @@ export class BooleanButton extends Widget {
                 this.hovered = false;
                 this.requestRepaint();
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer'
         };
     }

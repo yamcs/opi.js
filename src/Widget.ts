@@ -4,8 +4,9 @@ import { Display } from './Display';
 import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
+import { HitRegionSpecification } from './HitRegionSpecification';
 import { Bounds, toBorderBox } from './positioning';
-import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntProperty, PropertySet, RulesProperty, ScaleOptionsProperty, ScriptsProperty, StringProperty } from './properties';
+import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntProperty, PropertyListener, PropertySet, PVValueProperty, RulesProperty, ScaleOptionsProperty, ScriptsProperty, StringProperty } from './properties';
 import { AlarmSeverity, PV } from './pv/PV';
 import { RuleSet } from './rules';
 import { ScaleOptions } from './scale';
@@ -21,15 +22,18 @@ const PROP_BORDER_ALARM_SENSITIVE = 'border_alarm_sensitive';
 const PROP_BORDER_COLOR = 'border_color';
 const PROP_BORDER_WIDTH = 'border_width';
 const PROP_BORDER_STYLE = 'border_style';
+const PROP_ENABLED = 'enabled';
 const PROP_FOREGROUND_COLOR = 'foreground_color';
 const PROP_FOREGROUND_ALARM_SENSITIVE = 'forecolor_alarm_sensitive';
 const PROP_HEIGHT = 'height';
 const PROP_NAME = 'name';
 const PROP_PV_NAME = 'pv_name';
+const PROP_PV_VALUE = 'pv_value';
 const PROP_RULES = 'rules';
 const PROP_SCALE_OPTIONS = 'scale_options';
 const PROP_SCRIPTS = 'scripts';
 const PROP_TEXT = 'text';
+const PROP_TOOLTIP = 'tooltip';
 const PROP_TRANSPARENT = 'transparent';
 const PROP_VISIBLE = 'visible';
 const PROP_WIDGET_TYPE = 'widget_type';
@@ -55,6 +59,8 @@ export abstract class Widget {
     // (Rectangle, RoundedRectangle)
     protected fillRoundRectangleBackgroundBorder = true;
 
+    private holderRegion?: HitRegionSpecification;
+
     properties: PropertySet;
 
     constructor(readonly display: Display, readonly parent?: AbstractContainerWidget) {
@@ -66,14 +72,17 @@ export abstract class Widget {
             new ColorProperty(PROP_BORDER_COLOR),
             new IntProperty(PROP_BORDER_STYLE),
             new IntProperty(PROP_BORDER_WIDTH),
+            new BooleanProperty(PROP_ENABLED, true),
             new BooleanProperty(PROP_FOREGROUND_ALARM_SENSITIVE, false),
             new ColorProperty(PROP_FOREGROUND_COLOR),
             new IntProperty(PROP_HEIGHT),
             new StringProperty(PROP_NAME),
             new StringProperty(PROP_PV_NAME),
+            new PVValueProperty(PROP_PV_VALUE, PROP_PV_NAME),
             new RulesProperty(PROP_RULES, new RuleSet()),
             new ScriptsProperty(PROP_SCRIPTS),
             new StringProperty(PROP_TEXT, ''),
+            new StringProperty(PROP_TOOLTIP, ''),
             new BooleanProperty(PROP_TRANSPARENT, false),
             new BooleanProperty(PROP_VISIBLE),
             new StringProperty(PROP_WIDGET_TYPE),
@@ -124,6 +133,21 @@ export abstract class Widget {
             } else {
                 console.warn(`Cannot create rule for unsupported property ${rule.propertyName}`);
             }
+        }
+
+        // Default underlay region, specific widgets may need to redefine
+        // if they place a region on top.
+        this.holderRegion = {
+            id: `${this.wuid}-holder`,
+            tooltip: () => this.tooltip,
+        };
+        if (this.actions.isClickable()) {
+            this.holderRegion!.click = () => {
+                for (const idx of this.actions.getClickActions()) {
+                    this.executeAction(idx);
+                }
+            }
+            this.holderRegion!.cursor = 'pointer';
         }
 
         this.init();
@@ -188,18 +212,8 @@ export abstract class Widget {
             this.drawBorderStyle(g);
         }
 
-        if (this.actions.isClickable()) {
-            const hitRegion = g.addHitRegion({
-                id: `${this.wuid}-holder`,
-                click: () => {
-                    for (const idx of this.actions.getClickActions()) {
-                        this.executeAction(idx);
-                    }
-                },
-                cursor: 'pointer'
-            });
-            hitRegion.addRect(this.holderX, this.holderY, this.holderWidth, this.holderHeight);
-        }
+        g.addHitRegion(this.holderRegion!).addRect(
+            this.holderX, this.holderY, this.holderWidth, this.holderHeight);
     }
 
     private drawBorderStyle(g: Graphics) {
@@ -653,8 +667,21 @@ export abstract class Widget {
         } else {
             for (const prop of this.properties.all()) {
                 // Both ${pv_name} and $(pv_name) notations are accepted
-                text = text.replace(`$(${prop.name})`, prop.value || '');
-                text = text.replace(`\${${prop.name}}`, prop.value || '');
+
+                if (prop instanceof PVValueProperty) {
+                    const pvProperty = this.properties.getProperty(prop.pvPropertyName);
+                    let replacement = '';
+                    const pvName = pvProperty?.value;
+                    if (pvName) {
+                        const pv = this.display.getPV(pvName);
+                        replacement = pv?.value ?? '';
+                    }
+                    text = text.replace(`$(${prop.name})`, replacement);
+                    text = text.replace(`\${${prop.name}}`, replacement);
+                } else {
+                    text = text.replace(`$(${prop.name})`, prop.value || '');
+                    text = text.replace(`\${${prop.name}}`, prop.value || '');
+                }
             }
             return this.parent ? this.parent.expandContainerMacros(text) : text;
         }
@@ -720,6 +747,25 @@ export abstract class Widget {
         this.requestRepaint();
     }
 
+    addPropertyListener(propertyName: string, listener: PropertyListener<any>) {
+        const property = this.properties.getProperty(propertyName)!;
+        property.addListener(listener);
+    }
+
+    removePropertyListener(propertyName: string, listener: PropertyListener<any>) {
+        const property = this.properties.getProperty(propertyName)!;
+        property.removeListener(listener);
+    }
+
+    /**
+     * Returns this widget as an image.
+     */
+    toDataURL(type = 'image/png', quality?: any) {
+        const area = this.display.measureAbsoluteArea(this)
+        const canvas = this.display.copyCanvas(area);
+        return canvas.toDataURL(type, quality);
+    }
+
     get wuid(): string { return this.properties.getValue(PROP_WUID); }
     get name(): string { return this.properties.getValue(PROP_NAME); }
     get holderX(): number {
@@ -744,19 +790,28 @@ export abstract class Widget {
         return this.properties.getValue(PROP_FOREGROUND_ALARM_SENSITIVE);
     }
     get pvName(): string | undefined { return this.properties.getValue(PROP_PV_NAME, true); }
+    get pvValue(): any { return this.properties.getValue(PROP_PV_VALUE, true); }
     get borderColor(): Color { return this.properties.getValue(PROP_BORDER_COLOR); }
     get borderStyle(): number { return this.properties.getValue(PROP_BORDER_STYLE); }
     get borderWidth(): number {
         return this.scale * this.properties.getValue(PROP_BORDER_WIDTH);
     }
     get backgroundColor(): Color { return this.properties.getValue(PROP_BACKGROUND_COLOR); }
+    get enabled(): boolean { return this.properties.getValue(PROP_ENABLED); }
     get foregroundColor(): Color { return this.properties.getValue(PROP_FOREGROUND_COLOR); }
+    get tooltip(): string | undefined {
+        const property = this.properties.getProperty(PROP_TOOLTIP) as StringProperty;
+        if (property.rawValue) {
+            return this.expandMacro(property.rawValue);
+        }
+    }
     get transparent(): boolean { return this.properties.getValue(PROP_TRANSPARENT); }
     get visible(): boolean { return this.properties.getValue(PROP_VISIBLE); }
     get actions(): ActionSet { return this.properties.getValue(PROP_ACTIONS); }
     get scripts(): ScriptSet { return this.properties.getValue(PROP_SCRIPTS); }
     get rules(): RuleSet { return this.properties.getValue(PROP_RULES); }
     get scaleOptions(): ScaleOptions { return this.properties.getValue(PROP_SCALE_OPTIONS); }
+    get widgetType(): string | undefined { return this.properties.getValue(PROP_WIDGET_TYPE, true); }
 
     get text(): string {
         if (this.display.editMode) {

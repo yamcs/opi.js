@@ -93,7 +93,7 @@ export class RoundedRectangle extends Widget {
                     color: this.lineColor,
                     lineWidth: this.lineWidth,
                     crispen: true,
-                    dash: [6, 2],
+                    dash: [6 * this.scale, 2 * this.scale],
                 });
             } else {
                 console.warn(`Unsupported RoundedRectangle line style ${this.lineStyle}`);

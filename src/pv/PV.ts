@@ -152,6 +152,10 @@ export class PV {
         this.pvEngine.addListener(this.name, listener);
     }
 
+    removeListener(listener: PVListener) {
+        this.pvEngine.addListener(this.name, listener);
+    }
+
     toString() {
         if (this.value !== undefined) {
             return String(this.value);

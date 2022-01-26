@@ -28,22 +28,23 @@ export class Polygon extends Widget {
     }
 
     init() {
-        const xProperty = this.properties.getProperty('x');
-        xProperty?.addListener((newValue, oldValue) => {
-            const newPoints = translatePoints(this.points, newValue - oldValue, 0);
+        this.addPropertyListener('x', (newValue, oldValue) => {
+            const unscaledPoints = this.properties.getValue(PROP_POINTS);
+            const newPoints = translatePoints(unscaledPoints, newValue - oldValue, 0);
             this.properties.setValue(PROP_POINTS, newPoints);
             this.requestRepaint();
         });
 
-        const yProperty = this.properties.getProperty('y');
-        yProperty?.addListener((newValue, oldValue) => {
-            const newPoints = translatePoints(this.points, 0, newValue - oldValue);
+        this.addPropertyListener('y', (newValue, oldValue) => {
+            const unscaledPoints = this.properties.getValue(PROP_POINTS);
+            const newPoints = translatePoints(unscaledPoints, 0, newValue - oldValue);
             this.properties.setValue(PROP_POINTS, newPoints);
             this.requestRepaint();
         });
     }
 
     draw(g: Graphics) {
+        const { scale } = this;
         g.ctx.globalAlpha = this.alpha / 255;
 
         const path = Path.fromPoints(this.points).closePath();
@@ -64,7 +65,7 @@ export class Polygon extends Widget {
                     path,
                     lineWidth: this.lineWidth,
                     color: this.lineColor,
-                    dash: [6, 2],
+                    dash: [6 * scale, 2 * scale],
                 });
             } else {
                 console.warn(`Unsupported polygon line style ${this.lineStyle}`);
@@ -108,9 +109,7 @@ export class Polygon extends Widget {
     }
 
     get alpha(): number { return this.properties.getValue(PROP_ALPHA); }
-    get lineWidth(): number {
-        return this.scale * this.properties.getValue(PROP_LINE_WIDTH);
-    }
+    get lineWidth(): number { return this.scale * this.properties.getValue(PROP_LINE_WIDTH); }
     get fillLevel(): number { return this.properties.getValue(PROP_FILL_LEVEL); }
     get horizontalFill(): boolean { return this.properties.getValue(PROP_HORIZONTAL_FILL); }
     get lineColor(): Color { return this.properties.getValue(PROP_LINE_COLOR); }

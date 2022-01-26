@@ -1,17 +1,6 @@
+import { HitRegionSpecification } from './HitRegionSpecification';
 
 const WHITE = 'rgb(255,255,255)';
-
-export interface HitRegionSpecification {
-    id: string;
-    click?: () => void;
-    mouseEnter?: () => void;
-    mouseMove?: () => void;
-    mouseOut?: () => void;
-    mouseDown?: () => void;
-    mouseUp?: () => void;
-    grab?: (dx: number, dy: number) => void;
-    cursor?: string;
-}
 
 export class HitCanvas {
 

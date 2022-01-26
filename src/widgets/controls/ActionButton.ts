@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -65,6 +65,7 @@ export class ActionButton extends Widget {
                     this.pushed = !this.pushed;
                 }
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer'
         };
     }

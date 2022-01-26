@@ -1,11 +1,12 @@
 import { Color } from '../../Color';
+import { DecimalFormat } from '../../DecimalFormat';
 import { Display } from '../../Display';
 import { OpenPVEvent } from '../../events';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds, rotatePoint, shrink, toRadians } from '../../positioning';
-import { BooleanProperty, ColorProperty, FontProperty, IntProperty } from '../../properties';
+import { BooleanProperty, ColorProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { Ramp } from '../figures/Ramp';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -37,6 +38,7 @@ const PROP_SHOW_HIHI = 'show_hihi';
 const PROP_SHOW_LO = 'show_lo';
 const PROP_SHOW_LOLO = 'show_lolo';
 const PROP_SHOW_RAMP = 'show_ramp';
+const PROP_VALUE_LABEL_FORMAT = 'value_label_format';
 
 export class Meter extends Widget {
 
@@ -64,6 +66,7 @@ export class Meter extends Widget {
         this.properties.add(new BooleanProperty(PROP_SHOW_LO));
         this.properties.add(new BooleanProperty(PROP_SHOW_LOLO));
         this.properties.add(new BooleanProperty(PROP_SHOW_RAMP, true));
+        this.properties.add(new StringProperty(PROP_VALUE_LABEL_FORMAT));
     }
 
     init() {
@@ -73,6 +76,7 @@ export class Meter extends Widget {
                 const event: OpenPVEvent = { pvName: this.pvName! };
                 this.display.fireEvent('openpv', event);
             },
+            tooltip: () => this.tooltip,
             cursor: 'pointer',
         };
     }
@@ -209,7 +213,11 @@ export class Meter extends Widget {
     }
 
     private format(v: number) {
-        return String(Number(v.toFixed(3)));
+        if (this.valueLabelFormat) {
+            return new DecimalFormat(this.valueLabelFormat).format(v);
+        } else {
+            return String(Number(v.toFixed(3)));
+        }
     }
 
     get colorLo(): Color { return this.properties.getValue(PROP_COLOR_LO); }
@@ -236,4 +244,5 @@ export class Meter extends Widget {
     get showHi(): boolean { return this.properties.getValue(PROP_SHOW_HI); }
     get showHiHi(): boolean { return this.properties.getValue(PROP_SHOW_HIHI); }
     get showRamp(): boolean { return this.properties.getValue(PROP_SHOW_RAMP); }
+    get valueLabelFormat(): string { return this.properties.getValue(PROP_VALUE_LABEL_FORMAT); }
 }

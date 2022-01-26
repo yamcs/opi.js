@@ -74,7 +74,7 @@ export class Ellipse extends Widget {
                     cx, cy, rx, ry,
                     color: this.lineColor,
                     lineWidth: this.lineWidth,
-                    dash: [6, 2],
+                    dash: [6 * this.scale, 2 * this.scale],
                 });
             } else {
                 console.warn(`Unsupported ellipse line style ${this.lineStyle}`);

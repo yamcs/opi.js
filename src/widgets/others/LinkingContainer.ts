@@ -5,6 +5,8 @@ import { XMLNode } from '../../XMLNode';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
 import { DisplayWidget } from './DisplayWidget';
 
+let LCID_SEQUENCE = 0;
+
 const PROP_GROUP_NAME = 'group_name';
 const PROP_OPI_FILE = 'opi_file';
 const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
@@ -18,6 +20,13 @@ export class LinkingContainer extends AbstractContainerWidget {
         this.properties.add(new StringProperty(PROP_GROUP_NAME));
         this.properties.add(new StringProperty(PROP_OPI_FILE));
         this.properties.add(new IntProperty(PROP_RESIZE_BEHAVIOR, 0));
+    }
+
+    parseNode(node: XMLNode) {
+        super.parseNode(node);
+
+        const linkingContainerId = LCID_SEQUENCE++;
+        this.macros.set('LCID', `LCID_${linkingContainerId}`);
     }
 
     init() {

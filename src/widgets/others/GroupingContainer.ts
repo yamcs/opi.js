@@ -29,12 +29,12 @@ export class GroupingContainer extends AbstractContainerWidget {
         }
 
         const offscreen = g.createChild(this.width, this.height);
-        for (const widget of this.widgets) {
+        for (const widget of this.widgets.filter(w => w.visible)) {
             widget.drawHolder(offscreen);
             widget.draw(offscreen);
             widget.drawDecoration(offscreen);
         }
-        for (const widget of this.widgets) {
+        for (const widget of this.widgets.filter(w => w.visible)) {
             widget.drawOverlay(offscreen);
         }
 

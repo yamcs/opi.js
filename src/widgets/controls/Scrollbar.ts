@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds, Point, shrink } from '../../positioning';
 import { BooleanProperty, FloatProperty, FontProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -72,6 +72,7 @@ export class Scrollbar extends Widget {
                 this.decreasePressed = false;
                 this.requestRepaint();
             },
+            tooltip: () => this.tooltip,
         };
         this.increaseRegion = {
             id: `${this.wuid}-increase`,
@@ -89,18 +90,20 @@ export class Scrollbar extends Widget {
                 this.increasePressed = false;
                 this.requestRepaint();
             },
+            tooltip: () => this.tooltip,
         };
         this.thumbRegion = {
             id: `${this.wuid}-thumb`,
             mouseDown: () => {
                 this.grabStartValue = this.getCoercedValue();
             },
-            grab: (dx, dy) => {
-                const delta = this.horizontal ? dx : dy;
+            grab: (evt) => {
+                const delta = this.horizontal ? evt.dx : evt.dy;
                 const valueChange = (this.maximum - this.minimum) * delta / this.dragRange!;
                 this.setCoercedValue(this.grabStartValue! + valueChange);
                 this.requestRepaint();
-            }
+            },
+            tooltip: () => this.tooltip,
         };
         this.pageDecreaseRegion = {
             id: `${this.wuid}-page-decrease`,
@@ -118,6 +121,7 @@ export class Scrollbar extends Widget {
                 this.pageDecreasePressed = false;
                 this.requestRepaint();
             },
+            tooltip: () => this.tooltip,
         };
         this.pageIncreaseRegion = {
             id: `${this.wuid}-page-increase`,
@@ -135,6 +139,7 @@ export class Scrollbar extends Widget {
                 this.pageIncreasePressed = false;
                 this.requestRepaint();
             },
+            tooltip: () => this.tooltip,
         };
     }
 

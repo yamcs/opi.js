@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds, Point, shrink } from '../../positioning';
 import { BooleanProperty, FontProperty, StringListProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -44,7 +44,8 @@ export class Combo extends Widget {
                     this.hoveredItem = 0;
                     this.requestRepaint();
                 }
-            }
+            },
+            tooltip: () => this.tooltip,
         };
         for (let i = 0; i < this.items.length; i++) {
             this.itemRegions.push({
@@ -62,7 +63,8 @@ export class Combo extends Widget {
                 mouseOut: () => {
                     this.hoveredItem = undefined;
                     this.requestRepaint();
-                }
+                },
+                tooltip: () => this.tooltip,
             });
         }
     }

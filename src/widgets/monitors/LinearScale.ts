@@ -1,6 +1,25 @@
 import { Color } from '../../Color';
+import { DecimalFormat } from '../../DecimalFormat';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
+import { Range } from '../../Range';
+
+const months = ['January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August', 'September', 'October',
+    'November', 'December'];
+
+interface FormatDateOptions {
+    year: boolean;
+    month: boolean;
+    day: boolean;
+}
+
+interface FormatTimeOptions {
+    hours: boolean;
+    minutes: boolean;
+    seconds: boolean;
+    milliseconds: boolean;
+};
 
 export class LinearScale {
 
@@ -13,6 +32,8 @@ export class LinearScale {
     private x = 0;
     private y = 0;
 
+    public scaleFormat = '';
+    public timeFormat = 0;
     public length = 0;
     public margin = 0;
 
@@ -32,15 +53,40 @@ export class LinearScale {
         return this.length - (2 * this.margin);
     }
 
+    /** Only available post-draw */
+    getX() {
+        return this.x;
+    }
+
+    /** Only available post-draw */
+    getY() {
+        return this.y;
+    }
+
+    /** Only available post-draw */
+    getGridPositions() {
+        let result = [...this.labelPositions];
+        if (!this.horizontal) {
+            result = result.map(pos => this.length - pos);
+        }
+        result.pop();
+        result.shift();
+        return result;
+    }
+
+    /**
+     * Use only when the scale is not drawn, but you still need
+     * getValuePosition to work.
+     */
+    setDimensions(x: number, y: number, length: number, horizontal: boolean) {
+        this.x = x;
+        this.y = y;
+        this.length = length;
+        this.horizontal = horizontal;
+    }
+
     getValuePosition(value: number) {
-        let min = this.minimum;
-        let max = this.maximum;
-        if (min <= 0) {
-            min = 0.1;
-        }
-        if (max <= min) {
-            max = min + 100;
-        }
+        let { start: min, stop: max } = this.getMinMax();
 
         let pixelsToStart = 0;
         const l = this.length - (2 * this.margin);
@@ -61,6 +107,45 @@ export class LinearScale {
         return this.horizontal ? pixelsToStart + this.x : this.length - pixelsToStart + this.y;
     }
 
+    getMinMax(): Range {
+        let start = this.minimum;
+        let stop = this.maximum;
+        if (this.logScale) {
+            if (start <= 0) {
+                start = 0.1;
+            }
+            if (stop <= start) {
+                stop = start + 100;
+            }
+        }
+        return { start, stop };
+    }
+
+    getPositionValue(absolutePosition: number) {
+        const range = this.getMinMax();
+        let { start: min, stop: max } = range;
+
+        const pixelsToStart = this.horizontal
+            ? absolutePosition - this.x
+            : this.length + this.y - absolutePosition;
+        const l = this.length - (2 * this.margin);
+
+        let value;
+        if (this.logScale) {
+            value = Math.pow(10, (pixelsToStart - this.margin)
+                * (Math.log10(max) - Math.log10(min))
+                / l + Math.log10(min));
+        } else {
+            const f = Math.max(Math.abs(min), Math.abs(max));
+            max /= f;
+            min /= f;
+            const t = max - min;
+            value = ((pixelsToStart - this.margin) / l * t + min) * f;
+        }
+
+        return value;
+    }
+
     calculateMargin(g: Graphics, horizontal: boolean) {
         if (this.showScale) {
             const fm1 = g.measureText(this.format(this.minimum), this.scaleFont);
@@ -73,6 +158,11 @@ export class LinearScale {
         } else {
             return 0;
         }
+    }
+
+    measureHorizontalHeight(g: Graphics) {
+        const fm = g.measureText("dummy", this.scaleFont);
+        return this.showScale ? fm.height + this.spaceBetweenMarkAndLabel + this.majorTickLength : 0;
     }
 
     // (x, y) is coordinate of bottom-left corner
@@ -132,19 +222,18 @@ export class LinearScale {
             }
         } else {
             for (let i = 0; i < this.labels.length; i++) {
-                if (!this.labelVisibilities[i]) {
-                    continue;
-                }
                 const textX = x + this.labelPositions[i];
-                g.fillText({
-                    x: textX,
-                    y: y + this.majorTickLength + this.spaceBetweenMarkAndLabel,
-                    align: 'center',
-                    baseline: 'top',
-                    font: this.scaleFont,
-                    color: this.foregroundColor,
-                    text: this.labels[i],
-                });
+                if (this.labelVisibilities[i]) {
+                    g.fillText({
+                        x: textX,
+                        y: y + this.majorTickLength + this.spaceBetweenMarkAndLabel,
+                        align: 'center',
+                        baseline: 'top',
+                        font: this.scaleFont,
+                        color: this.foregroundColor,
+                        text: this.labels[i],
+                    });
+                }
                 const pathX = Math.round(textX) - (scale * 0.5);
                 g.strokePath({
                     path: new Path(pathX, y).lineTo(pathX, y + this.majorTickLength),
@@ -163,7 +252,7 @@ export class LinearScale {
 
     // If leftCoordinate, the provided (x, y) is used as the fixed top left corner.
     // Else, the provided (x, y) is used as the fixed top right corner.
-    drawVertical(g: Graphics, x: number, y: number, height: number, leftCoordinate: boolean) {
+    drawVertical(g: Graphics, x: number, y: number, height: number, leftCoordinate: boolean, ticksLeft = false) {
         const { scale } = this;
         this.length = height;
         this.horizontal = false;
@@ -221,30 +310,50 @@ export class LinearScale {
             }
         } else {
             for (let i = 0; i < this.labels.length; i++) {
-                if (!this.labelVisibilities[i]) {
-                    continue;
-                }
                 const textY = y + height - this.labelPositions[i];
-                g.fillText({
-                    x,
-                    y: textY,
-                    align: 'left',
-                    baseline: 'middle',
-                    font: this.scaleFont,
-                    color: this.foregroundColor,
-                    text: this.labels[i],
-                });
-                const startX = x + maxWidth + this.spaceBetweenMarkAndLabel - (scale * 1);
                 const pathY = Math.round(textY) - (scale * 0.5);
-                g.strokePath({
-                    path: new Path(startX, pathY).lineTo(startX + this.majorTickLength, pathY),
-                    color: this.foregroundColor,
-                    lineWidth: scale * 1,
-                    opacity: 100 / 255,
-                });
+                if (ticksLeft) {
+                    g.strokePath({
+                        path: new Path(x, pathY).lineTo(x + this.majorTickLength, pathY),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                    if (this.labelVisibilities[i]) {
+                        const textX = x + this.majorTickLength + this.spaceBetweenMarkAndLabel;
+                        g.fillText({
+                            x: textX,
+                            y: textY,
+                            align: 'left',
+                            baseline: 'middle',
+                            font: this.scaleFont,
+                            color: this.foregroundColor,
+                            text: this.labels[i],
+                        });
+                    }
+                } else {
+                    if (this.labelVisibilities[i]) {
+                        g.fillText({
+                            x,
+                            y: textY,
+                            align: 'left',
+                            baseline: 'middle',
+                            font: this.scaleFont,
+                            color: this.foregroundColor,
+                            text: this.labels[i],
+                        });
+                    }
+                    const startX = x + maxWidth + this.spaceBetweenMarkAndLabel - (scale * 1);
+                    g.strokePath({
+                        path: new Path(startX, pathY).lineTo(startX + this.majorTickLength, pathY),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
 
-                if (this.showMinorTicks) {
-                    this.drawMinorYTicks(g, i, startX, y + height);
+                    if (this.showMinorTicks) {
+                        this.drawMinorYTicks(g, i, startX, y + height);
+                    }
                 }
             }
         }
@@ -252,52 +361,122 @@ export class LinearScale {
     }
 
     private drawMinorXTicks(g: Graphics, i: number, x0: number, y: number) {
+        const { gridStepInPixel } = this;
         let minorTicksNumber;
-        if (this.gridStepInPixel / 5 >= this.minorTickMarkStepHint) {
+        let minorGridStepInPixel;
+        if (gridStepInPixel / 5 >= this.minorTickMarkStepHint) {
             minorTicksNumber = 5;
-        } else if (this.gridStepInPixel / 4 >= this.minorTickMarkStepHint) {
+            minorGridStepInPixel = Math.floor(gridStepInPixel / 5);
+        } else if (gridStepInPixel / 4 >= this.minorTickMarkStepHint) {
             minorTicksNumber = 4;
+            minorGridStepInPixel = Math.floor(gridStepInPixel / 4);
         } else {
             minorTicksNumber = 2;
+            minorGridStepInPixel = Math.floor(gridStepInPixel / 2);
         }
+
+        const { labelPositions, minorTickLength, scale } = this;
         if (i > 0) {
-            let xs = [];
-            for (let j = 0; j < minorTicksNumber; j++) {
-                let tickX = x0 + this.labelPositions[i - 1]
-                    + (this.labelPositions[i] - this.labelPositions[i - 1]) * j / minorTicksNumber;
-                tickX = Math.round(tickX) - (this.scale * 0.5);
-                xs.push(tickX);
-                g.strokePath({
-                    path: new Path(tickX, y).lineTo(tickX, y + this.minorTickLength),
-                    color: this.foregroundColor,
-                    lineWidth: this.scale * 1,
-                    opacity: 100 / 255,
-                });
+            // First and last step sometimes don't need all ticks.
+            if (i === 1 && (labelPositions[1] - labelPositions[0] < gridStepInPixel)) {
+                let x = labelPositions[1];
+                while (x - labelPositions[0] > minorGridStepInPixel + (3 * scale)) {
+                    x = x - minorGridStepInPixel;
+                    const tickX = Math.round(x0 + x) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(tickX, y).lineTo(tickX, y + minorTickLength),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
+            } else if (i === labelPositions.length - 1
+                && (labelPositions[i] - labelPositions[i - 1] < gridStepInPixel)) {
+                let x = labelPositions[i - 1];
+                while (labelPositions[i] - x > minorGridStepInPixel + (3 * scale)) {
+                    x = x + minorGridStepInPixel;
+                    const tickX = Math.round(x0 + x) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(tickX, y).lineTo(tickX, y + minorTickLength),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
+            } else { // Normal step
+                for (let j = 0; j < minorTicksNumber; j++) {
+                    let tickX = x0 + labelPositions[i - 1]
+                        + (labelPositions[i] - labelPositions[i - 1]) * j / minorTicksNumber;
+                    tickX = Math.round(tickX) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(tickX, y).lineTo(tickX, y + minorTickLength),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
             }
         }
     }
 
     private drawMinorYTicks(g: Graphics, i: number, x: number, scaleY2: number) {
+        const { gridStepInPixel } = this;
         let minorTicksNumber;
-        if (this.gridStepInPixel / 5 >= this.minorTickMarkStepHint) {
+        let minorGridStepInPixel;
+        if (gridStepInPixel / 5 >= this.minorTickMarkStepHint) {
             minorTicksNumber = 5;
-        } else if (this.gridStepInPixel / 4 >= this.minorTickMarkStepHint) {
+            minorGridStepInPixel = Math.floor(gridStepInPixel / 5);
+        } else if (gridStepInPixel / 4 >= this.minorTickMarkStepHint) {
             minorTicksNumber = 4;
+            minorGridStepInPixel = Math.floor(gridStepInPixel / 4);
         } else {
             minorTicksNumber = 2;
+            minorGridStepInPixel = Math.floor(gridStepInPixel / 2);
         }
+
+        const { labelPositions, minorTickLength, majorTickLength, scale } = this;
         if (i > 0) {
-            for (let j = 0; j < minorTicksNumber; j++) {
-                let y = scaleY2 - this.labelPositions[i - 1]
-                    - (this.labelPositions[i] - this.labelPositions[i - 1]) * j / minorTicksNumber;
-                y = Math.round(y) - (this.scale * 0.5);
-                g.strokePath({
-                    path: new Path(x + this.majorTickLength - this.minorTickLength, y)
-                        .lineTo(x + this.majorTickLength, y),
-                    color: this.foregroundColor,
-                    lineWidth: this.scale * 1,
-                    opacity: 100 / 255,
-                });
+            // First and last step sometimes don't need all ticks.
+            if (i === 1 && (labelPositions[1] - labelPositions[0] < gridStepInPixel)) {
+                let y = labelPositions[1];
+                while (y - labelPositions[0] > minorGridStepInPixel + (3 * scale)) {
+                    y -= minorGridStepInPixel;
+                    const pathY = Math.round(scaleY2 - y) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(x + majorTickLength - minorTickLength, pathY)
+                            .lineTo(x + majorTickLength, pathY),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
+            } else if (i === labelPositions.length - 1
+                && (labelPositions[i] - labelPositions[i - 1] < gridStepInPixel)) {
+                let y = labelPositions[i - 1];
+                while (labelPositions[i] - y > minorGridStepInPixel + (3 * scale)) {
+                    y += minorGridStepInPixel;
+                    const pathY = Math.round(scaleY2 - y) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(x + majorTickLength - minorTickLength, pathY)
+                            .lineTo(x + majorTickLength, pathY),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
+            } else { // Normal step
+                for (let j = 0; j < minorTicksNumber; j++) {
+                    let y = scaleY2 - labelPositions[i - 1]
+                        - (labelPositions[i] - labelPositions[i - 1]) * j / minorTicksNumber;
+                    y = Math.round(y) - (scale * 0.5);
+                    g.strokePath({
+                        path: new Path(x + majorTickLength - minorTickLength, y)
+                            .lineTo(x + majorTickLength, y),
+                        color: this.foregroundColor,
+                        lineWidth: scale * 1,
+                        opacity: 100 / 255,
+                    });
+                }
             }
         }
     }
@@ -567,7 +746,170 @@ export class LinearScale {
     }
 
     private format(v: number) {
-        return String(Number(v.toFixed(2)));
+        if (this.timeFormat === 0) {
+            if (this.scaleFormat) {
+                return new DecimalFormat(this.scaleFormat).format(v);
+            } else {
+                return String(Number(v.toFixed(2)));
+            }
+        }
+
+        const dt = new Date(v);
+        switch (this.timeFormat) {
+            case 1: // yyyy-MM-dd HH:mm:ss
+                return this.formatDate(dt, {
+                    year: true,
+                    month: true,
+                    day: true,
+                }) + '\n' + this.formatTime(dt, {
+                    hours: true,
+                    minutes: true,
+                    seconds: true,
+                    milliseconds: false,
+                });
+            case 2: // yyyy-MM-dd HH:mm:ss.SSS
+                return this.formatDate(dt, {
+                    year: true,
+                    month: true,
+                    day: true,
+                }) + '\n' + this.formatTime(dt, {
+                    hours: true,
+                    minutes: true,
+                    seconds: true,
+                    milliseconds: true,
+                });
+            case 3: // HH:mm:ss
+                return this.formatTime(dt, {
+                    hours: true,
+                    minutes: true,
+                    seconds: true,
+                    milliseconds: false,
+                });
+            case 4: // HH:mm:ss.SSS
+                return this.formatTime(dt, {
+                    hours: true,
+                    minutes: true,
+                    seconds: true,
+                    milliseconds: true,
+                });
+            case 5: // HH:mm
+                return this.formatTime(dt, {
+                    hours: true,
+                    minutes: true,
+                    seconds: false,
+                    milliseconds: false,
+                });
+            case 6: // yyyy-MM-dd
+                return this.formatDate(dt, {
+                    year: true,
+                    month: true,
+                    day: true,
+                });
+            case 7: // MMMMM d
+                const mmmmm = months[dt.getUTCMonth()];
+                const d = dt.getUTCDate();
+                return `${mmmmm} ${d}`;
+            case 8: // Auto
+                const length = Math.abs(this.maximum - this.minimum);
+                if (length <= 5000) { // ss.SSS
+                    return this.formatTime(dt, {
+                        hours: false,
+                        minutes: false,
+                        seconds: true,
+                        milliseconds: true,
+                    });
+                } else if (length <= 1800000) { // HH:mm:ss
+                    return this.formatTime(dt, {
+                        hours: true,
+                        minutes: true,
+                        seconds: true,
+                        milliseconds: false,
+                    });
+                } else if (length <= 86400000) { // HH:mm
+                    return this.formatTime(dt, {
+                        hours: true,
+                        minutes: true,
+                        seconds: false,
+                        milliseconds: false,
+                    });
+                } else if (length <= 604800000) { // MM-dd HH:mm
+                    return this.formatDate(dt, {
+                        year: false,
+                        month: true,
+                        day: true,
+                    }) + '\n' + this.formatTime(dt, {
+                        hours: true,
+                        minutes: true,
+                        seconds: false,
+                        milliseconds: false,
+                    });
+                } else if (length <= 2592000000) { // MM-dd
+                    return this.formatDate(dt, {
+                        year: false,
+                        month: true,
+                        day: true,
+                    });
+                } else { // yyyy-MM-dd
+                    return this.formatDate(dt, {
+                        year: true,
+                        month: true,
+                        day: true,
+                    });
+                }
+        }
+        return '';
+    }
+
+    private formatDate(dt: Date, opts: FormatDateOptions) {
+        let result = '';
+        if (opts.year) {
+            result += dt.getUTCFullYear();
+        }
+        if (opts.month) {
+            if (opts.year) {
+                result += '-';
+            }
+            const month = dt.getUTCMonth();
+            result += (month < 10 ? '0' : '') + month;
+        }
+        if (opts.day) {
+            if (opts.month) {
+                result += '-';
+            }
+            const day = dt.getUTCDate();
+            result += (day < 10 ? '0' : '') + day;
+        }
+        return result;
+    }
+
+    private formatTime(dt: Date, opts: FormatTimeOptions) {
+        let result = '';
+        if (opts.hours) {
+            const h = dt.getUTCHours();
+            result += (h < 10 ? '0' : '') + h;
+        }
+        if (opts.minutes) {
+            if (opts.hours) {
+                result += ':';
+            }
+            const m = dt.getUTCMinutes();
+            result += (m < 10 ? '0' : '') + m;
+        }
+        if (opts.seconds) {
+            if (opts.minutes) {
+                result += ':';
+            }
+            const s = dt.getUTCSeconds();
+            result += (s < 10 ? '0' : '') + s;
+        }
+        if (opts.milliseconds) {
+            if (opts.seconds) {
+                result += '.';
+            }
+            const ms = dt.getUTCMilliseconds();
+            result += (ms < 10 ? '00' : ms < 100 ? '0' : '') + ms;
+        }
+        return result;
     }
 
     get spaceBetweenMarkAndLabel() { return this.scale * 2; }

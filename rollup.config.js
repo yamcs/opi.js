@@ -23,7 +23,8 @@ export default {
     }),
     copy({
       targets: [
-        { src: 'src/fonts', dest: 'dist' }
+        { src: 'src/fonts', dest: 'dist' },
+        { src: 'src/images', dest: 'dist' },
       ]
     })
   ],
@@ -41,10 +42,5 @@ export default {
   ],
   watch: {
     include: 'src/**',
-  },
-  onwarn: (warning, warn) => {
-    // Suppress circular dependency warnings coming from dygraphs
-    if (warning.code === 'CIRCULAR_DEPENDENCY') return;
-    warn(warning);
-  },
+  }
 }

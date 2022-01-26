@@ -2,7 +2,7 @@ import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics, Path } from '../../Graphics';
-import { HitRegionSpecification } from '../../HitCanvas';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { Bounds } from '../../positioning';
 import { BooleanProperty, ColorProperty, FontProperty, StringListProperty } from '../../properties';
 import { Widget } from '../../Widget';
@@ -52,6 +52,7 @@ export class ChoiceButton extends Widget {
                     this.writeValue(this.items[i]);
                     this.requestRepaint();
                 },
+                tooltip: () => this.tooltip,
             });
         }
     }
