@@ -16,6 +16,15 @@ export class WidgetWrapper {
         return pv ? new PVWrapper(pv) : null;
     }
 
+    getPV(propertyName = 'pv_name') {
+        const propertyValue = this.getPropertyValue(propertyName);
+        if (propertyValue) {
+            return this.getPVByName(propertyValue);
+        } else {
+            return null;
+        }
+    }
+
     getPropertyValue(propertyName: string) {
         const property = this.widget.properties.getProperty(propertyName);
         return property ? property.value : null;
