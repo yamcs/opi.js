@@ -13,6 +13,7 @@ export class ImageWidget extends Widget {
     private currentImageFile?: string;
     private imageElement?: HTMLImageElement;
     private imageSnapshot?: HTMLCanvasElement;
+    private imageLoading = false;
     private imageLoaded = false;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
@@ -26,6 +27,7 @@ export class ImageWidget extends Widget {
         this.imageElement = new Image(this.width, this.height); // Using optional size for image
         this.imageElement.onload = () => {
             this.snapshotImage(this.imageElement!);
+            this.imageLoading = false;
             this.imageLoaded = true;
             this.requestRepaint();
         };
@@ -43,7 +45,11 @@ export class ImageWidget extends Widget {
             g.ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        if (this.imageLoaded) {
+        if (this.imageLoading && this.imageSnapshot) {
+            // Draw the old image while a new one is still loading, this prevents
+            // a flash between consecutive images.
+            g.ctx.drawImage(this.imageSnapshot!, this.x, this.y, this.width, this.height);
+        } else if (this.imageLoaded) {
             if (this.noAnimation) {
                 g.ctx.drawImage(this.imageSnapshot!, this.x, this.y, this.width, this.height);
             } else {
@@ -55,6 +61,7 @@ export class ImageWidget extends Widget {
     }
 
     private triggerImageLoad() {
+        this.imageLoading = true;
         this.imageLoaded = false;
         if (this.imageElement && this.imageFile) {
             this.currentImageFile = this.imageFile;
