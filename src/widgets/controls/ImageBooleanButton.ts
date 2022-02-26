@@ -65,10 +65,12 @@ export class ImageBooleanButton extends Widget {
         };
 
         if (this.onImage) {
-            this.onImageElement.src = `${this.display.baseUrl}${this.onImage}`;
+            const resolver = this.display.getImageResolver();
+            this.onImageElement.src = resolver.resolve(this.onImage);
         }
         if (this.offImage) {
-            this.offImageElement.src = `${this.display.baseUrl}${this.offImage}`;
+            const resolver = this.display.getImageResolver();
+            this.offImageElement.src = resolver.resolve(this.offImage);
         }
 
         this.areaRegion = {

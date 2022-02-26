@@ -38,7 +38,8 @@ export class ActionButton extends Widget {
                 this.imageLoaded = true;
                 this.requestRepaint();
             };
-            this.imageElement.src = `${this.display.baseUrl}${this.image}`;
+            const resolver = this.display.getImageResolver();
+            this.imageElement.src = resolver.resolve(this.image);
         }
 
         this.areaRegion = {

@@ -3,6 +3,7 @@ import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, ScaleEvent, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitRegionSpecification';
+import { DefaultImageResolver, ImageResolver } from './ImageResolver';
 import { Bounds } from './positioning';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
 import { PVEngine } from './pv/PVEngine';
@@ -91,6 +92,7 @@ export class Display {
     private g: Graphics;
     private ctx: CanvasRenderingContext2D;
     pvEngine: PVEngine;
+    private imageResolver: ImageResolver;
 
     private repaintRequested = false;
 
@@ -149,6 +151,8 @@ export class Display {
             click: () => this.closeMenu(),
         };
 
+        this.imageResolver = new DefaultImageResolver(this);
+
         window.requestAnimationFrame(() => this.step());
 
         new EventHandler(this, canvas, this.g.hitCanvas);
@@ -160,6 +164,14 @@ export class Display {
 
     addScriptLibrary(name: string, library: any) {
         this.pvEngine.addScriptLibrary(name, library);
+    }
+
+    setImageResolver(imageResolver: ImageResolver) {
+        this.imageResolver = imageResolver;
+    }
+
+    getImageResolver() {
+        return this.imageResolver;
     }
 
     private step() {
