@@ -137,17 +137,24 @@ export abstract class Widget {
 
         // Default underlay region, specific widgets may need to redefine
         // if they place a region on top.
-        this.holderRegion = {
-            id: `${this.wuid}-holder`,
-            tooltip: () => this.tooltip,
-        };
-        if (this.actions.isClickable()) {
-            this.holderRegion!.click = () => {
-                for (const idx of this.actions.getClickActions()) {
-                    this.executeAction(idx);
-                }
+        //
+        // Don't declare a region unless necessary, to prevent
+        // undesired mouse interactions
+        if (this.tooltip || this.actions.isClickable()) {
+            this.holderRegion = {
+                id: `${this.wuid}-holder`,
+            };
+            if (this.tooltip) {
+                this.holderRegion.tooltip = () => this.tooltip;
             }
-            this.holderRegion!.cursor = 'pointer';
+            if (this.actions.isClickable()) {
+                this.holderRegion.click = () => {
+                    for (const idx of this.actions.getClickActions()) {
+                        this.executeAction(idx);
+                    }
+                };
+                this.holderRegion!.cursor = 'pointer';
+            }
         }
 
         this.init();
@@ -212,8 +219,10 @@ export abstract class Widget {
             this.drawBorderStyle(g);
         }
 
-        g.addHitRegion(this.holderRegion!).addRect(
-            this.holderX, this.holderY, this.holderWidth, this.holderHeight);
+        if (this.holderRegion) {
+            g.addHitRegion(this.holderRegion).addRect(
+                this.holderX, this.holderY, this.holderWidth, this.holderHeight);
+        }
     }
 
     private drawBorderStyle(g: Graphics) {
@@ -761,7 +770,7 @@ export abstract class Widget {
      * Returns this widget as an image.
      */
     toDataURL(type = 'image/png', quality?: any) {
-        const area = this.display.measureAbsoluteArea(this)
+        const area = this.display.measureAbsoluteArea(this);
         const canvas = this.display.copyCanvas(area);
         return canvas.toDataURL(type, quality);
     }
