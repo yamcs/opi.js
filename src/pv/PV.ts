@@ -112,6 +112,8 @@ export class PV {
             return this.value;
         } else if (typeof this.value === 'number') {
             return this.formatNumber(formatType, this.value, precision);
+        } else if (this.value instanceof Date) {
+            return this.value.toISOString().replace('T', ' ').replace('Z', '');
         } else {
             return String(this.value);
         }
