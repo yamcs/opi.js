@@ -19,7 +19,7 @@ export class ImageWidget extends Widget {
         super(display, parent);
         this.properties.add(new StringProperty(PROP_IMAGE_FILE));
         this.properties.add(new StringProperty(PROP_NO_ANIMATION));
-        this.properties.add(new BooleanProperty(PROP_TRANSPARENCY, true))
+        this.properties.add(new BooleanProperty(PROP_TRANSPARENCY, true));
     }
 
     init() {
@@ -28,7 +28,7 @@ export class ImageWidget extends Widget {
             this.snapshotImage(this.imageElement!);
             this.imageLoaded = true;
             this.requestRepaint();
-        }
+        };
 
         this.triggerImageLoad();
     }

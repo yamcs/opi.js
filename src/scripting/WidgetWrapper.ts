@@ -1,6 +1,7 @@
 import { ColorMap } from '../ColorMap';
 import { ColorMapProperty, StringProperty } from '../properties';
 import { Widget } from '../Widget';
+import { PVWrapper } from './PVWrapper';
 
 /**
  * Exposes the API for the variable "widget" as used in display scripts.
@@ -8,6 +9,11 @@ import { Widget } from '../Widget';
 export class WidgetWrapper {
 
     constructor(private widget: Widget) {
+    }
+
+    getPVByName(name: string) {
+        const pv = this.widget.display.getPV(name);
+        return pv ? new PVWrapper(pv) : null;
     }
 
     getPropertyValue(propertyName: string) {
