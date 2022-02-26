@@ -81,6 +81,9 @@ export class Label extends Widget {
     }
 
     private wrapLine(g: Graphics, text: string, maxWidth: number) {
+        if (!text) {
+            return [''];
+        }
         const lines = [];
         let result;
         let i;
