@@ -45,9 +45,10 @@ export class ScriptEngine {
     this.context = {
       display: new DisplayWrapper(widget.display),
       pvs: pvs.map(pv => new PVWrapper(pv)),
+      triggerPV: null,
       widget: wrapWidget(widget),
-      ConsoleUtil: new ConsoleUtil(),
       ColorFontUtil: new ColorFontUtil(),
+      ConsoleUtil: new ConsoleUtil(),
       DataUtil: new DataUtil(),
       GUIUtil: new GUIUtil(),
       MessageDialog: new MessageDialog(),
@@ -57,7 +58,17 @@ export class ScriptEngine {
     };
   }
 
-  run() {
+  run(triggerPV?: PV) {
+    // Update context with triggerPV, using same wrapper object to support equality comparisons
+    this.context.triggerPV = null;
+    if (triggerPV) {
+      for (const pvWrapper of this.context.pvs) {
+        if ((pvWrapper as PVWrapper)._pv === triggerPV) {
+          this.context.triggerPV = pvWrapper;
+        }
+      }
+    }
+
     // Mark current globals
     const originalGlobals = [];
     for (const k in iframe.contentWindow) {

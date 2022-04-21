@@ -209,21 +209,21 @@ export class PVEngine {
         const script = new ScriptInstance(widget, model, scriptText, pvs);
         this.scripts.push(script);
 
-        const listener = () => {
-            if (model.checkConnect) {
-                for (const pv of pvs) {
-                    if (pv.disconnected || (pv.value === null) || (pv.value === undefined)) {
-                        return;
-                    }
-                }
-            }
-            script.scriptEngine.run();
-        };
-
-        for (const input of model.inputs) {
+        for (let i = 0; i < model.inputs.length; i++) {
+            const input = model.inputs[i];
+            const pv = pvs[i];
             if (input.trigger) {
                 const pvName = widget.expandMacro(input.pvName);
-                this.addListener(pvName, listener);
+                this.addListener(pvName, () => {
+                    if (model.checkConnect) {
+                        for (const pv of pvs) {
+                            if (pv.disconnected || (pv.value === null) || (pv.value === undefined)) {
+                                return;
+                            }
+                        }
+                    }
+                    script.scriptEngine.run(pv);
+                });
             }
         }
     }
