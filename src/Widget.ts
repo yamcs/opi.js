@@ -63,6 +63,9 @@ export abstract class Widget {
 
     properties: PropertySet;
 
+    // Custom variables, for use by scripts
+    readonly vars = new Map<string, any>();
+
     constructor(readonly display: Display, readonly parent?: AbstractContainerWidget) {
         this.properties = new PropertySet(this, [
             new ActionsProperty(PROP_ACTIONS, new ActionSet()),

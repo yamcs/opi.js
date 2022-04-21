@@ -25,6 +25,14 @@ export class WidgetWrapper {
         }
     }
 
+    getVar(name: string) {
+        return this.widget.vars.get(name) ?? null;
+    }
+
+    setVar(name: string, value: any) {
+        this.widget.vars.set(name, value);
+    }
+
     getPropertyValue(propertyName: string) {
         const property = this.widget.properties.getProperty(propertyName);
         return property ? property.value : null;
