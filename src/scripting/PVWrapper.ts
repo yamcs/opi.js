@@ -16,4 +16,12 @@ export class PVWrapper {
     setValue(value: any) {
         this._pv.pvEngine.setValue(new Date(), this._pv.name, value);
     }
+
+    isConnected() {
+        return !this._pv.disconnected;
+    }
+
+    isWriteAllowed() {
+        return this._pv.writable;
+    }
 }

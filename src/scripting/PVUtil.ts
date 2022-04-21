@@ -1,3 +1,4 @@
+import { AlarmSeverity } from '../pv/PV';
 import { PVEngine } from '../pv/PVEngine';
 import { PVWrapper } from './PVWrapper';
 
@@ -22,6 +23,11 @@ export class PVUtil {
         return String(pv.getValue());
     }
 
+    getTimeInMilliseconds(pv: PVWrapper) {
+        const dt = pv._pv.time;
+        return dt?.getTime() ?? 0;
+    }
+
     getTimeString(pv: PVWrapper, format = "yyyy-MM-dd HH:mm:ss.nnnnnnnnn") {
         const dt = pv._pv.time;
         if (dt) {
@@ -32,6 +38,27 @@ export class PVUtil {
             return result;
         }
         return null;
+    }
+
+    getSeverity(pv: PVWrapper) {
+        switch (pv._pv.severity) {
+            case AlarmSeverity.NONE:
+                return 0;
+            case AlarmSeverity.MAJOR:
+                return 1;
+            case AlarmSeverity.MINOR:
+                return 2;
+            default:
+                return -1;
+        }
+    }
+
+    getSeverityString(pv: PVWrapper) {
+        return String(pv._pv.severity);
+    }
+
+    getStatus(pv: PVWrapper) {
+        return pv._pv.alarmName;
     }
 
     private formatDate(date: Date, format: string) {

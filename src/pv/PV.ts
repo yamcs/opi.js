@@ -93,6 +93,23 @@ export class PV {
     get indexValue(): number | undefined { return this._indexValue; }
     get severity(): AlarmSeverity { return this._severity; }
 
+    get alarmName(): string {
+        const numericValue = this.toNumber();
+        if (numericValue === null || numericValue === undefined) {
+            return 'NONE';
+        } else if (numericValue <= (this.lowerAlarmLimit ?? NaN)) {
+            return 'LOLO';
+        } else if (numericValue >= (this.upperAlarmLimit ?? NaN)) {
+            return 'HIHI';
+        } else if (numericValue <= (this.lowerWarningLimit ?? NaN)) {
+            return 'LOW';
+        } else if (numericValue >= (this.upperWarningLimit ?? NaN)) {
+            return 'HIGH';
+        } else {
+            return 'NONE';
+        }
+    }
+
     toNumber(): number | null | undefined {
         if (this.value === null) {
             return null;
