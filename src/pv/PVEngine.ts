@@ -33,6 +33,27 @@ export class PVEngine {
     constructor(private display: Display) {
     }
 
+    /**
+     * To be called following display parse.
+     * It triggers an update on all listeners whose PV already has
+     * a value (for example because of loc initializer or formula).
+     *
+     * It is important to do this after the full display is parsed,
+     * because some scripts may require the presence of certain
+     * widgets.
+     */
+    init() {
+        for (const entry of this.listeners.entries()) {
+            const pv = this.pvs.get(entry[0]);
+            if (pv && pv.value !== null && pv.value !== undefined) {
+                for (const listener of entry[1]) {
+                    console.log('trigger...', pv, 'value', pv.value);
+                    listener();
+                }
+            }
+        }
+    }
+
     clearState() {
         this.disconnectAll();
         this.rules = [];
@@ -223,7 +244,7 @@ export class PVEngine {
                         }
                     }
                     script.scriptEngine.run(pv);
-                });
+                }, false);
             }
         }
     }
@@ -242,7 +263,7 @@ export class PVEngine {
         for (const input of model.inputs) {
             if (input.trigger) {
                 const pvName = widget.expandMacro(input.pvName);
-                this.addListener(pvName, listener);
+                this.addListener(pvName, listener, false);
             }
         }
     }
@@ -255,7 +276,7 @@ export class PVEngine {
         this.scriptLibraries[name] = library;
     }
 
-    addListener(pvName: string, listener: PVListener) {
+    addListener(pvName: string, listener: PVListener, mayTriggerNow = true) {
         const stripped = stripInitializer(pvName);
         const listeners = this.listeners.get(stripped);
         if (listeners) {
@@ -264,11 +285,14 @@ export class PVEngine {
             this.listeners.set(stripped, [listener]);
         }
 
-        // In case of loc with initializer, we want to trigger
-        // a first update.
-        const pv = this.pvs.get(stripped);
-        if (pv && pv.value !== null && pv.value !== undefined) {
-            listener();
+        // We don't want this always. For example during initial setup
+        // this should not trigger, because some scripts may rely on all
+        // widgets being initialized already.
+        if (mayTriggerNow) {
+            const pv = this.pvs.get(stripped);
+            if (pv && pv.value !== null && pv.value !== undefined) {
+                listener();
+            }
         }
     }
 

@@ -423,6 +423,7 @@ export class Display {
         this.instance = new DisplayWidget(this);
         const displayNode = XMLNode.parseFromXML(source);
         this.instance.parseNode(displayNode);
+        this.pvEngine.init();
         this.requestRepaint();
     }
 
