@@ -78,6 +78,8 @@ export class PropertySet {
                 (property as StringProperty).rawValue = node.getString(property.name);
             } else if (property instanceof StringListProperty) {
                 property.value = node.getStringList(property.name);
+            } else if (property instanceof StringTableProperty) {
+                property.value = node.getStringTable(property.name);
             } else {
                 throw new Error(`Property ${property.name} has an unexpected type`);
             }
@@ -87,7 +89,7 @@ export class PropertySet {
     loadXMLValues(node: XMLNode) {
         this.properties.forEach(property => {
             this.loadProperty(node, property);
-        })
+        });
 
         // Do this a first time, so that string properties
         // are available to generators (e.g. wuid).
@@ -244,6 +246,9 @@ export class ScriptsProperty extends Property<ScriptSet> {
 }
 
 export class StringListProperty extends Property<string[]> {
+}
+
+export class StringTableProperty extends Property<string[][]> {
 }
 
 export class RulesProperty extends Property<RuleSet> {

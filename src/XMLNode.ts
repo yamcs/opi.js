@@ -253,6 +253,19 @@ export class XMLNode {
         return list;
     }
 
+    getStringTable(name: string) {
+        const listNode = this.getNode(name);
+        const table: string[][] = [];
+        for (const rowNode of listNode.getNodes('row')) {
+            const row = [];
+            for (const colNode of rowNode.getNodes('col')) {
+                row.push(colNode.getTextContent());
+            }
+            table.push(row);
+        }
+        return table;
+    }
+
     getScripts(name: string) {
         const scriptsNode = this.getNode(name);
         const scripts = new ScriptSet();

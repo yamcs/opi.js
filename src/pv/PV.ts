@@ -185,9 +185,9 @@ export class PV {
 export type PVListener = () => void;
 
 export enum AlarmSeverity {
-    NONE,
-    MINOR,
-    MAJOR,
-    INVALID,
-    UNDEFINED
+    NONE = "NONE",
+    MINOR = "MINOR",
+    MAJOR = "MAJOR",
+    INVALID = "INVALID",
+    UNDEFINED = "UNDEFINED",
 }

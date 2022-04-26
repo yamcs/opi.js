@@ -47,7 +47,6 @@ export class PVEngine {
             const pv = this.pvs.get(entry[0]);
             if (pv && pv.value !== null && pv.value !== undefined) {
                 for (const listener of entry[1]) {
-                    console.log('trigger...', pv, 'value', pv.value);
                     listener();
                 }
             }

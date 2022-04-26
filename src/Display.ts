@@ -46,6 +46,7 @@ import { DisplayWidget } from './widgets/others/DisplayWidget';
 import { GroupingContainer } from './widgets/others/GroupingContainer';
 import { LinkingContainer } from './widgets/others/LinkingContainer';
 import { TabbedContainer } from './widgets/others/TabbedContainer';
+import { Table } from './widgets/others/Table';
 import { WebBrowser } from './widgets/others/WebBrowser';
 import { XMLNode } from './XMLNode';
 
@@ -79,6 +80,7 @@ const TYPE_RECTANGLE = 'Rectangle';
 const TYPE_ROUNDED_RECTANGLE = 'Rounded Rectangle';
 const TYPE_SCROLLBAR = 'Scrollbar';
 const TYPE_TABBED_CONTAINER = 'Tabbed Container';
+const TYPE_TABLE = 'Table';
 const TYPE_TANK = 'Tank';
 const TYPE_TEXT_INPUT = 'Text Input';
 const TYPE_TEXT_UPDATE = 'Text Update';
@@ -376,6 +378,8 @@ export class Display {
                 return new Scrollbar(this, parent);
             case TYPE_TABBED_CONTAINER:
                 return new TabbedContainer(this, parent);
+            case TYPE_TABLE:
+                return new Table(this, parent);
             case TYPE_TANK:
                 return new Tank(this, parent);
             case TYPE_TEXT_INPUT:
@@ -453,7 +457,6 @@ export class Display {
             }
             parent = parent.parent;
         }
-
         bounds.x += widget.x - widget.holderX;
         bounds.y += widget.y - widget.holderY;
         bounds.width += widget.width - widget.holderWidth;
