@@ -444,8 +444,8 @@ export class Display {
         const bounds = widget.bounds;
         let parent = widget.parent;
         while (parent) {
-            bounds.x += parent.holderX;
-            bounds.y += parent.holderY;
+            bounds.x += parent.x;
+            bounds.y += parent.y;
             if (parent instanceof TabbedContainer) {
                 const { x: xo, y: yo } = parent.measureTabOffset(this.g);
                 bounds.x += xo;
