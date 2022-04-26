@@ -31,7 +31,6 @@ export class Table extends Widget {
         this.table = document.createElement('table');
         this.table.style.fontSize = '12px';
         this.table.style.tableLayout = 'fixed';
-        this.table.contentEditable = 'true';
         this.tableWrapper.appendChild(this.table);
         this.display.rootPanel.appendChild(this.tableWrapper);
 
@@ -41,13 +40,14 @@ export class Table extends Widget {
     draw(g: Graphics) {
         if (this.tableWrapper) {
             const { x, y, width, height } = this.display.measureAbsoluteArea(this);
+            this.tableWrapper.style.backgroundColor = 'white';
             this.tableWrapper.style.position = 'absolute';
             this.tableWrapper.style.display = 'block';
             this.tableWrapper.style.left = `${x}px`;
             this.tableWrapper.style.top = `${y}px`;
             this.tableWrapper.style.width = `${width}px`;
             this.tableWrapper.style.height = `${height}px`;
-            this.tableWrapper.style.border = '1px solid #eeeeee';
+            this.tableWrapper.style.border = '1px solid rgba(0, 0, 0, 0.1)';
             if (this.spreadsheet.dirty) {
                 this.generateTableContent();
                 this.spreadsheet.dirty = false;
@@ -69,9 +69,9 @@ export class Table extends Widget {
                 cell.style.textAlign = 'left';
                 cell.style.width = header[1] + 'px';
                 cell.style.overflow = 'hidden';
-                cell.style.borderBottom = '1px solid #eeeeee';
+                cell.style.borderBottom = '1px solid rgba(0, 0, 0, 0.1)';
                 if (i !== 0) {
-                    cell.style.borderLeft = '1px solid #eeeeee';
+                    cell.style.borderLeft = '1px solid rgba(0, 0, 0, 0.1)';
                 }
                 const newText = document.createTextNode(header[0]);
                 cell.appendChild(newText);

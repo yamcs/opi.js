@@ -150,7 +150,6 @@ export class Display {
 
         this.displayRegion = {
             id: `display-root`,
-            click: () => this.closeMenu(),
         };
 
         this.imageResolver = new DefaultImageResolver(this);
@@ -310,13 +309,6 @@ export class Display {
 
     setTooltip(tooltip: string | undefined) {
         this.rootPanel.title = tooltip?.trim() ?? '';
-    }
-
-    /**
-     * Closes the currently active menu (if any)
-     */
-    closeMenu() {
-        this.instance?.closeMenu();
     }
 
     createWidget(kind: string, parent: AbstractContainerWidget) {

@@ -142,6 +142,7 @@ export class TextInput extends Widget {
     }
 
     hide() {
+        this.editing = false;
         if (this.inputEl) {
             this.inputEl.style.display = 'none';
         }
