@@ -1,6 +1,7 @@
 import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
+import { HitRegionSpecification } from '../../HitRegionSpecification';
 import { BooleanProperty, FontProperty, IntProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
@@ -14,6 +15,11 @@ const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextInput extends Widget {
 
+    private areaRegion?: HitRegionSpecification;
+
+    private inputEl?: HTMLInputElement;
+    private editing = false;
+
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
         this.properties.add(new FontProperty(PROP_FONT));
@@ -24,7 +30,63 @@ export class TextInput extends Widget {
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT, 1));
     }
 
+    init() {
+        this.areaRegion = {
+            id: `${this.wuid}-area`,
+            click: () => {
+                this.editing = true;
+                const bounds = this.display.measureAbsoluteArea(this);
+
+                // Cover alarm-sensitive border
+                bounds.x -= 2 * this.scale;
+                bounds.y -= 2 * this.scale;
+                bounds.width += 2 * this.scale;
+                bounds.height += 2 * this.scale;
+                this.inputEl!.value = this.pv?.value || '';
+                this.inputEl!.style.display = 'block';
+                this.inputEl!.style.position = 'absolute';
+                this.inputEl!.style.boxSizing = 'border-box';
+                this.inputEl!.style.left = `${bounds.x}px`;
+                this.inputEl!.style.top = `${bounds.y}px`;
+                this.inputEl!.style.width = `${bounds.width}px`;
+                this.inputEl!.style.height = `${bounds.height}px`;
+
+                this.inputEl!.focus();
+                this.inputEl!.select();
+            },
+            tooltip: () => this.tooltip,
+            cursor: 'text',
+        };
+
+        this.inputEl = document.createElement('input');
+        this.inputEl.style.display = 'none';
+        this.inputEl.addEventListener('keyup', evt => {
+            if (evt.key === 'Enter') {
+                if (this.pv && this.pv.writable) {
+                    const value = this.inputEl?.value || '';
+                    this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                    this.inputEl!.style.display = 'none';
+                    this.editing = false;
+                    this.requestRepaint();
+                }
+            }
+        });
+        this.inputEl.addEventListener('blur', evt => {
+            this.inputEl!.style.display = 'none';
+            this.editing = false;
+            this.requestRepaint();
+        });
+        this.display.rootPanel.appendChild(this.inputEl);
+    }
+
     draw(g: Graphics) {
+        if (this.editing) {
+            return;
+        }
+
+        const area = g.addHitRegion(this.areaRegion!);
+        area.addRect(this.x, this.y, this.width, this.height);
+
         const ctx = g.ctx;
         if (!this.transparent) {
             g.fillRect({
@@ -77,6 +139,19 @@ export class TextInput extends Widget {
 
         offscreenCtx.fillText(text, x - this.area.x, y - this.area.y);
         ctx.drawImage(tmpCanvas, this.area.x, this.area.y);
+    }
+
+    hide() {
+        if (this.inputEl) {
+            this.inputEl.style.display = 'none';
+        }
+    }
+
+    destroy() {
+        if (this.inputEl) {
+            this.display.rootPanel.removeChild(this.inputEl);
+            this.inputEl = undefined;
+        }
     }
 
     get font(): Font {
