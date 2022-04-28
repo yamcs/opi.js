@@ -9,6 +9,8 @@ import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 const PROP_FONT = 'font';
 const PROP_FORMAT_TYPE = 'format_type';
 const PROP_HORIZONTAL_ALIGNMENT = 'horizontal_alignment';
+const PROP_MULTILINE_INPUT = 'multiline_input';
+const PROP_PASSWORD_INPUT = 'password_input';
 const PROP_PRECISION = 'precision';
 const PROP_PRECISION_FROM_PV = 'precision_from_pv';
 const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
@@ -17,7 +19,7 @@ export class TextInput extends Widget {
 
     private areaRegion?: HitRegionSpecification;
 
-    private inputEl?: HTMLInputElement;
+    private inputEl?: HTMLInputElement | HTMLTextAreaElement;
     private editing = false;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
@@ -25,6 +27,8 @@ export class TextInput extends Widget {
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new IntProperty(PROP_FORMAT_TYPE));
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
+        this.properties.add(new BooleanProperty(PROP_MULTILINE_INPUT));
+        this.properties.add(new BooleanProperty(PROP_PASSWORD_INPUT, false));
         this.properties.add(new IntProperty(PROP_PRECISION));
         this.properties.add(new BooleanProperty(PROP_PRECISION_FROM_PV));
         this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT, 1));
@@ -42,7 +46,7 @@ export class TextInput extends Widget {
                 bounds.y -= 2 * this.scale;
                 bounds.width += 2 * this.scale;
                 bounds.height += 2 * this.scale;
-                this.inputEl!.value = this.pv?.value || '';
+                this.inputEl!.value = this.pv?.value ?? '';
                 this.inputEl!.style.display = 'block';
                 this.inputEl!.style.position = 'absolute';
                 this.inputEl!.style.boxSizing = 'border-box';
@@ -50,6 +54,16 @@ export class TextInput extends Widget {
                 this.inputEl!.style.top = `${bounds.y}px`;
                 this.inputEl!.style.width = `${bounds.width}px`;
                 this.inputEl!.style.height = `${bounds.height}px`;
+                this.inputEl!.autocomplete = 'off';
+                if (this.multilineInput) {
+                    const multiInputEl = this.inputEl as HTMLTextAreaElement;
+                    multiInputEl.style.resize = 'none';
+                } else {
+                    const singleInputEl = this.inputEl as HTMLInputElement;
+                    if (this.passwordInput) {
+                        singleInputEl.type = 'password';
+                    }
+                }
 
                 this.inputEl!.focus();
                 this.inputEl!.select();
@@ -58,16 +72,18 @@ export class TextInput extends Widget {
             cursor: 'text',
         };
 
-        this.inputEl = document.createElement('input');
-        this.inputEl.style.display = 'none';
-        this.inputEl.addEventListener('keyup', evt => {
+        this.inputEl = document.createElement(this.multilineInput ? 'textarea' : 'input');
+        this.inputEl!.style.display = 'none';
+        this.inputEl!.addEventListener('keyup', (evt: any) => {
             if (evt.key === 'Enter') {
                 if (this.pv && this.pv.writable) {
-                    const value = this.inputEl?.value || '';
-                    this.display.pvEngine.setValue(new Date(), this.pv.name, value);
-                    this.inputEl!.style.display = 'none';
-                    this.editing = false;
-                    this.requestRepaint();
+                    if (!this.multilineInput || evt.ctrlKey) { // Multiline input requires ctrl+key to confirm
+                        const value = this.inputEl?.value || '';
+                        this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                        this.inputEl!.style.display = 'none';
+                        this.editing = false;
+                        this.requestRepaint();
+                    }
                 }
             }
         });
@@ -160,6 +176,8 @@ export class TextInput extends Widget {
     }
     get formatType(): number { return this.properties.getValue(PROP_FORMAT_TYPE); }
     get horizAlignment(): number { return this.properties.getValue(PROP_HORIZONTAL_ALIGNMENT); }
+    get multilineInput(): boolean { return this.properties.getValue(PROP_MULTILINE_INPUT); }
+    get passwordInput(): boolean { return this.properties.getValue(PROP_PASSWORD_INPUT); }
     get precision(): number { return this.properties.getValue(PROP_PRECISION); }
     get precisionFromPV(): boolean { return this.properties.getValue(PROP_PRECISION_FROM_PV); }
     get vertAlignment(): number { return this.properties.getValue(PROP_VERTICAL_ALIGNMENT); }

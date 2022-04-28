@@ -150,6 +150,18 @@ export class Display {
 
         this.displayRegion = {
             id: `display-root`,
+            click: () => {
+                // TextInput widget should cancel input when user clicks outside
+                for (const child of this.rootPanel.getElementsByTagName('input')) {
+                    child.blur();
+                }
+                for (const child of this.rootPanel.getElementsByTagName('textarea')) {
+                    child.blur();
+                }
+                for (const child of this.rootPanel.getElementsByTagName('select')) {
+                    child.blur();
+                }
+            }
         };
 
         this.imageResolver = new DefaultImageResolver(this);
