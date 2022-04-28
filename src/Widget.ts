@@ -647,6 +647,7 @@ export abstract class Widget {
             case 'WRITE_PV':
                 if (action.pvName) {
                     const pvName = this.expandMacro(action.pvName);
+                    this.display.pvEngine.createPV(pvName);
                     this.display.pvEngine.setValue(new Date(), pvName, action.value);
                 }
                 break;
