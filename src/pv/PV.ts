@@ -143,6 +143,9 @@ export class PV {
         switch (formatType) {
             case 0: // DEFAULT
             case 1: // NORMAL
+                if (precision === -1) { // Use PV precision if available
+                    precision = this.precision ?? -1;
+                }
                 if (precision === -1) {
                     return String(value);
                 } else {

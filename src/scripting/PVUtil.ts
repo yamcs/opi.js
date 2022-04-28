@@ -20,7 +20,7 @@ export class PVUtil {
     }
 
     getString(pv: PVWrapper) {
-        return String(pv.getValue());
+        return pv._pv.formatValue(0, -1);
     }
 
     getTimeInMilliseconds(pv: PVWrapper) {
