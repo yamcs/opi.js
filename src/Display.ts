@@ -18,6 +18,7 @@ import { CheckBox } from './widgets/controls/CheckBox';
 import { ChoiceButton } from './widgets/controls/ChoiceButton';
 import { Combo } from './widgets/controls/Combo';
 import { ImageBooleanButton } from './widgets/controls/ImageBooleanButton';
+import { MenuButton } from './widgets/controls/MenuButton';
 import { NativeButton } from './widgets/controls/NativeButton';
 import { RadioBox } from './widgets/controls/RadioBox';
 import { Scrollbar } from './widgets/controls/Scrollbar';
@@ -70,6 +71,7 @@ const TYPE_INTENSITY_GRAPH = 'Intensity Graph';
 const TYPE_LABEL = 'Label';
 const TYPE_LED = 'LED';
 const TYPE_LINKING_CONTAINER = 'Linking Container';
+const TYPE_MENU_BUTTON = 'Menu Button';
 const TYPE_METER = 'Meter';
 const TYPE_NATIVE_BUTTON = 'Button'; // Only used in old displays
 const TYPE_POLYGON = 'Polygon';
@@ -362,6 +364,8 @@ export class Display {
                 return new LED(this, parent);
             case TYPE_LINKING_CONTAINER:
                 return new LinkingContainer(this, parent);
+            case TYPE_MENU_BUTTON:
+                return new MenuButton(this, parent);
             case TYPE_METER:
                 return new Meter(this, parent);
             case TYPE_NATIVE_BUTTON:
