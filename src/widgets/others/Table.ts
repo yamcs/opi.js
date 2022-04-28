@@ -31,6 +31,8 @@ export class Table extends Widget {
         this.table = document.createElement('table');
         this.table.style.fontSize = '12px';
         this.table.style.tableLayout = 'fixed';
+        this.table.style.borderSpacing = '0';
+        this.table.style.borderCollapse = 'collapse';
         this.tableWrapper.appendChild(this.table);
         this.display.rootPanel.appendChild(this.tableWrapper);
 
@@ -66,9 +68,11 @@ export class Table extends Widget {
             for (let i = 0; i < this.columnsCount; i++) {
                 const header = this.columnHeaders[i];
                 const cell = rowEl.insertCell();
+                cell.style.color = '#aaa';
                 cell.style.textAlign = 'left';
                 cell.style.width = header[1] + 'px';
                 cell.style.overflow = 'hidden';
+                cell.style.padding = '4px';
                 cell.style.borderBottom = '1px solid rgba(0, 0, 0, 0.1)';
                 if (i !== 0) {
                     cell.style.borderLeft = '1px solid rgba(0, 0, 0, 0.1)';
@@ -88,6 +92,10 @@ export class Table extends Widget {
                 cell.style.overflow = 'hidden';
                 cell.style.wordWrap = 'break-word';
                 cell.style.textOverflow = 'ellipsis';
+                cell.style.padding = '4px';
+                if (i !== 0) {
+                    cell.style.borderLeft = '1px solid rgba(0, 0, 0, 0.1)';
+                }
                 if (row[i] !== undefined) {
                     const backgroundColor = row[i].backgroundColor;
                     if (backgroundColor) {
