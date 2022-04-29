@@ -1,6 +1,7 @@
 import { Display } from '../../Display';
+import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
-import { BooleanProperty, IntProperty, StringTableProperty } from '../../properties';
+import { BooleanProperty, FontProperty, IntProperty, StringTableProperty } from '../../properties';
 import { SpreadSheetTable } from '../../scripting/SpreadSheetTable';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from './AbstractContainerWidget';
@@ -9,6 +10,7 @@ const PROP_COLUMNS_COUNT = 'columns_count';
 const PROP_COLUMN_HEADERS = 'column_headers';
 const PROP_COLUMN_HEADER_VISIBLE = 'column_header_visible';
 const PROP_DEFAULT_CONTENT = 'default_content';
+const PROP_FONT = 'font';
 
 export class Table extends Widget {
 
@@ -20,8 +22,9 @@ export class Table extends Widget {
         super(display, parent);
         this.properties.add(new IntProperty(PROP_COLUMNS_COUNT));
         this.properties.add(new StringTableProperty(PROP_COLUMN_HEADERS));
-        this.properties.add(new StringTableProperty(PROP_DEFAULT_CONTENT));
         this.properties.add(new BooleanProperty(PROP_COLUMN_HEADER_VISIBLE));
+        this.properties.add(new StringTableProperty(PROP_DEFAULT_CONTENT));
+        this.properties.add(new FontProperty(PROP_FONT));
         this.spreadsheet = new SpreadSheetTable(this);
     }
 
@@ -29,7 +32,6 @@ export class Table extends Widget {
         this.tableWrapper = document.createElement('div');
         this.tableWrapper.style.display = 'none';
         this.table = document.createElement('table');
-        this.table.style.fontSize = '12px';
         this.table.style.tableLayout = 'fixed';
         this.table.style.borderSpacing = '0';
         this.table.style.borderCollapse = 'collapse';
@@ -50,6 +52,7 @@ export class Table extends Widget {
             this.tableWrapper.style.width = `${width}px`;
             this.tableWrapper.style.height = `${height}px`;
             this.tableWrapper.style.border = '1px solid rgba(0, 0, 0, 0.1)';
+            this.table!.style.font = this.font.getFontString();
             if (this.spreadsheet.dirty) {
                 this.generateTableContent();
                 this.spreadsheet.dirty = false;
@@ -70,9 +73,9 @@ export class Table extends Widget {
                 const cell = rowEl.insertCell();
                 cell.style.color = '#aaa';
                 cell.style.textAlign = 'left';
-                cell.style.width = header[1] + 'px';
+                cell.style.width = (Number(header[1]) * this.scale) + 'px';
                 cell.style.overflow = 'hidden';
-                cell.style.padding = '4px';
+                cell.style.padding = `${4 * this.scale}px`;
                 cell.style.borderBottom = '1px solid rgba(0, 0, 0, 0.1)';
                 if (i !== 0) {
                     cell.style.borderLeft = '1px solid rgba(0, 0, 0, 0.1)';
@@ -92,7 +95,7 @@ export class Table extends Widget {
                 cell.style.overflow = 'hidden';
                 cell.style.wordWrap = 'break-word';
                 cell.style.textOverflow = 'ellipsis';
-                cell.style.padding = '4px';
+                cell.style.padding = `${4 * this.scale}px`;
                 if (i !== 0) {
                     cell.style.borderLeft = '1px solid rgba(0, 0, 0, 0.1)';
                 }
@@ -135,4 +138,5 @@ export class Table extends Widget {
         return this.properties.getValue(PROP_COLUMN_HEADER_VISIBLE);
     }
     get defaultContent(): string[][] { return this.properties.getValue(PROP_DEFAULT_CONTENT); }
+    get font(): Font { return this.properties.getValue(PROP_FONT).scale(this.scale); }
 }
