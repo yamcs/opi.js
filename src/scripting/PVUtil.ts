@@ -23,6 +23,15 @@ export class PVUtil {
         return pv._pv.formatValue(0, -1);
     }
 
+    getStringArray(pv: PVWrapper) {
+        const value = pv.getValue();
+        if (Array.isArray(value)) {
+            return value.map(item => String(item));
+        } else {
+            return [String(value)];
+        }
+    }
+
     getTimeInMilliseconds(pv: PVWrapper) {
         const dt = pv._pv.time;
         return dt?.getTime() ?? 0;
