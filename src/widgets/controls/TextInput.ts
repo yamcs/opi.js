@@ -13,6 +13,7 @@ const PROP_MULTILINE_INPUT = 'multiline_input';
 const PROP_PASSWORD_INPUT = 'password_input';
 const PROP_PRECISION = 'precision';
 const PROP_PRECISION_FROM_PV = 'precision_from_pv';
+const PROP_TEXT = 'text';
 const PROP_VERTICAL_ALIGNMENT = 'vertical_alignment';
 
 export class TextInput extends Widget {
@@ -35,9 +36,15 @@ export class TextInput extends Widget {
     }
 
     init() {
+        if (this.text) {
+            this.value = this.text;
+        }
         this.areaRegion = {
             id: `${this.wuid}-area`,
             click: () => {
+                if (this.pv && !this.pv.writable) {
+                    return;
+                }
                 this.editing = true;
                 const bounds = this.display.measureAbsoluteArea(this);
 
@@ -46,7 +53,7 @@ export class TextInput extends Widget {
                 bounds.y -= 2 * this.scale;
                 bounds.width += 2 * this.scale;
                 bounds.height += 2 * this.scale;
-                this.inputEl!.value = this.pv?.value ?? '';
+                this.inputEl!.value = this.pv?.value ?? this.value ?? '';
                 this.inputEl!.style.display = 'block';
                 this.inputEl!.style.position = 'absolute';
                 this.inputEl!.style.boxSizing = 'border-box';
@@ -76,14 +83,15 @@ export class TextInput extends Widget {
         this.inputEl!.style.display = 'none';
         this.inputEl!.addEventListener('keyup', (evt: any) => {
             if (evt.key === 'Enter') {
-                if (this.pv && this.pv.writable) {
-                    if (!this.multilineInput || evt.ctrlKey) { // Multiline input requires ctrl+key to confirm
-                        const value = this.inputEl?.value || '';
+                if (!this.multilineInput || evt.ctrlKey) { // Multiline input requires ctrl+key to confirm
+                    const value = this.inputEl?.value || '';
+                    this.value = value;
+                    if (this.pv) {
                         this.display.pvEngine.setValue(new Date(), this.pv.name, value);
-                        this.inputEl!.style.display = 'none';
-                        this.editing = false;
-                        this.requestRepaint();
                     }
+                    this.inputEl!.style.display = 'none';
+                    this.editing = false;
+                    this.requestRepaint();
                 }
             } else if (evt.key === 'Escape') {
                 this.cancelInput();
@@ -175,6 +183,15 @@ export class TextInput extends Widget {
             this.display.rootPanel.removeChild(this.inputEl);
             this.inputEl = undefined;
         }
+    }
+
+    get value() {
+        return this.text;
+    }
+
+    set value(value: any) {
+        this.properties.setValue(PROP_TEXT, value);
+        this.requestRepaint();
     }
 
     get font(): Font {
