@@ -14,6 +14,7 @@ const PROP_RESIZE_BEHAVIOR = 'resize_behaviour';
 export class LinkingContainer extends AbstractContainerWidget {
 
     private linkedDisplay?: DisplayWidget;
+    resolvedOpiFile?: string;
 
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
@@ -31,7 +32,8 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     init() {
         if (this.opiFile) {
-            fetch(this.display.resolvePath(this.opiFile), {
+            this.resolvedOpiFile = this.display.resolvePath(this.opiFile);
+            fetch(this.resolvedOpiFile, {
                 // Send cookies too.
                 // Old versions of Firefox do not do this automatically.
                 credentials: 'same-origin'

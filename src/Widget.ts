@@ -143,7 +143,12 @@ export abstract class Widget {
         //
         // Don't declare a region unless necessary, to prevent
         // undesired mouse interactions
-        if (this.tooltip || this.actions.isClickable()) {
+        //
+        // EDIT: Commented out "this.tooltip" because it is independent of
+        // actions. For example, see 4_Actions_2.opi.
+        // Better fix would be to do tooltips on another canvas than
+        // the click regions.
+        if (/*this.tooltip ||*/ this.actions.isClickable()) {
             this.holderRegion = {
                 id: `${this.wuid}-holder`,
             };
@@ -526,7 +531,7 @@ export abstract class Widget {
     }
 
     resolvePath(path: string) {
-        return this.display.resolvePath(path);
+        return this.display.resolvePath(path, this);
     }
 
     /**
@@ -614,7 +619,7 @@ export abstract class Widget {
         });
     }
 
-    protected executeAction(index: number) {
+    executeAction(index: number) {
         const action = this.actions.getAction(index);
         if (!action) {
             return;

@@ -18,7 +18,7 @@ export class WebBrowser extends Widget {
 
     init() {
         this.iframe = document.createElement('iframe');
-        this.iframe.src = 'https://yamcs.org';
+        this.iframe.src = '';
         this.iframe.style.display = 'none';
         this.iframe.style.border = '0';
         this.display.rootPanel.appendChild(this.iframe);

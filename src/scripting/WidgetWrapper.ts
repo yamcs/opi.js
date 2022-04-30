@@ -11,6 +11,10 @@ export class WidgetWrapper {
     constructor(private widget: Widget) {
     }
 
+    executeAction(index: number) {
+        this.widget.executeAction(index);
+    }
+
     getPVByName(name: string) {
         const pv = this.widget.display.getPV(name);
         return pv ? new PVWrapper(pv) : null;

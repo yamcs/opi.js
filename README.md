@@ -33,7 +33,7 @@ Ticked widgets are at least partially implemented.
 * [x] Combo
 * [x] Image Boolean Button
 * [ ] Knob
-* [ ] Menu Button
+* [x] Menu Button
 * [x] Native Button
 * [x] Radio Box
 * [x] Scrollbar
@@ -80,7 +80,7 @@ Ticked widgets are at least partially implemented.
 * [x] Linking Container
 * [ ] Sash Container
 * [x] Tabbed Container
-* [ ] Table
+* [x] Table
 * [x] Web Browser
 
 

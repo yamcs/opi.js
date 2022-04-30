@@ -413,14 +413,17 @@ export class Display {
         this.requestRepaint();
     }
 
-    resolvePath(path: string) {
-        return this.pathResolver.resolve(path);
+    resolvePath(path: string, widget?: Widget) {
+        return this.pathResolver.resolve(path, widget);
     }
 
     setSource(href: string) {
         this.reset();
+        const idx = href.lastIndexOf('/') + 1;
+        this.relPrefix = href.substring(0, idx);
+
         return new Promise<void>((resolve, reject) => {
-            fetch(this.resolvePath(href), {
+            fetch(href, {
                 // Send cookies too.
                 // Old versions of Firefox do not do this automatically.
                 credentials: 'same-origin'
@@ -435,7 +438,7 @@ export class Display {
         });
     }
 
-    setSourceString(source: string) {
+    private setSourceString(source: string) {
         this.reset();
         this.instance = new DisplayWidget(this);
         const displayNode = XMLNode.parseFromXML(source);

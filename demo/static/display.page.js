@@ -21,11 +21,10 @@ window.page = (function () {
     });
 
     return {
-        loadDisplay: (relPrefix, name) => {
+        loadDisplay: (href) => {
             display.imagesPrefix = '/dist/images/';
             display.absPrefix = '/raw/';
-            display.relPrefix = relPrefix;
-            display.setSource(name).then(() => {
+            display.setSource(href).then(() => {
                 let html = '';
                 for (const widget of display.widgets) {
                     let label = widget.name;
