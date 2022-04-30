@@ -117,7 +117,8 @@ export class Display {
     /**
      * Prefix for workspace references (images, scripts, displays)
      */
-    baseUrl = '';
+    absPrefix = '';
+    relPrefix = '';
 
     instance?: DisplayWidget;
 
@@ -412,10 +413,18 @@ export class Display {
         this.requestRepaint();
     }
 
+    resolvePath(path: string) {
+        if (path.startsWith('/')) {
+            return `${this.absPrefix}${path.slice(1)}`;
+        } else {
+            return `${this.relPrefix}${path}`;
+        }
+    }
+
     setSource(href: string) {
         this.reset();
         return new Promise<void>((resolve, reject) => {
-            fetch(this.baseUrl + href, {
+            fetch(this.resolvePath(href), {
                 // Send cookies too.
                 // Old versions of Firefox do not do this automatically.
                 credentials: 'same-origin'

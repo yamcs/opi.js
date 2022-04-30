@@ -37,7 +37,7 @@
     <script type="module" src="/static/display.page.js"></script>
     <script>
         window.addEventListener('load', () => {
-            page.loadDisplay('{{ baseUrl }}', '{{ display }}');
+            page.loadDisplay('{{ relPrefix }}', '{{ display }}');
         });
     </script>
 {% endblock %}

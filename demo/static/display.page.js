@@ -21,9 +21,10 @@ window.page = (function () {
     });
 
     return {
-        loadDisplay: (baseUrl, name) => {
+        loadDisplay: (relPrefix, name) => {
             display.imagesPrefix = '/dist/images/';
-            display.baseUrl = baseUrl;
+            display.absPrefix = '/raw/';
+            display.relPrefix = relPrefix;
             display.setSource(name).then(() => {
                 let html = '';
                 for (const widget of display.widgets) {

@@ -116,7 +116,7 @@ export abstract class Widget {
             if (script.embedded) {
                 this.display.pvEngine.createScript(this, script, script.text!);
             } else {
-                fetch(`${this.display.baseUrl}${script.path}`, {
+                fetch(this.display.resolvePath(script.path!), {
                     // Send cookies too.
                     // Old versions of Firefox do not do this automatically.
                     credentials: 'same-origin'
@@ -630,7 +630,7 @@ export abstract class Widget {
                     const engine = new ScriptEngine(this.display.instance!, action.text!);
                     engine.run();
                 } else {
-                    fetch(`${this.display.baseUrl}${action.path}`, {
+                    fetch(this.display.resolvePath(action.path!), {
                         // Send cookies too.
                         // Old versions of Firefox do not do this automatically.
                         credentials: 'same-origin'
@@ -653,7 +653,7 @@ export abstract class Widget {
                 break;
             case 'PLAY_SOUND':
                 if (action.path) {
-                    const audio = new Audio(`${this.display.baseUrl}${action.path}`);
+                    const audio = new Audio(this.display.resolvePath(action.path!));
                     audio.play();
                 }
                 break;

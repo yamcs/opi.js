@@ -54,14 +54,14 @@ app.get('/displays/:display(*)?', async (req, res) => {
     const displayPath = path.join(displayRoot, req.params.display);
     const folderPath = path.dirname(displayPath);
     const rel = path.relative(displayRoot, folderPath);
-    let baseUrl = '/raw/';
+    let relPrefix = '/raw/';
     if (rel) {
-        baseUrl += rel + '/';
+        relPrefix += rel + '/';
     }
     res.render('display', {
         parentUrl: getParentUrl(folderPath),
         tree: await listDisplays(folderPath),
-        baseUrl,
+        relPrefix,
         display: path.basename(displayPath),
     });
 });

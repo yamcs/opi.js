@@ -31,7 +31,7 @@ export class LinkingContainer extends AbstractContainerWidget {
 
     init() {
         if (this.opiFile) {
-            fetch(this.display.baseUrl + this.opiFile, {
+            fetch(this.display.resolvePath(this.opiFile), {
                 // Send cookies too.
                 // Old versions of Firefox do not do this automatically.
                 credentials: 'same-origin'

@@ -10,6 +10,6 @@ export class DefaultImageResolver implements ImageResolver {
     }
 
     resolve(file: string) {
-        return `${this.display.baseUrl}${file}`;
+        return this.display.resolvePath(file);
     }
 }
