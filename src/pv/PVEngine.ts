@@ -231,18 +231,21 @@ export class PVEngine {
 
         for (let i = 0; i < model.inputs.length; i++) {
             const input = model.inputs[i];
-            const pv = pvs[i];
+            const triggerPV = pvs[i];
             if (input.trigger) {
                 const pvName = widget.expandMacro(input.pvName);
                 this.addListener(pvName, () => {
                     if (model.checkConnect) {
-                        for (const pv of pvs) {
-                            if (pv.disconnected || (pv.value === null) || (pv.value === undefined)) {
+                        for (let j = 0; j < model.inputs.length; j++) {
+                            const pv = pvs[j];
+                            const isTrigger = model.inputs[j].trigger;
+                            const hasValue = pv.value !== null && pv.value !== undefined;
+                            if (pv.disconnected || (isTrigger && !hasValue)) {
                                 return;
                             }
                         }
                     }
-                    script.scriptEngine.run(pv);
+                    script.scriptEngine.run(triggerPV);
                 }, false);
             }
         }
