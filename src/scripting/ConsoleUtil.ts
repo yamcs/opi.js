@@ -1,14 +1,19 @@
+import { Display } from '../Display';
+
 export class ConsoleUtil {
 
+  constructor(private display: Display) {
+  }
+
   writeInfo(message: string) {
-    console.log(message);
+    this.display.getConsoleHandler().writeInfo(message);
   }
 
   writeError(message: string) {
-    console.error(message);
+    this.display.getConsoleHandler().writeError(message);
   }
 
   writeWarning(message: string) {
-    console.warn(message);
+    this.display.getConsoleHandler().writeWarning(message);
   }
 }

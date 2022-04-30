@@ -50,7 +50,7 @@ export class ScriptEngine {
       triggerPV: null,
       widget: wrapWidget(widget),
       ColorFontUtil: new ColorFontUtil(),
-      ConsoleUtil: new ConsoleUtil(),
+      ConsoleUtil: new ConsoleUtil(widget.display),
       DataUtil: new DataUtil(),
       FileUtil: new FileUtil(widget.display),
       GUIUtil: new GUIUtil(),

@@ -1,3 +1,4 @@
+export { ConsoleHandler, DefaultConsoleHandler } from './ConsoleHandler';
 export { Display } from './Display';
 export { DefaultPathResolver, PathResolver } from './PathResolver';
 export { CompiledFormula, DataSourceStatus } from './pv/formulas/CompiledFormula';

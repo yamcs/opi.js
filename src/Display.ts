@@ -1,4 +1,5 @@
 import { Color } from './Color';
+import { ConsoleHandler, DefaultConsoleHandler } from './ConsoleHandler';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, ScaleEvent, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
@@ -97,6 +98,7 @@ export class Display {
     private ctx: CanvasRenderingContext2D;
     pvEngine: PVEngine;
     private pathResolver: PathResolver;
+    private consoleHandler: ConsoleHandler;
 
     private repaintRequested = false;
 
@@ -168,6 +170,7 @@ export class Display {
         };
 
         this.pathResolver = new DefaultPathResolver(this);
+        this.consoleHandler = new DefaultConsoleHandler();
 
         window.requestAnimationFrame(() => this.step());
 
@@ -188,6 +191,14 @@ export class Display {
 
     getPathResolver() {
         return this.pathResolver;
+    }
+
+    setConsoleHandler(consoleHandler: ConsoleHandler) {
+        this.consoleHandler = consoleHandler;
+    }
+
+    getConsoleHandler() {
+        return this.consoleHandler;
     }
 
     private step() {
