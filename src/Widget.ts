@@ -525,6 +525,10 @@ export abstract class Widget {
         this.display.requestRepaint();
     }
 
+    resolvePath(path: string) {
+        return this.display.resolvePath(path);
+    }
+
     /**
      * Bounds of this widget (within its parent).
      * Bounds cover the entire widget: area + ornaments.

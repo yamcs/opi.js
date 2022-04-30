@@ -3,7 +3,7 @@ import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, ScaleEvent, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
 import { HitRegionSpecification } from './HitRegionSpecification';
-import { DefaultImageResolver, ImageResolver } from './ImageResolver';
+import { DefaultPathResolver, PathResolver } from './PathResolver';
 import { Bounds } from './positioning';
 import { FormulaPVProvider } from './pv/FormulaPVProvider';
 import { PVEngine } from './pv/PVEngine';
@@ -96,7 +96,7 @@ export class Display {
     private g: Graphics;
     private ctx: CanvasRenderingContext2D;
     pvEngine: PVEngine;
-    private imageResolver: ImageResolver;
+    private pathResolver: PathResolver;
 
     private repaintRequested = false;
 
@@ -167,7 +167,7 @@ export class Display {
             }
         };
 
-        this.imageResolver = new DefaultImageResolver(this);
+        this.pathResolver = new DefaultPathResolver(this);
 
         window.requestAnimationFrame(() => this.step());
 
@@ -182,12 +182,12 @@ export class Display {
         this.pvEngine.addScriptLibrary(name, library);
     }
 
-    setImageResolver(imageResolver: ImageResolver) {
-        this.imageResolver = imageResolver;
+    setPathResolver(pathResolver: PathResolver) {
+        this.pathResolver = pathResolver;
     }
 
-    getImageResolver() {
-        return this.imageResolver;
+    getPathResolver() {
+        return this.pathResolver;
     }
 
     private step() {
@@ -414,11 +414,7 @@ export class Display {
     }
 
     resolvePath(path: string) {
-        if (path.startsWith('/')) {
-            return `${this.absPrefix}${path.slice(1)}`;
-        } else {
-            return `${this.relPrefix}${path}`;
-        }
+        return this.pathResolver.resolve(path);
     }
 
     setSource(href: string) {

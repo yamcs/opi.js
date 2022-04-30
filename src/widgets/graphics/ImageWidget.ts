@@ -65,8 +65,7 @@ export class ImageWidget extends Widget {
         this.imageLoaded = false;
         if (this.imageElement && this.imageFile) {
             this.currentImageFile = this.imageFile;
-            const resolver = this.display.getImageResolver();
-            this.imageElement.src = resolver.resolve(this.imageFile);
+            this.imageElement.src = this.resolvePath(this.imageFile);
         }
     }
 

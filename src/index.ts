@@ -1,5 +1,5 @@
 export { Display } from './Display';
-export { DefaultImageResolver, ImageResolver } from './ImageResolver';
+export { DefaultPathResolver, PathResolver } from './PathResolver';
 export { CompiledFormula, DataSourceStatus } from './pv/formulas/CompiledFormula';
 export { FormulaCompiler } from './pv/formulas/FormulaCompiler';
 export { AlarmSeverity, PV } from './pv/PV';
