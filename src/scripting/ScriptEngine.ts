@@ -4,6 +4,7 @@ import { ColorFontUtil } from './ColorFontUtil';
 import { ConsoleUtil } from './ConsoleUtil';
 import { DataUtil } from './DataUtil';
 import { DisplayWrapper } from './DisplayWrapper';
+import { FileUtil } from './FileUtil';
 import { GUIUtil } from './GUIUtil';
 import { java, Java } from './Java';
 import { MessageDialog } from './MessageDialog';
@@ -51,6 +52,7 @@ export class ScriptEngine {
       ColorFontUtil: new ColorFontUtil(),
       ConsoleUtil: new ConsoleUtil(),
       DataUtil: new DataUtil(),
+      FileUtil: new FileUtil(widget.display),
       GUIUtil: new GUIUtil(),
       Java: new Java(),
       java: java,
