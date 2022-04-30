@@ -38,6 +38,8 @@ export class Font {
       return `bold ${this.height}px ${this.name}`;
     } else if (this.style === 2) {
       return `italic ${this.height}px ${this.name}`;
+    } else if (this.style === 3) {
+      return `italic bold ${this.height}px ${this.name}`;
     } else {
       if (this.style !== 0) {
         console.warn(`Unsupported font style ${this.style}`);
@@ -55,6 +57,9 @@ export class Font {
     if (this.style === 1) {
       variant.weight = 'bold';
     } else if (this.style === 2) {
+      variant.style = 'italic';
+    } else if (this.style === 3) {
+      variant.weight = 'bold';
       variant.style = 'italic';
     }
 
