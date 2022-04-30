@@ -5,7 +5,7 @@ import { ConsoleUtil } from './ConsoleUtil';
 import { DataUtil } from './DataUtil';
 import { DisplayWrapper } from './DisplayWrapper';
 import { GUIUtil } from './GUIUtil';
-import { Java } from './Java';
+import { java, Java } from './Java';
 import { MessageDialog } from './MessageDialog';
 import { PVUtil } from './PVUtil';
 import { PVWrapper } from './PVWrapper';
@@ -53,6 +53,7 @@ export class ScriptEngine {
       DataUtil: new DataUtil(),
       GUIUtil: new GUIUtil(),
       Java: new Java(),
+      java: java,
       MessageDialog: new MessageDialog(),
       PVUtil: new PVUtil(widget.display.pvEngine),
       ScriptUtil: new ScriptUtil(widget.display),
