@@ -85,14 +85,20 @@ export class TextInput extends Widget {
                         this.requestRepaint();
                     }
                 }
+            } else if (evt.key === 'Escape') {
+                this.cancelInput();
             }
         });
         this.inputEl.addEventListener('blur', evt => {
-            this.inputEl!.style.display = 'none';
-            this.editing = false;
-            this.requestRepaint();
+            this.cancelInput();
         });
         this.display.rootPanel.appendChild(this.inputEl);
+    }
+
+    private cancelInput() {
+        this.inputEl!.style.display = 'none';
+        this.editing = false;
+        this.requestRepaint();
     }
 
     draw(g: Graphics) {
