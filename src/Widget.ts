@@ -5,7 +5,7 @@ import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitRegionSpecification';
-import { Bounds, toBorderBox } from './positioning';
+import { Bounds, shrink, toBorderBox } from './positioning';
 import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntProperty, PropertyListener, PropertySet, PVValueProperty, RulesProperty, ScaleOptionsProperty, ScriptsProperty, StringProperty } from './properties';
 import { AlarmSeverity, PV } from './pv/PV';
 import { RuleSet } from './rules';
@@ -224,6 +224,7 @@ export abstract class Widget {
         this.height = this.holderHeight - insets[0] - insets[2];
 
         if (!alarmBorder) {
+            this.beforeDrawBorder(g);
             this.drawBorderStyle(g);
         }
 
@@ -231,6 +232,10 @@ export abstract class Widget {
             g.addHitRegion(this.holderRegion).addRect(
                 this.holderX, this.holderY, this.holderWidth, this.holderHeight);
         }
+    }
+
+    beforeDrawBorder(g: Graphics) {
+        // For extension
     }
 
     private drawBorderStyle(g: Graphics) {
@@ -333,12 +338,28 @@ export abstract class Widget {
                 crispen: true,
             });
         } else if (this.borderStyle === 13) { // Group Box
+            const fm = g.measureText(this.name, Font.ARIAL_11.scale(scale));
+            const lineWidth = 1;
+            let box = toBorderBox(
+                this.holderX + (8 * scale),
+                this.holderY + (8 * scale),
+                this.holderWidth - (16 * scale) - lineWidth,
+                this.holderHeight - (16 * scale) - lineWidth,
+                lineWidth,
+            );
+
             if (!this.transparent) {
+                // Cover inner box
                 g.fillRect({
-                    x: this.holderX,
+                    ...shrink(box, 8 * scale),
+                    color: this.backgroundColor,
+                });
+                // Cover label
+                g.fillRect({
+                    x: this.holderX + (16 * scale),
                     y: this.holderY,
-                    width: this.holderWidth,
-                    height: this.holderHeight,
+                    width: fm.width,
+                    height: 16 * scale,
                     color: this.backgroundColor,
                 });
             }
@@ -354,17 +375,6 @@ export abstract class Widget {
             });
 
             // Avoid drawing border over text
-            const fm = g.measureText(this.name, Font.ARIAL_11.scale(scale));
-
-            const lineWidth = 1;
-            let box = toBorderBox(
-                this.holderX + (8 * scale),
-                this.holderY + (8 * scale),
-                this.holderWidth - (16 * scale) - lineWidth,
-                this.holderHeight - (16 * scale) - lineWidth,
-                lineWidth,
-            );
-
             g.strokePath({
                 color: this.backgroundColor.darker(),
                 path: new Path(box.x, box.y)

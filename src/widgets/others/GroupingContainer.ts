@@ -17,17 +17,22 @@ export class GroupingContainer extends AbstractContainerWidget {
         }
     }
 
-    draw(g: Graphics) {
+    // This widget covers the entire area with the background color regardless
+    // of the border style. Unlike for example a Rectangle.
+    // (difference easy to see with a Group Box border style).
+    beforeDrawBorder(g: Graphics) {
         if (!this.transparent) {
             g.fillRect({
-                x: this.x,
-                y: this.y,
-                width: this.width,
-                height: this.height,
+                x: this.holderX,
+                y: this.holderY,
+                width: this.holderWidth,
+                height: this.holderHeight,
                 color: this.backgroundColor,
             });
         }
+    }
 
+    draw(g: Graphics) {
         const offscreen = g.createChild(this.width, this.height);
         for (const widget of this.widgets.filter(w => w.visible)) {
             widget.drawHolder(offscreen);
