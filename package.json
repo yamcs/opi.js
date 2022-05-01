@@ -1,6 +1,6 @@
 {
   "name": "@yamcs/opi",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "OPI Display Renderer",
   "author": "Yamcs Team <yamcs@spaceapplications.com>",
   "repository": {
