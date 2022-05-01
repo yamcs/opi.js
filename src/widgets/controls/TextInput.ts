@@ -2,10 +2,11 @@ import { Display } from '../../Display';
 import { Font } from '../../Font';
 import { Graphics } from '../../Graphics';
 import { HitRegionSpecification } from '../../HitRegionSpecification';
-import { BooleanProperty, FontProperty, IntProperty } from '../../properties';
+import { BooleanProperty, FontProperty, IntProperty, StringProperty } from '../../properties';
 import { Widget } from '../../Widget';
 import { AbstractContainerWidget } from '../others/AbstractContainerWidget';
 
+const PROP_CONFIRM_MESSAGE = 'confirm_message';
 const PROP_FONT = 'font';
 const PROP_FORMAT_TYPE = 'format_type';
 const PROP_HORIZONTAL_ALIGNMENT = 'horizontal_alignment';
@@ -25,6 +26,7 @@ export class TextInput extends Widget {
 
     constructor(display: Display, parent: AbstractContainerWidget) {
         super(display, parent);
+        this.properties.add(new StringProperty(PROP_CONFIRM_MESSAGE));
         this.properties.add(new FontProperty(PROP_FONT));
         this.properties.add(new IntProperty(PROP_FORMAT_TYPE));
         this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
@@ -85,13 +87,17 @@ export class TextInput extends Widget {
             if (evt.key === 'Enter') {
                 if (!this.multilineInput || evt.ctrlKey) { // Multiline input requires ctrl+key to confirm
                     const value = this.inputEl?.value || '';
-                    this.value = value;
-                    if (this.pv) {
-                        this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                    if (!this.confirmMessage || confirm(this.confirmMessage)) {
+                        this.value = value;
+                        if (this.pv) {
+                            this.display.pvEngine.setValue(new Date(), this.pv.name, value);
+                        }
+                        this.inputEl!.style.display = 'none';
+                        this.editing = false;
+                        this.requestRepaint();
+                    } else {
+                        this.cancelInput();
                     }
-                    this.inputEl!.style.display = 'none';
-                    this.editing = false;
-                    this.requestRepaint();
                 }
             } else if (evt.key === 'Escape') {
                 this.cancelInput();
@@ -194,6 +200,7 @@ export class TextInput extends Widget {
         this.requestRepaint();
     }
 
+    get confirmMessage(): string { return this.properties.getValue(PROP_CONFIRM_MESSAGE); }
     get font(): Font {
         return this.properties.getValue(PROP_FONT).scale(this.scale);
     }
