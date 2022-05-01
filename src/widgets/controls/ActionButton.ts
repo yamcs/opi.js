@@ -162,18 +162,39 @@ export class ActionButton extends Widget {
                 const imageY = this.y + (this.height - contentHeight) / 2;
                 ctx.drawImage(this.imageElement, imageX, imageY, naturalWidth, naturalHeight);
             }
-        } else {
-            ctx.textBaseline = 'middle';
-            ctx.textAlign = 'center';
-            x = this.x + (this.width / 2);
-            y = this.y + (this.height / 2);
-        }
 
-        if (this.pushed) {
-            x += 1 * scale;
-            y += 1 * scale;
+            if (this.pushed) {
+                x += 1 * scale;
+                y += 1 * scale;
+            }
+            ctx.fillText(lines[0], x, y);
+        } else {
+            ctx.textAlign = 'start';
+            ctx.textBaseline = 'top';
+
+            let maxWidth = 0;
+            for (const line of lines) {
+                const textWidth = ctx.measureText(line).width;
+                maxWidth = Math.max(maxWidth, textWidth);
+            }
+
+            x = this.x + (this.width - maxWidth) / 2;
+
+            const textHeight = lines.length * this.font.height
+                + ((lines.length - 1) * this.font.height * 0.2);
+            y = this.y + ((this.height - textHeight) / 2);
+
+            for (const line of lines) {
+                let textX = x;
+                let textY = y;
+                if (this.pushed) {
+                    textX += 1 * scale;
+                    textY += 1 * scale;
+                }
+                ctx.fillText(line, textX, textY);
+                y += this.font.height * 1.2; // Roughly
+            }
         }
-        ctx.fillText(lines[0], x, y);
     }
 
     get font(): Font {
