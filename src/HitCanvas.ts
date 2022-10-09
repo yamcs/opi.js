@@ -15,7 +15,11 @@ export class HitCanvas {
         const canvas = document.createElement('canvas');
         canvas.width = width ?? canvas.width;
         canvas.height = height ?? canvas.height;
-        this.ctx = canvas.getContext('2d')!;
+        this.ctx = canvas.getContext('2d', {
+            // Hint to use a software canvas, instead of hardware-accelerated.
+            // Recommended due to frequent getImageData().
+            willReadFrequently: true,
+        })!;
         this.root = parent?.root || parent;
     }
 
