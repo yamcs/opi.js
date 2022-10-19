@@ -4,12 +4,12 @@ import { Rule } from '../rules';
 import { ScriptEngine } from '../scripting/ScriptEngine';
 import { Script } from '../scripts';
 import { Widget } from '../Widget';
-import { LocalPV } from './LocalPV';
+import { LocalPV, LocalPVType } from './LocalPV';
 import { AlarmSeverity, PV, PVListener } from './PV';
 import { PVProvider } from './PVProvider';
 import { Sample } from './Sample';
 
-const PV_PATTERN = /(loc\:\/\/[^\(]+)(\((.*)\))?/;
+const PV_PATTERN = /(loc\:\/\/[^\(<]+)(<(.*)>)?(\((.*)\))?/;
 
 function stripInitializer(pvName: string) {
     if (!pvName.startsWith('loc://')) {
@@ -121,15 +121,36 @@ export class PVEngine {
 
     private createLocalPV(pvName: string) {
         const match = pvName.match(PV_PATTERN);
+        let type: LocalPVType | undefined = undefined;
         let initializer: any;
         if (match) {
             pvName = match[1];
-            if (match[3] !== undefined) {
-                const spec = match[3];
+            if (match[3]) {
+                switch (match[3]) {
+                    case 'VDouble':
+                    case 'VDoubleArray':
+                    case 'VString':
+                    case 'VStringArray':
+                        type = match[3];
+                        break;
+                    default:
+                        console.warn(`Unknown local PV type information: ${match[3]}`);
+                }
+            }
+
+            if (match[5] !== undefined) {
+                const spec = match[5];
                 if (spec.startsWith('"') && spec.endsWith('"')) {
                     initializer = spec.substring(1, spec.length - 1);
                 } else if (spec.indexOf(',') !== -1) {
-                    initializer = spec.split(',').map(part => Number(part.trim()));
+                    initializer = spec.split(',').map(part => {
+                        const trimmed = part.trim();
+                        if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
+                            return trimmed.substring(1, trimmed.length - 1);
+                        } else {
+                            return Number(trimmed);
+                        }
+                    });
                 } else {
                     initializer = Number(spec);
                 }
@@ -140,6 +161,10 @@ export class PVEngine {
         let mayInitialize = false;
         if (pv) {
             const localPV = pv as LocalPV;
+            if (localPV.type && type && (localPV.type !== type)) {
+                console.warn(`PV ${pvName} is defined with different ` +
+                    `types: ${localPV.type} !== ${type}`);
+            }
             if (localPV.initializer !== undefined
                 && initializer !== undefined
                 && !this.initializerEquals(localPV.initializer, initializer)) {
@@ -150,9 +175,11 @@ export class PVEngine {
             }
         }
         if (!pv) {
-            pv = new LocalPV(pvName, this, initializer);
+            pv = new LocalPV(pvName, this, type, initializer);
             this.pvs.set(pvName, pv);
             mayInitialize = true;
+        } else if (type && !(pv as LocalPV).type) {
+            (pv as LocalPV).type = type;
         }
 
         if (mayInitialize && initializer !== undefined) {
@@ -197,6 +224,8 @@ export class PVEngine {
             throw new Error(`Cannot set value of unknown PV ${pvName}`);
         }
     }
+
+
 
     setValues(samples: Map<string, Sample>) {
         // Bundle triggers so that if a listener is listening to

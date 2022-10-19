@@ -89,16 +89,33 @@ export class Combo extends Widget {
         const area = g.addHitRegion(this.areaRegion!);
         area.addRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-        if (this.pv?.value && this.items.indexOf(this.pv.value) !== -1) {
-            g.fillText({
-                x: (5 * this.scale) + bounds.x,
-                y: bounds.y + (bounds.height / 2),
-                align: 'left',
-                baseline: 'middle',
-                color: this.foregroundColor,
-                font: this.font,
-                text: this.pv?.value,
-            });
+        if (this.pv?.value) {
+            for (const item of this.items) {
+                let match = item === this.pv.value;
+
+                // Local PVs convert strings that look like
+                // numbers to string, so we have some special
+                // handling in case the items look like numbers.
+                if (!match) {
+                    try {
+                        match = parseFloat(item) === this.pv.value;
+                    } catch {
+                        // Ignore
+                    }
+                }
+
+                if (match) {
+                    g.fillText({
+                        x: (5 * this.scale) + bounds.x,
+                        y: bounds.y + (bounds.height / 2),
+                        align: 'left',
+                        baseline: 'middle',
+                        color: this.foregroundColor,
+                        font: this.font,
+                        text: this.pv?.value,
+                    });
+                }
+            }
         }
 
         const { selectorWidth } = this;
