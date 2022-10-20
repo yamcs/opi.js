@@ -11,15 +11,36 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
       - name: npm install and build
         run: |
           npm ci
           npm run build
+
       - name: Publish
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
           npm publish --access public
+
+    - name: Set version
+      id: set-version
+      run: |
+        REF=${{ github.ref }}
+        VERSION=${REF/refs\/tags\/v/}
+        echo "::set-output name=version::$VERSION"
+
+    - name: Draft Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: v${{ steps.set-version.outputs.version }}
+        draft: true  # Only publish after manual trigger
+
