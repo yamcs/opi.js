@@ -66,6 +66,8 @@ export abstract class Widget {
     // Custom variables, for use by scripts
     readonly vars = new Map<string, any>();
 
+    private pvs: PV[] = [];
+
     constructor(readonly display: Display, readonly parent?: AbstractContainerWidget) {
         this.properties = new PropertySet(this, [
             new ActionsProperty(PROP_ACTIONS, new ActionSet()),
@@ -109,12 +111,14 @@ export abstract class Widget {
         }
 
         if (this.pvName) {
-            this.display.pvEngine.createPV(this.pvName);
+            const pv = this.display.pvEngine.createPV(this.pvName);
+            this.pvs.push(pv);
         }
 
         for (const script of this.scripts.scripts) {
             if (script.embedded) {
-                this.display.pvEngine.createScript(this, script, script.text!);
+                const scriptInstance = this.display.pvEngine.createScript(this, script, script.text!);
+                this.pvs.push(...scriptInstance.pvs);
             } else {
                 fetch(this.display.resolvePath(script.path!), {
                     // Send cookies too.
@@ -123,7 +127,8 @@ export abstract class Widget {
                 }).then(response => {
                     if (response.ok) {
                         response.text().then(text => {
-                            this.display.pvEngine.createScript(this, script, text);
+                            const scriptInstance = this.display.pvEngine.createScript(this, script, text);
+                            this.pvs.push(...scriptInstance.pvs);
                         });
                     }
                 });
@@ -431,6 +436,15 @@ export abstract class Widget {
         }
     }
 
+    private isDisconnected() {
+        for (const pv of this.pvs) {
+            if (pv.value === undefined) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     drawDecoration(g: Graphics) {
         if (this.display.editMode) {
             return;
@@ -454,7 +468,7 @@ export abstract class Widget {
                 height: this.holderHeight + lineWidth,
                 color: Color.PURPLE,
             });
-        } else if (this.pv && this.pv.value === undefined) { // Connected, but no value
+        } else if (this.pvs.length && this.isDisconnected()) { // Connected, but no value
             g.strokeRect({
                 ...this.bounds,
                 dash: [2 * scale, 2 * scale],

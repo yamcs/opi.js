@@ -278,6 +278,8 @@ export class PVEngine {
                 }, false);
             }
         }
+
+        return script;
     }
 
     createRule(widget: Widget, model: Rule) {
@@ -343,7 +345,12 @@ class ScriptInstance {
 
     scriptEngine: ScriptEngine;
 
-    constructor(readonly widget: Widget, readonly script: Script, readonly text: string, pvs: PV[]) {
+    constructor(
+        readonly widget: Widget,
+        readonly script: Script,
+        readonly text: string,
+        readonly pvs: PV[],
+    ) {
         this.scriptEngine = new ScriptEngine(widget, text, pvs);
     }
 }
