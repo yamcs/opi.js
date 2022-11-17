@@ -659,8 +659,7 @@ export abstract class Widget {
                 break;
             case 'EXECUTE_JAVASCRIPT':
                 if (action.embedded) {
-                    // TODO should the current widget be passed?
-                    const engine = new ScriptEngine(this.display.instance!, action.text!);
+                    const engine = new ScriptEngine(this, action.text!);
                     engine.run();
                 } else {
                     fetch(this.display.resolvePath(action.path!), {
