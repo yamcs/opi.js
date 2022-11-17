@@ -32,6 +32,11 @@ function createIframe() {
   }
 }
 
+// True when a script is running.
+// (the way that use iframes, we cannot allow scripts
+// calling other scripts immediately)
+let iframeBusy = false;
+
 export class ScriptEngine {
 
   private context: Context;
@@ -64,6 +69,19 @@ export class ScriptEngine {
   }
 
   run(triggerPV?: PV) {
+    if (iframeBusy) {
+      setTimeout(() => this.run(triggerPV));
+    } else {
+      try {
+        iframeBusy = true;
+        this.doRun(triggerPV);
+      } finally {
+        iframeBusy = false;
+      }
+    }
+  }
+
+  private doRun(triggerPV?: PV) {
     // Update context with triggerPV, using same wrapper object to support equality comparisons
     this.context.triggerPV = null;
     if (triggerPV) {
