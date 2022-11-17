@@ -10,7 +10,7 @@ export class PVWrapper {
     }
 
     getValue() {
-        return this._pv.value;
+        return this._pv.value ?? null;
     }
 
     setValue(value: any) {

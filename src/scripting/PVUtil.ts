@@ -9,21 +9,31 @@ export class PVUtil {
     constructor(private pvEngine: PVEngine) {
     }
 
+    private checkPVValue(pv: PVWrapper) {
+        if (pv.getValue() === null) {
+            throw new Error(`PV ${pv.getName()} has no value.`);
+        }
+    }
+
     getDouble(pv: PVWrapper) {
+        this.checkPVValue(pv);
         // It probably already is a float, but parseFloat again to emit error if it's not
         return parseFloat(pv.getValue());
     }
 
     getLong(pv: PVWrapper) {
+        this.checkPVValue(pv);
         // It probably already is an int, but parseInt again to emit error if it's not
         return parseInt(pv.getValue(), 10);
     }
 
     getString(pv: PVWrapper) {
+        this.checkPVValue(pv);
         return pv._pv.formatValue(0, -1);
     }
 
     getStringArray(pv: PVWrapper) {
+        this.checkPVValue(pv);
         const value = pv.getValue();
         if (Array.isArray(value)) {
             return value.map(item => String(item));
@@ -33,11 +43,13 @@ export class PVUtil {
     }
 
     getTimeInMilliseconds(pv: PVWrapper) {
+        this.checkPVValue(pv);
         const dt = pv._pv.time;
         return dt?.getTime() ?? 0;
     }
 
     getTimeString(pv: PVWrapper, format = "yyyy-MM-dd HH:mm:ss.nnnnnnnnn") {
+        this.checkPVValue(pv);
         const dt = pv._pv.time;
         if (dt) {
             let result = format;
@@ -50,6 +62,7 @@ export class PVUtil {
     }
 
     getSeverity(pv: PVWrapper) {
+        this.checkPVValue(pv);
         switch (pv._pv.severity) {
             case AlarmSeverity.NONE:
                 return 0;
@@ -63,10 +76,12 @@ export class PVUtil {
     }
 
     getSeverityString(pv: PVWrapper) {
+        this.checkPVValue(pv);
         return String(pv._pv.severity);
     }
 
     getStatus(pv: PVWrapper) {
+        this.checkPVValue(pv);
         return pv._pv.alarmName;
     }
 
