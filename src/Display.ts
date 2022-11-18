@@ -109,6 +109,7 @@ export class Display {
     private _selection: string[] = [];
     private _scale = 1;
     private _transparent = false;
+    private refreshCycle = 100;
 
     /**
      * Prefix for images sourced during draw.
@@ -172,7 +173,7 @@ export class Display {
         this.pathResolver = new DefaultPathResolver(this);
         this.consoleHandler = new DefaultConsoleHandler();
 
-        window.requestAnimationFrame(() => this.step());
+        window.setTimeout(() => this.step());
 
         new EventHandler(this, canvas, this.g.hitCanvas);
     }
@@ -209,7 +210,7 @@ export class Display {
             this.repaintRequested = false;
         }
 
-        window.requestAnimationFrame(() => this.step());
+        window.setTimeout(() => this.step(), this.refreshCycle);
     }
 
     private drawScreen() {
@@ -456,6 +457,14 @@ export class Display {
         this.instance.parseNode(displayNode);
         this.pvEngine.init();
         this.requestRepaint();
+    }
+
+    getRefreshCycle() {
+        return this.refreshCycle;
+    }
+
+    setRefreshCycle(refreshCycle: number) {
+        this.refreshCycle = refreshCycle;
     }
 
     private reset() {
