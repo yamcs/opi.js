@@ -1,6 +1,7 @@
 import { AlarmSeverity } from '../pv/PV';
 import { PVEngine } from '../pv/PVEngine';
 import { PVWrapper } from './PVWrapper';
+import { WidgetWrapper } from './WidgetWrapper';
 
 const SUPPORTED_DATE_FORMAT_PATTERNS = ['yyyy', 'MM', 'dd', 'HH', 'mm', 'ss', 'nnnnnnnnn'];
 
@@ -13,6 +14,11 @@ export class PVUtil {
         if (pv.getValue() === null) {
             throw new Error(`PV ${pv.getName()} has no value.`);
         }
+    }
+
+    createPV(pvName: string, widget: WidgetWrapper) {
+        const pv = this.pvEngine.createPV(pvName);
+        return new PVWrapper(pv);
     }
 
     getDouble(pv: PVWrapper) {
