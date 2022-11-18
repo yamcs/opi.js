@@ -24,4 +24,10 @@ export class PVWrapper {
     isWriteAllowed() {
         return this._pv.writable;
     }
+
+    addListener(listener: any /* org.yamcs.studio.data.IPVListener */) {
+        this._pv.addListener(() => {
+            listener.valueChanged(this);
+        });
+    }
 }

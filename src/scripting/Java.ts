@@ -14,7 +14,7 @@ export namespace java {
         Thread.prototype.start = function () {
             this.runnable.run();
         };
-        Thread.sleep = function (delay: number) {
+        Thread.prototype.sleep = function (delay: number) {
             const start = Date.now();
             let i = 0;
             while (Date.now() < start + delay) { i++; }
@@ -22,6 +22,17 @@ export namespace java {
                 console.trace("Should not happen");
             }
         };
+    }
+}
+export namespace org {
+    export namespace yamcs {
+        export namespace studio {
+            export namespace data {
+                export const IPVListener = function (args: { [key: string]: any; }) {
+                    this.valueChanged = args["valueChanged"];
+                };
+            }
+        }
     }
 }
 
@@ -36,6 +47,8 @@ export class Java {
                 return java.lang.Thread;
             case "org.csstudio.swt.widgets.natives.SpreadSheetTable":
                 return SpreadSheetTable;
+            case "org.yamcs.studio.data.IPVListener":
+                return org.yamcs.studio.data.IPVListener;
             default:
                 throw new Error("Unexpected class name: " + className);
         }
