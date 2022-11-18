@@ -1,6 +1,7 @@
 import { ColorMap } from '../ColorMap';
 import { ColorMapProperty, StringProperty } from '../properties';
 import { Widget } from '../Widget';
+import { ActionWrapper } from './ActionWrapper';
 import { ArrayList } from './ArrayList';
 import { PVWrapper } from './PVWrapper';
 
@@ -31,7 +32,8 @@ export class WidgetWrapper {
     }
 
     getHookedActions() {
-        const actions = this.widget.getHookedActions();
+        const actions = this.widget.getHookedActions()
+            .map(action => new ActionWrapper(action, this.widget));
         return new ArrayList(actions);
     }
 

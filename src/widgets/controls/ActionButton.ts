@@ -1,4 +1,4 @@
-import { Action } from '../../actions';
+import { Action } from '../../actions/Action';
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';

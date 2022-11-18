@@ -32,10 +32,10 @@ function createIframe() {
   }
 }
 
-// True when a script is running.
-// (the way that use iframes, we cannot allow scripts
-// calling other scripts immediately)
-let iframeBusy = false;
+export function getIframeContentWindow() {
+  const el = document.getElementById('script-e') as HTMLIFrameElement;
+  return el.contentWindow;
+}
 
 export class ScriptEngine {
 
@@ -65,33 +65,43 @@ export class ScriptEngine {
       PVUtil: new PVUtil(widget.display.pvEngine),
       ScriptUtil: new ScriptUtil(widget.display),
       ...widget.display.pvEngine.scriptLibraries,
+      scheduleWithContext: (runnable: () => void, ms?: number) => {
+        this.schedule(runnable, ms);
+      },
     };
   }
 
   run(triggerPV?: PV) {
-    if (iframeBusy) {
-      setTimeout(() => this.run(triggerPV));
-    } else {
-      try {
-        iframeBusy = true;
-        this.doRun(triggerPV);
-      } finally {
-        iframeBusy = false;
-      }
-    }
-  }
-
-  private doRun(triggerPV?: PV) {
-    // Update context with triggerPV, using same wrapper object to support equality comparisons
-    this.context.triggerPV = null;
-    if (triggerPV) {
-      for (const pvWrapper of this.context.pvs) {
-        if ((pvWrapper as PVWrapper)._pv === triggerPV) {
-          this.context.triggerPV = pvWrapper;
+    setTimeout(() => {
+      // Update context with triggerPV, using same wrapper object to support equality comparisons
+      this.context.triggerPV = null;
+      if (triggerPV) {
+        for (const pvWrapper of this.context.pvs) {
+          if ((pvWrapper as PVWrapper)._pv === triggerPV) {
+            this.context.triggerPV = pvWrapper;
+          }
         }
       }
-    }
 
+      this.runWithContext(() => {
+        wEval.call(contentWindow, this.scriptText);
+      });
+    });
+  }
+
+  // Run a specific callback async, but
+  // while preserving current state of context.
+  //
+  // This is used for faking setTimeout without losing
+  // the iframe state.
+  private schedule(runnable: () => void, ms?: number) {
+    setTimeout(() => this.runWithContext(runnable), ms);
+  }
+
+  // This should be called only from a setTimeout call,
+  // so that there's no nesting of scripts triggering
+  // other scripts.
+  private runWithContext(runnable: () => void) {
     // Mark current globals
     const originalGlobals = [];
     for (const k in iframe.contentWindow) {
@@ -105,7 +115,7 @@ export class ScriptEngine {
           contentWindow[k] = this.context[k];
         }
       }
-      wEval.call(contentWindow, this.scriptText);
+      runnable();
 
       // Extract updated context
       const updatedContext: Context = {};

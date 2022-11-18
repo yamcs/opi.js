@@ -17,7 +17,7 @@ export class PropertySet {
     private properties = new Map<string, Property<any>>();
     private generators: PropertyGenerator[] = [];
 
-    constructor(private widget: Widget, properties: Property<any>[] = []) {
+    constructor(private widget: Widget | null, properties: Property<any>[] = []) {
         for (const property of properties) {
             this.properties.set(property.name, property);
         }
@@ -111,7 +111,7 @@ export class PropertySet {
             this.properties.forEach(property => {
                 if (property instanceof StringProperty) {
                     const stringProperty = property as StringProperty;
-                    if (stringProperty.rawValue !== undefined) {
+                    if (stringProperty.rawValue !== undefined && this.widget) {
                         property.value = this.widget.expandMacro(stringProperty.rawValue);
                     } else {
                         property.value = stringProperty.rawValue;

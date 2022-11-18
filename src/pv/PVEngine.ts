@@ -217,15 +217,13 @@ export class PVEngine {
         const pv = this.pvs.get(stripped);
         if (pv) {
             pv.setSample({ time, value, severity });
-            for (const listener of this.listeners.get(pvName) || []) {
+            for (const listener of this.listeners.get(stripped) || []) {
                 listener();
             }
         } else {
             throw new Error(`Cannot set value of unknown PV ${pvName}`);
         }
     }
-
-
 
     setValues(samples: Map<string, Sample>) {
         // Bundle triggers so that if a listener is listening to

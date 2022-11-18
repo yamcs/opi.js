@@ -1,7 +1,7 @@
-import { Action, ActionSet } from './actions';
+import { ActionSet } from './actions';
+import { Action } from './actions/Action';
 import { Color } from './Color';
 import { Display } from './Display';
-import { OpenDisplayEvent } from './events';
 import { Font } from './Font';
 import { Graphics, Path } from './Graphics';
 import { HitRegionSpecification } from './HitRegionSpecification';
@@ -10,7 +10,6 @@ import { ActionsProperty, BooleanProperty, ColorProperty, FontProperty, IntPrope
 import { AlarmSeverity, PV } from './pv/PV';
 import { RuleSet } from './rules';
 import { ScaleOptions } from './scale';
-import { ScriptEngine } from './scripting/ScriptEngine';
 import { ScriptSet } from './scripts';
 import { AbstractContainerWidget } from './widgets/others/AbstractContainerWidget';
 import { XMLNode } from './XMLNode';
@@ -669,54 +668,7 @@ export abstract class Widget {
     }
 
     executeAction(action: Action) {
-        switch (action.type) {
-            case 'OPEN_DISPLAY':
-                const event: OpenDisplayEvent = {
-                    path: action.path,
-                    replace: action.mode === 0,
-                };
-                this.display.fireEvent('opendisplay', event);
-                break;
-            case 'EXECUTE_JAVASCRIPT':
-                if (action.embedded) {
-                    const engine = new ScriptEngine(this, action.text!);
-                    engine.run();
-                } else {
-                    fetch(this.display.resolvePath(action.path!), {
-                        // Send cookies too.
-                        // Old versions of Firefox do not do this automatically.
-                        credentials: 'same-origin'
-                    }).then(response => {
-                        if (response.ok) {
-                            response.text().then(text => {
-                                const engine = new ScriptEngine(this.display.instance!, text);
-                                engine.run();
-                            });
-                        }
-                    });
-                }
-                break;
-            case 'WRITE_PV':
-                if (action.pvName) {
-                    const pvName = this.expandMacro(action.pvName);
-                    this.display.pvEngine.createPV(pvName);
-                    this.display.pvEngine.setValue(new Date(), pvName, action.value);
-                }
-                break;
-            case 'PLAY_SOUND':
-                if (action.path) {
-                    const audio = new Audio(this.display.resolvePath(action.path!));
-                    audio.play();
-                }
-                break;
-            case 'OPEN_WEBPAGE':
-                if (action.hyperlink) {
-                    window.location.href = action.hyperlink;
-                }
-                break;
-            default:
-                throw new Error(`Unsupported command ${action.type}`);
-        }
+        action.execute(this);
     }
 
     expandMacro(text: string) {
