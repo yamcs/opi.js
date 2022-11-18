@@ -1,6 +1,7 @@
 import { ColorMap } from '../ColorMap';
 import { ColorMapProperty, StringProperty } from '../properties';
 import { Widget } from '../Widget';
+import { ArrayList } from './ArrayList';
 import { PVWrapper } from './PVWrapper';
 
 /**
@@ -12,7 +13,7 @@ export class WidgetWrapper {
     }
 
     executeAction(index: number) {
-        this.widget.executeAction(index);
+        this.widget.executeActionByIndex(index);
     }
 
     getPVByName(name: string) {
@@ -27,6 +28,11 @@ export class WidgetWrapper {
         } else {
             return null;
         }
+    }
+
+    getHookedActions() {
+        const actions = this.widget.getHookedActions();
+        return new ArrayList(actions);
     }
 
     getVar(name: string) {

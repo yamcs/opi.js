@@ -43,7 +43,7 @@ export class MenuButton extends Widget {
                 // Avoid checkbox moving
                 this.selectEl!.selectedIndex = 0;
                 const idx = Number(value.substring('action-'.length));
-                this.executeAction(idx);
+                this.executeActionByIndex(idx);
             }
         });
 

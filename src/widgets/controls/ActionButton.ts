@@ -1,3 +1,4 @@
+import { Action } from '../../actions';
 import { Color } from '../../Color';
 import { Display } from '../../Display';
 import { Font } from '../../Font';
@@ -60,7 +61,7 @@ export class ActionButton extends Widget {
                 }
             },
             click: () => {
-                this.executeAction(this.pushed ? this.releaseActionIndex! : this.pushActionIndex);
+                this.executeActionByIndex(this.pushed ? this.releaseActionIndex! : this.pushActionIndex);
                 if (this.toggleButton) {
                     this.pushed = !this.pushed;
                 }
@@ -194,6 +195,25 @@ export class ActionButton extends Widget {
                 ctx.fillText(line, textX, textY);
                 y += this.font.height * 1.2; // Roughly
             }
+        }
+    }
+
+    // Override because hookFirstActionToClick is not used
+    // for this type of widget. Instead use pushActionIndex and
+    // releaseActionIndex.
+    getHookedActions() {
+        const { actions: actionSet } = this;
+        if (actionSet.hookAllActionsToClick) {
+            return actionSet.actions as Action[];
+        }
+        if (this.pushed) {
+            const idx = this.releaseActionIndex!;
+            const action = actionSet.getAction(idx)!;
+            return [action];
+        } else {
+            const idx = this.pushActionIndex;
+            const action = actionSet.getAction(idx)!;
+            return [action];
         }
     }
 

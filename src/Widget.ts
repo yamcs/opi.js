@@ -1,4 +1,4 @@
-import { ActionSet } from './actions';
+import { Action, ActionSet } from './actions';
 import { Color } from './Color';
 import { Display } from './Display';
 import { OpenDisplayEvent } from './events';
@@ -162,8 +162,8 @@ export abstract class Widget {
             }
             if (this.actions.isClickable()) {
                 this.holderRegion.click = () => {
-                    for (const idx of this.actions.getClickActions()) {
-                        this.executeAction(idx);
+                    for (const action of this.getHookedActions()) {
+                        this.executeAction(action);
                     }
                 };
                 this.holderRegion!.cursor = 'pointer';
@@ -171,6 +171,23 @@ export abstract class Widget {
         }
 
         this.init();
+    }
+
+    getHookedActions() {
+        const { actions: actionSet } = this;
+        const hookedActions = [];
+        for (let i = 0; i < actionSet.actions.length; i++) {
+            if (i === 0) {
+                if (actionSet.hookFirstActionToClick || actionSet.hookAllActionsToClick) {
+                    hookedActions.push(actionSet.actions[i]!);
+                }
+            } else {
+                if (actionSet.hookAllActionsToClick) {
+                    hookedActions.push(actionSet.actions[i]!);
+                }
+            }
+        }
+        return hookedActions;
     }
 
     drawHolder(g: Graphics) {
@@ -643,12 +660,15 @@ export abstract class Widget {
         });
     }
 
-    executeAction(index: number) {
+    executeActionByIndex(index: number) {
         const action = this.actions.getAction(index);
         if (!action) {
             return;
         }
+        this.executeAction(action);
+    }
 
+    executeAction(action: Action) {
         switch (action.type) {
             case 'OPEN_DISPLAY':
                 const event: OpenDisplayEvent = {

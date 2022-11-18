@@ -20,29 +20,17 @@ export class ActionSet {
     return this.actions[index];
   }
 
-  getClickActions() {
-    const indexes = [];
-    if (this.hookFirstActionToClick) {
-      indexes.push(0);
-    } else if (this.hookAllActionsToClick) {
-      for (let i = 0; i < this.actions.length; i++) {
-        indexes.push(i);
-      }
-    }
-    return indexes;
-  }
-
   // Called by the macro $(actions)
   toString() {
     if (this.actions.length === 1) {
       return String(this.actions[0]) || this.actions[0]!.type;
     } else {
-      return `${this.actions.length} actions`
+      return `${this.actions.length} actions`;
     }
   }
 }
 
-type Action =
+export type Action =
   ExecuteCommandAction |
   ExecuteJavaScriptAction |
   OpenDisplayAction |

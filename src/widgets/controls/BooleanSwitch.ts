@@ -84,7 +84,7 @@ export class BooleanSwitch extends Widget {
                 this.display.pvEngine.setValue(new Date(), this.pv.name, this.onState);
             }
         }
-        this.executeAction(this.pushActionIndex);
+        this.executeActionByIndex(this.pushActionIndex);
     }
 
     private toggleOff() {
@@ -102,7 +102,7 @@ export class BooleanSwitch extends Widget {
             }
         }
         if (this.releaseActionIndex !== undefined) {
-            this.executeAction(this.releaseActionIndex);
+            this.executeActionByIndex(this.releaseActionIndex);
         }
     }
 
