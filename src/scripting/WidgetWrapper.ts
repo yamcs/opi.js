@@ -113,6 +113,10 @@ export class WidgetWrapper {
         this.setPropertyValue('height', height);
     }
 
+    setEnabled(enabled: boolean) {
+        this.setPropertyValue('enabled', enabled);
+    }
+
     setVisible(visible: boolean) {
         this.setPropertyValue('visible', visible);
     }

@@ -68,7 +68,7 @@ export class ScriptEngine {
   }
 
   run(triggerPV?: PV) {
-    setTimeout(() => {
+    window.setTimeout(() => {
       // Update context with triggerPV, using same wrapper object to support equality comparisons
       this.context.triggerPV = null;
       if (triggerPV) {
@@ -91,7 +91,7 @@ export class ScriptEngine {
   // This is used for faking setTimeout without losing
   // the iframe state.
   schedule(runnable: () => void, ms?: number) {
-    setTimeout(() => this.runWithContext(runnable), ms);
+    window.setTimeout(() => this.runWithContext(runnable), ms);
   }
 
   // This should be called only from a setTimeout call,

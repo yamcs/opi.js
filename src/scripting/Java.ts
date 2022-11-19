@@ -23,8 +23,7 @@ export function createJavaBridge(scriptEngine: ScriptEngine) {
         }
     };
 
-    const Timer = function (daemon: boolean) {
-    };
+    const Timer = function () { };
     Timer.prototype.schedule = function (task: () => void, delay: number) {
         scriptEngine.schedule(task, delay);
     };
