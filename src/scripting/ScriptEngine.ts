@@ -6,7 +6,7 @@ import { DataUtil } from './DataUtil';
 import { DisplayWrapper } from './DisplayWrapper';
 import { FileUtil } from './FileUtil';
 import { GUIUtil } from './GUIUtil';
-import { java, Java } from './Java';
+import { createJavaBridge } from './Java';
 import { MessageDialog } from './MessageDialog';
 import { PVUtil } from './PVUtil';
 import { PVWrapper } from './PVWrapper';
@@ -59,15 +59,11 @@ export class ScriptEngine {
       DataUtil: new DataUtil(),
       FileUtil: new FileUtil(widget.display),
       GUIUtil: new GUIUtil(),
-      Java: new Java(),
-      java: java,
       MessageDialog: new MessageDialog(),
       PVUtil: new PVUtil(widget.display.pvEngine),
       ScriptUtil: new ScriptUtil(widget.display),
       ...widget.display.pvEngine.scriptLibraries,
-      scheduleWithContext: (runnable: () => void, ms?: number) => {
-        this.schedule(runnable, ms);
-      },
+      ...createJavaBridge(this),
     };
   }
 
@@ -94,7 +90,7 @@ export class ScriptEngine {
   //
   // This is used for faking setTimeout without losing
   // the iframe state.
-  private schedule(runnable: () => void, ms?: number) {
+  schedule(runnable: () => void, ms?: number) {
     setTimeout(() => this.runWithContext(runnable), ms);
   }
 
