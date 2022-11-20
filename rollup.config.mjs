@@ -1,5 +1,3 @@
-import commonjs from "@rollup/plugin-commonjs";
-import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import copy from "rollup-plugin-copy";
 import typescript from "rollup-plugin-typescript2";
@@ -7,12 +5,6 @@ import typescript from "rollup-plugin-typescript2";
 export default {
   input: "src/index.ts",
   plugins: [
-    // resolve and commonJS are used to allow ES6 importing of fontfaceobserver
-    // we prefer not to use the 'standalone' version, because it adds to the window object.
-    resolve(),
-    commonjs({
-      include: "node_modules/**",
-    }),
     typescript({
       useTsconfigDeclarationDir: true,
     }),

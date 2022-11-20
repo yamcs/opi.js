@@ -9,6 +9,7 @@ import {
   ScaleEvent,
   SelectionEvent,
 } from "./events";
+import { Font } from "./Font";
 import { Graphics } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
 import { DefaultPathResolver, PathResolver } from "./PathResolver";
@@ -97,12 +98,15 @@ const TYPE_THERMOMETER = "Thermometer";
 const TYPE_WEB_BROWSER = "Web Browser";
 const TYPE_XY_GRAPH = "XY Graph";
 
+type FontResolver = (font: Font) => FontFace | undefined;
+
 export class Display {
   rootPanel: HTMLDivElement;
   private g: Graphics;
   private ctx: CanvasRenderingContext2D;
   pvEngine: PVEngine;
   private pathResolver: PathResolver;
+  private fontResolver?: FontResolver;
   private consoleHandler: ConsoleHandler;
   private dialogHandler: DialogHandler;
 
@@ -214,6 +218,14 @@ export class Display {
 
   getDialogHandler() {
     return this.dialogHandler;
+  }
+
+  setFontResolver(fontResolver: FontResolver) {
+    this.fontResolver = fontResolver;
+  }
+
+  getFontResolver() {
+    return this.fontResolver;
   }
 
   private step() {

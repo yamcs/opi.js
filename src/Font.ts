@@ -1,5 +1,3 @@
-import FontFaceObserver, { FontVariant } from "fontfaceobserver";
-
 // FontFaceObserver only detects fonts loaded through @font-face, so we
 // bypass it for "common" fonts.
 const WEB_SAFE = [
@@ -54,23 +52,15 @@ export class Font {
     }
   }
 
-  preload() {
-    if (WEB_SAFE.indexOf(this.name) !== -1) {
-      return Promise.resolve();
-    }
+  get bold() {
+    return this.style === 1 || this.style === 3;
+  }
 
-    let variant: FontVariant = { weight: "normal", style: "normal" };
-    if (this.style === 1) {
-      variant.weight = "bold";
-    } else if (this.style === 2) {
-      variant.style = "italic";
-    } else if (this.style === 3) {
-      variant.weight = "bold";
-      variant.style = "italic";
-    }
+  get italic() {
+    return this.style === 2 || this.style === 3;
+  }
 
-    // Probably can be done without external library in about 5 years from now.
-    // Follow browser support of this spec: https://www.w3.org/TR/css-font-loading-3/
-    return new FontFaceObserver(this.name, variant).load();
+  isWebSafe() {
+    return WEB_SAFE.indexOf(this.name) !== -1;
   }
 }
