@@ -41,7 +41,7 @@ export class ScriptEngine {
 
   private context: Context;
 
-  constructor(widget: Widget, readonly scriptText: string, pvs: PV[] = []) {
+  constructor(readonly widget: Widget, readonly scriptText: string, pvs: PV[] = []) {
     if (!iframe) {
       createIframe();
     }
@@ -58,8 +58,8 @@ export class ScriptEngine {
       ConsoleUtil: new ConsoleUtil(widget.display),
       DataUtil: new DataUtil(),
       FileUtil: new FileUtil(widget.display),
-      GUIUtil: new GUIUtil(),
-      MessageDialog: new MessageDialog(),
+      GUIUtil: new GUIUtil(widget.display),
+      MessageDialog: new MessageDialog(widget.display),
       PVUtil: new PVUtil(widget.display.pvEngine),
       ScriptUtil: new ScriptUtil(widget.display),
       ...widget.display.pvEngine.scriptLibraries,

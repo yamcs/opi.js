@@ -1,5 +1,6 @@
 import { Color } from './Color';
 import { ConsoleHandler, DefaultConsoleHandler } from './ConsoleHandler';
+import { DefaultDialogHandler, DialogHandler } from './DialogHandler';
 import { EventHandler } from './EventHandler';
 import { OPIEvent, OPIEventHandlers, OPIEventMap, ScaleEvent, SelectionEvent } from './events';
 import { Graphics } from './Graphics';
@@ -99,6 +100,7 @@ export class Display {
     pvEngine: PVEngine;
     private pathResolver: PathResolver;
     private consoleHandler: ConsoleHandler;
+    private dialogHandler: DialogHandler;
 
     private repaintRequested = false;
 
@@ -172,6 +174,7 @@ export class Display {
 
         this.pathResolver = new DefaultPathResolver(this);
         this.consoleHandler = new DefaultConsoleHandler();
+        this.dialogHandler = new DefaultDialogHandler();
 
         window.setTimeout(() => this.step());
 
@@ -200,6 +203,14 @@ export class Display {
 
     getConsoleHandler() {
         return this.consoleHandler;
+    }
+
+    setDialogHandler(dialogHandler: DialogHandler) {
+        this.dialogHandler = dialogHandler;
+    }
+
+    getDialogHandler() {
+        return this.dialogHandler;
     }
 
     private step() {
