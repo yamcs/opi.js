@@ -28,18 +28,11 @@ export default {
       ]
     })
   ],
-  output: [
-    {
-      file: 'dist/opi.umd.js',
-      name: 'opi',
-      format: 'umd',
-      sourcemap: true
-    }, {
-      file: 'dist/opi.js',
-      format: 'esm',
-      sourcemap: true
-    }
-  ],
+  output: [{
+    file: 'dist/opi.js',
+    format: 'esm',
+    sourcemap: true
+  }],
   watch: {
     include: 'src/**',
   }

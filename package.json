@@ -17,7 +17,6 @@
     "peggy": "cd src/pv/formulas && peggy --format es -o parser.js formula-grammar.peggy",
     "start": "node ./demo/server.js"
   },
-  "main": "dist/opi.umd.js",
   "module": "dist/opi.js",
   "types": "dist/types/index.d.ts",
   "files": [
