@@ -1,57 +1,63 @@
-import { PV } from '../pv/PV';
-import { Widget } from '../Widget';
-import { ColorFontUtil } from './ColorFontUtil';
-import { ConsoleUtil } from './ConsoleUtil';
-import { DataUtil } from './DataUtil';
-import { DisplayWrapper } from './DisplayWrapper';
-import { FileUtil } from './FileUtil';
-import { GUIUtil } from './GUIUtil';
-import { createJavaBridge } from './Java';
-import { MessageDialog } from './MessageDialog';
-import { PVUtil } from './PVUtil';
-import { PVWrapper } from './PVWrapper';
-import { ScriptUtil } from './ScriptUtil';
-import { wrapWidget } from './utils';
+import { PV } from "../pv/PV";
+import { Widget } from "../Widget";
+import { ColorFontUtil } from "./ColorFontUtil";
+import { ConsoleUtil } from "./ConsoleUtil";
+import { DataUtil } from "./DataUtil";
+import { DisplayWrapper } from "./DisplayWrapper";
+import { FileUtil } from "./FileUtil";
+import { GUIUtil } from "./GUIUtil";
+import { createJavaBridge } from "./Java";
+import { MessageDialog } from "./MessageDialog";
+import { PVUtil } from "./PVUtil";
+import { PVWrapper } from "./PVWrapper";
+import { ScriptUtil } from "./ScriptUtil";
+import { wrapWidget } from "./utils";
 
-interface Context { [key: string]: any; }
+interface Context {
+  [key: string]: any;
+}
 
 let iframe: HTMLIFrameElement;
 let contentWindow: any;
 let wEval: any;
 function createIframe() {
-  iframe = document.createElement('iframe');
-  iframe.id = 'script-e';
-  iframe.style.display = 'none';
+  iframe = document.createElement("iframe");
+  iframe.id = "script-e";
+  iframe.style.display = "none";
   document.body.appendChild(iframe);
 
   contentWindow = iframe.contentWindow as any;
   wEval = contentWindow.eval;
-  if (!wEval && contentWindow.execScript) { // IE
-    contentWindow.execScript.call(contentWindow, 'null');
+  if (!wEval && contentWindow.execScript) {
+    // IE
+    contentWindow.execScript.call(contentWindow, "null");
     wEval = contentWindow.eval;
   }
 }
 
 export function getIframeContentWindow() {
-  const el = document.getElementById('script-e') as HTMLIFrameElement;
+  const el = document.getElementById("script-e") as HTMLIFrameElement;
   return el.contentWindow;
 }
 
 export class ScriptEngine {
-
   private context: Context;
 
-  constructor(readonly widget: Widget, readonly scriptText: string, pvs: PV[] = []) {
+  constructor(
+    readonly widget: Widget,
+    readonly scriptText: string,
+    pvs: PV[] = []
+  ) {
     if (!iframe) {
       createIframe();
     }
     this.scriptText = scriptText
-      .replace(/importClass\([^\)]*\)\s*\;?/gi, '')
-      .replace(/importPackage\([^\)]*\)\s*\;?/gi, '')
+      .replace(/importClass\([^\)]*\)\s*\;?/gi, "")
+      .replace(/importPackage\([^\)]*\)\s*\;?/gi, "")
       .trim();
     this.context = {
       display: new DisplayWrapper(widget.display),
-      pvs: pvs.map(pv => new PVWrapper(pv)),
+      pvs: pvs.map((pv) => new PVWrapper(pv)),
       triggerPV: null,
       widget: wrapWidget(widget),
       ColorFontUtil: new ColorFontUtil(),

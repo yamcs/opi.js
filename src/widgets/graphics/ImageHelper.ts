@@ -1,6 +1,3 @@
 export class ImageHelper {
-
-    private element?: HTMLImageElement;
-
-
+  private element?: HTMLImageElement;
 }

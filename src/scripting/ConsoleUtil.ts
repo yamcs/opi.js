@@ -1,9 +1,7 @@
-import { Display } from '../Display';
+import { Display } from "../Display";
 
 export class ConsoleUtil {
-
-  constructor(private display: Display) {
-  }
+  constructor(private display: Display) {}
 
   writeInfo(message: string) {
     this.display.getConsoleHandler().writeInfo(message);

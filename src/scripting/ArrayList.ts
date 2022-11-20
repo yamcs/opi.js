@@ -1,9 +1,7 @@
 export class ArrayList {
+  constructor(private array: any[]) {}
 
-    constructor(private array: any[]) {
-    }
-
-    get(index: number) {
-        return this.array[index];
-    }
+  get(index: number) {
+    return this.array[index];
+  }
 }

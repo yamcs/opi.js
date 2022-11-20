@@ -1,4 +1,5 @@
-export type Expression = BinaryExpression
+export type Expression =
+  | BinaryExpression
   | CallExpression
   | ConditionalExpression
   | LogicalExpression
@@ -6,32 +7,47 @@ export type Expression = BinaryExpression
   | Literal
   | Symbol;
 
-export type Literal = BooleanLiteral
+export type Literal =
+  | BooleanLiteral
   | ConstantLiteral
   | ParameterLiteral
   | NumericLiteral
   | StringLiteral;
 
 export interface Formula {
-  type: 'Formula';
+  type: "Formula";
   expression: Expression;
 }
 
 export interface BinaryExpression {
-  type: 'BinaryExpression';
-  operator: '+' | '-' | '*' | '/' | '^' | '%' | '==' | 'equals' | '!=' | '<>' | '<=' | '>=' | '<' | '>';
+  type: "BinaryExpression";
+  operator:
+    | "+"
+    | "-"
+    | "*"
+    | "/"
+    | "^"
+    | "%"
+    | "=="
+    | "equals"
+    | "!="
+    | "<>"
+    | "<="
+    | ">="
+    | "<"
+    | ">";
   left: Expression;
   right: Expression;
 }
 
 export interface CallExpression {
-  type: 'CallExpression';
+  type: "CallExpression";
   callee: Symbol;
   arguments: Expression[];
 }
 
 export interface ConditionalExpression {
-  type: 'ConditionalExpression';
+  type: "ConditionalExpression";
   operator: string;
   test: Expression;
   consequent: Expression;
@@ -39,45 +55,45 @@ export interface ConditionalExpression {
 }
 
 export interface LogicalExpression {
-  type: 'LogicalExpression';
+  type: "LogicalExpression";
   operator: string;
   left: Expression;
   right: Expression;
 }
 
 export interface UnaryExpression {
-  type: 'UnaryExpression';
-  operator: '+' | '-';
+  type: "UnaryExpression";
+  operator: "+" | "-";
   argument: Expression;
   prefix: boolean;
 }
 
 export interface BooleanLiteral {
-  type: 'BooleanLiteral';
+  type: "BooleanLiteral";
   value: boolean;
 }
 
 export interface ConstantLiteral {
-  type: 'ConstantLiteral';
+  type: "ConstantLiteral";
   value: number;
 }
 
 export interface ParameterLiteral {
-  type: 'ParameterLiteral';
+  type: "ParameterLiteral";
   value: string;
 }
 
 export interface NumericLiteral {
-  type: 'NumericLiteral';
+  type: "NumericLiteral";
   value: number;
 }
 
 export interface StringLiteral {
-  type: 'StringLiteral';
+  type: "StringLiteral";
   value: string;
 }
 
 export interface Symbol {
-  type: 'Symbol';
+  type: "Symbol";
   name: string;
 }

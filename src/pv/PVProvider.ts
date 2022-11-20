@@ -1,14 +1,13 @@
-import { PV } from './PV';
+import { PV } from "./PV";
 
 export interface PVProvider {
+  canProvide(pvName: string): boolean;
 
-    canProvide(pvName: string): boolean;
+  startProviding(pvs: PV[]): void;
 
-    startProviding(pvs: PV[]): void;
+  stopProviding(pvs: PV[]): void;
 
-    stopProviding(pvs: PV[]): void;
+  isNavigable(): boolean;
 
-    isNavigable(): boolean;
-
-    shutdown(): void;
+  shutdown(): void;
 }

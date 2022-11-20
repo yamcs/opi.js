@@ -1,7 +1,6 @@
-import { Action } from './actions/Action';
+import { Action } from "./actions/Action";
 
 export class ActionSet {
-
   actions: (Action | null)[] = [];
   hookFirstActionToClick = false;
   hookAllActionsToClick = false;
@@ -11,8 +10,10 @@ export class ActionSet {
   }
 
   isClickable() {
-    return this.actions.length
-      && (this.hookFirstActionToClick || this.hookAllActionsToClick);
+    return (
+      this.actions.length &&
+      (this.hookFirstActionToClick || this.hookAllActionsToClick)
+    );
   }
 
   getAction(index: number) {

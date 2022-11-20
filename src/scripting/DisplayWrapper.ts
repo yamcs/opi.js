@@ -1,19 +1,17 @@
-import { Display } from '../Display';
-import { wrapWidget } from './utils';
+import { Display } from "../Display";
+import { wrapWidget } from "./utils";
 
 export class DisplayWrapper {
+  constructor(private display: Display) {}
 
-    constructor(private display: Display) {
-    }
+  isActive() {
+    return true;
+  }
 
-    isActive() {
-        return true;
+  getWidget(name: string) {
+    const widget = this.display.findWidgetByName(name);
+    if (widget) {
+      return wrapWidget(widget);
     }
-
-    getWidget(name: string) {
-        const widget = this.display.findWidgetByName(name);
-        if (widget) {
-            return wrapWidget(widget);
-        }
-    }
+  }
 }

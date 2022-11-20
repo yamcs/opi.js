@@ -1,6 +1,4 @@
-
 export class DataUtil {
-
   createDoubleArray(size: number) {
     return Array(size).fill(0);
   }

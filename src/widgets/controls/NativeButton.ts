@@ -1,4 +1,4 @@
-import { ActionButton } from './ActionButton';
+import { ActionButton } from "./ActionButton";
 
 /**
  * This widget only exists in old displays.
@@ -6,5 +6,4 @@ import { ActionButton } from './ActionButton';
  *
  * Treating it like a regular ActionButton is good enough for us.
  */
-export class NativeButton extends ActionButton {
-}
+export class NativeButton extends ActionButton {}

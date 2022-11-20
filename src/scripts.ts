@@ -1,25 +1,25 @@
 export class ScriptSet {
-    scripts: Script[] = [];
+  scripts: Script[] = [];
 }
 
 export interface Script {
-    embedded: boolean;
+  embedded: boolean;
 
-    path?: string;
-    text?: string;
+  path?: string;
+  text?: string;
 
-    /**
-     * If true, the script may only run if all PVs are connected, and
-     * have a non-null value.
-     */
-    checkConnect: boolean;
+  /**
+   * If true, the script may only run if all PVs are connected, and
+   * have a non-null value.
+   */
+  checkConnect: boolean;
 
-    skipFirstExecution: boolean;
+  skipFirstExecution: boolean;
 
-    inputs: ScriptInput[];
+  inputs: ScriptInput[];
 }
 
 export interface ScriptInput {
-    pvName: string;
-    trigger: boolean;
+  pvName: string;
+  trigger: boolean;
 }

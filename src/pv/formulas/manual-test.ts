@@ -1,16 +1,18 @@
-import { FormulaCompiler } from './FormulaCompiler';
+import { FormulaCompiler } from "./FormulaCompiler";
 
 const compiler = new FormulaCompiler();
 
-const script = compiler.compile(`=0.1*((44331.514- '/YSS/SIMULATOR/Altitude')/11880.516)^(1/0.1902632)`);
+const script = compiler.compile(
+  `=0.1*((44331.514- '/YSS/SIMULATOR/Altitude')/11880.516)^(1/0.1902632)`
+);
 
-script.updateDataSource('/YSS/SIMULATOR/Altitude', {
+script.updateDataSource("/YSS/SIMULATOR/Altitude", {
   value: 1234,
-  acquisitionStatus: 'good',
+  acquisitionStatus: "good",
 });
 
 const parameters = script.getPVNames();
-console.log('haveparam', parameters);
+console.log("haveparam", parameters);
 
 const output = script.execute();
-console.log('got output:', output);
+console.log("got output:", output);

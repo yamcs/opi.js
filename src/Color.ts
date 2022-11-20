@@ -1,5 +1,4 @@
 export class Color {
-
   static TRANSPARENT = new Color(0, 0, 0, 0);
 
   static BLACK = new Color(0, 0, 0);
@@ -25,8 +24,8 @@ export class Color {
     public red: number,
     public green: number,
     public blue: number,
-    public alpha = 255,
-  ) { }
+    public alpha = 255
+  ) {}
 
   withAlpha(alpha: number) {
     return new Color(this.red, this.green, this.blue, alpha);
@@ -59,7 +58,7 @@ export class Color {
     return new Color(
       Math.min(Math.floor(this.red / 0.7), 255),
       Math.min(Math.floor(this.green / 0.7), 255),
-      Math.min(Math.floor(this.blue / 0.7), 255),
+      Math.min(Math.floor(this.blue / 0.7), 255)
     );
   }
 
@@ -67,7 +66,7 @@ export class Color {
     return new Color(
       Math.max(Math.floor(this.red * 0.7), 0),
       Math.max(Math.floor(this.green * 0.7), 0),
-      Math.max(Math.floor(this.blue * 0.7), 0),
+      Math.max(Math.floor(this.blue * 0.7), 0)
     );
   }
 
@@ -77,13 +76,13 @@ export class Color {
 
   hex() {
     let r = this.red.toString(16);
-    r = r.length == 1 ? '0' + r : r;
+    r = r.length == 1 ? "0" + r : r;
     let g = this.green.toString(16);
-    g = g.length == 1 ? '0' + g : g;
+    g = g.length == 1 ? "0" + g : g;
     let b = this.blue.toString(16);
-    b = b.length == 1 ? '0' + b : b;
+    b = b.length == 1 ? "0" + b : b;
     let a = this.alpha.toString(16);
-    a = a.length == 1 ? '0' + a : a;
+    a = a.length == 1 ? "0" + a : a;
     return `#${r}${g}${b}${a}`;
   }
 

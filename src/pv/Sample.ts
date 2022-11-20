@@ -1,13 +1,13 @@
-import { AlarmSeverity } from './PV';
+import { AlarmSeverity } from "./PV";
 
 export interface Sample {
-    time: Date;
-    value: any;
-    severity: AlarmSeverity;
+  time: Date;
+  value: any;
+  severity: AlarmSeverity;
 
-    /**
-     * In case of enum, this value is used
-     * to render in plots.
-     */
-    valueIndex?: number;
+  /**
+   * In case of enum, this value is used
+   * to render in plots.
+   */
+  valueIndex?: number;
 }

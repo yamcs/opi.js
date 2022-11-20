@@ -1,8 +1,7 @@
-import { Color } from '../Color';
-import { Font } from '../Font';
+import { Color } from "../Color";
+import { Font } from "../Font";
 
 export class ColorFontUtil {
-
   BLACK = Color.BLACK;
   BLUE = Color.BLUE;
   CYAN = Color.CYAN;

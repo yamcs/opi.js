@@ -1,170 +1,169 @@
-import { Color } from '../Color';
-import { Table } from '../widgets/others/Table';
+import { Color } from "../Color";
+import { Table } from "../widgets/others/Table";
 
 interface Cell {
-    text?: string;
-    backgroundColor?: Color;
-    foregroundColor?: Color;
+  text?: string;
+  backgroundColor?: Color;
+  foregroundColor?: Color;
 }
 
 export class SpreadSheetTable {
+  private columnCount = 0;
+  private cells: Cell[][] = [];
+  dirty = false;
 
-    private columnCount = 0;
-    private cells: Cell[][] = [];
-    dirty = false;
+  constructor(private table: Table) {}
 
-    constructor(private table: Table) {
+  isEmpty() {
+    return !this.cells.length;
+  }
+
+  refresh() {
+    this.dirty = true;
+  }
+
+  getCells() {
+    return this.cells;
+  }
+
+  getContent() {
+    const content = [];
+    for (const row of this.cells) {
+      content.push(row.map((cell) => cell.text || ""));
     }
+    return content;
+  }
 
-    isEmpty() {
-        return !this.cells.length;
+  setContent(content: string[][]) {
+    this.cells.length = 0;
+    for (let i = 0; i < content.length; i++) {
+      if (i === 0) {
+        this.columnCount = content[i].length;
+      }
+      this.cells.push(
+        content[i].map((text) => {
+          return { text };
+        })
+      );
     }
+    this.dirty = true;
+  }
 
-    refresh() {
-        this.dirty = true;
+  getColumnCount() {
+    return this.columnCount;
+  }
+
+  getRowCount() {
+    return this.cells.length;
+  }
+
+  getCellText(row: number, col: number) {
+    const rowContent = this.cells[row];
+    if (rowContent) {
+      return rowContent[col]?.text ?? null;
+    } else {
+      return null;
     }
+  }
 
-    getCells() {
-        return this.cells;
+  setColumnsCount(count: number) {
+    if (count < this.columnCount) {
+      for (const row of this.cells) {
+        row.length = count;
+      }
     }
-
-    getContent() {
-        const content = [];
-        for (const row of this.cells) {
-            content.push(row.map(cell => cell.text || ''));
+    if (count > this.columnCount) {
+      const newColumns = count - this.columnCount;
+      for (const row of this.cells) {
+        for (let i = 0; i < newColumns; i++) {
+          row.push({ text: "" });
         }
-        return content;
+      }
     }
+    this.columnCount = count;
+    this.dirty = true;
+  }
 
-    setContent(content: string[][]) {
-        this.cells.length = 0;
-        for (let i = 0; i < content.length; i++) {
-            if (i === 0) {
-                this.columnCount = content[i].length;
-            }
-            this.cells.push(content[i].map(text => {
-                return { text };
-            }));
-        }
-        this.dirty = true;
+  appendRow() {
+    const row: Cell[] = [];
+    for (let i = 0; i < this.columnCount; i++) {
+      row[i] = { text: "" };
     }
+    this.cells.push(row);
+    this.dirty = true;
+    return this.cells.length - 1;
+  }
 
-    getColumnCount() {
-        return this.columnCount;
-    }
+  deleteRow(index: number) {
+    this.cells.splice(index, 1);
+    this.dirty = true;
+  }
 
-    getRowCount() {
-        return this.cells.length;
+  deleteColumn(index: number) {
+    for (const row of this.cells) {
+      row.splice(index, 1);
     }
+    this.columnCount--;
+    this.dirty = true;
+  }
 
-    getCellText(row: number, col: number) {
-        const rowContent = this.cells[row];
-        if (rowContent) {
-            return rowContent[col]?.text ?? null;
-        } else {
-            return null;
-        }
+  insertRow(index: number) {
+    const row: Cell[] = [];
+    for (let i = 0; i < this.columnCount; i++) {
+      row.push({ text: "" });
     }
+    this.cells.splice(index, 0, row);
+    this.dirty = true;
+  }
 
-    setColumnsCount(count: number) {
-        if (count < this.columnCount) {
-            for (const row of this.cells) {
-                row.length = count;
-            }
-        }
-        if (count > this.columnCount) {
-            const newColumns = count - this.columnCount;
-            for (const row of this.cells) {
-                for (let i = 0; i < newColumns; i++) {
-                    row.push({ text: '' });
-                }
-            }
-        }
-        this.columnCount = count;
-        this.dirty = true;
+  insertColumn(index: number) {
+    for (const row of this.cells) {
+      row.splice(index, 0, { text: "" });
     }
+    this.columnCount++;
+    this.dirty = true;
+  }
 
-    appendRow() {
-        const row: Cell[] = [];
-        for (let i = 0; i < this.columnCount; i++) {
-            row[i] = { text: '' };
-        }
-        this.cells.push(row);
-        this.dirty = true;
-        return this.cells.length - 1;
-    }
+  private getCell(row: number, col: number): Cell {
+    this.cells[row] = this.cells[row] ?? [];
+    const cell = this.cells[row][col] ?? {};
+    this.cells[row][col] = cell;
+    return cell;
+  }
 
-    deleteRow(index: number) {
-        this.cells.splice(index, 1);
-        this.dirty = true;
-    }
+  setCellText(row: number, col: number, text: string) {
+    const cell = this.getCell(row, col);
+    cell.text = text;
+    this.dirty = true;
+  }
 
-    deleteColumn(index: number) {
-        for (const row of this.cells) {
-            row.splice(index, 1);
-        }
-        this.columnCount--;
-        this.dirty = true;
+  setRowBackground(row: number, color: Color) {
+    const rowCells = this.cells[row];
+    for (const cell of rowCells) {
+      cell.backgroundColor = color;
     }
+    this.dirty = true;
+  }
 
-    insertRow(index: number) {
-        const row: Cell[] = [];
-        for (let i = 0; i < this.columnCount; i++) {
-            row.push({ text: '' });
-        }
-        this.cells.splice(index, 0, row);
-        this.dirty = true;
+  setRowForeground(row: number, color: Color) {
+    const rowCells = this.cells[row];
+    for (const cell of rowCells) {
+      cell.foregroundColor = color;
     }
+    this.dirty = true;
+  }
 
-    insertColumn(index: number) {
-        for (const row of this.cells) {
-            row.splice(index, 0, { text: '' });
-        }
-        this.columnCount++;
-        this.dirty = true;
-    }
+  setCellBackground(row: number, col: number, color: Color) {
+    const cell = this.getCell(row, col);
+    cell.backgroundColor = color;
+    this.dirty = true;
+  }
 
-    private getCell(row: number, col: number): Cell {
-        this.cells[row] = this.cells[row] ?? [];
-        const cell = this.cells[row][col] ?? {};
-        this.cells[row][col] = cell;
-        return cell;
-    }
+  setCellForeground(row: number, col: number, color: Color) {
+    const cell = this.getCell(row, col);
+    cell.foregroundColor = color;
+    this.dirty = true;
+  }
 
-    setCellText(row: number, col: number, text: string) {
-        const cell = this.getCell(row, col);
-        cell.text = text;
-        this.dirty = true;
-    }
-
-    setRowBackground(row: number, color: Color) {
-        const rowCells = this.cells[row];
-        for (const cell of rowCells) {
-            cell.backgroundColor = color;
-        }
-        this.dirty = true;
-    }
-
-    setRowForeground(row: number, color: Color) {
-        const rowCells = this.cells[row];
-        for (const cell of rowCells) {
-            cell.foregroundColor = color;
-        }
-        this.dirty = true;
-    }
-
-    setCellBackground(row: number, col: number, color: Color) {
-        const cell = this.getCell(row, col);
-        cell.backgroundColor = color;
-        this.dirty = true;
-    }
-
-    setCellForeground(row: number, col: number, color: Color) {
-        const cell = this.getCell(row, col);
-        cell.foregroundColor = color;
-        this.dirty = true;
-    }
-
-    setColumnCellEditorData(col: number, data: any) {
-    }
+  setColumnCellEditorData(col: number, data: any) {}
 }

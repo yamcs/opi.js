@@ -1,9 +1,7 @@
-import { Display } from '../Display';
+import { Display } from "../Display";
 
 export class MessageDialog {
-
-  constructor(private display: Display) {
-  }
+  constructor(private display: Display) {}
 
   openInformation(shell: any, title: string, message: string) {
     this.display.getDialogHandler().openInformationDialog(title, message);

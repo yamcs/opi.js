@@ -1,15 +1,21 @@
-import FontFaceObserver, { FontVariant } from 'fontfaceobserver';
+import FontFaceObserver, { FontVariant } from "fontfaceobserver";
 
 // FontFaceObserver only detects fonts loaded through @font-face, so we
 // bypass it for "common" fonts.
-const WEB_SAFE = ['Arial', 'Arial Black', 'Courier New', 'Helvetica', 'Tahoma', 'Verdana'];
+const WEB_SAFE = [
+  "Arial",
+  "Arial Black",
+  "Courier New",
+  "Helvetica",
+  "Tahoma",
+  "Verdana",
+];
 
 export class Font {
-
-  static ARIAL_9 = new Font('Arial', 9, 0, false);
-  static ARIAL_10 = new Font('Arial', 10, 0, false);
-  static ARIAL_11 = new Font('Arial', 11, 0, false);
-  static ARIAL_12_BOLD = new Font('Arial', 12, 1, false);
+  static ARIAL_9 = new Font("Arial", 9, 0, false);
+  static ARIAL_10 = new Font("Arial", 10, 0, false);
+  static ARIAL_11 = new Font("Arial", 11, 0, false);
+  static ARIAL_12_BOLD = new Font("Arial", 12, 1, false);
 
   height: number; // pixels
 
@@ -17,7 +23,7 @@ export class Font {
     public name: string,
     height: number,
     public style: number,
-    pixels: boolean,
+    pixels: boolean
   ) {
     if (pixels) {
       this.height = height;
@@ -25,7 +31,7 @@ export class Font {
       // TODO. Would expect 1pt = 3/4px, but this ratio
       // appears to be more accurate with desktop s/w...
       // (on a 72 dpi screen)
-      this.height = Math.round(height * 16 / 15);
+      this.height = Math.round((height * 16) / 15);
     }
   }
 
@@ -53,14 +59,14 @@ export class Font {
       return Promise.resolve();
     }
 
-    let variant: FontVariant = { weight: 'normal', style: 'normal' };
+    let variant: FontVariant = { weight: "normal", style: "normal" };
     if (this.style === 1) {
-      variant.weight = 'bold';
+      variant.weight = "bold";
     } else if (this.style === 2) {
-      variant.style = 'italic';
+      variant.style = "italic";
     } else if (this.style === 3) {
-      variant.weight = 'bold';
-      variant.style = 'italic';
+      variant.weight = "bold";
+      variant.style = "italic";
     }
 
     // Probably can be done without external library in about 5 years from now.

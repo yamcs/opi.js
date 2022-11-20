@@ -1,83 +1,83 @@
 @font-face {
-  font-family: 'Liberation Mono';
-  src: url('LiberationMono-Regular.woff') format('woff');
+  font-family: "Liberation Mono";
+  src: url("LiberationMono-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Liberation Mono';
-  src: url('LiberationMono-Bold.woff') format('woff');
+  font-family: "Liberation Mono";
+  src: url("LiberationMono-Bold.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Liberation Mono';
-  src: url('LiberationMono-Italic.woff') format('woff');
+  font-family: "Liberation Mono";
+  src: url("LiberationMono-Italic.woff") format("woff");
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'Liberation Mono';
-  src: url('LiberationMono-BoldItalic.woff') format('woff');
+  font-family: "Liberation Mono";
+  src: url("LiberationMono-BoldItalic.woff") format("woff");
   font-weight: bold;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'Liberation Sans';
-  src: url('LiberationSans-Regular.woff') format('woff');
+  font-family: "Liberation Sans";
+  src: url("LiberationSans-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Liberation Sans';
-  src: url('LiberationSans-Bold.woff') format('woff');
+  font-family: "Liberation Sans";
+  src: url("LiberationSans-Bold.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Liberation Sans';
-  src: url('LiberationSans-Italic.woff') format('woff');
+  font-family: "Liberation Sans";
+  src: url("LiberationSans-Italic.woff") format("woff");
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'Liberation Sans';
-  src: url('LiberationSans-BoldItalic.woff') format('woff');
+  font-family: "Liberation Sans";
+  src: url("LiberationSans-BoldItalic.woff") format("woff");
   font-weight: bold;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'Liberation Serif';
-  src: url('LiberationSerif-Regular.woff') format('woff');
+  font-family: "Liberation Serif";
+  src: url("LiberationSerif-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Liberation Serif';
-  src: url('LiberationSerif-Bold.woff') format('woff');
+  font-family: "Liberation Serif";
+  src: url("LiberationSerif-Bold.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Liberation Serif';
-  src: url('LiberationSerif-Italic.woff') format('woff');
+  font-family: "Liberation Serif";
+  src: url("LiberationSerif-Italic.woff") format("woff");
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'Liberation Serif';
-  src: url('LiberationSerif-BoldItalic.woff') format('woff');
+  font-family: "Liberation Serif";
+  src: url("LiberationSerif-BoldItalic.woff") format("woff");
   font-weight: bold;
   font-style: italic;
 }

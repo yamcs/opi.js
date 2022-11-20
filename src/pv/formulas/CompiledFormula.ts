@@ -1,4 +1,4 @@
-import * as ast from './ast';
+import * as ast from "./ast";
 
 export interface DataSourceStatus {
   value: any;
@@ -11,8 +11,7 @@ export class CompiledFormula {
 
   private pvValues = new Map<string, DataSourceStatus>();
 
-  constructor(public pvName: string, private formula: ast.Formula) {
-  }
+  constructor(public pvName: string, private formula: ast.Formula) {}
 
   updateDataSource(pvName: string, status: DataSourceStatus) {
     this.pvValues.set(pvName, status);
@@ -29,31 +28,34 @@ export class CompiledFormula {
     return pvNames;
   }
 
-  private getExpressionParameters(expression: ast.Expression, pvNames: string[]) {
+  private getExpressionParameters(
+    expression: ast.Expression,
+    pvNames: string[]
+  ) {
     switch (expression.type) {
-      case 'ParameterLiteral':
+      case "ParameterLiteral":
         if (pvNames.indexOf(expression.value) === -1) {
           pvNames.push(expression.value);
         }
         break;
-      case 'ConditionalExpression':
+      case "ConditionalExpression":
         this.getExpressionParameters(expression.consequent, pvNames);
         if (expression.alternate) {
           this.getExpressionParameters(expression.alternate, pvNames);
         }
         break;
-      case 'BinaryExpression':
+      case "BinaryExpression":
         this.getExpressionParameters(expression.left, pvNames);
         this.getExpressionParameters(expression.right, pvNames);
         break;
-      case 'LogicalExpression':
+      case "LogicalExpression":
         this.getExpressionParameters(expression.left, pvNames);
         this.getExpressionParameters(expression.right, pvNames);
         break;
-      case 'UnaryExpression':
+      case "UnaryExpression":
         this.getExpressionParameters(expression.argument, pvNames);
         break;
-      case 'CallExpression':
+      case "CallExpression":
         for (const argument of expression.arguments) {
           this.getExpressionParameters(argument, pvNames);
         }
@@ -68,29 +70,29 @@ export class CompiledFormula {
 
   private executeExpression(expression: ast.Expression): any {
     switch (expression.type) {
-      case 'BooleanLiteral':
+      case "BooleanLiteral":
         return expression.value;
-      case 'ParameterLiteral':
+      case "ParameterLiteral":
         const pval = this.pvValues.get(expression.value);
         return pval ? pval.value : undefined;
-      case 'ConstantLiteral':
+      case "ConstantLiteral":
         return expression.value;
-      case 'NumericLiteral':
+      case "NumericLiteral":
         return expression.value;
-      case 'StringLiteral':
+      case "StringLiteral":
         return expression.value;
-      case 'ConditionalExpression':
+      case "ConditionalExpression":
         return this.executeConditionalExpression(expression);
-      case 'BinaryExpression':
+      case "BinaryExpression":
         return this.executeBinaryExpression(expression);
-      case 'LogicalExpression':
+      case "LogicalExpression":
         return this.executeLogicalExpression(expression);
-      case 'UnaryExpression':
+      case "UnaryExpression":
         return this.executeUnaryExpression(expression);
-      case 'CallExpression':
+      case "CallExpression":
         return this.executeCallExpression(expression);
       default:
-        throw new Error('Unexpected expression type');
+        throw new Error("Unexpected expression type");
     }
   }
 
@@ -98,29 +100,29 @@ export class CompiledFormula {
     const left = this.executeExpression(expression.left);
     const right = this.executeExpression(expression.right);
     switch (expression.operator) {
-      case '+':
+      case "+":
         return left + right;
-      case '-':
+      case "-":
         return left - right;
-      case '*':
+      case "*":
         return left * right;
-      case '/':
+      case "/":
         return left / right;
-      case '^':
+      case "^":
         return Math.pow(left, right);
-      case '%':
+      case "%":
         return left % right;
-      case '==':
+      case "==":
         return left === right;
-      case '!=':
+      case "!=":
         return left !== right;
-      case '<=':
+      case "<=":
         return left <= right;
-      case '<':
+      case "<":
         return left < right;
-      case '>=':
+      case ">=":
         return left >= right;
-      case '>':
+      case ">":
         return left > right;
       default:
         throw new Error(`Unexpected binary operator ${expression.operator}`);
@@ -131,16 +133,18 @@ export class CompiledFormula {
     const left = this.executeExpression(expression.left);
     const right = this.executeExpression(expression.right);
     switch (expression.operator) {
-      case '&&':
+      case "&&":
         return left && right;
-      case '||':
+      case "||":
         return left || right;
       default:
         throw new Error(`Unexpected logical operator ${expression.operator}`);
     }
   }
 
-  private executeConditionalExpression(expression: ast.ConditionalExpression): any {
+  private executeConditionalExpression(
+    expression: ast.ConditionalExpression
+  ): any {
     const test = this.executeExpression(expression.test);
     const consequent = this.executeExpression(expression.consequent);
     if (expression.alternate === undefined) {
@@ -154,9 +158,9 @@ export class CompiledFormula {
   private executeUnaryExpression(expression: ast.UnaryExpression): any {
     const argument = this.executeExpression(expression.argument);
     switch (expression.operator) {
-      case '-':
+      case "-":
         return -argument;
-      case '+':
+      case "+":
         return argument;
       default:
         throw new Error(`Unexpected unary operator ${expression.operator}`);
@@ -170,49 +174,49 @@ export class CompiledFormula {
       args.push(this.executeExpression(a));
     }
     switch (symbol) {
-      case 'abs':
+      case "abs":
         return Math.abs(args[0]);
-      case 'acos':
+      case "acos":
         return Math.acos(args[0]);
-      case 'asin':
+      case "asin":
         return Math.asin(args[0]);
-      case 'atan':
+      case "atan":
         return Math.atan(args[0]);
-      case 'cbrt':
+      case "cbrt":
         return Math.cbrt(args[0]);
-      case 'ceil':
+      case "ceil":
         return Math.ceil(args[0]);
-      case 'cos':
+      case "cos":
         return Math.cos(args[0]);
-      case 'cosh':
+      case "cosh":
         return Math.cosh(args[0]);
-      case 'exp':
+      case "exp":
         return Math.exp(args[0]);
-      case 'floor':
+      case "floor":
         return Math.floor(args[0]);
-      case 'log':
+      case "log":
         return Math.log(args[0]);
-      case 'log10':
+      case "log10":
         return Math.log10(args[0]);
-      case 'round':
+      case "round":
         return Math.round(args[0]);
-      case 'signum':
+      case "signum":
         return Math.sign(args[0]);
-      case 'sin':
+      case "sin":
         return Math.sin(args[0]);
-      case 'sinh':
+      case "sinh":
         return Math.sinh(args[0]);
-      case 'sqrt':
+      case "sqrt":
         return Math.sqrt(args[0]);
-      case 'tan':
+      case "tan":
         return Math.tan(args[0]);
-      case 'tanh':
+      case "tanh":
         return Math.tanh(args[0]);
-      case 'toDegrees':
-        return args[0] * 180 / Math.PI;
-      case 'toRadians':
-        return args[0] / 180 * Math.PI;
-      case 'parameterAcquisitionStatus':
+      case "toDegrees":
+        return (args[0] * 180) / Math.PI;
+      case "toRadians":
+        return (args[0] / 180) * Math.PI;
+      case "parameterAcquisitionStatus":
         return this.callParameterAcquisitionStatus(args[0]);
       default:
         throw new Error(`Unsupported function '${symbol}'`);
