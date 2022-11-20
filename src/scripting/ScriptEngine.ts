@@ -1,17 +1,7 @@
 import { PV } from "../pv/PV";
 import { Widget } from "../Widget";
-import { ColorFontUtil } from "./ColorFontUtil";
-import { ConsoleUtil } from "./ConsoleUtil";
-import { DataUtil } from "./DataUtil";
-import { DisplayWrapper } from "./DisplayWrapper";
-import { FileUtil } from "./FileUtil";
-import { GUIUtil } from "./GUIUtil";
 import { createJavaBridge } from "./Java";
-import { MessageDialog } from "./MessageDialog";
-import { PVUtil } from "./PVUtil";
 import { PVWrapper } from "./PVWrapper";
-import { ScriptUtil } from "./ScriptUtil";
-import { wrapWidget } from "./utils";
 
 interface Context {
   [key: string]: any;
@@ -56,18 +46,8 @@ export class ScriptEngine {
       .replace(/importPackage\([^\)]*\)\s*\;?/gi, "")
       .trim();
     this.context = {
-      display: new DisplayWrapper(widget.display),
       pvs: pvs.map((pv) => new PVWrapper(pv)),
       triggerPV: null,
-      widget: wrapWidget(widget),
-      ColorFontUtil: new ColorFontUtil(),
-      ConsoleUtil: new ConsoleUtil(widget.display),
-      DataUtil: new DataUtil(),
-      FileUtil: new FileUtil(widget.display),
-      GUIUtil: new GUIUtil(widget.display),
-      MessageDialog: new MessageDialog(widget.display),
-      PVUtil: new PVUtil(widget.display.pvEngine),
-      ScriptUtil: new ScriptUtil(widget.display),
       ...widget.display.pvEngine.scriptLibraries,
       ...createJavaBridge(this),
     };

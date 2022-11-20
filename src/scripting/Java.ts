@@ -1,8 +1,20 @@
+import { ColorFontUtil } from "./ColorFontUtil";
+import { ConsoleUtil } from "./ConsoleUtil";
+import { DataUtil } from "./DataUtil";
+import { DisplayWrapper } from "./DisplayWrapper";
+import { FileUtil } from "./FileUtil";
+import { GUIUtil } from "./GUIUtil";
+import { MessageDialog } from "./MessageDialog";
+import { PVUtil } from "./PVUtil";
 import { PVWrapper } from "./PVWrapper";
 import { ScriptEngine } from "./ScriptEngine";
-import { SpreadSheetTable } from "./SpreadSheetTable";
+import { ScriptUtil } from "./ScriptUtil";
+import { wrapWidget } from "./utils";
 
 export function createJavaBridge(scriptEngine: ScriptEngine) {
+  const widget = scriptEngine.widget;
+  const display = scriptEngine.widget.display;
+
   const Runnable = function (args: { [key: string]: any }) {
     this.run = args["run"];
   };
@@ -40,7 +52,30 @@ export function createJavaBridge(scriptEngine: ScriptEngine) {
     };
   };
 
+  const ITableModifiedListener = function (args: { [key: string]: any }) {
+    this.modified = (content: string[][]) => {
+      const callback = args["modified"];
+      callback(content);
+    };
+  };
+
+  const ITableSelectionChangedListener = function (args: {
+    [key: string]: any;
+  }) {
+    this.selectionChanged = (selection: string[][]) => {
+      const callback = args["selectionChanged"];
+      callback(selection);
+    };
+  };
+
+  const SpreadSheetTable = {
+    ITableModifiedListener,
+    ITableSelectionChangedListener,
+  };
+
   return {
+    display: new DisplayWrapper(widget.display, scriptEngine),
+    widget: wrapWidget(widget, scriptEngine),
     java: {
       lang: {
         Runnable,
@@ -51,6 +86,15 @@ export function createJavaBridge(scriptEngine: ScriptEngine) {
       },
     },
     org: {
+      csstudio: {
+        swt: {
+          widgets: {
+            natives: {
+              SpreadSheetTable,
+            },
+          },
+        },
+      },
       yamcs: {
         studio: {
           data: {
@@ -59,6 +103,15 @@ export function createJavaBridge(scriptEngine: ScriptEngine) {
         },
       },
     },
+    ColorFontUtil: new ColorFontUtil(),
+    ConsoleUtil: new ConsoleUtil(display),
+    DataUtil: new DataUtil(),
+    FileUtil: new FileUtil(display),
+    GUIUtil: new GUIUtil(display),
+    MessageDialog: new MessageDialog(display),
+    PVUtil: new PVUtil(display.pvEngine),
+    ScriptUtil: new ScriptUtil(display),
+    SpreadSheetTable,
     Java: {
       type: function (className: string) {
         switch (className) {

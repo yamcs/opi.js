@@ -10,7 +10,10 @@ interface Cell {
 export class SpreadSheetTable {
   private columnCount = 0;
   private cells: Cell[][] = [];
+  selectedRowIndex?: number;
   dirty = false;
+  modifiedListeners: Array<() => void> = [];
+  selectionChangedListeners: Array<() => void> = [];
 
   constructor(private table: Table) {}
 
@@ -57,6 +60,21 @@ export class SpreadSheetTable {
     return this.cells.length;
   }
 
+  setSelectedRowIndex(index?: number) {
+    this.selectedRowIndex = index;
+    this.selectionChangedListeners.forEach((l) => l());
+    this.dirty = true;
+  }
+
+  getSelection() {
+    if (this.selectedRowIndex === undefined) {
+      return [];
+    }
+
+    const row = this.cells[this.selectedRowIndex];
+    return [[...row.map((c) => c.text ?? null)]];
+  }
+
   getCellText(row: number, col: number) {
     const rowContent = this.cells[row];
     if (rowContent) {
@@ -82,6 +100,14 @@ export class SpreadSheetTable {
     }
     this.columnCount = count;
     this.dirty = true;
+  }
+
+  addModifiedListener(listener: () => void) {
+    this.modifiedListeners.push(listener);
+  }
+
+  addSelectionChangedListener(listener: () => void) {
+    this.selectionChangedListeners.push(listener);
   }
 
   appendRow() {

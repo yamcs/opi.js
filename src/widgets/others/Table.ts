@@ -1,3 +1,4 @@
+import { Color } from "../../Color";
 import { Display } from "../../Display";
 import { Font } from "../../Font";
 import { Graphics } from "../../Graphics";
@@ -41,6 +42,19 @@ export class Table extends Widget {
     this.table.style.borderCollapse = "collapse";
     this.tableWrapper.appendChild(this.table);
     this.display.rootPanel.appendChild(this.tableWrapper);
+
+    this.table.addEventListener("click", (evt) => {
+      const el = evt.target! as HTMLElement;
+      if (el.tagName === "TD") {
+        const rowEl = el.parentElement as HTMLTableRowElement;
+        if (rowEl.rowIndex > 0) {
+          this.spreadsheet.setSelectedRowIndex(rowEl.rowIndex - 1);
+        }
+      } else {
+        this.spreadsheet.setSelectedRowIndex(undefined);
+      }
+      this.requestRepaint();
+    });
 
     this.spreadsheet.setContent(this.defaultContent);
   }
@@ -91,28 +105,36 @@ export class Table extends Widget {
       // Filler
       rowEl.insertCell();
     }
-    for (const row of this.spreadsheet.getCells()) {
+
+    const rows = this.spreadsheet.getCells();
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const selected = i === this.spreadsheet.selectedRowIndex;
       const rowEl = this.table!.insertRow();
-      for (let i = 0; i < this.columnsCount; i++) {
+      for (let j = 0; j < this.columnsCount; j++) {
         const cell = rowEl.insertCell();
         cell.style.textAlign = "left";
         cell.style.overflow = "hidden";
         cell.style.wordWrap = "break-word";
         cell.style.textOverflow = "ellipsis";
         cell.style.padding = `${4 * this.scale}px`;
-        if (i !== 0) {
+        if (j !== 0) {
           cell.style.borderLeft = "1px solid rgba(0, 0, 0, 0.1)";
         }
-        if (row[i] !== undefined) {
-          const backgroundColor = row[i].backgroundColor;
+        if (row[j] !== undefined) {
+          const backgroundColor = selected
+            ? Color.BLUE
+            : row[j].backgroundColor;
           if (backgroundColor) {
             cell.style.backgroundColor = backgroundColor.toString();
           }
-          const foregroundColor = row[i].foregroundColor;
+          const foregroundColor = selected
+            ? Color.WHITE
+            : row[j].foregroundColor;
           if (foregroundColor) {
             cell.style.color = foregroundColor.toString();
           }
-          const newText = document.createTextNode(row[i].text || "");
+          const newText = document.createTextNode(row[j].text || "");
           cell.appendChild(newText);
         }
       }

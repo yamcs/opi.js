@@ -1,15 +1,19 @@
 import { Table } from "../widgets/others/Table";
-import { SpreadSheetTable } from "./SpreadSheetTable";
+import { ScriptEngine } from "./ScriptEngine";
+import { SpreadSheetTableWrapper } from "./SpreadSheetTableWrapper";
 import { WidgetWrapper } from "./WidgetWrapper";
 
 export class TableWrapper extends WidgetWrapper {
   private table: Table;
-  private spreadSheetTable: SpreadSheetTable;
+  private spreadSheetTable: SpreadSheetTableWrapper;
 
-  constructor(widget: Table) {
+  constructor(widget: Table, scriptEngine: ScriptEngine) {
     super(widget);
     this.table = widget;
-    this.spreadSheetTable = this.table.spreadsheet;
+    this.spreadSheetTable = new SpreadSheetTableWrapper(
+      this.table.spreadsheet,
+      scriptEngine
+    );
   }
 
   getTable() {
