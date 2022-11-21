@@ -9,7 +9,7 @@ import {
   ScaleEvent,
   SelectionEvent,
 } from "./events";
-import { Font } from "./Font";
+import { FontResolver } from "./FontResolver";
 import { Graphics } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
 import { DefaultPathResolver, PathResolver } from "./PathResolver";
@@ -97,8 +97,6 @@ const TYPE_TEXT_UPDATE = "Text Update";
 const TYPE_THERMOMETER = "Thermometer";
 const TYPE_WEB_BROWSER = "Web Browser";
 const TYPE_XY_GRAPH = "XY Graph";
-
-type FontResolver = (font: Font) => FontFace | undefined;
 
 export class Display {
   rootPanel: HTMLDivElement;

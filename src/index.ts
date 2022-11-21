@@ -1,6 +1,8 @@
 export { ConsoleHandler, DefaultConsoleHandler } from "./ConsoleHandler";
 export { DefaultDialogHandler, DialogHandler } from "./DialogHandler";
 export { Display } from "./Display";
+export { Font } from "./Font";
+export { FontResolver } from "./FontResolver";
 export { DefaultPathResolver, PathResolver } from "./PathResolver";
 export {
   CompiledFormula,

@@ -6,43 +6,45 @@ window.page = (function () {
 
   const display = new Display(displayEl);
 
-  display.setFontResolver((font) => {
-    let file;
-    if (font.name === "Liberation Sans") {
-      file = "LiberationSans-Regular.woff";
-      if (font.bold && font.italic) {
-        file = "LiberationSans-BoldItalic.woff";
-      } else if (font.bold) {
-        file = "LiberationSans-Bold.woff";
-      } else if (font.italic) {
-        file = "LiberationSans-Italic.woff";
+  display.setFontResolver({
+    resolve: (font) => {
+      let file;
+      if (font.name === "Liberation Sans") {
+        file = "LiberationSans-Regular.woff";
+        if (font.bold && font.italic) {
+          file = "LiberationSans-BoldItalic.woff";
+        } else if (font.bold) {
+          file = "LiberationSans-Bold.woff";
+        } else if (font.italic) {
+          file = "LiberationSans-Italic.woff";
+        }
+      } else if (font.name === "Liberation Mono") {
+        file = "LiberationMono-Regular.woff";
+        if (font.bold && font.italic) {
+          file = "LiberationMono-BoldItalic.woff";
+        } else if (font.bold) {
+          file = "LiberationMono-Bold.woff";
+        } else if (font.italic) {
+          file = "LiberationMono-Italic.woff";
+        }
+      } else if (font.name === "Liberation Serif") {
+        file = "LiberationMSerif-Regular.woff";
+        if (font.bold && font.italic) {
+          file = "LiberationSerif-BoldItalic.woff";
+        } else if (font.bold) {
+          file = "LiberationSerif-Bold.woff";
+        } else if (font.italic) {
+          file = "LiberationSerif-Italic.woff";
+        }
       }
-    } else if (font.name === "Liberation Mono") {
-      file = "LiberationMono-Regular.woff";
-      if (font.bold && font.italic) {
-        file = "LiberationMono-BoldItalic.woff";
-      } else if (font.bold) {
-        file = "LiberationMono-Bold.woff";
-      } else if (font.italic) {
-        file = "LiberationMono-Italic.woff";
-      }
-    } else if (font.name === "Liberation Serif") {
-      file = "LiberationMSerif-Regular.woff";
-      if (font.bold && font.italic) {
-        file = "LiberationSerif-BoldItalic.woff";
-      } else if (font.bold) {
-        file = "LiberationSerif-Bold.woff";
-      } else if (font.italic) {
-        file = "LiberationSerif-Italic.woff";
-      }
-    }
 
-    if (file) {
-      return new FontFace(font.name, `url(/dist/fonts/${file})`, {
-        weight: font.bold ? "bold" : "normal",
-        style: font.italic ? "italic" : "normal",
-      });
-    }
+      if (file) {
+        return new FontFace(font.name, `url(/dist/fonts/${file})`, {
+          weight: font.bold ? "bold" : "normal",
+          style: font.italic ? "italic" : "normal",
+        });
+      }
+    },
   });
 
   display.addEventListener("opendisplay", (evt) => {

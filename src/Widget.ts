@@ -904,7 +904,7 @@ export abstract class Widget {
       console.warn(`Failed to load font '${font.getFontString()}'.`);
       return;
     }
-    const fontFace = fontResolver(font);
+    const fontFace = fontResolver.resolve(font);
     if (!fontFace) {
       console.warn(`Failed to load font '${font.getFontString()}'.`);
       return;
