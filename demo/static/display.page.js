@@ -10,31 +10,31 @@ window.page = (function () {
     resolve: (font) => {
       let file;
       if (font.name === "Liberation Sans") {
-        file = "LiberationSans-Regular.woff";
+        file = "LiberationSans-Regular.woff2";
         if (font.bold && font.italic) {
-          file = "LiberationSans-BoldItalic.woff";
+          file = "LiberationSans-BoldItalic.woff2";
         } else if (font.bold) {
-          file = "LiberationSans-Bold.woff";
+          file = "LiberationSans-Bold.woff2";
         } else if (font.italic) {
-          file = "LiberationSans-Italic.woff";
+          file = "LiberationSans-Italic.woff2";
         }
       } else if (font.name === "Liberation Mono") {
-        file = "LiberationMono-Regular.woff";
+        file = "LiberationMono-Regular.woff2";
         if (font.bold && font.italic) {
-          file = "LiberationMono-BoldItalic.woff";
+          file = "LiberationMono-BoldItalic.woff2";
         } else if (font.bold) {
-          file = "LiberationMono-Bold.woff";
+          file = "LiberationMono-Bold.woff2";
         } else if (font.italic) {
-          file = "LiberationMono-Italic.woff";
+          file = "LiberationMono-Italic.woff2";
         }
       } else if (font.name === "Liberation Serif") {
-        file = "LiberationMSerif-Regular.woff";
+        file = "LiberationSerif-Regular.woff2";
         if (font.bold && font.italic) {
-          file = "LiberationSerif-BoldItalic.woff";
+          file = "LiberationSerif-BoldItalic.woff2";
         } else if (font.bold) {
-          file = "LiberationSerif-Bold.woff";
+          file = "LiberationSerif-Bold.woff2";
         } else if (font.italic) {
-          file = "LiberationSerif-Italic.woff";
+          file = "LiberationSerif-Italic.woff2";
         }
       }
 
