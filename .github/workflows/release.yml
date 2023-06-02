@@ -32,14 +32,11 @@ jobs:
         run: |
           REF=${{ github.ref }}
           VERSION=${REF/refs\/tags\/v/}
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Draft Release
-        id: create_release
-        uses: actions/create-release@latest
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: v${{ steps.set-version.outputs.version }}
-          draft: true  # Only publish after manual trigger
+          draft: true # Only publish after manual trigger
