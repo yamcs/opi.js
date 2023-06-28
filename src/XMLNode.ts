@@ -5,6 +5,8 @@ import { OpenDisplayAction } from "./actions/OpenDisplayAction";
 import { OpenFileAction } from "./actions/OpenFileAction";
 import { OpenWebpageAction } from "./actions/OpenWebpageAction";
 import { PlaySoundAction } from "./actions/PlaySoundAction";
+import { RunCommandAction } from './actions/RunCommandAction';
+import { RunProcedureAction } from './actions/RunProcedureAction';
 import { WritePVAction } from "./actions/WritePVAction";
 import { Color } from "./Color";
 import { ColorMap } from "./ColorMap";
@@ -15,7 +17,7 @@ import { AutoScaleWidgets, ScaleOptions } from "./scale";
 import { ScriptInput, ScriptSet } from "./scripts";
 
 export class XMLNode {
-  constructor(private node: Node) {}
+  constructor(private node: Node) { }
 
   get name() {
     return this.node.nodeName;
@@ -259,6 +261,15 @@ export class XMLNode {
     return list;
   }
 
+  getStringMap(name: string) {
+    const mapNode = this.getNode(name);
+    const result: { [key: string]: string } = {};
+    for (const child of mapNode.getNodes()) {
+      result[child.name] = mapNode.getString(child.name);
+    }
+    return result;
+  }
+
   getStringTable(name: string) {
     const listNode = this.getNode(name);
     const table: string[][] = [];
@@ -439,6 +450,14 @@ export class XMLNode {
         actions.add(action);
       } else if (actionType === "OPEN_WEBPAGE") {
         const action = new OpenWebpageAction();
+        action.parseNode(actionNode);
+        actions.add(action);
+      } else if (actionType === "RUN_COMMAND") {
+        const action = new RunCommandAction();
+        action.parseNode(actionNode);
+        actions.add(action);
+      } else if (actionType === "RUN_PROCEDURE") {
+        const action = new RunProcedureAction();
         action.parseNode(actionNode);
         actions.add(action);
       } else {

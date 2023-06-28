@@ -137,6 +137,8 @@ export class Display {
     closedisplay: [],
     opendisplay: [],
     openpv: [],
+    runcommand: [],
+    runprocedure: [],
     selection: [],
     scale: [],
   };

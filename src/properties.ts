@@ -77,6 +77,8 @@ export class PropertySet {
         (property as StringProperty).rawValue = node.getString(property.name);
       } else if (property instanceof StringListProperty) {
         property.value = node.getStringList(property.name);
+      } else if (property instanceof StringMapProperty) {
+        property.value = node.getStringMap(property.name);
       } else if (property instanceof StringTableProperty) {
         property.value = node.getStringTable(property.name);
       } else {
@@ -205,11 +207,11 @@ export class PVValueProperty extends Property<any> {
   }
 }
 
-export class IntProperty extends Property<number> {}
+export class IntProperty extends Property<number> { }
 
-export class FloatProperty extends Property<number> {}
+export class FloatProperty extends Property<number> { }
 
-export class BooleanProperty extends Property<boolean> {}
+export class BooleanProperty extends Property<boolean> { }
 
 export class ColorProperty extends Property<Color> {
   printScriptValue(value: Color) {
@@ -231,20 +233,22 @@ export class ColorMapProperty extends Property<ColorMap> {
   }
 }
 
-export class PointsProperty extends Property<Point[]> {}
+export class PointsProperty extends Property<Point[]> { }
 
-export class ActionsProperty extends Property<ActionSet> {}
+export class ActionsProperty extends Property<ActionSet> { }
 
-export class MacrosProperty extends Property<MacroSet> {}
+export class MacrosProperty extends Property<MacroSet> { }
 
-export class ScriptsProperty extends Property<ScriptSet> {}
+export class ScriptsProperty extends Property<ScriptSet> { }
 
-export class StringListProperty extends Property<string[]> {}
+export class StringListProperty extends Property<string[]> { }
 
-export class StringTableProperty extends Property<string[][]> {}
+export class StringMapProperty extends Property<{ [key: string]: string }> { }
 
-export class RulesProperty extends Property<RuleSet> {}
+export class StringTableProperty extends Property<string[][]> { }
 
-export class ScaleOptionsProperty extends Property<ScaleOptions> {}
+export class RulesProperty extends Property<RuleSet> { }
 
-export class AutoScaleWidgetsProperty extends Property<AutoScaleWidgets> {}
+export class ScaleOptionsProperty extends Property<ScaleOptions> { }
+
+export class AutoScaleWidgetsProperty extends Property<AutoScaleWidgets> { }

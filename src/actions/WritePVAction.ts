@@ -17,6 +17,12 @@ export class WritePVAction extends Action {
   }
 
   execute(widget: Widget) {
+    if (this.confirmMessage) {
+      const dialogHandler = widget.display.getDialogHandler();
+      if (!dialogHandler.openConfirmDialog("Confirm Dialog", this.confirmMessage)) {
+        return;
+      }
+    }
     if (this.pvName) {
       const pvName = widget.expandMacro(this.pvName);
       widget.display.pvEngine.createPV(pvName);

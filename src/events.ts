@@ -7,6 +7,8 @@ export interface OPIEventMap {
   closedisplay: CloseDisplayEvent;
   opendisplay: OpenDisplayEvent;
   openpv: OpenPVEvent;
+  runcommand: RunCommandEvent;
+  runprocedure: RunProcedureEvent;
   selection: SelectionEvent;
   scale: ScaleEvent;
 }
@@ -33,7 +35,23 @@ export interface OpenPVEvent extends OPIEvent {
 /**
  * A script or a button requested to close the current display.
  */
-export interface CloseDisplayEvent extends OPIEvent {}
+export interface CloseDisplayEvent extends OPIEvent { }
+
+/**
+ * A script or a button requested to run a command.
+ */
+export interface RunCommandEvent extends OPIEvent {
+  command: string;
+  args: { [key: string]: string };
+}
+
+/**
+ * A script or a button requested to run a procedure.
+ */
+export interface RunProcedureEvent extends OPIEvent {
+  procedure: string;
+  args: { [key: string]: string };
+}
 
 /**
  * This display scale has changed.
