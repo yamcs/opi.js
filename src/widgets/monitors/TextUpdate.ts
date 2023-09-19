@@ -97,11 +97,13 @@ export class TextUpdate extends Widget {
     }
 
     let text = this.text;
-    if (this.pv && this.pv.value !== undefined) {
+    if (this.pv?.value !== undefined) {
       const precision = this.precisionFromPV
         ? this.pv.precision
         : this.precision;
       text = this.pv.formatValue(this.formatType, precision);
+    } else if (this.value !== undefined) {
+      text = this.value;
     }
     ctx.fillText(text, x, y);
   }
