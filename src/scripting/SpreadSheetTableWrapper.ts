@@ -6,9 +6,9 @@ export class SpreadSheetTableWrapper {
   constructor(
     private spreadsheet: SpreadSheetTable,
     private scriptEngine: ScriptEngine
-  ) {}
+  ) { }
 
-  addModifiedListener(listener: any) {}
+  addModifiedListener(listener: any) { }
 
   addSelectionChangedListener(listener: any) {
     this.spreadsheet.addSelectionChangedListener(() => {
@@ -20,7 +20,7 @@ export class SpreadSheetTableWrapper {
   }
 
   appendRow() {
-    this.spreadsheet.appendRow();
+    return this.spreadsheet.appendRow();
   }
 
   deleteColumn(index: number) {
@@ -97,5 +97,10 @@ export class SpreadSheetTableWrapper {
 
   setRowForeground(row: number, color: Color) {
     this.spreadsheet.setRowForeground(row, color);
+  }
+
+  revealRow(index: number) {
+    // Do nothing for now.
+    // Method added to not crash if it is used.
   }
 }

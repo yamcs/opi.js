@@ -36,6 +36,7 @@ export class Table extends Widget {
   init() {
     this.tableWrapper = document.createElement("div");
     this.tableWrapper.style.display = "none";
+    this.tableWrapper.style.overflow = "auto";
     this.table = document.createElement("table");
     this.table.style.tableLayout = "fixed";
     this.table.style.borderSpacing = "0";
