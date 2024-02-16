@@ -154,6 +154,7 @@ export class PV {
     this._value = sample.value;
     this._indexValue = sample.valueIndex;
     this._severity = sample.severity;
+    this._units = sample.units;
     this.pvEngine.requestRepaint();
   }
 
