@@ -48,7 +48,17 @@ window.page = (function () {
   });
 
   display.addEventListener("opendisplay", (evt) => {
-    window.location.href = evt.path;
+    let href = evt.path;
+    if (evt.args) {
+      let first = true;
+      for (const k in evt.args) {
+        href += first ? "?" : "&";
+        href += encodeURIComponent(k) + "=";
+        href += encodeURIComponent(evt.args[k]);
+        first = false;
+      }
+    }
+    window.location.href = href;
   });
 
   widgetsEl.addEventListener("click", (evt) => {
@@ -64,7 +74,10 @@ window.page = (function () {
     loadDisplay: (href) => {
       display.imagesPrefix = "/dist/images/";
       display.absPrefix = "/raw/";
-      display.setSource(href).then(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const args = {};
+      urlParams.forEach((v, k) => (args[k] = v));
+      display.setSource(href, args).then(() => {
         let html = "";
         for (const widget of display.widgets) {
           let label = widget.name;

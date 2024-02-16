@@ -465,7 +465,7 @@ export class Display {
     return this.pathResolver.resolve(path, widget);
   }
 
-  setSource(href: string) {
+  setSource(href: string, args?: { [key: string]: string }) {
     this.reset();
     const idx = href.lastIndexOf("/") + 1;
     this.relPrefix = href.substring(0, idx);
@@ -481,7 +481,7 @@ export class Display {
             response
               .text()
               .then((text) => {
-                this.setSourceString(text);
+                this.setSourceString(text, args);
                 resolve();
               })
               .catch((err) => reject(err));
@@ -491,9 +491,9 @@ export class Display {
     });
   }
 
-  private setSourceString(source: string) {
+  private setSourceString(source: string, args?: { [key: string]: string }) {
     this.reset();
-    this.instance = new DisplayWidget(this);
+    this.instance = new DisplayWidget(this, undefined, args);
     const displayNode = XMLNode.parseFromXML(source);
     this.instance.parseNode(displayNode);
     this.pvEngine.init();

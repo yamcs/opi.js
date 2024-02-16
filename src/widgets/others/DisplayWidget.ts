@@ -12,8 +12,12 @@ let DID_SEQUENCE = 0;
 const PROP_AUTO_SCALE_WIDGETS = "auto_scale_widgets";
 
 export class DisplayWidget extends AbstractContainerWidget {
-  constructor(display: Display, parent?: AbstractContainerWidget) {
+
+  private displayArgs: { [key: string]: any };
+
+  constructor(display: Display, parent?: AbstractContainerWidget, args?: { [key: string]: string }) {
     super(display, parent);
+    this.displayArgs = args ?? {};
     this.properties.add(new AutoScaleWidgetsProperty(PROP_AUTO_SCALE_WIDGETS));
   }
 
@@ -24,6 +28,10 @@ export class DisplayWidget extends AbstractContainerWidget {
     this.macros.set("DID", `DID_${displayId}`);
     const displayName = this.properties.getValue("name");
     this.macros.set("DNAME", displayName);
+
+    for (const k in this.displayArgs) {
+      this.macros.set(k, this.displayArgs[k]);
+    }
 
     for (const widgetNode of node.getNodes("widget")) {
       const kind = widgetNode.getString("widget_type");
