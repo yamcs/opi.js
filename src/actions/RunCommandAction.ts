@@ -22,9 +22,17 @@ export class RunCommandAction extends Action {
         return;
       }
     }
+
+    // Expand any macros in the command or arguments
+    const expandedCommand = widget.expandMacro(this.command);
+    const expandedArgs: { [key: string]: string } = {};
+    for (const item in this.args) {
+      expandedArgs[item] = widget.expandMacro(this.args[item]);
+    }
+
     const event: RunCommandEvent = {
-      command: this.command,
-      args: this.args,
+      command: expandedCommand,
+      args: expandedArgs,
     };
     widget.display.fireEvent("runcommand", event);
   }
