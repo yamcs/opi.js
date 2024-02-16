@@ -24,7 +24,7 @@ export class PV {
   private _disconnected = false;
   navigable = false;
 
-  constructor(readonly name: string, readonly pvEngine: PVEngine) {}
+  constructor(readonly name: string, readonly pvEngine: PVEngine) { }
 
   get units(): string | undefined {
     return this._units;
@@ -166,13 +166,13 @@ export class PV {
     if (value == null || value == undefined) {
       return "";
     }
+    if (precision === -1) {
+      // Use PV precision if available
+      precision = this.precision ?? -1;
+    }
     switch (formatType) {
       case 0: // DEFAULT
       case 1: // NORMAL
-        if (precision === -1) {
-          // Use PV precision if available
-          precision = this.precision ?? -1;
-        }
         if (precision === -1) {
           return String(value);
         } else {
@@ -181,7 +181,11 @@ export class PV {
           return String(Number(fixed))
         }
       case 2: // EXPONENTIAL
-        return value.toExponential().replace("e+", "E").toUpperCase();
+        if (precision === -1) {
+          return value.toExponential().replace("e+", "E").toUpperCase();
+        } else {
+          return value.toExponential(precision).replace("e+", "E").toUpperCase();
+        }
       case 3: // HEX
         return "0x" + value.toString(16).toUpperCase();
       default:
