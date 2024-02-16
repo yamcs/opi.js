@@ -176,7 +176,9 @@ export class PV {
         if (precision === -1) {
           return String(value);
         } else {
-          return value.toFixed(precision);
+          const fixed = value.toFixed(precision);
+          // Remove insignificant zeroes
+          return String(Number(fixed))
         }
       case 2: // EXPONENTIAL
         return value.toExponential().replace("e+", "E").toUpperCase();
