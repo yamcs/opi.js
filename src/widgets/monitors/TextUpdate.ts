@@ -5,6 +5,7 @@ import { Graphics } from "../../Graphics";
 import { HitRegionSpecification } from "../../HitRegionSpecification";
 import { shrink } from "../../positioning";
 import { BooleanProperty, FontProperty, IntProperty } from "../../properties";
+import { formatValue } from '../../utils';
 import { Widget } from "../../Widget";
 import { AbstractContainerWidget } from "../others/AbstractContainerWidget";
 
@@ -98,12 +99,15 @@ export class TextUpdate extends Widget {
 
     let text = this.text;
     if (this.pv?.value !== undefined) {
-      const precision = this.precisionFromPV
+      let precision = this.precisionFromPV
         ? this.pv.precision
         : this.precision;
-      text = this.pv.formatValue(this.formatType, precision);
+      if (precision === -1) { // Use PV precision if available
+        precision = this.pv.precision ?? -1;
+      }
+      text = formatValue(this.pv.value, this.formatType, precision);
     } else if (this.value !== undefined) {
-      text = this.value;
+      text = formatValue(this.value, this.formatType, this.precision);
     }
     ctx.fillText(text, x, y);
   }

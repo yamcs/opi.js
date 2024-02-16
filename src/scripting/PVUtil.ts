@@ -1,5 +1,6 @@
 import { AlarmSeverity } from "../pv/PV";
 import { PVEngine } from "../pv/PVEngine";
+import { formatValue } from '../utils';
 import { PVWrapper } from "./PVWrapper";
 import { WidgetWrapper } from "./WidgetWrapper";
 
@@ -14,7 +15,7 @@ const SUPPORTED_DATE_FORMAT_PATTERNS = [
 ];
 
 export class PVUtil {
-  constructor(private pvEngine: PVEngine) {}
+  constructor(private pvEngine: PVEngine) { }
 
   private checkPVValue(pv: PVWrapper) {
     if (pv.getValue() === null) {
@@ -41,7 +42,7 @@ export class PVUtil {
 
   getString(pv: PVWrapper) {
     this.checkPVValue(pv);
-    return pv._pv.formatValue(0, -1);
+    return formatValue(pv._pv.value, 0, -1)
   }
 
   getStringArray(pv: PVWrapper) {

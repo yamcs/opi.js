@@ -51,3 +51,45 @@ export function normalizePath(base: string, relPath: string) {
   }
   return (sDir + sPath.substr(nStart)).substr(1);
 }
+
+export function formatValue(value: any, formatType: number, precision: number) {
+  if (value === null) {
+    return "";
+  } else if (typeof value === "string") {
+    return value;
+  } else if (typeof value === "number") {
+    return formatNumber(formatType, value, precision);
+  } else if (value instanceof Date) {
+    return value.toISOString().replace("T", " ").replace("Z", "");
+  } else {
+    return String(value);
+  }
+}
+
+function formatNumber(formatType: number, value: number, precision: number) {
+  if (value == null || value == undefined) {
+    return "";
+  }
+  switch (formatType) {
+    case 0: // DEFAULT
+    case 1: // NORMAL
+      if (precision === -1) {
+        return String(value);
+      } else {
+        const fixed = value.toFixed(precision);
+        // Remove insignificant zeroes
+        return String(Number(fixed))
+      }
+    case 2: // EXPONENTIAL
+      if (precision === -1) {
+        return value.toExponential().replace("e+", "E").toUpperCase();
+      } else {
+        return value.toExponential(precision).replace("e+", "E").toUpperCase();
+      }
+    case 3: // HEX
+      return "0x" + value.toString(16).toUpperCase();
+    default:
+      console.warn(`Unexpected format type ${formatType}`);
+      return String(value);
+  }
+}

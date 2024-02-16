@@ -148,52 +148,6 @@ export class PV {
     }
   }
 
-  formatValue(formatType: number, precision: number) {
-    if (this.value === null) {
-      return "";
-    } else if (typeof this.value === "string") {
-      return this.value;
-    } else if (typeof this.value === "number") {
-      return this.formatNumber(formatType, this.value, precision);
-    } else if (this.value instanceof Date) {
-      return this.value.toISOString().replace("T", " ").replace("Z", "");
-    } else {
-      return String(this.value);
-    }
-  }
-
-  private formatNumber(formatType: number, value: number, precision: number) {
-    if (value == null || value == undefined) {
-      return "";
-    }
-    if (precision === -1) {
-      // Use PV precision if available
-      precision = this.precision ?? -1;
-    }
-    switch (formatType) {
-      case 0: // DEFAULT
-      case 1: // NORMAL
-        if (precision === -1) {
-          return String(value);
-        } else {
-          const fixed = value.toFixed(precision);
-          // Remove insignificant zeroes
-          return String(Number(fixed))
-        }
-      case 2: // EXPONENTIAL
-        if (precision === -1) {
-          return value.toExponential().replace("e+", "E").toUpperCase();
-        } else {
-          return value.toExponential(precision).replace("e+", "E").toUpperCase();
-        }
-      case 3: // HEX
-        return "0x" + value.toString(16).toUpperCase();
-      default:
-        console.warn(`Unexpected format type ${formatType}`);
-        return String(value);
-    }
-  }
-
   // Should be called by PVEngine only
   setSample(sample: Sample) {
     this._time = sample.time;

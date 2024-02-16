@@ -8,6 +8,7 @@ import {
   IntProperty,
   StringProperty,
 } from "../../properties";
+import { formatValue } from '../../utils';
 import { Widget } from "../../Widget";
 import { AbstractContainerWidget } from "../others/AbstractContainerWidget";
 
@@ -182,10 +183,13 @@ export class TextInput extends Widget {
 
     let text = this.text;
     if (this.pv && this.pv.value !== undefined) {
-      const precision = this.precisionFromPV
+      let precision = this.precisionFromPV
         ? this.pv.precision
         : this.precision;
-      text = this.pv.formatValue(this.formatType, precision);
+      if (precision === -1) { // Use PV precision if available
+        precision = this.pv.precision ?? -1;
+      }
+      text = formatValue(this.pv.value, this.formatType, precision);
     }
 
     offscreenCtx.fillText(text, x - this.area.x, y - this.area.y);
