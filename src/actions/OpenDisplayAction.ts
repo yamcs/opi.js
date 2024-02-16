@@ -17,9 +17,12 @@ export class OpenDisplayAction extends Action {
   }
 
   execute(widget: Widget) {
+    const args: { [key: string]: string } = { ...this.macros.macros };
+
     const event: OpenDisplayEvent = {
       path: this.path,
       replace: this.mode === 0,
+      args,
     };
     widget.display.fireEvent("opendisplay", event);
   }
