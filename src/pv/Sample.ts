@@ -10,4 +10,9 @@ export interface Sample {
    * to render in plots.
    */
   valueIndex?: number;
+
+  /**
+   * Engineering units
+   */
+  units?: string;
 }

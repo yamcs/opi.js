@@ -8,7 +8,7 @@ import {
   IntProperty,
   StringProperty,
 } from "../../properties";
-import { formatValue } from '../../utils';
+import { formatValue } from "../../utils";
 import { Widget } from "../../Widget";
 import { AbstractContainerWidget } from "../others/AbstractContainerWidget";
 
@@ -20,6 +20,7 @@ const PROP_MULTILINE_INPUT = "multiline_input";
 const PROP_PASSWORD_INPUT = "password_input";
 const PROP_PRECISION = "precision";
 const PROP_PRECISION_FROM_PV = "precision_from_pv";
+const PROP_SHOW_UNITS = "show_units";
 const PROP_TEXT = "text";
 const PROP_VERTICAL_ALIGNMENT = "vertical_alignment";
 
@@ -39,6 +40,7 @@ export class TextInput extends Widget {
     this.properties.add(new BooleanProperty(PROP_PASSWORD_INPUT, false));
     this.properties.add(new IntProperty(PROP_PRECISION));
     this.properties.add(new BooleanProperty(PROP_PRECISION_FROM_PV));
+    this.properties.add(new BooleanProperty(PROP_SHOW_UNITS, true));
     this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT, 1));
   }
 
@@ -190,6 +192,9 @@ export class TextInput extends Widget {
         precision = this.pv.precision ?? -1;
       }
       text = formatValue(this.pv.value, this.formatType, precision);
+      if (this.showUnits && this.pv?.units) {
+        text += " " + this.pv.units;
+      }
     }
 
     offscreenCtx.fillText(text, x - this.area.x, y - this.area.y);
@@ -242,6 +247,9 @@ export class TextInput extends Widget {
   }
   get precisionFromPV(): boolean {
     return this.properties.getValue(PROP_PRECISION_FROM_PV);
+  }
+  get showUnits(): boolean {
+    return this.properties.getValue(PROP_SHOW_UNITS);
   }
   get vertAlignment(): number {
     return this.properties.getValue(PROP_VERTICAL_ALIGNMENT);

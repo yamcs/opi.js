@@ -5,7 +5,7 @@ import { Graphics } from "../../Graphics";
 import { HitRegionSpecification } from "../../HitRegionSpecification";
 import { shrink } from "../../positioning";
 import { BooleanProperty, FontProperty, IntProperty } from "../../properties";
-import { formatValue } from '../../utils';
+import { formatValue } from "../../utils";
 import { Widget } from "../../Widget";
 import { AbstractContainerWidget } from "../others/AbstractContainerWidget";
 
@@ -14,6 +14,7 @@ const PROP_FORMAT_TYPE = "format_type";
 const PROP_HORIZONTAL_ALIGNMENT = "horizontal_alignment";
 const PROP_PRECISION = "precision";
 const PROP_PRECISION_FROM_PV = "precision_from_pv";
+const PROP_SHOW_UNITS = "show_units";
 const PROP_VERTICAL_ALIGNMENT = "vertical_alignment";
 
 export class TextUpdate extends Widget {
@@ -26,6 +27,7 @@ export class TextUpdate extends Widget {
     this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
     this.properties.add(new IntProperty(PROP_PRECISION));
     this.properties.add(new BooleanProperty(PROP_PRECISION_FROM_PV));
+    this.properties.add(new BooleanProperty(PROP_SHOW_UNITS, true));
     this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
   }
 
@@ -109,6 +111,9 @@ export class TextUpdate extends Widget {
     } else if (this.value !== undefined) {
       text = formatValue(this.value, this.formatType, this.precision);
     }
+    if (this.showUnits && this.pv?.units) {
+      text += " " + this.pv.units;
+    }
     ctx.fillText(text, x, y);
   }
 
@@ -126,6 +131,9 @@ export class TextUpdate extends Widget {
   }
   get precisionFromPV(): boolean {
     return this.properties.getValue(PROP_PRECISION_FROM_PV);
+  }
+  get showUnits(): boolean {
+    return this.properties.getValue(PROP_SHOW_UNITS);
   }
   get vertAlignment(): number {
     return this.properties.getValue(PROP_VERTICAL_ALIGNMENT);
