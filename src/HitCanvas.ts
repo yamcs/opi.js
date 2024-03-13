@@ -1,10 +1,11 @@
 import { HitRegionSpecification } from "./HitRegionSpecification";
 
 const WHITE = "rgb(255,255,255)";
+const IS_BRAVE = !!(navigator as any).brave;
 
 export class HitCanvas {
   readonly ctx: CanvasRenderingContext2D;
-  private regions: { [key: string]: HitRegionSpecification } = {};
+  private regionsByColor = new Map<string, HitRegionSpecification>();
 
   // If present, use the root instead of the local regions map.
   // This avoids color collisions.
@@ -23,14 +24,13 @@ export class HitCanvas {
   }
 
   clear() {
-    this.regions = {};
+    this.regionsByColor.clear();
     this.ctx.fillStyle = WHITE;
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
   beginHitRegion(hitRegion: HitRegionSpecification) {
-    const color = (this.root || this).generateUniqueColor();
-    (this.root || this).regions[color] = hitRegion;
+    const color = (this.root || this).generateUniqueColor(hitRegion);
 
     this.ctx.beginPath();
     this.ctx.fillStyle = color;
@@ -40,7 +40,7 @@ export class HitCanvas {
   getActiveRegion(x: number, y: number): HitRegionSpecification | undefined {
     const pixel = this.ctx.getImageData(x, y, 1, 1).data;
     const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
-    return this.regions[color] || undefined;
+    return this.regionsByColor.get(color) || undefined;
   }
 
   createChild(width: number, height: number) {
@@ -55,16 +55,51 @@ export class HitCanvas {
     this.parent.ctx.drawImage(this.ctx.canvas, dx, dy, dw, dh);
   }
 
-  private generateUniqueColor(): string {
+  private generateUniqueColor(hitRegion: HitRegionSpecification): string {
     while (true) {
       const r = Math.round(Math.random() * 255);
       const g = Math.round(Math.random() * 255);
       const b = Math.round(Math.random() * 255);
       const color = `rgb(${r},${g},${b})`;
 
-      if (!this.regions[color] && color != WHITE) {
+      if (!this.regionsByColor.has(color) && color !== WHITE) {
+        if (IS_BRAVE) { // Work around farbling-based fingerprinting defenses
+          this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b + 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g},${b + 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g + 1},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g + 1},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r - 1},${g + 1},${b + 1})`, hitRegion);
+
+          this.regionsByColor.set(`rgb(${r},${g - 1},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g - 1},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g - 1},${b + 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g},${b + 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g + 1},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g + 1},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r},${g + 1},${b + 1})`, hitRegion);
+
+          this.regionsByColor.set(`rgb(${r + 1},${g - 1},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g - 1},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g - 1},${b + 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g},${b + 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g + 1},${b - 1})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g + 1},${b})`, hitRegion);
+          this.regionsByColor.set(`rgb(${r + 1},${g + 1},${b + 1})`, hitRegion);
+        } else {
+          this.regionsByColor.set(color, hitRegion);
+        }
+
         return color;
       }
+
     }
   }
 }
