@@ -29,7 +29,7 @@ export class PVEngine {
 
   private listeners = new Map<string, PVListener[]>();
 
-  constructor(private display: Display) {}
+  constructor(private display: Display) { }
 
   /**
    * To be called following display parse.
@@ -113,6 +113,18 @@ export class PVEngine {
     return pv;
   }
 
+  createHistoricalDataProvider(pvName: string) {
+    for (const provider of this.providers) {
+      if (provider.canProvide(pvName)) {
+        if (provider.createHistoricalDataProvider) {
+          return provider.createHistoricalDataProvider(pvName);
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
   requestRepaint() {
     this.display.requestRepaint();
   }
@@ -162,7 +174,7 @@ export class PVEngine {
       if (localPV.type && type && localPV.type !== type) {
         console.warn(
           `PV ${pvName} is defined with different ` +
-            `types: ${localPV.type} !== ${type}`
+          `types: ${localPV.type} !== ${type}`
         );
       }
       if (
@@ -172,7 +184,7 @@ export class PVEngine {
       ) {
         console.warn(
           `PV ${pvName} is defined with different ` +
-            `initializers: ${localPV.initializer} !== ${initializer}`
+          `initializers: ${localPV.initializer} !== ${initializer}`
         );
       } else if (
         localPV.initializer === undefined &&

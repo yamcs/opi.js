@@ -57,7 +57,7 @@ export class LinearScale {
     private foregroundColor: Color,
     private showMinorTicks: boolean,
     private showScale: boolean
-  ) {}
+  ) { }
 
   get scaleLength() {
     return this.length - 2 * this.margin;
@@ -107,7 +107,7 @@ export class LinearScale {
         pixelsToStart =
           ((Math.log10(value) - Math.log10(min)) /
             (Math.log10(max) - Math.log10(min))) *
-            l +
+          l +
           this.margin;
       }
     } else {
@@ -151,8 +151,8 @@ export class LinearScale {
       value = Math.pow(
         10,
         ((pixelsToStart - this.margin) * (Math.log10(max) - Math.log10(min))) /
-          l +
-          Math.log10(min)
+        l +
+        Math.log10(min)
       );
     } else {
       const f = Math.max(Math.abs(min), Math.abs(max));
@@ -455,7 +455,7 @@ export class LinearScale {
             x0 +
             labelPositions[i - 1] +
             ((labelPositions[i] - labelPositions[i - 1]) * j) /
-              minorTicksNumber;
+            minorTicksNumber;
           tickX = Math.round(tickX) - scale * 0.5;
           g.strokePath({
             path: new Path(tickX, y).lineTo(tickX, y + minorTickLength),
@@ -526,7 +526,7 @@ export class LinearScale {
             scaleY2 -
             labelPositions[i - 1] -
             ((labelPositions[i] - labelPositions[i - 1]) * j) /
-              minorTicksNumber;
+            minorTicksNumber;
           y = Math.round(y) - scale * 0.5;
           g.strokePath({
             path: new Path(x + majorTickLength - minorTickLength, y).lineTo(

@@ -1,12 +1,14 @@
 import { Color } from "../../../Color";
 import { Graphics, Path } from "../../../Graphics";
-import { Point } from "../../../positioning";
+import { NullablePoint, Point } from "../../../positioning";
+import { HistoricalDataProvider } from "../../../pv/HistoricalDataProvider";
 import { PV, PVListener } from "../../../pv/PV";
 import { TraceBuffer } from "./TraceBuffer";
 import { XYGraph } from "./XYGraph";
 
 export class Trace {
   private traceData?: TraceBuffer;
+  private historicalDataProvider?: HistoricalDataProvider;
 
   private xPVInstance?: PV;
   private yPVInstance?: PV;
@@ -47,29 +49,37 @@ export class Trace {
     }
   };
 
-  constructor(private widget: XYGraph, private i: number) {}
+  constructor(private widget: XYGraph, private i: number) { }
 
   init() {
-    const { bufferSize, plotMode, updateMode, concatenateData } = this;
+    const { bufferSize, plotMode, updateMode, concatenateData, widget } = this;
     const chronological = !this.xPV;
+    const { pvEngine } = widget.display;
+
+    this.historicalDataProvider = undefined;
+    if (chronological && this.yPV) {
+      this.historicalDataProvider = pvEngine.createHistoricalDataProvider(this.yPV) || undefined;
+    }
+
     this.traceData = new TraceBuffer(
       bufferSize,
       plotMode,
       updateMode,
       concatenateData,
-      chronological
+      chronological,
+      this.historicalDataProvider,
     );
     if (this.xPV) {
-      this.xPVInstance = this.widget.display.pvEngine.createPV(this.xPV);
+      this.xPVInstance = pvEngine.createPV(this.xPV);
       this.xPVInstance.addListener(this.xPVListener);
     }
     if (this.yPV) {
-      this.yPVInstance = this.widget.display.pvEngine.createPV(this.yPV);
+      this.yPVInstance = pvEngine.createPV(this.yPV);
       this.yPVInstance.addListener(this.yPVListener);
     }
 
-    this.widget.addPropertyListener(`trace_${this.i}_x_pv`, () => {
-      const pv = this.widget.display.pvEngine.createPV(this.xPV);
+    widget.addPropertyListener(`trace_${this.i}_x_pv`, () => {
+      const pv = pvEngine.createPV(this.xPV);
       if (pv !== this.xPVInstance) {
         this.xPVInstance?.removeListener(this.xPVListener);
         this.xPVInstance = pv;
@@ -77,8 +87,8 @@ export class Trace {
       }
     });
 
-    this.widget.addPropertyListener(`trace_${this.i}_y_pv`, () => {
-      const pv = this.widget.display.pvEngine.createPV(this.yPV);
+    widget.addPropertyListener(`trace_${this.i}_y_pv`, () => {
+      const pv = pvEngine.createPV(this.yPV);
       if (pv !== this.yPVInstance) {
         this.yPVInstance?.removeListener(this.yPVListener);
         this.yPVInstance = pv;
@@ -91,7 +101,7 @@ export class Trace {
     return this.traceData?.snapshot() || [];
   }
 
-  drawTrace(g: Graphics, points: Point[]) {
+  drawTrace(g: Graphics, points: NullablePoint[]) {
     const { lineWidth } = this;
     if (this.traceType === 0) {
       // Solid Line
@@ -116,12 +126,14 @@ export class Trace {
       const yAxis = this.widget.getAxis(this.yAxisIndex).linearScale!;
       const originY = yAxis.getValuePosition(0);
       for (const point of points) {
-        g.strokePath({
-          path: new Path(point.x, point.y).lineTo(point.x, originY),
-          lineWidth,
-          color: this.traceColor,
-          opacity: 100 / 255,
-        });
+        if (point.y !== null) {
+          g.strokePath({
+            path: new Path(point.x, point.y).lineTo(point.x, originY),
+            lineWidth,
+            color: this.traceColor,
+            opacity: 100 / 255,
+          });
+        }
       }
     } else if (this.traceType === 4 || this.traceType === 5) {
       // Area, Line Area
@@ -130,14 +142,16 @@ export class Trace {
       for (let i = 1; i < points.length; i++) {
         const prev = points[i - 1];
         const point = points[i];
-        g.fillPath({
-          path: new Path(prev.x, prev.y)
-            .lineTo(prev.x, originY)
-            .lineTo(point.x, originY)
-            .lineTo(point.x, point.y),
-          color: this.traceColor,
-          opacity: 100 / 255,
-        });
+        if (prev.y !== null && point.y !== null) {
+          g.fillPath({
+            path: new Path(prev.x, prev.y)
+              .lineTo(prev.x, originY)
+              .lineTo(point.x, originY)
+              .lineTo(point.x, point.y),
+            color: this.traceColor,
+            opacity: 100 / 255,
+          });
+        }
       }
       if (this.traceType === 5) {
         g.strokePath({
@@ -151,26 +165,30 @@ export class Trace {
       for (let i = 1; i < points.length; i++) {
         const prev = points[i - 1];
         const point = points[i];
-        g.strokePath({
-          path: new Path(prev.x, prev.y)
-            .lineTo(prev.x, point.y)
-            .lineTo(point.x, point.y),
-          color: this.traceColor,
-          lineWidth,
-        });
+        if (prev.y !== null && point.y !== null) {
+          g.strokePath({
+            path: new Path(prev.x, prev.y)
+              .lineTo(prev.x, point.y)
+              .lineTo(point.x, point.y),
+            color: this.traceColor,
+            lineWidth,
+          });
+        }
       }
     } else if (this.traceType === 7) {
       // Step Horizontally
       for (let i = 1; i < points.length; i++) {
         const prev = points[i - 1];
         const point = points[i];
-        g.strokePath({
-          path: new Path(prev.x, prev.y)
-            .lineTo(point.x, prev.y)
-            .lineTo(point.x, point.y),
-          color: this.traceColor,
-          lineWidth,
-        });
+        if (prev.y !== null && point.y !== null) {
+          g.strokePath({
+            path: new Path(prev.x, prev.y)
+              .lineTo(point.x, prev.y)
+              .lineTo(point.x, point.y),
+            color: this.traceColor,
+            lineWidth,
+          });
+        }
       }
     } else if (this.traceType === 8) {
       // Dash Dot Line
@@ -313,52 +331,72 @@ export class Trace {
   get antiAlias(): boolean {
     return this.getValue("anti_alias");
   }
+
   get bufferSize(): number {
     return this.getValue("buffer_size");
   }
+
   get concatenateData(): boolean {
     return this.getValue("concatenate_data");
   }
+
   get lineWidth(): number {
     return this.scale * this.getValue("line_width");
   }
+
   get name(): string {
     return this.getValue("name");
   }
+
   get plotMode(): number {
     return this.getValue("plot_mode");
   }
+
   get pointSize(): number {
     return this.scale * this.getValue("point_size");
   }
+
   get pointStyle(): number {
     return this.getValue("point_style");
   }
+
   get traceColor(): Color {
     return this.getValue("trace_color");
   }
+
   get traceType(): number {
     return this.getValue("trace_type");
   }
+
   get updateDelay(): number {
     return this.getValue("update_delay");
   }
+
   get updateMode(): number {
     return this.getValue("update_mode");
   }
+
   get visible(): boolean {
     return this.getValue("visible");
   }
+
   get xAxisIndex(): number {
     return this.getValue("x_axis_index");
   }
+
   get xPV(): string {
     return this.getValue("x_pv");
   }
+
   get yAxisIndex(): number {
     return this.getValue("y_axis_index");
   }
+
   get yPV(): string {
     return this.getValue("y_pv");
+  }
+
+  destroy() {
+    this.historicalDataProvider?.disconnect();
   }
 }

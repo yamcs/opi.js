@@ -10,6 +10,11 @@ export interface Point {
   y: number;
 }
 
+export interface NullablePoint {
+  x: number;
+  y: number | null;
+}
+
 /**
  * Sets the specified attributes assuming they use border-box
  * coordinates. This is effectively the same as shrinking by
@@ -205,7 +210,7 @@ export function convertCartesianToPolar(pole: Point, point: Point) {
 }
 
 export class PolarPoint {
-  constructor(readonly r: number, readonly theta: number) {}
+  constructor(readonly r: number, readonly theta: number) { }
 
   /**
    * Transform the polar point to the {@link Point} in rectangular coordinates.

@@ -1,4 +1,4 @@
-import { RunProcedureEvent } from '../events';
+import { RunProcedureEvent } from "../events";
 import { StringMapProperty, StringProperty } from "../properties";
 import { Widget } from "../Widget";
 import { Action } from "./Action";

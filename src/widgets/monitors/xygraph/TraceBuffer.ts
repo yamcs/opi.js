@@ -1,7 +1,5 @@
-export interface Sample {
-  x: number;
-  y: number;
-}
+import { Point } from "../../../positioning";
+import { HistoricalDataProvider } from "../../../pv/HistoricalDataProvider";
 
 /**
  * Sample buffer that limits samples to a fixed total.
@@ -9,7 +7,7 @@ export interface Sample {
  */
 class CircularBuffer {
   private pointer = 0;
-  private samples: (Sample | undefined)[] = [];
+  private samples: (Point | undefined)[] = [];
 
   constructor(bufferSize: number) {
     this.samples = Array(bufferSize).fill(undefined);
@@ -50,15 +48,15 @@ class CircularBuffer {
    */
   snapshot(sort = false) {
     if (sort) {
-      const result = this.samples.filter((s) => s !== undefined) as Sample[];
+      const result = this.samples.filter((s) => s !== undefined) as Point[];
       return result.sort((s1, s2) => s1.x - s2.x);
     } else {
       const oldest = this.samples
         .slice(this.pointer)
-        .filter((s) => s !== undefined) as Sample[];
+        .filter((s) => s !== undefined) as Point[];
       const newest = this.samples
         .slice(0, this.pointer)
-        .filter((s) => s !== undefined) as Sample[];
+        .filter((s) => s !== undefined) as Point[];
       return oldest.concat(newest);
     }
   }
@@ -83,7 +81,8 @@ export class TraceBuffer {
     private plotMode: number,
     private updateMode: number,
     private concatenateData: boolean,
-    private chronological: boolean
+    private chronological: boolean,
+    private historicalDataProvider: HistoricalDataProvider | undefined,
   ) {
     this.traceData = new CircularBuffer(bufferSize);
   }
@@ -102,7 +101,11 @@ export class TraceBuffer {
   }
 
   snapshot() {
-    return this.traceData.snapshot();
+    if (this.historicalDataProvider) {
+      return this.historicalDataProvider.getSamples();
+    } else {
+      return this.traceData.snapshot();
+    }
   }
 
   updateX(x: number) {

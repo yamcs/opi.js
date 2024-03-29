@@ -1,6 +1,6 @@
 import { AlarmSeverity } from "../pv/PV";
 import { PVEngine } from "../pv/PVEngine";
-import { formatValue } from '../utils';
+import { formatValue } from "../utils";
 import { PVWrapper } from "./PVWrapper";
 import { WidgetWrapper } from "./WidgetWrapper";
 

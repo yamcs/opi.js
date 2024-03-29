@@ -6,8 +6,9 @@ import {
   Bounds,
   crispen,
   intersect,
+  NullablePoint,
   Point,
-  shrink,
+  shrink
 } from "../../../positioning";
 import {
   BooleanProperty,
@@ -440,16 +441,18 @@ export class XYGraph extends Widget {
     for (const trace of this.traces.filter((t) => t.visible)) {
       const xAxis = this.getAxis(trace.xAxisIndex).linearScale!;
       const yAxis = this.getAxis(trace.yAxisIndex).linearScale!;
-      const points: Point[] = [];
+      const points: NullablePoint[] = [];
       for (const sample of trace.snapshot()) {
         const x = xAxis.getValuePosition(sample.x);
-        const y = yAxis.getValuePosition(sample.y);
+        const y = sample.y !== null ? yAxis.getValuePosition(sample.y) : null;
         points.push({ x, y });
       }
       if (points.length) {
         trace.drawTrace(g, points);
         for (const point of points) {
-          trace.drawPoint(g, point);
+          if (point.y !== null) {
+            trace.drawPoint(g, point as Point);
+          }
         }
       }
     }
@@ -640,6 +643,9 @@ export class XYGraph extends Widget {
 
       for (const sample of trace.snapshot()) {
         const value = axis.isHorizontal() ? sample.x : sample.y;
+        if (value === null) {
+          continue;
+        }
         if (start === undefined || start > value) {
           if (!logScale || value > 0) {
             start = value;
@@ -718,5 +724,11 @@ export class XYGraph extends Widget {
   }
   get transparent(): boolean {
     return this.properties.getValue(PROP_TRANSPARENT);
+  }
+
+  destroy(): void {
+    for (const trace of this.traces) {
+      trace.destroy();
+    }
   }
 }

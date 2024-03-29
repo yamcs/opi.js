@@ -2,7 +2,7 @@ import { Color } from "./Color";
 import { Font } from "./Font";
 import { HitCanvas } from "./HitCanvas";
 import { HitRegionSpecification } from "./HitRegionSpecification";
-import { Bounds, Point, shrink } from "./positioning";
+import { Bounds, NullablePoint, Point, shrink } from "./positioning";
 import * as utils from "./utils";
 
 interface RectColorFill {
@@ -438,10 +438,25 @@ export class Path {
     this.segments.push({ x, y, line: false });
   }
 
-  static fromPoints(points: Point[]) {
-    const path = new Path(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      path.lineTo(points[i].x, points[i].y);
+  static fromPoints(points: NullablePoint[]) {
+    const startIndex = points.findIndex(point => point.y !== null);
+    if (startIndex === -1) {
+      const path = new Path(0, 0);
+      path.segments.length = 0
+      return path;
+    }
+
+    const path = new Path(points[startIndex].x, points[startIndex].y!);
+    for (let i = startIndex + 1; i < points.length; i++) {
+      const { x, y } = points[i];
+      if (y === null) {
+        continue;
+      }
+      if (i > 0 && points[i - 1].y === null) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
     }
     return path;
   }
@@ -493,7 +508,7 @@ export class Path {
 }
 
 export class HitRegionBuilder {
-  constructor(private ctx: CanvasRenderingContext2D) {}
+  constructor(private ctx: CanvasRenderingContext2D) { }
 
   addRect(x: number, y: number, width: number, height: number) {
     this.ctx.fillRect(x, y, width, height);

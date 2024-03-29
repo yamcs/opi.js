@@ -1,3 +1,4 @@
+import { HistoricalDataProvider } from "./HistoricalDataProvider";
 import { PV } from "./PV";
 
 export interface PVProvider {
@@ -8,6 +9,8 @@ export interface PVProvider {
   stopProviding(pvs: PV[]): void;
 
   isNavigable(): boolean;
+
+  createHistoricalDataProvider?(pvName: string): HistoricalDataProvider | void;
 
   shutdown(): void;
 }

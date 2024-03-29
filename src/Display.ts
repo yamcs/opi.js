@@ -2,6 +2,12 @@ import { Color } from "./Color";
 import { ConsoleHandler, DefaultConsoleHandler } from "./ConsoleHandler";
 import { DefaultDialogHandler, DialogHandler } from "./DialogHandler";
 import { EventHandler } from "./EventHandler";
+import { FontResolver } from "./FontResolver";
+import { Graphics } from "./Graphics";
+import { HitRegionSpecification } from "./HitRegionSpecification";
+import { DefaultPathResolver, PathResolver } from "./PathResolver";
+import { Widget } from "./Widget";
+import { XMLNode } from "./XMLNode";
 import {
   OPIEvent,
   OPIEventHandlers,
@@ -9,17 +15,12 @@ import {
   ScaleEvent,
   SelectionEvent,
 } from "./events";
-import { FontResolver } from "./FontResolver";
-import { Graphics } from "./Graphics";
-import { HitRegionSpecification } from "./HitRegionSpecification";
-import { DefaultPathResolver, PathResolver } from "./PathResolver";
 import { Bounds } from "./positioning";
 import { FormulaPVProvider } from "./pv/FormulaPVProvider";
 import { PVEngine } from "./pv/PVEngine";
 import { PVProvider } from "./pv/PVProvider";
 import { Sample } from "./pv/Sample";
 import { SimulatedPVProvider } from "./pv/SimulatedPVProvider";
-import { Widget } from "./Widget";
 import { ActionButton } from "./widgets/controls/ActionButton";
 import { BooleanButton } from "./widgets/controls/BooleanButton";
 import { BooleanSwitch } from "./widgets/controls/BooleanSwitch";
@@ -58,7 +59,6 @@ import { LinkingContainer } from "./widgets/others/LinkingContainer";
 import { TabbedContainer } from "./widgets/others/TabbedContainer";
 import { Table } from "./widgets/others/Table";
 import { WebBrowser } from "./widgets/others/WebBrowser";
-import { XMLNode } from "./XMLNode";
 
 const TYPE_ACTION_BUTTON = "Action Button";
 const TYPE_ARC = "Arc";

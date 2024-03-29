@@ -1,4 +1,4 @@
-import { RunCommandEvent } from '../events';
+import { RunCommandEvent } from "../events";
 import { StringMapProperty, StringProperty } from "../properties";
 import { Widget } from "../Widget";
 import { Action } from "./Action";
