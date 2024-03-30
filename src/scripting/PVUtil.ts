@@ -30,14 +30,21 @@ export class PVUtil {
 
   getDouble(pv: PVWrapper) {
     this.checkPVValue(pv);
+    // Note: for enumerations this should return the index
+    const numberValue: any = pv._pv.toNumber();
     // It probably already is a float, but parseFloat again to emit error if it's not
-    return parseFloat(pv.getValue());
+    return parseFloat(numberValue ?? pv.getValue());
   }
 
   getLong(pv: PVWrapper) {
     this.checkPVValue(pv);
+    // Note: for enumerations this should return the index
+    let numberValue: any = pv._pv.toNumber();
+    if (typeof numberValue === "number") {
+      numberValue = Math.floor(numberValue);
+    }
     // It probably already is an int, but parseInt again to emit error if it's not
-    return parseInt(pv.getValue(), 10);
+    return parseInt(numberValue ?? pv.getValue(), 10);
   }
 
   getString(pv: PVWrapper) {
