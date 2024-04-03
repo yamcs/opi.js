@@ -1,3 +1,4 @@
+import { Widget } from '../Widget';
 import { HistoricalDataProvider } from "./HistoricalDataProvider";
 import { PV } from "./PV";
 
@@ -10,7 +11,7 @@ export interface PVProvider {
 
   isNavigable(): boolean;
 
-  createHistoricalDataProvider?(pvName: string): HistoricalDataProvider | void;
+  createHistoricalDataProvider?(pvName: string, widget: Widget): HistoricalDataProvider | void;
 
   shutdown(): void;
 }

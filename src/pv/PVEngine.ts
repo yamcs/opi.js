@@ -113,11 +113,11 @@ export class PVEngine {
     return pv;
   }
 
-  createHistoricalDataProvider(pvName: string) {
+  createHistoricalDataProvider(pvName: string, widget: Widget) {
     for (const provider of this.providers) {
       if (provider.canProvide(pvName)) {
         if (provider.createHistoricalDataProvider) {
-          return provider.createHistoricalDataProvider(pvName);
+          return provider.createHistoricalDataProvider(pvName, widget);
         } else {
           break;
         }

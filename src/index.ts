@@ -4,6 +4,7 @@ export { Display } from "./Display";
 export { Font } from "./Font";
 export { FontResolver } from "./FontResolver";
 export { DefaultPathResolver, PathResolver } from "./PathResolver";
+export { Widget } from "./Widget";
 export { NullablePoint, Point } from "./positioning";
 export { HistoricalDataProvider } from "./pv/HistoricalDataProvider";
 export { AlarmSeverity, PV } from "./pv/PV";

@@ -58,7 +58,7 @@ export class Trace {
 
     this.historicalDataProvider = undefined;
     if (chronological && this.yPV) {
-      this.historicalDataProvider = pvEngine.createHistoricalDataProvider(this.yPV) || undefined;
+      this.historicalDataProvider = pvEngine.createHistoricalDataProvider(this.yPV, widget) || undefined;
     }
 
     this.traceData = new TraceBuffer(
