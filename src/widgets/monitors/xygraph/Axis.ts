@@ -13,7 +13,7 @@ export class Axis {
   private _effectiveMinimum?: number;
   private _effectiveMaximum?: number;
 
-  constructor(private widget: XYGraph, readonly index: number) {}
+  constructor(private widget: XYGraph, readonly index: number) { }
 
   get scale() {
     return this.widget.scale;
@@ -58,7 +58,8 @@ export class Axis {
   }
 
   performAutoScale() {
-    const range = this.widget.calculateAutoscaledRange(this);
+    const fallback = { start: this.minimum, stop: this.maximum };
+    const range = this.widget.calculateAutoscaledRange(this, fallback);
     if (range) {
       this.effectiveMinimum = range.start;
       this.effectiveMaximum = range.stop;
@@ -128,10 +129,10 @@ export class Axis {
   get logScale(): boolean {
     return this.getValue("log_scale");
   }
-  private get maximum(): number {
+  get maximum(): number {
     return this.getValue("maximum");
   }
-  private get minimum(): number {
+  get minimum(): number {
     return this.getValue("minimum");
   }
   get scaleFont(): Font {

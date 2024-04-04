@@ -159,7 +159,8 @@ export class XYGraph extends Widget {
     // Initialize rulers
     for (const axis of this.axes) {
       if (axis.autoScale && this.autoScaleAllowed) {
-        const range = this.calculateAutoscaledRange(axis);
+        const fallback = { start: axis.minimum, stop: axis.maximum };
+        const range = this.calculateAutoscaledRange(axis, fallback);
         if (range) {
           axis.effectiveMinimum = range.start;
           axis.effectiveMaximum = range.stop;
@@ -626,7 +627,7 @@ export class XYGraph extends Widget {
     this.plotAreaRegion!.cursor = cursor;
   }
 
-  calculateAutoscaledRange(axis: Axis): Range | undefined {
+  calculateAutoscaledRange(axis: Axis, fallback: Range): Range | undefined {
     let start: number | undefined;
     let stop: number | undefined;
     const logScale = axis.logScale;
@@ -659,7 +660,14 @@ export class XYGraph extends Widget {
       }
     }
     if (start !== undefined && stop !== undefined) {
-      return { start, stop };
+      if (start === stop) {
+        return {
+          start: Math.min(start, fallback.start),
+          stop: Math.max(stop, fallback.stop),
+        }
+      } else {
+        return { start, stop };
+      }
     }
   }
 
