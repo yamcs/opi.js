@@ -1071,6 +1071,10 @@ export class LinearScale {
     return this.scale * 4;
   }
   get tickLabelGap() {
-    return this.scale * 2;
+    if (this.horizontal) {
+      return this.scale * 10;
+    } else {
+      return this.scale * 2;
+    }
   }
 }
