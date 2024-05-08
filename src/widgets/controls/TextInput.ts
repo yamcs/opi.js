@@ -134,15 +134,15 @@ export class TextInput extends Widget {
     area.addRect(this.x, this.y, this.width, this.height);
 
     const ctx = g.ctx;
-    if (!this.transparent) {
-      g.fillRect({
-        ...this.area,
-        color: this.backgroundColor,
-      });
-    } else if (this.backgroundAlarmSensitive && this.alarm) {
+    if (this.backgroundAlarmSensitive && this.alarm) {
       g.fillRect({
         ...this.area,
         color: this.alarmSensitiveBackgroundColor,
+      });
+    } else if (!this.transparent) {
+      g.fillRect({
+        ...this.area,
+        color: this.backgroundColor,
       });
     }
 

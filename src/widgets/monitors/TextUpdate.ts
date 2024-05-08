@@ -45,15 +45,15 @@ export class TextUpdate extends Widget {
 
   draw(g: Graphics) {
     const ctx = g.ctx;
-    if (!this.transparent) {
-      g.fillRect({
-        ...this.area,
-        color: this.backgroundColor,
-      });
-    } else if (this.backgroundAlarmSensitive && this.alarm) {
+    if (this.backgroundAlarmSensitive && this.alarm) {
       g.fillRect({
         ...this.area,
         color: this.alarmSensitiveBackgroundColor,
+      });
+    } else if (!this.transparent) {
+      g.fillRect({
+        ...this.area,
+        color: this.backgroundColor,
       });
     }
 

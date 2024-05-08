@@ -639,7 +639,7 @@ export abstract class Widget {
     }
   }
 
-  drawOverlay(g: Graphics) {}
+  drawOverlay(g: Graphics) { }
 
   drawSelection(ctx: CanvasRenderingContext2D) {
     ctx.lineWidth = 1;
@@ -937,7 +937,8 @@ export abstract class Widget {
   get alarm() {
     return (
       this.pv?.severity === AlarmSeverity.MINOR ||
-      this.pv?.severity === AlarmSeverity.MAJOR
+      this.pv?.severity === AlarmSeverity.MAJOR ||
+      this.pv?.severity === AlarmSeverity.INVALID
     );
   }
 
@@ -947,6 +948,8 @@ export abstract class Widget {
         return Color.RED;
       } else if (this.isMinorSeverity()) {
         return Color.ORANGE;
+      } else if (this.pv?.severity === AlarmSeverity.INVALID) {
+        return Color.PINK;
       }
     }
     return this.backgroundColor;
@@ -1099,7 +1102,7 @@ export abstract class Widget {
    * Called exactly once post-construct. A destroyed widget will
    * never be re-inited.
    */
-  init(): void {}
+  init(): void { }
 
   /**
    * Called when a widget should temporarily hide content
@@ -1110,13 +1113,13 @@ export abstract class Widget {
    *
    * Unhide should occur upon the next draw request.
    */
-  hide(): void {}
+  hide(): void { }
 
   /**
    * Called when a widget will never be used again.
    * (display close).
    */
-  destroy(): void {}
+  destroy(): void { }
 
   abstract draw(g: Graphics): void;
 }
