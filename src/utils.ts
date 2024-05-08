@@ -52,13 +52,21 @@ export function normalizePath(base: string, relPath: string) {
   return (sDir + sPath.substr(nStart)).substr(1);
 }
 
-export function formatValue(value: any, formatType: number, precision: number) {
+export function formatValue(
+  value: any,
+  formatType: number,
+  precision: number,
+) {
   if (value === null) {
     return "";
   } else if (typeof value === "string") {
     return value;
   } else if (typeof value === "number") {
-    return formatNumber(formatType, value, precision);
+    if (precision === -1) {
+      return formatNumber(formatType, value, undefined, 3);
+    } else {
+      return formatNumber(formatType, value, precision, precision);
+    }
   } else if (value instanceof Date) {
     return value.toISOString().replace("T", " ").replace("Z", "");
   } else {
@@ -66,26 +74,28 @@ export function formatValue(value: any, formatType: number, precision: number) {
   }
 }
 
-function formatNumber(formatType: number, value: number, precision: number) {
+function formatNumber(
+  formatType: number,
+  value: number,
+  minimumFractionDigits: number | undefined,
+  maximumFractionDigits: number | undefined,
+) {
   if (value == null || value == undefined) {
     return "";
   }
+
   switch (formatType) {
     case 0: // DEFAULT
     case 1: // NORMAL
-      if (precision === -1) {
-        return String(value);
-      } else {
-        const fixed = value.toFixed(precision);
-        // Remove insignificant zeroes
-        return String(Number(fixed))
-      }
+      const nfOptions: any = {
+        minimumFractionDigits,
+        maximumFractionDigits,
+        useGrouping: false,
+        roundingMode: "halfEven",
+      };
+      return Intl.NumberFormat("en-US", nfOptions).format(value);
     case 2: // EXPONENTIAL
-      if (precision === -1) {
-        return value.toExponential().replace("e+", "E").toUpperCase();
-      } else {
-        return value.toExponential(precision).replace("e+", "E").toUpperCase();
-      }
+      return value.toExponential(maximumFractionDigits).replace("e+", "E").toUpperCase();
     case 3: // HEX
       return "0x" + value.toString(16).toUpperCase();
     default:

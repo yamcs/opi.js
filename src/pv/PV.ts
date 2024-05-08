@@ -19,7 +19,7 @@ export class PV {
 
   private _indexValue?: number;
 
-  private _precision = 3;
+  private _precision = -1;
 
   private _disconnected = false;
   navigable = false;
