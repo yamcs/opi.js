@@ -250,7 +250,7 @@ export class Meter extends Widget {
     if (this.valueLabelFormat) {
       return new DecimalFormat(this.valueLabelFormat).format(v);
     } else {
-      return String(Number(v.toFixed(3)));
+      return String(Number(v.toFixed(2)));
     }
   }
 
