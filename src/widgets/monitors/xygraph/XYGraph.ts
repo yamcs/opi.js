@@ -500,7 +500,9 @@ export class XYGraph extends Widget {
     const outGap = 5 * scale;
     const font = Font.ARIAL_10.scale(scale);
     for (const axis of this.getYAxes()) {
-      const traces = this.traces.filter((t) => t.visible);
+      const traces = this.traces.filter(
+        (t) => t.visible && t.yAxisIndex === axis.index
+      );
       const lines: Trace[][] = [];
 
       // Wrap legend symbols over the available area
