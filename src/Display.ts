@@ -117,6 +117,7 @@ export class Display {
   private _selection: string[] = [];
   private _scale = 1;
   private _transparent = false;
+  private _utc = false;
   private refreshCycle = 100;
 
   /**
@@ -633,6 +634,14 @@ export class Display {
   }
   set transparent(transparent: boolean) {
     this._transparent = transparent;
+    this.requestRepaint();
+  }
+
+  get utc() {
+    return this._utc;
+  }
+  set utc(utc: boolean) {
+    this._utc = utc;
     this.requestRepaint();
   }
 

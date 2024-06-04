@@ -1,3 +1,4 @@
+import { Display } from '../Display';
 import { AlarmSeverity } from "../pv/PV";
 import { PVEngine } from "../pv/PVEngine";
 import { formatValue } from "../utils";
@@ -15,7 +16,12 @@ const SUPPORTED_DATE_FORMAT_PATTERNS = [
 ];
 
 export class PVUtil {
-  constructor(private pvEngine: PVEngine) { }
+
+  private pvEngine: PVEngine;
+
+  constructor(private display: Display) {
+    this.pvEngine = display.pvEngine;
+  }
 
   private checkPVValue(pv: PVWrapper) {
     if (pv.getValue() === null) {
@@ -106,25 +112,26 @@ export class PVUtil {
   }
 
   private formatDate(date: Date, format: string) {
+    const { utc } = this.display;
     if (format === "yyyy") {
-      return String(date.getUTCFullYear());
+      return String(utc ? date.getUTCFullYear() : date.getFullYear());
     } else if (format === "MM") {
-      const m = date.getUTCMonth() + 1;
+      const m = (utc ? date.getUTCMonth() : date.getMonth()) + 1;
       return m < 10 ? "0" + m : "" + m;
     } else if (format === "dd") {
-      const d = date.getUTCDate();
+      const d = (utc ? date.getUTCDate() : date.getDate());
       return d < 10 ? "0" + d : "" + d;
     } else if (format === "HH") {
-      const h = date.getUTCHours();
+      const h = (utc ? date.getUTCHours() : date.getHours());
       return h < 10 ? "0" + h : "" + h;
     } else if (format === "mm") {
-      const m = date.getUTCMinutes();
+      const m = (utc ? date.getUTCMinutes() : date.getMinutes());
       return m < 10 ? "0" + m : "" + m;
     } else if (format === "ss") {
-      const s = date.getUTCSeconds();
+      const s = (utc ? date.getUTCSeconds() : date.getSeconds());
       return s < 10 ? "0" + s : "" + s;
     } else if (format === "nnnnnnnnn") {
-      const m = date.getUTCMilliseconds();
+      const m = (utc ? date.getUTCMilliseconds() : date.getMilliseconds());
       if (m < 10) {
         return "00" + m;
       } else if (m < 100) {

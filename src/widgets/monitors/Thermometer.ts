@@ -109,6 +109,7 @@ export class Thermometer extends Widget {
     let pipeArea = { ...area, height: pipeHeight };
 
     const linearScale = new LinearScale(
+      this.display,
       scale,
       this.scaleFont,
       min,

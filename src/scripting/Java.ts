@@ -38,7 +38,7 @@ export function createJavaBridge(scriptEngine: ScriptEngine) {
     }
   };
 
-  const Timer = function () {};
+  const Timer = function () { };
   Timer.prototype.schedule = function (task: () => void, delay: number) {
     scriptEngine.schedule(task, delay);
   };
@@ -109,7 +109,7 @@ export function createJavaBridge(scriptEngine: ScriptEngine) {
     FileUtil: new FileUtil(display),
     GUIUtil: new GUIUtil(display),
     MessageDialog: new MessageDialog(display),
-    PVUtil: new PVUtil(display.pvEngine),
+    PVUtil: new PVUtil(display),
     ScriptUtil: new ScriptUtil(display),
     SpreadSheetTable,
     Java: {

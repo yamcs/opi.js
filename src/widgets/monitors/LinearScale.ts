@@ -1,5 +1,6 @@
 import { Color } from "../../Color";
 import { DecimalFormat } from "../../DecimalFormat";
+import { Display } from '../../Display';
 import { Font } from "../../Font";
 import { Graphics, Path } from "../../Graphics";
 import { Range } from "../../Range";
@@ -48,6 +49,7 @@ export class LinearScale {
   public margin = 0;
 
   constructor(
+    private display: Display,
     private scale: number,
     private scaleFont: Font,
     private minimum: number,
@@ -883,6 +885,7 @@ export class LinearScale {
     }
 
     const dt = new Date(v);
+    const utc = this.display.utc;
     switch (this.timeFormat) {
       case 1: // yyyy-MM-dd HH:mm:ss
         return (
@@ -942,8 +945,8 @@ export class LinearScale {
           day: true,
         });
       case 7: // MMMMM d
-        const mmmmm = months[dt.getUTCMonth()];
-        const d = dt.getUTCDate();
+        const mmmmm = months[utc ? dt.getUTCMonth() : dt.getMonth()];
+        const d = (utc ? dt.getUTCDate() : dt.getDate());
         return `${mmmmm} ${d}`;
       case 8: // Auto
         const length = Math.abs(this.maximum - this.minimum);
@@ -1007,52 +1010,54 @@ export class LinearScale {
   }
 
   private formatDate(dt: Date, opts: FormatDateOptions) {
+    const utc = this.display.utc;
     let result = "";
     if (opts.year) {
-      result += dt.getUTCFullYear();
+      result += (utc ? dt.getUTCFullYear() : dt.getFullYear());
     }
     if (opts.month) {
       if (opts.year) {
         result += "-";
       }
-      const month = dt.getUTCMonth();
+      const month = (utc ? dt.getUTCMonth() : dt.getMonth()) + 1;
       result += (month < 10 ? "0" : "") + month;
     }
     if (opts.day) {
       if (opts.month) {
         result += "-";
       }
-      const day = dt.getUTCDate();
+      const day = (utc ? dt.getUTCDate() : dt.getDate());
       result += (day < 10 ? "0" : "") + day;
     }
     return result;
   }
 
   private formatTime(dt: Date, opts: FormatTimeOptions) {
+    const utc = this.display.utc;
     let result = "";
     if (opts.hours) {
-      const h = dt.getUTCHours();
+      const h = (utc ? dt.getUTCHours() : dt.getHours());
       result += (h < 10 ? "0" : "") + h;
     }
     if (opts.minutes) {
       if (opts.hours) {
         result += ":";
       }
-      const m = dt.getUTCMinutes();
+      const m = (utc ? dt.getUTCMinutes() : dt.getMinutes());
       result += (m < 10 ? "0" : "") + m;
     }
     if (opts.seconds) {
       if (opts.minutes) {
         result += ":";
       }
-      const s = dt.getUTCSeconds();
+      const s = (utc ? dt.getUTCSeconds() : dt.getSeconds());
       result += (s < 10 ? "0" : "") + s;
     }
     if (opts.milliseconds) {
       if (opts.seconds) {
         result += ".";
       }
-      const ms = dt.getUTCMilliseconds();
+      const ms = (utc ? dt.getUTCMilliseconds() : dt.getMilliseconds());
       result += (ms < 10 ? "00" : ms < 100 ? "0" : "") + ms;
     }
     return result;
