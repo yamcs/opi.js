@@ -398,7 +398,9 @@ export class XYGraph extends Widget {
     const { scale } = this;
     const lineWidth = 1 * scale;
 
-    g.fillRect({ ...area, color: this.plotAreaBackgroundColor });
+    if (!this.transparent) {
+      g.fillRect({ ...area, color: this.plotAreaBackgroundColor });
+    }
     if (this.showPlotAreaBorder) {
       const { x, y, width, height } = shrink(area, lineWidth / 2);
       g.strokePath({
@@ -541,10 +543,12 @@ export class XYGraph extends Widget {
         height: legendHeight,
       };
       area.height -= legendArea.height;
-      g.fillRect({
-        ...legendArea,
-        color: this.plotAreaBackgroundColor,
-      });
+      if (!this.transparent) {
+        g.fillRect({
+          ...legendArea,
+          color: this.plotAreaBackgroundColor,
+        });
+      }
       g.strokeRect({
         ...shrink(legendArea, (1 * scale) / 2),
         color: axis.axisColor,
