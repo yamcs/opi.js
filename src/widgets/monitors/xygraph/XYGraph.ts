@@ -169,7 +169,7 @@ export class XYGraph extends Widget {
       const min = axis.effectiveMinimum;
       const max = axis.effectiveMaximum;
       axis.linearScale = new LinearScale(
-        this.display,
+        this.display.formatter,
         scale,
         axis.scaleFont,
         min,

@@ -91,7 +91,7 @@ export class Tank extends Widget {
 
     const foregroundColor = this.alarmSensitiveForegroundColor;
     const linearScale = new LinearScale(
-      this.display,
+      this.display.formatter,
       scale,
       this.scaleFont,
       min,

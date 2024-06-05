@@ -114,7 +114,7 @@ export class IntensityGraph extends Widget {
     }
 
     const xScale = new LinearScale(
-      this.display,
+      this.display.formatter,
       scale,
       this.xAxisScaleFont,
       this.xAxisMinimum,
@@ -127,7 +127,7 @@ export class IntensityGraph extends Widget {
     );
     const xScaleMargin = xScale.calculateMargin(g, true);
     const yScale = new LinearScale(
-      this.display,
+      this.display.formatter,
       scale,
       this.yAxisScaleFont,
       this.yAxisMinimum,
@@ -212,7 +212,7 @@ export class IntensityGraph extends Widget {
 
     if (this.showRamp) {
       const rampScale = new LinearScale(
-        this.display,
+        this.display.formatter,
         scale,
         this.font,
         min,

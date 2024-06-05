@@ -3,6 +3,7 @@ import { ConsoleHandler, DefaultConsoleHandler } from "./ConsoleHandler";
 import { DefaultDialogHandler, DialogHandler } from "./DialogHandler";
 import { EventHandler } from "./EventHandler";
 import { FontResolver } from "./FontResolver";
+import { Formatter } from './Formatter';
 import { Graphics } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
 import { DefaultPathResolver, PathResolver } from "./PathResolver";
@@ -21,6 +22,7 @@ import { PVEngine } from "./pv/PVEngine";
 import { PVProvider } from "./pv/PVProvider";
 import { Sample } from "./pv/Sample";
 import { SimulatedPVProvider } from "./pv/SimulatedPVProvider";
+import { SystemPVProvider } from './pv/SystemPVProvider';
 import { ActionButton } from "./widgets/controls/ActionButton";
 import { BooleanButton } from "./widgets/controls/BooleanButton";
 import { BooleanSwitch } from "./widgets/controls/BooleanSwitch";
@@ -107,6 +109,7 @@ export class Display {
   private fontResolver?: FontResolver;
   private consoleHandler: ConsoleHandler;
   private dialogHandler: DialogHandler;
+  formatter: Formatter;
 
   private repaintRequested = false;
 
@@ -117,7 +120,6 @@ export class Display {
   private _selection: string[] = [];
   private _scale = 1;
   private _transparent = false;
-  private _utc = false;
   private refreshCycle = 100;
 
   /**
@@ -159,9 +161,11 @@ export class Display {
     this.rootPanel.appendChild(canvas);
     this.g = new Graphics(canvas);
     this.ctx = this.g.ctx;
+    this.formatter = new Formatter(false);
 
     this.pvEngine = new PVEngine(this);
     this.pvEngine.addProvider(new SimulatedPVProvider());
+    this.pvEngine.addProvider(new SystemPVProvider(this.formatter));
     this.pvEngine.addProvider(new FormulaPVProvider());
 
     this.displayRegion = {
@@ -638,10 +642,10 @@ export class Display {
   }
 
   get utc() {
-    return this._utc;
+    return this.formatter.utc;
   }
   set utc(utc: boolean) {
-    this._utc = utc;
+    this.formatter.utc = utc;
     this.requestRepaint();
   }
 

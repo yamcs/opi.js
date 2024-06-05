@@ -1,3 +1,4 @@
+import { Formatter } from '../Formatter';
 import { AlarmSeverity, PV } from "./PV";
 
 export abstract class SimGenerator {
@@ -52,7 +53,31 @@ export class ConstantGenerator extends SimGenerator {
     super(pv, -1, initialValue);
   }
 
-  generateSample() {}
+  generateSample() { }
+}
+
+export class SysTime extends SimGenerator {
+
+  constructor(pv: PV, private formatter: Formatter) {
+    super(pv, 1000);
+  }
+
+  generateSample(time: Date) {
+    const timeString = (
+      this.formatter.formatDate(time, {
+        year: true,
+        month: true,
+        day: true,
+      }) + " " +
+      this.formatter.formatTime(time, {
+        hours: true,
+        minutes: true,
+        seconds: true,
+        milliseconds: true,
+      })
+    );
+    this.emit(time, timeString);
+  }
 }
 
 /**
@@ -163,7 +188,7 @@ export class Sine extends SimGenerator {
     const value =
       (Math.sin((this.currentValue * 2 * Math.PI) / this.samplesPerCycle) *
         range) /
-        2 +
+      2 +
       this.min +
       range / 2;
     this.currentValue++;

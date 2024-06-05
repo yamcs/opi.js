@@ -1,7 +1,7 @@
 import { Color } from "../../Color";
 import { DecimalFormat } from "../../DecimalFormat";
-import { Display } from '../../Display';
 import { Font } from "../../Font";
+import { Formatter } from "../../Formatter";
 import { Graphics, Path } from "../../Graphics";
 import { Range } from "../../Range";
 
@@ -20,19 +20,6 @@ const months = [
   "December",
 ];
 
-interface FormatDateOptions {
-  year: boolean;
-  month: boolean;
-  day: boolean;
-}
-
-interface FormatTimeOptions {
-  hours: boolean;
-  minutes: boolean;
-  seconds: boolean;
-  milliseconds: boolean;
-}
-
 export class LinearScale {
   private labels: string[] = [];
   private labelValues: number[] = [];
@@ -49,7 +36,7 @@ export class LinearScale {
   public margin = 0;
 
   constructor(
-    private display: Display,
+    private formatter: Formatter,
     private scale: number,
     private scaleFont: Font,
     private minimum: number,
@@ -885,17 +872,17 @@ export class LinearScale {
     }
 
     const dt = new Date(v);
-    const utc = this.display.utc;
+    const formatter = this.formatter;
     switch (this.timeFormat) {
       case 1: // yyyy-MM-dd HH:mm:ss
         return (
-          this.formatDate(dt, {
+          formatter.formatDate(dt, {
             year: true,
             month: true,
             day: true,
           }) +
           "\n" +
-          this.formatTime(dt, {
+          formatter.formatTime(dt, {
             hours: true,
             minutes: true,
             seconds: true,
@@ -904,13 +891,13 @@ export class LinearScale {
         );
       case 2: // yyyy-MM-dd HH:mm:ss.SSS
         return (
-          this.formatDate(dt, {
+          formatter.formatDate(dt, {
             year: true,
             month: true,
             day: true,
           }) +
           "\n" +
-          this.formatTime(dt, {
+          formatter.formatTime(dt, {
             hours: true,
             minutes: true,
             seconds: true,
@@ -918,33 +905,34 @@ export class LinearScale {
           })
         );
       case 3: // HH:mm:ss
-        return this.formatTime(dt, {
+        return formatter.formatTime(dt, {
           hours: true,
           minutes: true,
           seconds: true,
           milliseconds: false,
         });
       case 4: // HH:mm:ss.SSS
-        return this.formatTime(dt, {
+        return formatter.formatTime(dt, {
           hours: true,
           minutes: true,
           seconds: true,
           milliseconds: true,
         });
       case 5: // HH:mm
-        return this.formatTime(dt, {
+        return formatter.formatTime(dt, {
           hours: true,
           minutes: true,
           seconds: false,
           milliseconds: false,
         });
       case 6: // yyyy-MM-dd
-        return this.formatDate(dt, {
+        return formatter.formatDate(dt, {
           year: true,
           month: true,
           day: true,
         });
       case 7: // MMMMM d
+        const utc = this.formatter.utc;
         const mmmmm = months[utc ? dt.getUTCMonth() : dt.getMonth()];
         const d = (utc ? dt.getUTCDate() : dt.getDate());
         return `${mmmmm} ${d}`;
@@ -952,7 +940,7 @@ export class LinearScale {
         const length = Math.abs(this.maximum - this.minimum);
         if (length <= 5000) {
           // ss.SSS
-          return this.formatTime(dt, {
+          return formatter.formatTime(dt, {
             hours: false,
             minutes: false,
             seconds: true,
@@ -960,7 +948,7 @@ export class LinearScale {
           });
         } else if (length <= 1800000) {
           // HH:mm:ss
-          return this.formatTime(dt, {
+          return formatter.formatTime(dt, {
             hours: true,
             minutes: true,
             seconds: true,
@@ -968,7 +956,7 @@ export class LinearScale {
           });
         } else if (length <= 86400000) {
           // HH:mm
-          return this.formatTime(dt, {
+          return formatter.formatTime(dt, {
             hours: true,
             minutes: true,
             seconds: false,
@@ -977,13 +965,13 @@ export class LinearScale {
         } else if (length <= 604800000) {
           // MM-dd HH:mm
           return (
-            this.formatDate(dt, {
+            formatter.formatDate(dt, {
               year: false,
               month: true,
               day: true,
             }) +
             "\n" +
-            this.formatTime(dt, {
+            formatter.formatTime(dt, {
               hours: true,
               minutes: true,
               seconds: false,
@@ -992,14 +980,14 @@ export class LinearScale {
           );
         } else if (length <= 2592000000) {
           // MM-dd
-          return this.formatDate(dt, {
+          return formatter.formatDate(dt, {
             year: false,
             month: true,
             day: true,
           });
         } else {
           // yyyy-MM-dd
-          return this.formatDate(dt, {
+          return formatter.formatDate(dt, {
             year: true,
             month: true,
             day: true,
@@ -1007,60 +995,6 @@ export class LinearScale {
         }
     }
     return "";
-  }
-
-  private formatDate(dt: Date, opts: FormatDateOptions) {
-    const utc = this.display.utc;
-    let result = "";
-    if (opts.year) {
-      result += (utc ? dt.getUTCFullYear() : dt.getFullYear());
-    }
-    if (opts.month) {
-      if (opts.year) {
-        result += "-";
-      }
-      const month = (utc ? dt.getUTCMonth() : dt.getMonth()) + 1;
-      result += (month < 10 ? "0" : "") + month;
-    }
-    if (opts.day) {
-      if (opts.month) {
-        result += "-";
-      }
-      const day = (utc ? dt.getUTCDate() : dt.getDate());
-      result += (day < 10 ? "0" : "") + day;
-    }
-    return result;
-  }
-
-  private formatTime(dt: Date, opts: FormatTimeOptions) {
-    const utc = this.display.utc;
-    let result = "";
-    if (opts.hours) {
-      const h = (utc ? dt.getUTCHours() : dt.getHours());
-      result += (h < 10 ? "0" : "") + h;
-    }
-    if (opts.minutes) {
-      if (opts.hours) {
-        result += ":";
-      }
-      const m = (utc ? dt.getUTCMinutes() : dt.getMinutes());
-      result += (m < 10 ? "0" : "") + m;
-    }
-    if (opts.seconds) {
-      if (opts.minutes) {
-        result += ":";
-      }
-      const s = (utc ? dt.getUTCSeconds() : dt.getSeconds());
-      result += (s < 10 ? "0" : "") + s;
-    }
-    if (opts.milliseconds) {
-      if (opts.seconds) {
-        result += ".";
-      }
-      const ms = (utc ? dt.getUTCMilliseconds() : dt.getMilliseconds());
-      result += (ms < 10 ? "00" : ms < 100 ? "0" : "") + ms;
-    }
-    return result;
   }
 
   get spaceBetweenMarkAndLabel() {

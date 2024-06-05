@@ -112,7 +112,7 @@ export class ProgressBar extends Widget {
     const foregroundColor = this.alarmSensitiveForegroundColor;
 
     const linearScale = new LinearScale(
-      this.display,
+      this.display.formatter,
       this.scale,
       this.scaleFont,
       this.min,
@@ -351,7 +351,7 @@ export class ProgressBar extends Widget {
     const foregroundColor = this.alarmSensitiveForegroundColor;
 
     const linearScale = new LinearScale(
-      this.display,
+      this.display.formatter,
       this.scale,
       this.scaleFont,
       this.min,
