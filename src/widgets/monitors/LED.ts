@@ -30,9 +30,11 @@ const PROP_STATE_COUNT = "state_count";
 const PROP_SQUARE_LED = "square_led";
 const PROP_OFF_COLOR = "off_color";
 const PROP_OFF_LABEL = "off_label";
+const PROP_OFF_STATE = "off_state";
 const PROP_FONT = "font";
 const PROP_ON_COLOR = "on_color";
 const PROP_ON_LABEL = "on_label";
+const PROP_ON_STATE = "on_state";
 const PROP_BULB_BORDER = "bulb_border";
 const PROP_BULB_BORDER_COLOR = "bulb_border_color";
 const PROP_STATE_COLOR_FALLBACK = "state_color_fallback";
@@ -52,8 +54,10 @@ export class LED extends Widget {
     this.properties.add(new IntProperty(PROP_STATE_COUNT, 2));
     this.properties.add(new ColorProperty(PROP_OFF_COLOR));
     this.properties.add(new StringProperty(PROP_OFF_LABEL));
+    this.properties.add(new StringProperty(PROP_OFF_STATE))
     this.properties.add(new ColorProperty(PROP_ON_COLOR));
     this.properties.add(new StringProperty(PROP_ON_LABEL));
+    this.properties.add(new StringProperty(PROP_ON_STATE))
     this.properties.add(new FontProperty(PROP_FONT));
     this.properties.add(new BooleanProperty(PROP_SHOW_BOOLEAN_LABEL));
     this.properties.add(new ColorProperty(PROP_STATE_COLOR_FALLBACK));
@@ -115,7 +119,7 @@ export class LED extends Widget {
       }
     } else if (this.dataType === 1) {
       // Enum
-      return false;
+      return this.pv?.toString() === this.onState;
     } else {
       return false;
     }
@@ -409,11 +413,17 @@ export class LED extends Widget {
   get offColor(): Color {
     return this.properties.getValue(PROP_OFF_COLOR);
   }
+  get offState(): string {
+    return this.properties.getValue(PROP_OFF_STATE);
+  }
   get onLabel(): string {
     return this.properties.getValue(PROP_ON_LABEL);
   }
   get onColor(): Color {
     return this.properties.getValue(PROP_ON_COLOR);
+  }
+  get onState(): string {
+    return this.properties.getValue(PROP_ON_STATE);
   }
   get stateLabelFallback(): string {
     return this.properties.getValue(PROP_STATE_LABEL_FALLBACK);
