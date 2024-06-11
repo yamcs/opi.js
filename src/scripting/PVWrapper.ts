@@ -28,4 +28,8 @@ export class PVWrapper {
       listener.valueChanged(this);
     });
   }
+
+  removeListener(listener: any /* org.yamcs.studio.data.IPVListener */) {
+    this._pv.removeListener(listener);
+  }
 }

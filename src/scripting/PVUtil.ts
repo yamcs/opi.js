@@ -116,6 +116,11 @@ export class PVUtil {
     return pv._pv.alarmName;
   }
 
+  getUnits(pv: PVWrapper) {
+    this.checkPVValue(pv);
+    return pv._pv.units || null;
+  }
+
   private formatDate(date: Date, format: string) {
     const { utc } = this.display;
     if (format === "yyyy") {
