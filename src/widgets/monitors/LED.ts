@@ -170,13 +170,20 @@ export class LED extends Widget {
     }
 
     if (this.showBooleanLabel) {
+      let color = this.bulbColor;
+      if ((color.red * 299) + (color.green * 587) + (color.blue * 114) > 105000) {
+        color = Color.BLACK;
+      } else {
+        color = Color.WHITE;
+      }
+
       g.fillText({
         x: area.x + area.width / 2,
         y: area.y + area.height / 2,
         font: this.font,
         baseline: "middle",
         align: "center",
-        color: this.foregroundColor,
+        color,
         text: this.label,
       });
     }
