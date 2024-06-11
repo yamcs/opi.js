@@ -1,7 +1,7 @@
 import { PV } from "../pv/PV";
 
 export class PVWrapper {
-  constructor(readonly _pv: PV) {}
+  constructor(readonly _pv: PV) { }
 
   getName() {
     return this._pv.name;
@@ -11,7 +11,7 @@ export class PVWrapper {
     return this._pv.value ?? null;
   }
 
-  setValue(value: any) {
+  setValue(value: any, timeout?: number) {
     this._pv.pvEngine.setValue(new Date(), this._pv.name, value);
   }
 

@@ -34,6 +34,11 @@ export class PVUtil {
     return new PVWrapper(pv);
   }
 
+  writePV(pvName: string, value: any, timeout?: number) {
+    this.pvEngine.createPV(pvName);
+    this.pvEngine.setValue(new Date(), pvName, value);
+  }
+
   getDouble(pv: PVWrapper) {
     this.checkPVValue(pv);
     // Note: for enumerations this should return the index
