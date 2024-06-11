@@ -111,15 +111,17 @@ export class LED extends Widget {
     if (this.dataType === 0) {
       // Bit
       if (this.bit < 0) {
-        return Boolean(this.pv?.toNumber());
+        return Boolean(this.pv?.toNumber() ?? this.value);
       } else if (this.pv?.value !== undefined) {
         return ((this.pv?.value >> this.bit) & 1) > 0;
+      } else if (this.value !== undefined) {
+        return ((this.value >> this.bit) & 1) > 0;
       } else {
         return false;
       }
     } else if (this.dataType === 1) {
       // Enum
-      return this.pv?.toString() === this.onState;
+      return (this.pv?.toString() ?? this.value) === this.onState;
     } else {
       return false;
     }
@@ -131,7 +133,7 @@ export class LED extends Widget {
     }
 
     for (const state of this.states) {
-      if (state.value === this.pv?.value) {
+      if (state.value === (this.pv?.value ?? this.value)) {
         return state.color;
       }
     }
@@ -144,7 +146,7 @@ export class LED extends Widget {
     }
 
     for (const state of this.states) {
-      if (state.value === this.pv?.value) {
+      if (state.value === (this.pv?.value ?? this.value)) {
         return state.label;
       }
     }
