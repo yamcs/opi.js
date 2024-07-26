@@ -50,6 +50,7 @@ export class Combo extends Widget {
 
     this.selectEl.addEventListener("change", () => {
       this.writeValue(this.selectEl?.value ?? "");
+      this.requestRepaint();
     });
 
     const emptyOptionEl = document.createElement("option");
@@ -92,16 +93,17 @@ export class Combo extends Widget {
     const area = g.addHitRegion(this.areaRegion!);
     area.addRect(bounds.x, bounds.y, bounds.width, bounds.height);
 
-    if (this.pv?.value) {
+    const selectedValue = this.pv?.value ?? this.value;
+    if (selectedValue) {
       for (const item of this.items) {
-        let match = item === this.pv.value;
+        let match = item === selectedValue;
 
         // Local PVs convert strings that look like
         // numbers to string, so we have some special
         // handling in case the items look like numbers.
         if (!match) {
           try {
-            match = parseFloat(item) === this.pv.value;
+            match = parseFloat(item) === selectedValue;
           } catch {
             // Ignore
           }
@@ -115,7 +117,7 @@ export class Combo extends Widget {
             baseline: "middle",
             color: this.foregroundColor,
             font: this.font,
-            text: this.pv?.value,
+            text: selectedValue,
           });
         }
       }
@@ -142,8 +144,12 @@ export class Combo extends Widget {
   }
 
   private writeValue(item: string) {
-    if (this.pv && this.pv.writable) {
-      this.display.pvEngine.setValue(new Date(), this.pv.name, item);
+    if (this.pv) {
+      if (this.pv.writable) {
+        this.display.pvEngine.setValue(new Date(), this.pv.name, item);
+      }
+    } else {
+      this.value = item;
     }
   }
 
