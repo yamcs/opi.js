@@ -25,6 +25,8 @@ export class Combo extends Widget {
   private areaRegion?: HitRegionSpecification;
   private selectEl?: HTMLSelectElement;
 
+  private renderedItems?: string[];
+
   constructor(display: Display, parent: AbstractContainerWidget) {
     super(display, parent);
     this.properties.add(new BooleanProperty(PROP_ENABLED));
@@ -53,20 +55,6 @@ export class Combo extends Widget {
       this.requestRepaint();
     });
 
-    const emptyOptionEl = document.createElement("option");
-    emptyOptionEl.disabled = true;
-    emptyOptionEl.value = "";
-    emptyOptionEl.defaultSelected = true;
-    emptyOptionEl.text = " -- select an option -- ";
-    this.selectEl.add(emptyOptionEl);
-
-    for (let i = 0; i < this.items.length; i++) {
-      const optionEl = document.createElement("option");
-      optionEl.value = this.items[i];
-      optionEl.text = this.items[i];
-      this.selectEl.add(optionEl);
-    }
-
     this.display.rootPanel.appendChild(this.selectEl);
   }
 
@@ -78,6 +66,7 @@ export class Combo extends Widget {
     this.selectEl!.style.top = `${bounds.y}px`;
     this.selectEl!.style.width = `${bounds.width}px`;
     this.selectEl!.style.height = `${bounds.height}px`;
+    this.updateSelectOptions();
 
     bounds = shrink(this.bounds, 2 * this.scale);
     g.fillRect({
@@ -95,7 +84,10 @@ export class Combo extends Widget {
 
     const selectedValue = this.pv?.value ?? this.value;
     if (selectedValue) {
-      for (const item of this.items) {
+      const items = this.itemsFromPV
+        ? this.pv?.labels ?? []
+        : this.items;
+      for (const item of items) {
         let match = item === selectedValue;
 
         // Local PVs convert strings that look like
@@ -156,6 +148,57 @@ export class Combo extends Widget {
   hide() {
     if (this.selectEl) {
       this.selectEl.style.display = "none";
+    }
+  }
+
+  private updateSelectOptions() {
+    const items = this.itemsFromPV
+      ? this.pv?.labels ?? []
+      : this.items;
+
+    let updateDom = false;
+    if (this.renderedItems === undefined) {
+      updateDom = true;
+    } else {
+      if (items.length !== this.renderedItems.length) {
+        updateDom = true;
+      } else {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i] !== this.renderedItems[i]) {
+            updateDom = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (updateDom) {
+      const selectEl = this.selectEl!;
+
+      // Remove previous options
+      while (selectEl.firstChild) {
+        selectEl.removeChild(selectEl.lastChild!);
+      }
+
+      const emptyOptionEl = document.createElement("option");
+      emptyOptionEl.disabled = true;
+      emptyOptionEl.value = "";
+      emptyOptionEl.defaultSelected = true;
+      emptyOptionEl.text = " -- select an option -- ";
+      selectEl.add(emptyOptionEl);
+
+      const items = this.itemsFromPV
+        ? this.pv?.labels ?? []
+        : this.items;
+
+      for (let i = 0; i < items.length; i++) {
+        const optionEl = document.createElement("option");
+        optionEl.value = items[i];
+        optionEl.text = items[i];
+        selectEl.add(optionEl);
+      }
+
+      this.renderedItems = items;
     }
   }
 

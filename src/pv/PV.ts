@@ -4,6 +4,7 @@ import { Sample } from "./Sample";
 export class PV {
   private _writable = false;
   private _units?: string;
+  private _labels?: string[];
 
   private _lowerDisplayLimit?: number;
   private _lowerAlarmLimit?: number;
@@ -31,6 +32,14 @@ export class PV {
   }
   set units(units: string | undefined) {
     this._units = units;
+    this.pvEngine.requestRepaint();
+  }
+
+  get labels(): string[] | undefined {
+    return this._labels;
+  }
+  set labels(labels: string[] | undefined) {
+    this._labels = labels;
     this.pvEngine.requestRepaint();
   }
 
