@@ -11,6 +11,8 @@ export interface PVProvider {
 
   isNavigable(): boolean;
 
+  writeValue?(pvName: string, value: any): void;
+
   createHistoricalDataProvider?(pvName: string, widget: Widget): HistoricalDataProvider | void;
 
   shutdown(): void;

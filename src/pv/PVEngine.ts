@@ -100,29 +100,32 @@ export class PVEngine {
     pv = new PV(pvName, this);
     this.pvs.set(pvName, pv);
 
-    for (const provider of this.providers) {
-      if (provider.canProvide(pvName)) {
-        pv.navigable = provider.isNavigable();
-        provider.startProviding([pv]);
-        return pv;
-      }
+    const provider = this.findProvider(pvName);
+    if (provider) {
+      pv.navigable = provider.isNavigable();
+      provider.startProviding([pv]);
+      return pv;
+    } else {
+      console.warn(`No provider for PV ${pvName}`);
+      pv.disconnected = true;
+      return pv;
     }
-
-    console.warn(`No provider for PV ${pvName}`);
-    pv.disconnected = true;
-    return pv;
   }
 
   createHistoricalDataProvider(pvName: string, widget: Widget) {
+    const provider = this.findProvider(pvName);
+    if (provider?.createHistoricalDataProvider) {
+      return provider.createHistoricalDataProvider(pvName, widget);
+    }
+  }
+
+  private findProvider(pvName: string) {
     for (const provider of this.providers) {
       if (provider.canProvide(pvName)) {
-        if (provider.createHistoricalDataProvider) {
-          return provider.createHistoricalDataProvider(pvName, widget);
-        } else {
-          break;
-        }
+        return provider;
       }
     }
+    return null;
   }
 
   requestRepaint() {
@@ -237,19 +240,26 @@ export class PVEngine {
     value: any,
     severity = AlarmSeverity.NONE
   ) {
-    const stripped = stripInitializer(pvName);
-    const pv = this.pvs.get(stripped);
-    if (pv) {
-      pv.setSample({ time, value, severity });
-      for (const listener of this.listeners.get(stripped) || []) {
-        listener();
-      }
+    const provider = this.findProvider(pvName);
+    if (provider?.writeValue) {
+      provider.writeValue(pvName, value);
     } else {
-      throw new Error(`Cannot set value of unknown PV ${pvName}`);
+      const stripped = stripInitializer(pvName);
+      const pv = this.pvs.get(stripped);
+      if (pv) {
+        pv.setSample({ time, value, severity });
+        for (const listener of this.listeners.get(stripped) || []) {
+          listener();
+        }
+      } else {
+        throw new Error(`Cannot set value of unknown PV ${pvName}`);
+      }
     }
   }
 
-  setValues(samples: Map<string, Sample>) {
+  setExternalValues(samples: Map<string, Sample>) {
+    // Note: no return for this operation
+
     // Bundle triggers so that if a listener is listening to
     // multiple received PVs, it only triggers once (i.e. scripts).
     const triggeredListeners: PVListener[] = [];

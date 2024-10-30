@@ -681,7 +681,7 @@ export class Display {
   }
 
   setValues(samples: Map<string, Sample>) {
-    this.pvEngine.setValues(samples);
+    this.pvEngine.setExternalValues(samples);
   }
 
   copyCanvas(area?: Bounds) {
