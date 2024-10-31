@@ -26,7 +26,8 @@ export class FormulaPVProvider implements PVProvider {
     return false;
   }
 
-  shutdown() {}
+  shutdown() {
+  }
 }
 
 class FormulaPV {

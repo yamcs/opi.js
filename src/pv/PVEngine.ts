@@ -102,7 +102,7 @@ export class PVEngine {
 
     const provider = this.findProvider(pvName);
     if (provider) {
-      pv.navigable = provider.isNavigable();
+      pv.provider = provider;
       provider.startProviding([pv]);
       return pv;
     } else {

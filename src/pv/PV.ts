@@ -1,4 +1,5 @@
 import { PVEngine } from "./PVEngine";
+import { PVProvider } from "./PVProvider";
 import { Sample } from "./Sample";
 
 export class PV {
@@ -23,9 +24,14 @@ export class PV {
   private _precision = -1;
 
   private _disconnected = false;
-  navigable = false;
+
+  provider?: PVProvider;
 
   constructor(readonly name: string, readonly pvEngine: PVEngine) { }
+
+  get navigable(): boolean {
+    return this.provider?.isNavigable() || false;
+  }
 
   get units(): string | undefined {
     return this._units;
