@@ -39,7 +39,7 @@ export class PropertySet {
   }
 
   all() {
-    return this.properties.values();
+    return [...this.properties.values()];
   }
 
   private loadProperty(node: XMLNode, property: Property<any>) {
