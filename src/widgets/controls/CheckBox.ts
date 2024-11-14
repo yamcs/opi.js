@@ -46,8 +46,10 @@ export class CheckBox extends Widget {
     this.areaRegion = {
       id: `${this.wuid}-area`,
       mouseDown: () => {
-        this.booleanValue ? this.toggleOff() : this.toggleOn();
-        this.requestRepaint();
+        if (this.enabled) {
+          this.booleanValue ? this.toggleOff() : this.toggleOn();
+          this.requestRepaint();
+        }
       },
       mouseEnter: () => {
         this.hovered = true;

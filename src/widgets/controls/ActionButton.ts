@@ -49,27 +49,31 @@ export class ActionButton extends Widget {
     this.areaRegion = {
       id: `${this.wuid}-area`,
       mouseDown: () => {
-        if (!this.toggleButton) {
+        if (this.enabled && !this.toggleButton) {
           this.pushed = true;
           this.requestRepaint();
         }
       },
       mouseOut: () => {
-        this.pushed = false;
+        if (this.enabled) {
+          this.pushed = false;
+        }
         this.requestRepaint();
       },
       mouseUp: () => {
-        if (!this.toggleButton) {
+        if (this.enabled && !this.toggleButton) {
           this.pushed = false;
           this.requestRepaint();
         }
       },
       click: () => {
-        this.executeActionByIndex(
-          this.pushed ? this.releaseActionIndex! : this.pushActionIndex
-        );
-        if (this.toggleButton) {
-          this.pushed = !this.pushed;
+        if (this.enabled) {
+          this.executeActionByIndex(
+            this.pushed ? this.releaseActionIndex! : this.pushActionIndex
+          );
+          if (this.toggleButton) {
+            this.pushed = !this.pushed;
+          }
         }
       },
       tooltip: () => this.tooltip,
@@ -188,7 +192,16 @@ export class ActionButton extends Widget {
         x += 1 * scale;
         y += 1 * scale;
       }
-      ctx.fillText(lines[0], x, y);
+
+      if (this.enabled) {
+        ctx.fillStyle = this.foregroundColor.toString();
+        ctx.fillText(lines[0], x, y);
+      } else {
+        ctx.fillStyle = Color.BUTTON_LIGHTEST.toString();
+        ctx.fillText(lines[0], x + 1 * scale, y + 1 * scale);
+        ctx.fillStyle = Color.BUTTON_DARKER.toString();
+        ctx.fillText(lines[0], x, y);
+      }
     } else {
       ctx.textAlign = "start";
       ctx.textBaseline = "top";
@@ -213,7 +226,17 @@ export class ActionButton extends Widget {
           textX += 1 * scale;
           textY += 1 * scale;
         }
-        ctx.fillText(line, textX, textY);
+
+        if (this.enabled) {
+          ctx.fillStyle = this.foregroundColor.toString();
+          ctx.fillText(line, textX, textY);
+        } else {
+          ctx.fillStyle = Color.BUTTON_LIGHTEST.toString();
+          ctx.fillText(line, textX + 1 * scale, textY + 1 * scale);
+          ctx.fillStyle = Color.BUTTON_DARKER.toString();
+          ctx.fillText(line, textX, textY);
+        }
+
         y += this.font.height * 1.2; // Roughly
       }
     }
