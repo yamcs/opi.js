@@ -114,7 +114,12 @@ export class TextInput extends Widget {
       }
     });
     this.inputEl.addEventListener("blur", (evt) => {
-      this.cancelInput();
+      if (this.pv) { // Explicit "enter" required
+        this.cancelInput();
+      } else {
+        this.value = this.inputEl?.value || "";
+        this.cancelInput();
+      }
     });
     this.display.rootPanel.appendChild(this.inputEl);
   }
