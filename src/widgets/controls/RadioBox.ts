@@ -134,7 +134,8 @@ export class RadioBox extends Widget {
       lineWidth,
     });
 
-    if (this.pv?.value === this.items[itemIndex]) {
+    const value = this.pv?.value ?? this.value;
+    if (value === this.items[itemIndex]) {
       g.fillEllipse({
         cx: area.x + radioRadius,
         cy: area.y + area.height / 2,
@@ -159,7 +160,12 @@ export class RadioBox extends Widget {
   }
 
   private writeValue(item: string) {
-    if (this.pv && this.pv.writable) {
+    if (this.pv && !this.pv.writable) {
+      return;
+    }
+
+    this.value = item;
+    if (this.pv) {
       this.display.pvEngine.setValue(new Date(), this.pv.name, item);
     }
   }
