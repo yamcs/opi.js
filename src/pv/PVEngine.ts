@@ -240,8 +240,9 @@ export class PVEngine {
     value: any,
     severity = AlarmSeverity.NONE
   ) {
+    const isLocal = pvName.startsWith("loc://");
     const provider = this.findProvider(pvName);
-    if (provider?.writeValue) {
+    if (!isLocal && provider?.writeValue) {
       provider.writeValue(pvName, value);
     } else {
       const stripped = stripInitializer(pvName);
