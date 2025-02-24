@@ -120,6 +120,10 @@ export class Display {
   private _selection: string[] = [];
   private _scale = 1;
   private _transparent = false;
+  private _disconnectedColor = new Color(160, 32, 240);
+  private _invalidColor = new Color(255, 0, 255);
+  private _majorColor = new Color(255, 0, 0);
+  private _minorColor = new Color(255, 128, 0);
   private refreshCycle = 100;
 
   /**
@@ -646,6 +650,38 @@ export class Display {
   }
   set utc(utc: boolean) {
     this.formatter.utc = utc;
+    this.requestRepaint();
+  }
+
+  get disconnectedColor() {
+    return this._disconnectedColor;
+  }
+  set disconnectedColor(disconnectedColor: Color) {
+    this._disconnectedColor = disconnectedColor;
+    this.requestRepaint();
+  }
+
+  get invalidColor() {
+    return this._invalidColor;
+  }
+  set invalidColor(invalidColor: Color) {
+    this._invalidColor = invalidColor;
+    this.requestRepaint();
+  }
+
+  get majorColor() {
+    return this._majorColor;
+  }
+  set majorColor(majorColor: Color) {
+    this._majorColor = majorColor;
+    this.requestRepaint();
+  }
+
+  get minorColor() {
+    return this._minorColor;
+  }
+  set minorColor(minorColor: Color) {
+    this._minorColor = minorColor;
     this.requestRepaint();
   }
 

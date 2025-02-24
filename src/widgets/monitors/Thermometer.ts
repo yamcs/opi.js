@@ -463,9 +463,9 @@ export class Thermometer extends Widget {
   get alarmSensitiveFillColor() {
     if (this.fillColorAlarmSensitive) {
       if (this.isMajorSeverity()) {
-        return Color.RED;
+        return this.display.majorColor;
       } else if (this.isMinorSeverity()) {
-        return Color.ORANGE;
+        return this.display.minorColor;
       }
     }
     return this.fillColor;

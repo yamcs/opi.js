@@ -1,3 +1,16 @@
+export function colorFromCssColor(cssColor: string): Color {
+  const ctx = document.createElement('canvas').getContext('2d')!;
+  ctx.fillStyle = cssColor;
+  const hex = String(ctx.fillStyle);
+
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return match ? new Color(
+    parseInt(match[1], 16),
+    parseInt(match[2], 16),
+    parseInt(match[3], 16)
+  ) : Color.BLACK;
+}
+
 export class Color {
   static TRANSPARENT = new Color(0, 0, 0, 0);
 
@@ -25,7 +38,7 @@ export class Color {
     public green: number,
     public blue: number,
     public alpha = 255
-  ) {}
+  ) { }
 
   withAlpha(alpha: number) {
     return new Color(this.red, this.green, this.blue, alpha);

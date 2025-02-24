@@ -569,7 +569,7 @@ export abstract class Widget {
         y: this.holderY - lineWidth / 2,
         width: this.holderWidth + lineWidth,
         height: this.holderHeight + lineWidth,
-        color: Color.PURPLE,
+        color: this.display.disconnectedColor,
         opacity: 0.4,
       });
       g.strokeRect({
@@ -577,7 +577,7 @@ export abstract class Widget {
         y: this.holderY - lineWidth / 2,
         width: this.holderWidth + lineWidth,
         height: this.holderHeight + lineWidth,
-        color: Color.PURPLE,
+        color: this.display.disconnectedColor,
       });
     } else if (this.pvs.length && this.isDisconnected()) {
       // Connected, but no value
@@ -585,7 +585,7 @@ export abstract class Widget {
         ...this.bounds,
         dash: [2 * scale, 2 * scale],
         lineWidth: 2 * scale,
-        color: Color.PINK,
+        color: this.display.invalidColor,
         crispen: true,
       });
     }
@@ -616,7 +616,7 @@ export abstract class Widget {
         g.strokeRect({
           ...this.bounds,
           lineWidth: 2 * scale,
-          color: Color.RED,
+          color: this.display.majorColor,
           crispen: true,
           dash,
         });
@@ -624,7 +624,7 @@ export abstract class Widget {
         g.strokeRect({
           ...this.bounds,
           lineWidth: 2 * scale,
-          color: Color.ORANGE,
+          color: this.display.minorColor,
           crispen: true,
           dash,
         });
@@ -632,7 +632,7 @@ export abstract class Widget {
         g.strokeRect({
           ...this.bounds,
           lineWidth: 2 * scale,
-          color: Color.PINK,
+          color: this.display.invalidColor,
           crispen: true,
         });
       }
@@ -945,11 +945,11 @@ export abstract class Widget {
   get alarmSensitiveBackgroundColor() {
     if (this.backgroundAlarmSensitive) {
       if (this.isMajorSeverity()) {
-        return Color.RED;
+        return this.display.majorColor;
       } else if (this.isMinorSeverity()) {
-        return Color.ORANGE;
+        return this.display.minorColor;
       } else if (this.pv?.severity === AlarmSeverity.INVALID) {
-        return Color.PINK;
+        return this.display.invalidColor;
       }
     }
     return this.backgroundColor;
@@ -958,9 +958,9 @@ export abstract class Widget {
   get alarmSensitiveForegroundColor() {
     if (this.foregroundAlarmSensitive) {
       if (this.isMajorSeverity()) {
-        return Color.RED;
+        return this.display.majorColor;
       } else if (this.isMinorSeverity()) {
-        return Color.ORANGE;
+        return this.display.minorColor;
       }
     }
     return this.foregroundColor;
