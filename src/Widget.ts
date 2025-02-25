@@ -561,7 +561,10 @@ export abstract class Widget {
     }
     const { scale } = this;
 
-    if (this.pvName && (!this.pv || this.pv.disconnected)) {
+    const mainPvDisconnected = this.pvName && (!this.pv || this.pv.disconnected);
+    const anyPvDisconnected = this.pvs.find(pv => pv.disconnected) !== undefined;
+
+    if (mainPvDisconnected || anyPvDisconnected) {
       // Disconnected
       const lineWidth = 1 * scale;
       g.fillRect({
