@@ -236,7 +236,11 @@ export class XMLNode {
       const name = fontNode.getStringAttribute("fontName");
       const height = fontNode.getIntAttribute("height");
       const style = fontNode.getIntAttribute("style");
-      return new Font(name, height, style, false);
+      let pixels = false;
+      if (fontNode.hasAttribute("pixels")) {
+        pixels = fontNode.getBooleanAttribute("pixels");
+      }
+      return new Font(name, height, style, pixels);
     }
   }
 
