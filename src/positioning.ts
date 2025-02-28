@@ -228,3 +228,7 @@ export class PolarPoint {
 export function scalePoints(points: Point[], scale: number): Point[] {
   return points.map((p) => ({ x: p.x * scale, y: p.y * scale }));
 }
+
+export function halfPixelPoints(points: Point[]): Point[] {
+  return points.map((p) => ({ x: p.x + 0.5, y: p.y + 0.5 }));
+}

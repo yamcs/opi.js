@@ -3,6 +3,7 @@ import { Display } from "../../Display";
 import { Graphics } from "../../Graphics";
 import {
   convertCartesianToPolar,
+  halfPixelPoints,
   Point,
   PolarPoint,
   scalePoints,
@@ -191,7 +192,8 @@ export class Polyline extends Widget {
     return this.properties.getValue(PROP_HORIZONTAL_FILL);
   }
   get points(): Point[] {
-    return scalePoints(this.properties.getValue(PROP_POINTS), this.scale);
+    const scaled = scalePoints(this.properties.getValue(PROP_POINTS), this.scale);
+    return halfPixelPoints(scaled);
   }
   get arrows(): number {
     return this.properties.getValue(PROP_ARROWS);
