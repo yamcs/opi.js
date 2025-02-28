@@ -129,13 +129,18 @@ export abstract class Widget {
     }
 
     for (const script of this.scripts.scripts) {
+      const pvs: PV[] = [];
+      for (const input of script.inputs) {
+        const pvName = this.expandMacro(input.pvName);
+        pvs.push(this.display.pvEngine.createPV(pvName));
+      }
+
+      // Before fetch, so that any subscriptions don't have to wait
+      // on the next sync tick.
+      this.pvs.push(...pvs);
+
       if (script.embedded) {
-        const scriptInstance = this.display.pvEngine.createScript(
-          this,
-          script,
-          script.text!
-        );
-        this.pvs.push(...scriptInstance.pvs);
+        this.display.pvEngine.createScript(this, script, script.text!, pvs);
       } else {
         fetch(this.display.resolvePath(script.path!), {
           // Send cookies too.
@@ -144,12 +149,7 @@ export abstract class Widget {
         }).then((response) => {
           if (response.ok) {
             response.text().then((text) => {
-              const scriptInstance = this.display.pvEngine.createScript(
-                this,
-                script,
-                text
-              );
-              this.pvs.push(...scriptInstance.pvs);
+              this.display.pvEngine.createScript(this, script, text, pvs);
             });
           }
         });

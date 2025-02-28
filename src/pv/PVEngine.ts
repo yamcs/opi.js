@@ -282,12 +282,7 @@ export class PVEngine {
     }
   }
 
-  createScript(widget: Widget, model: Script, scriptText: string) {
-    const pvs: PV[] = [];
-    for (const input of model.inputs) {
-      const pvName = widget.expandMacro(input.pvName);
-      pvs.push(this.createPV(pvName));
-    }
+  createScript(widget: Widget, model: Script, scriptText: string, pvs: PV[]) {
     const script = new ScriptInstance(widget, model, scriptText, pvs);
     this.scripts.push(script);
 
@@ -318,6 +313,8 @@ export class PVEngine {
 
     return script;
   }
+
+
 
   createRule(widget: Widget, model: Rule) {
     const pvs = [];
