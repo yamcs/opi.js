@@ -342,6 +342,11 @@ export abstract class Widget {
       });
     } else if (this.borderStyle === 3) {
       // Lowered
+
+      if (this.isAnyPvInvalid()) {
+        return; // Avoid drawing dashes on top of border
+      }
+
       const lineWidth = 1 * scale;
       const top = this.holderY + lineWidth / 2;
       const left = this.holderX + lineWidth / 2;
@@ -546,13 +551,21 @@ export abstract class Widget {
     }
   }
 
-  private isDisconnected() {
+  private isAnyPvDisconnected() {
+    const mainPvDisconnected = this.pvName && (!this.pv || this.pv.disconnected);
+    const anyPvDisconnected = this.pvs.find(pv => pv.disconnected) !== undefined;
+    return mainPvDisconnected || anyPvDisconnected;
+  }
+
+  private isAnyPvInvalid() {
+    let invalid = false;
     for (const pv of this.pvs) {
       if (pv.value === undefined) {
-        return true;
+        invalid = true;
+        break;
       }
     }
-    return false;
+    return this.pvs.length && invalid;
   }
 
   drawDecoration(g: Graphics) {
@@ -561,10 +574,7 @@ export abstract class Widget {
     }
     const { scale } = this;
 
-    const mainPvDisconnected = this.pvName && (!this.pv || this.pv.disconnected);
-    const anyPvDisconnected = this.pvs.find(pv => pv.disconnected) !== undefined;
-
-    if (mainPvDisconnected || anyPvDisconnected) {
+    if (this.isAnyPvDisconnected()) {
       // Disconnected
       const lineWidth = 1 * scale;
       g.fillRect({
@@ -582,7 +592,7 @@ export abstract class Widget {
         height: this.holderHeight + lineWidth,
         color: this.display.disconnectedColor,
       });
-    } else if (this.pvs.length && this.isDisconnected()) {
+    } else if (this.isAnyPvInvalid()) {
       // Connected, but no value
       g.strokeRect({
         ...this.bounds,
