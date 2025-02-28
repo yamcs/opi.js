@@ -5,7 +5,7 @@ export { Display } from "./Display";
 export { Font } from "./Font";
 export { FontResolver } from "./FontResolver";
 export { DefaultPathResolver, PathResolver } from "./PathResolver";
-export { NullablePoint, Point } from "./positioning";
+export { Dimension, NullablePoint, Point } from "./positioning";
 export {
   CompiledFormula,
   DataSourceStatus

@@ -2,7 +2,7 @@ import { Color } from "./Color";
 import { Font } from "./Font";
 import { HitCanvas } from "./HitCanvas";
 import { HitRegionSpecification } from "./HitRegionSpecification";
-import { Bounds, NullablePoint, Point, shrink } from "./positioning";
+import { Bounds, Dimension, NullablePoint, Point, shrink } from "./positioning";
 import * as utils from "./utils";
 
 interface RectColorFill {
@@ -309,11 +309,20 @@ export class Graphics {
     }
   }
 
-  measureText(text: string, font: Font) {
+  measureText(text: string, font: Font, ceil = false): Dimension {
     this.ctx.font = font.getFontString();
-    const width = this.ctx.measureText(text).width;
-    const height = font.height;
-    return { width, height };
+    const fm = this.ctx.measureText(text);
+    let dim: Dimension;
+    if (fm.fontBoundingBoxAscent !== undefined && fm.fontBoundingBoxDescent !== undefined) {
+      dim = { width: fm.width, height: fm.fontBoundingBoxAscent + fm.fontBoundingBoxDescent };
+    } else {
+      dim = { width: fm.width, height: font.height };
+    }
+    if (ceil) {
+      dim.width = Math.ceil(dim.width);
+      dim.height = Math.ceil(dim.height);
+    }
+    return dim;
   }
 
   createLinearGradient(x0: number, y0: number, x1: number, y1: number) {

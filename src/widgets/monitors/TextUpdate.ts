@@ -3,7 +3,7 @@ import { OpenPVEvent } from "../../events";
 import { Font } from "../../Font";
 import { Graphics } from "../../Graphics";
 import { HitRegionSpecification } from "../../HitRegionSpecification";
-import { shrink } from "../../positioning";
+import { Bounds, shrink } from "../../positioning";
 import { BooleanProperty, FontProperty, IntProperty } from "../../properties";
 import { formatValue } from "../../utils";
 import { Widget } from "../../Widget";
@@ -62,42 +62,58 @@ export class TextUpdate extends Widget {
       area.addRect(this.x, this.y, this.width, this.height);
     }
 
-    ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
+    const { scale } = this;
+    let textArea = this.area;
+    if (this.borderAlarmSensitive) {
+      textArea = shrink(textArea, 2 * scale, 2 * scale);
+    }
+
+    const textSize = g.measureText(this.text, this.font, true);
+
     ctx.font = this.font.getFontString();
 
-    const { scale } = this;
-    let textBounds = this.area;
-    if (this.borderAlarmSensitive) {
-      textBounds = shrink(textBounds, 2 * scale, 2 * scale);
+    // Vertical positioning in Yamcs Studio is based on cap heights,
+    // rather than x-heights.
+
+    // Measure cap height as the distance between the alphabetic baseline
+    // and the ascent relative to that baseline.
+    ctx.textBaseline = "alphabetic";
+    const fm = ctx.measureText(this.text);
+    const capHeight = fm.fontBoundingBoxAscent;
+
+
+    // Canvas font heights don't match very well with Yamcs Studio.
+    // Strategy: position a box surrounding text, then always
+    // center text within that box.
+    const textBounds: Bounds = {
+      x: textArea.x,
+      y: textArea.y,
+      width: textSize.width,
+      height: textSize.height,
+    }
+    if (this.horizAlignment === 0) { // LEFT
+      // NOP
+    } else if (this.horizAlignment === 1) { // CENTER
+      textBounds.x += (textArea.width - textSize.width) / 2;
+    } else if (this.horizAlignment === 2) { // RIGHT
+      textBounds.x += textArea.width - textSize.width;
     }
 
-    let x = textBounds.x;
-    if (this.horizAlignment === 0) {
-      // LEFT
-      ctx.textAlign = "start";
-    } else if (this.horizAlignment === 1) {
-      // CENTER
-      x += textBounds.width / 2;
-      ctx.textAlign = "center";
-    } else if (this.horizAlignment === 2) {
-      // RIGHT
-      x += textBounds.width;
-      ctx.textAlign = "end";
+    if (this.vertAlignment === 0 || (textArea.height <= textSize.height)) { // TOP
+      // NOP
+    } else if (this.vertAlignment === 1) { // MIDDLE
+      textBounds.y += (textArea.height / 2) - (textSize.height / 2);
+    } else if (this.vertAlignment === 2) { // BOTTOM
+      textBounds.y += textArea.height - textSize.height;
     }
 
-    let y = textBounds.y;
-    if (this.vertAlignment === 0) {
-      // TOP
-      ctx.textBaseline = "top";
-    } else if (this.vertAlignment === 1) {
-      // MIDDLE
-      y = y + textBounds.height / 2;
-      ctx.textBaseline = "middle";
-    } else if (this.vertAlignment === 2) {
-      // BOTTOM
-      y = y + textBounds.height;
-      ctx.textBaseline = "bottom";
-    }
+    // Vertically center in textBounds based on capHeight
+    // Note: not using 'textBaseline = "middle"', because Canvas applies this
+    // based on the middle of a lowercase letter (middle of x-height), whereas
+    // Yamcs Studio takes the middle of an uppercase letter (middle of cap-height).
+    ctx.textAlign = "start";
+    ctx.textBaseline = "top";
+    textBounds.y += (textBounds.height / 2) - (capHeight / 2);
 
     let text = this.text;
     if (this.pv?.value !== undefined) {
@@ -114,7 +130,15 @@ export class TextUpdate extends Widget {
     if (this.showUnits && this.pv?.units) {
       text += " " + this.pv.units;
     }
-    ctx.fillText(text, x, y);
+
+    ctx.save(); // Clip text in box
+    ctx.beginPath();
+    const box = this.area;
+    ctx.rect(box.x, box.y, box.width, box.height);
+    ctx.clip(); // Activate clip
+    ctx.fillStyle = this.alarmSensitiveForegroundColor.toString();
+    ctx.fillText(text, textBounds.x, textBounds.y);
+    ctx.restore();
   }
 
   get font(): Font {

@@ -1,6 +1,7 @@
 import { Display } from "../../Display";
 import { Font } from "../../Font";
 import { Graphics } from "../../Graphics";
+import { Bounds } from '../../positioning';
 import { BooleanProperty, FontProperty, IntProperty } from "../../properties";
 import { Widget } from "../../Widget";
 import { AbstractContainerWidget } from "../others/AbstractContainerWidget";
@@ -20,7 +21,6 @@ export class Label extends Widget {
   }
 
   draw(g: Graphics) {
-    const ctx = g.ctx;
     if (!this.transparent) {
       g.fillRect({
         x: this.x,
@@ -31,6 +31,73 @@ export class Label extends Widget {
       });
     }
 
+    if (this.wrapWords) {
+      this.drawWrapped(g);
+    } else {
+      this.drawText(g);
+    }
+  }
+
+  private drawText(g: Graphics) {
+    const ctx = g.ctx;
+    const textArea = { ... this.area };
+    const textSize = g.measureText(this.text, this.font, true);
+    ctx.font = this.font.getFontString();
+
+    // Vertical positioning in Yamcs Studio is based on cap heights,
+    // rather than x-heights.
+
+    // Measure cap height as the distance between the alphabetic baseline
+    // and the ascent relative to that baseline.
+    ctx.textBaseline = "alphabetic";
+    const fm = ctx.measureText(this.text);
+    const capHeight = fm.fontBoundingBoxAscent;
+
+    // Canvas font heights don't match very well with Yamcs Studio.
+    // Strategy: position a box surrounding text, then always
+    // center text within that box.
+    const textBounds: Bounds = {
+      x: textArea.x,
+      y: textArea.y,
+      width: textSize.width,
+      height: textSize.height,
+    }
+    if (this.horizAlignment === 0) { // LEFT
+      // NOP
+    } else if (this.horizAlignment === 1) { // CENTER
+      textBounds.x += (textArea.width - textSize.width) / 2;
+    } else if (this.horizAlignment === 2) { // RIGHT
+      textBounds.x += textArea.width - textSize.width;
+    }
+
+    if (this.vertAlignment === 0 || (textArea.height <= textSize.height)) { // TOP
+      // NOP
+    } else if (this.vertAlignment === 1) { // MIDDLE
+      textBounds.y += (textArea.height / 2) - (textSize.height / 2);
+    } else if (this.vertAlignment === 2) { // BOTTOM
+      textBounds.y += textArea.height - textSize.height;
+    }
+
+    // Vertically center in textBounds based on capHeight
+    // Note: not using 'textBaseline = "middle"', because Canvas applies this
+    // based on the middle of a lowercase letter (middle of x-height), whereas
+    // Yamcs Studio takes the middle of an uppercase letter (middle of cap-height).
+    ctx.textAlign = "start";
+    ctx.textBaseline = "top";
+    textBounds.y += (textBounds.height / 2) - (capHeight / 2);
+
+    ctx.save(); // Clip text in box
+    ctx.beginPath();
+    const box = this.area;
+    ctx.rect(box.x, box.y, box.width, box.height);
+    ctx.clip(); // Activate clip
+    ctx.fillStyle = this.foregroundColor.toString();
+    ctx.fillText(this.text, textBounds.x, textBounds.y);
+    ctx.restore();
+  }
+
+  private drawWrapped(g: Graphics) {
+    const ctx = g.ctx;
     const lines = this.wrapText(g, this.text, this.width);
 
     ctx.fillStyle = this.foregroundColor.toString();

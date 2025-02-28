@@ -26,10 +26,7 @@ export class Font {
     if (pixels) {
       this.height = height;
     } else {
-      // TODO. Would expect 1pt = 3/4px, but this ratio
-      // appears to be more accurate with desktop s/w...
-      // (on a 72 dpi screen)
-      this.height = Math.round((height * 16) / 15);
+      this.height = Math.ceil(height * 4 / 3);
     }
   }
 
@@ -38,17 +35,22 @@ export class Font {
   }
 
   getFontString() {
+    let fontName = this.name;
+    if (fontName.indexOf(" ") !== -1) {
+      fontName = `"${fontName}"`;
+    }
+
     if (this.style === 1) {
-      return `bold ${this.height}px ${this.name}`;
+      return `bold ${this.height}px ${fontName}`;
     } else if (this.style === 2) {
-      return `italic ${this.height}px ${this.name}`;
+      return `italic ${this.height}px ${fontName}`;
     } else if (this.style === 3) {
-      return `italic bold ${this.height}px ${this.name}`;
+      return `italic bold ${this.height}px ${fontName}`;
     } else {
       if (this.style !== 0) {
         console.warn(`Unsupported font style ${this.style}`);
       }
-      return `normal ${this.height}px ${this.name}`;
+      return `normal ${this.height}px ${fontName}`;
     }
   }
 

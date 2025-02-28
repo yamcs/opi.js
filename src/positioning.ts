@@ -10,6 +10,14 @@ export interface Point {
   y: number;
 }
 
+/**
+ * A 2D dimension (width and height).
+ */
+export interface Dimension {
+  width: number;
+  height: number;
+}
+
 export interface NullablePoint {
   x: number;
   y: number | null;
