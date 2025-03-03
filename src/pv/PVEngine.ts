@@ -238,7 +238,8 @@ export class PVEngine {
     time: Date,
     pvName: string,
     value: any,
-    severity = AlarmSeverity.NONE
+    severity = AlarmSeverity.NONE,
+    units: string | undefined = undefined,
   ) {
     const isLocal = pvName.startsWith("loc://");
     const provider = this.findProvider(pvName);
@@ -248,7 +249,7 @@ export class PVEngine {
       const stripped = stripInitializer(pvName);
       const pv = this.pvs.get(stripped);
       if (pv) {
-        pv.setSample({ time, value, severity });
+        pv.setSample({ time, value, severity, units });
         for (const listener of this.listeners.get(stripped) || []) {
           listener();
         }

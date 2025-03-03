@@ -6,7 +6,7 @@ export abstract class SimGenerator {
 
   constructor(readonly pv: PV, private interval: number, initialValue?: any) {
     if (initialValue !== undefined) {
-      pv.pvEngine.setValue(new Date(), pv.name, initialValue);
+      pv.pvEngine.setValue(new Date(), pv.name, initialValue, AlarmSeverity.NONE, pv.units);
     }
     if (this.interval > 0) {
       this.timer = window.setInterval(() => {
@@ -38,7 +38,7 @@ export abstract class SimGenerator {
     ) {
       severity = AlarmSeverity.MINOR;
     }
-    this.pv.pvEngine.setValue(time, this.pv.name, value, severity);
+    this.pv.pvEngine.setValue(time, this.pv.name, value, severity, this.pv.units);
   }
 
   stop() {
