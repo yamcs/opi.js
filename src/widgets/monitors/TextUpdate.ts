@@ -14,6 +14,7 @@ const PROP_FORMAT_TYPE = "format_type";
 const PROP_HORIZONTAL_ALIGNMENT = "horizontal_alignment";
 const PROP_PRECISION = "precision";
 const PROP_PRECISION_FROM_PV = "precision_from_pv";
+const PROP_SHOW_LOHI = "show_lohi";
 const PROP_SHOW_UNITS = "show_units";
 const PROP_VERTICAL_ALIGNMENT = "vertical_alignment";
 
@@ -27,6 +28,7 @@ export class TextUpdate extends Widget {
     this.properties.add(new IntProperty(PROP_HORIZONTAL_ALIGNMENT));
     this.properties.add(new IntProperty(PROP_PRECISION));
     this.properties.add(new BooleanProperty(PROP_PRECISION_FROM_PV));
+    this.properties.add(new BooleanProperty(PROP_SHOW_LOHI, true));
     this.properties.add(new BooleanProperty(PROP_SHOW_UNITS, true));
     this.properties.add(new IntProperty(PROP_VERTICAL_ALIGNMENT));
   }
@@ -68,7 +70,30 @@ export class TextUpdate extends Widget {
       textArea = shrink(textArea, 2 * scale, 2 * scale);
     }
 
-    const textSize = g.measureText(this.text, this.font, true);
+    let text = this.text;
+    if (this.pv?.value !== undefined) {
+      let precision = this.precisionFromPV
+        ? this.pv.precision
+        : this.precision;
+      if (precision === -1) { // Use PV precision if available
+        precision = this.pv.precision ?? -1;
+      }
+      text = formatValue(this.pv.value, this.formatType, precision);
+    } else if (this.value !== undefined) {
+      text = formatValue(this.value, this.formatType, this.precision);
+    }
+    if (this.showUnits && this.pv?.units) {
+      text += " " + this.pv.units;
+    }
+    if (this.showLohi) {
+      if (this.pv?.alarmName === "LOLO" || this.pv?.alarmName === "LOW") {
+        text += " ↓";
+      } else if (this.pv?.alarmName === "HIHI" || this.pv?.alarmName === "HIGH") {
+        text += " ↑";
+      }
+    }
+
+    const textSize = g.measureText(text, this.font, true);
 
     ctx.font = this.font.getFontString();
 
@@ -78,7 +103,7 @@ export class TextUpdate extends Widget {
     // Measure cap height as the distance between the alphabetic baseline
     // and the ascent relative to that baseline.
     ctx.textBaseline = "alphabetic";
-    const fm = ctx.measureText(this.text);
+    const fm = ctx.measureText(text);
     const capHeight = fm.fontBoundingBoxAscent;
 
 
@@ -115,22 +140,6 @@ export class TextUpdate extends Widget {
     ctx.textBaseline = "top";
     textBounds.y += (textBounds.height / 2) - (capHeight / 2);
 
-    let text = this.text;
-    if (this.pv?.value !== undefined) {
-      let precision = this.precisionFromPV
-        ? this.pv.precision
-        : this.precision;
-      if (precision === -1) { // Use PV precision if available
-        precision = this.pv.precision ?? -1;
-      }
-      text = formatValue(this.pv.value, this.formatType, precision);
-    } else if (this.value !== undefined) {
-      text = formatValue(this.value, this.formatType, this.precision);
-    }
-    if (this.showUnits && this.pv?.units) {
-      text += " " + this.pv.units;
-    }
-
     ctx.save(); // Clip text in box
     ctx.beginPath();
     const box = this.area;
@@ -155,6 +164,9 @@ export class TextUpdate extends Widget {
   }
   get precisionFromPV(): boolean {
     return this.properties.getValue(PROP_PRECISION_FROM_PV);
+  }
+  get showLohi(): boolean {
+    return this.properties.getValue(PROP_SHOW_LOHI);
   }
   get showUnits(): boolean {
     return this.properties.getValue(PROP_SHOW_UNITS);
