@@ -9,6 +9,7 @@ export interface OPIEventMap {
   openpv: OpenPVEvent;
   runcommand: RunCommandEvent;
   runprocedure: RunProcedureEvent;
+  runstack: RunStackEvent;
   selection: SelectionEvent;
   scale: ScaleEvent;
 }
@@ -44,6 +45,13 @@ export interface CloseDisplayEvent extends OPIEvent { }
 export interface RunCommandEvent extends OPIEvent {
   command: string;
   args: { [key: string]: string };
+}
+
+/**
+ * A script or a button requested to run a stack.
+ */
+export interface RunStackEvent extends OPIEvent {
+  path: string;
 }
 
 /**

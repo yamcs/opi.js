@@ -7,6 +7,7 @@ import { OpenWebpageAction } from "./actions/OpenWebpageAction";
 import { PlaySoundAction } from "./actions/PlaySoundAction";
 import { RunCommandAction } from "./actions/RunCommandAction";
 import { RunProcedureAction } from "./actions/RunProcedureAction";
+import { RunStackAction } from './actions/RunStackAction';
 import { WritePVAction } from "./actions/WritePVAction";
 import { Color } from "./Color";
 import { ColorMap } from "./ColorMap";
@@ -458,6 +459,10 @@ export class XMLNode {
         actions.add(action);
       } else if (actionType === "RUN_COMMAND") {
         const action = new RunCommandAction();
+        action.parseNode(actionNode);
+        actions.add(action);
+      } else if (actionType === "RUN_COMMAND_STACK") {
+        const action = new RunStackAction();
         action.parseNode(actionNode);
         actions.add(action);
       } else if (actionType === "RUN_PROCEDURE") {
