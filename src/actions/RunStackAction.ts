@@ -21,11 +21,10 @@ export class RunStackAction extends Action {
       }
     }
 
-    // Expand any macros in the command or arguments
-    const expandedPath = widget.expandMacro(this.path);
+    const resolvedPath = widget.display.resolvePath(this.path);
 
     const event: RunStackEvent = {
-      path: expandedPath,
+      path: resolvedPath,
     };
     widget.display.fireEvent("runstack", event);
   }
