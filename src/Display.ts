@@ -146,6 +146,7 @@ export class Display {
     openpv: [],
     runcommand: [],
     runprocedure: [],
+    runstack: [],
     selection: [],
     scale: [],
   };
