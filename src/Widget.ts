@@ -81,7 +81,7 @@ export abstract class Widget {
 
   constructor(
     readonly display: Display,
-    readonly parent?: AbstractContainerWidget
+    readonly parent?: AbstractContainerWidget,
   ) {
     this.properties = new PropertySet(this, [
       new ActionsProperty(PROP_ACTIONS, new ActionSet()),
@@ -161,7 +161,7 @@ export abstract class Widget {
         this.display.pvEngine.createRule(this, rule);
       } else {
         console.warn(
-          `Cannot create rule for unsupported property ${rule.propertyName}`
+          `Cannot create rule for unsupported property ${rule.propertyName}`,
         );
       }
     }
@@ -293,7 +293,7 @@ export abstract class Widget {
         this.holderX,
         this.holderY,
         this.holderWidth,
-        this.holderHeight
+        this.holderHeight,
       );
     }
   }
@@ -374,7 +374,7 @@ export abstract class Widget {
         Color.BUTTON_LIGHTEST,
         Color.BUTTON_DARKER,
         Color.BUTTON_DARKER,
-        Color.BUTTON_LIGHTEST
+        Color.BUTTON_LIGHTEST,
       );
     } else if (this.borderStyle === 5) {
       // Ridged
@@ -383,7 +383,7 @@ export abstract class Widget {
         Color.BUTTON_DARKER,
         Color.BUTTON_LIGHTEST,
         Color.BUTTON_LIGHTEST,
-        Color.BUTTON_DARKER
+        Color.BUTTON_DARKER,
       );
     } else if (this.borderStyle === 6) {
       // Button Raised
@@ -392,7 +392,7 @@ export abstract class Widget {
         Color.BUTTON_DARKEST,
         Color.BUTTON_DARKER,
         Color.BUTTON,
-        Color.BUTTON_LIGHTEST
+        Color.BUTTON_LIGHTEST,
       );
     } else if (this.borderStyle === 7) {
       // Button Pressed
@@ -401,7 +401,7 @@ export abstract class Widget {
         Color.BUTTON_LIGHTEST,
         Color.BUTTON_LIGHTEST,
         Color.BUTTON_DARKEST,
-        Color.BUTTON_DARKER
+        Color.BUTTON_DARKER,
       );
     } else if (this.borderStyle === 8) {
       // Dot
@@ -457,7 +457,7 @@ export abstract class Widget {
         this.holderY + 8 * scale,
         this.holderWidth - 16 * scale - lineWidth,
         this.holderHeight - 16 * scale - lineWidth,
-        lineWidth
+        lineWidth,
       );
 
       if (!this.transparent) {
@@ -503,7 +503,7 @@ export abstract class Widget {
         this.holderY + 8 * scale + lineWidth,
         this.holderWidth - 16 * scale - lineWidth,
         this.holderHeight - 16 * scale - lineWidth,
-        lineWidth
+        lineWidth,
       );
 
       g.strokePath({
@@ -523,7 +523,7 @@ export abstract class Widget {
         this.holderY,
         this.holderWidth,
         this.holderHeight,
-        this.borderWidth
+        this.borderWidth,
       );
 
       if (this.fillRoundRectangleBackgroundBorder) {
@@ -552,8 +552,10 @@ export abstract class Widget {
   }
 
   private isAnyPvDisconnected() {
-    const mainPvDisconnected = this.pvName && (!this.pv || this.pv.disconnected);
-    const anyPvDisconnected = this.pvs.find(pv => pv.disconnected) !== undefined;
+    const mainPvDisconnected =
+      this.pvName && (!this.pv || this.pv.disconnected);
+    const anyPvDisconnected =
+      this.pvs.find((pv) => pv.disconnected) !== undefined;
     return mainPvDisconnected || anyPvDisconnected;
   }
 
@@ -652,7 +654,7 @@ export abstract class Widget {
     }
   }
 
-  drawOverlay(g: Graphics) { }
+  drawOverlay(g: Graphics) {}
 
   drawSelection(ctx: CanvasRenderingContext2D) {
     ctx.lineWidth = 1;
@@ -661,7 +663,7 @@ export abstract class Widget {
       this.holderX - 0.5,
       this.holderY - 0.5,
       this.holderWidth + 1,
-      this.holderHeight + 1
+      this.holderHeight + 1,
     );
     ctx.fillStyle = "black";
     let r = 2;
@@ -670,45 +672,45 @@ export abstract class Widget {
       this.holderX + this.holderWidth / 2 - r,
       this.holderY - r,
       r + r,
-      r + r
+      r + r,
     );
     ctx.fillRect(
       this.holderX + this.holderWidth - r,
       this.holderY - r,
       r + r,
-      r + r
+      r + r,
     );
 
     ctx.fillRect(
       this.holderX - r,
       this.holderY + this.holderHeight / 2 - r,
       r + r,
-      r + r
+      r + r,
     );
     ctx.fillRect(
       this.holderX + this.holderWidth - r,
       this.holderY + this.holderHeight / 2 - r,
       r + r,
-      r + r
+      r + r,
     );
 
     ctx.fillRect(
       this.holderX - r,
       this.holderY + this.holderHeight - r,
       r + r,
-      r + r
+      r + r,
     );
     ctx.fillRect(
       this.holderX + this.holderWidth / 2 - r,
       this.holderY + this.holderHeight - r,
       r + r,
-      r + r
+      r + r,
     );
     ctx.fillRect(
       this.holderX + this.holderWidth - r,
       this.holderY + this.holderHeight - r,
       r + r,
-      r + r
+      r + r,
     );
 
     ctx.strokeStyle = "white";
@@ -717,51 +719,51 @@ export abstract class Widget {
       this.holderX - r + 0.5,
       this.holderY - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
     ctx.strokeRect(
       this.holderX + this.holderWidth / 2 - r + 0.5,
       this.holderY - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
     ctx.strokeRect(
       this.holderX + this.holderWidth - r + 0.5,
       this.holderY - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
 
     ctx.strokeRect(
       this.holderX - r + 0.5,
       this.holderY + this.holderHeight / 2 - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
     ctx.strokeRect(
       this.holderX + this.holderWidth - r + 0.5,
       this.holderY + this.holderHeight / 2 - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
 
     ctx.strokeRect(
       this.holderX - r + 0.5,
       this.holderY + this.holderHeight - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
     ctx.strokeRect(
       this.holderX + this.holderWidth / 2 - r + 0.5,
       this.holderY + this.holderHeight - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
     ctx.strokeRect(
       this.holderX + this.holderWidth - r + 0.5,
       this.holderY + this.holderHeight - r + 0.5,
       r + r - 1,
-      r + r - 1
+      r + r - 1,
     );
   }
 
@@ -813,7 +815,7 @@ export abstract class Widget {
     c1: Color,
     c2: Color,
     c3: Color,
-    c4: Color
+    c4: Color,
   ) {
     const lineWidth = 1 * this.scale;
     const top = this.holderY + lineWidth / 2;
@@ -856,7 +858,7 @@ export abstract class Widget {
       this.holderY,
       this.holderWidth,
       this.holderHeight,
-      this.borderWidth
+      this.borderWidth,
     );
     g.strokePath({
       color: this.borderColor,
@@ -1005,7 +1007,7 @@ export abstract class Widget {
 
   removePropertyListener(
     propertyName: string,
-    listener: PropertyListener<any>
+    listener: PropertyListener<any>,
   ) {
     const property = this.properties.getProperty(propertyName)!;
     property.removeListener(listener);
@@ -1073,7 +1075,7 @@ export abstract class Widget {
   }
   get tooltip(): string | undefined {
     const property = this.properties.getProperty(
-      PROP_TOOLTIP
+      PROP_TOOLTIP,
     ) as StringProperty;
     if (property.rawValue) {
       return this.expandMacro(property.rawValue);
@@ -1115,7 +1117,7 @@ export abstract class Widget {
    * Called exactly once post-construct. A destroyed widget will
    * never be re-inited.
    */
-  init(): void { }
+  init(): void {}
 
   /**
    * Called when a widget should temporarily hide content
@@ -1126,13 +1128,13 @@ export abstract class Widget {
    *
    * Unhide should occur upon the next draw request.
    */
-  hide(): void { }
+  hide(): void {}
 
   /**
    * Called when a widget will never be used again.
    * (display close).
    */
-  destroy(): void { }
+  destroy(): void {}
 
   abstract draw(g: Graphics): void;
 }

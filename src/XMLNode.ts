@@ -7,7 +7,7 @@ import { OpenWebpageAction } from "./actions/OpenWebpageAction";
 import { PlaySoundAction } from "./actions/PlaySoundAction";
 import { RunCommandAction } from "./actions/RunCommandAction";
 import { RunProcedureAction } from "./actions/RunProcedureAction";
-import { RunStackAction } from './actions/RunStackAction';
+import { RunStackAction } from "./actions/RunStackAction";
 import { WritePVAction } from "./actions/WritePVAction";
 import { Color } from "./Color";
 import { ColorMap } from "./ColorMap";
@@ -18,7 +18,7 @@ import { AutoScaleWidgets, ScaleOptions } from "./scale";
 import { ScriptInput, ScriptSet } from "./scripts";
 
 export class XMLNode {
-  constructor(private node: Node) { }
+  constructor(private node: Node) {}
 
   get name() {
     return this.node.nodeName;
@@ -328,7 +328,7 @@ export class XMLNode {
     return new ScaleOptions(
       node.getBoolean("width_scalable"),
       node.getBoolean("height_scalable"),
-      node.getBoolean("keep_wh_ratio")
+      node.getBoolean("keep_wh_ratio"),
     );
   }
 
@@ -337,7 +337,7 @@ export class XMLNode {
     return new AutoScaleWidgets(
       node.getBoolean("auto_scale_widgets"),
       node.getInt("min_width"),
-      node.getInt("min_height")
+      node.getInt("min_height"),
     );
   }
 
@@ -348,7 +348,7 @@ export class XMLNode {
       const colorMap = new ColorMap(
         0,
         node.getBoolean("interpolate"),
-        node.getBoolean("autoscale")
+        node.getBoolean("autoscale"),
       );
       for (const entry of node.getNodes("e")) {
         const value = Number(entry.getTextContent());
@@ -362,7 +362,7 @@ export class XMLNode {
       return new ColorMap(
         node.getInt("map"),
         node.getBoolean("interpolate"),
-        node.getBoolean("autoscale")
+        node.getBoolean("autoscale"),
       );
     }
   }
@@ -425,7 +425,7 @@ export class XMLNode {
     actions.hookFirstActionToClick = actionsNode.getBooleanAttribute("hook");
     actions.hookAllActionsToClick = actionsNode.getBooleanAttribute(
       "hook_all",
-      false
+      false,
     );
     for (const actionNode of actionsNode.getNodes("action")) {
       const actionType = actionNode.getStringAttribute("type");

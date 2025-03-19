@@ -112,7 +112,7 @@ export class RadioBox extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, Color.WHITE.toString());
     gradient.addColorStop(1, backgroundColor.toString());

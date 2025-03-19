@@ -1,4 +1,4 @@
-import { RunStackEvent } from '../events';
+import { RunStackEvent } from "../events";
 import { StringProperty } from "../properties";
 import { Widget } from "../Widget";
 import { Action } from "./Action";
@@ -16,7 +16,9 @@ export class RunStackAction extends Action {
   execute(widget: Widget): void {
     if (this.confirmMessage) {
       const dialogHandler = widget.display.getDialogHandler();
-      if (!dialogHandler.openConfirmDialog("Confirm Dialog", this.confirmMessage)) {
+      if (
+        !dialogHandler.openConfirmDialog("Confirm Dialog", this.confirmMessage)
+      ) {
         return;
       }
     }

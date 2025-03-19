@@ -16,7 +16,7 @@ export class ColorMap {
   constructor(
     readonly code: number,
     private interpolate: boolean,
-    readonly autoscale: boolean
+    readonly autoscale: boolean,
   ) {
     if (code === 0) {
       // Custom
@@ -118,13 +118,13 @@ export class ColorMap {
         const [stop, stopColor] = this.entries[idx];
         const f = (value - start) / (stop - start);
         const r = Math.floor(
-          (stopColor[0] - startColor[0]) * f + startColor[0]
+          (stopColor[0] - startColor[0]) * f + startColor[0],
         );
         const g = Math.floor(
-          (stopColor[1] - startColor[1]) * f + startColor[1]
+          (stopColor[1] - startColor[1]) * f + startColor[1],
         );
         const b = Math.floor(
-          (stopColor[2] - startColor[2]) * f + startColor[2]
+          (stopColor[2] - startColor[2]) * f + startColor[2],
         );
         return [r, g, b];
       } else {

@@ -5,10 +5,10 @@ import { SpreadSheetTable } from "./SpreadSheetTable";
 export class SpreadSheetTableWrapper {
   constructor(
     private spreadsheet: SpreadSheetTable,
-    private scriptEngine: ScriptEngine
-  ) { }
+    private scriptEngine: ScriptEngine,
+  ) {}
 
-  addModifiedListener(listener: any) { }
+  addModifiedListener(listener: any) {}
 
   addSelectionChangedListener(listener: any) {
     this.spreadsheet.addSelectionChangedListener(() => {

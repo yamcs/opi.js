@@ -16,7 +16,10 @@ export class PropertySet {
   private properties = new Map<string, Property<any>>();
   private generators: PropertyGenerator[] = [];
 
-  constructor(private widget: Widget | null, properties: Property<any>[] = []) {
+  constructor(
+    private widget: Widget | null,
+    properties: Property<any>[] = [],
+  ) {
     for (const property of properties) {
       this.properties.set(property.name, property);
     }
@@ -151,7 +154,10 @@ export abstract class Property<T> {
   private _value?: T;
   private listeners?: PropertyListener<T>[];
 
-  constructor(readonly name: string, readonly defaultValue?: T) {
+  constructor(
+    readonly name: string,
+    readonly defaultValue?: T,
+  ) {
     this.value = defaultValue;
   }
 
@@ -202,16 +208,19 @@ export class StringProperty extends Property<string> {
 }
 
 export class PVValueProperty extends Property<any> {
-  constructor(name: string, readonly pvPropertyName: string) {
+  constructor(
+    name: string,
+    readonly pvPropertyName: string,
+  ) {
     super(name);
   }
 }
 
-export class IntProperty extends Property<number> { }
+export class IntProperty extends Property<number> {}
 
-export class FloatProperty extends Property<number> { }
+export class FloatProperty extends Property<number> {}
 
-export class BooleanProperty extends Property<boolean> { }
+export class BooleanProperty extends Property<boolean> {}
 
 export class ColorProperty extends Property<Color> {
   printScriptValue(value: Color) {
@@ -233,22 +242,22 @@ export class ColorMapProperty extends Property<ColorMap> {
   }
 }
 
-export class PointsProperty extends Property<Point[]> { }
+export class PointsProperty extends Property<Point[]> {}
 
-export class ActionsProperty extends Property<ActionSet> { }
+export class ActionsProperty extends Property<ActionSet> {}
 
-export class MacrosProperty extends Property<MacroSet> { }
+export class MacrosProperty extends Property<MacroSet> {}
 
-export class ScriptsProperty extends Property<ScriptSet> { }
+export class ScriptsProperty extends Property<ScriptSet> {}
 
-export class StringListProperty extends Property<string[]> { }
+export class StringListProperty extends Property<string[]> {}
 
-export class StringMapProperty extends Property<{ [key: string]: string }> { }
+export class StringMapProperty extends Property<{ [key: string]: string }> {}
 
-export class StringTableProperty extends Property<string[][]> { }
+export class StringTableProperty extends Property<string[][]> {}
 
-export class RulesProperty extends Property<RuleSet> { }
+export class RulesProperty extends Property<RuleSet> {}
 
-export class ScaleOptionsProperty extends Property<ScaleOptions> { }
+export class ScaleOptionsProperty extends Property<ScaleOptions> {}
 
-export class AutoScaleWidgetsProperty extends Property<AutoScaleWidgets> { }
+export class AutoScaleWidgetsProperty extends Property<AutoScaleWidgets> {}

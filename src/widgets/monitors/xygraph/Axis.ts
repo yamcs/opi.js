@@ -13,7 +13,10 @@ export class Axis {
   private _effectiveMinimum?: number;
   private _effectiveMaximum?: number;
 
-  constructor(private widget: XYGraph, readonly index: number) { }
+  constructor(
+    private widget: XYGraph,
+    readonly index: number,
+  ) {}
 
   get scale() {
     return this.widget.scale;
@@ -21,7 +24,7 @@ export class Axis {
 
   private getValue(propertySufix: string) {
     return this.widget.properties.getValue(
-      `axis_${this.index}_${propertySufix}`
+      `axis_${this.index}_${propertySufix}`,
     );
   }
 

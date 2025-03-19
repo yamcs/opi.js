@@ -21,12 +21,12 @@ export class Font {
     public name: string,
     height: number,
     public style: number,
-    pixels: boolean
+    pixels: boolean,
   ) {
     if (pixels) {
       this.height = height;
     } else {
-      this.height = Math.ceil(height * 4 / 3);
+      this.height = Math.ceil((height * 4) / 3);
     }
   }
 

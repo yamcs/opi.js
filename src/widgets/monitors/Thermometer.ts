@@ -60,7 +60,7 @@ export class Thermometer extends Widget {
     this.properties.add(new ColorProperty(PROP_COLOR_FILLBACKGROUND));
     this.properties.add(new ColorProperty(PROP_FILL_COLOR));
     this.properties.add(
-      new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false)
+      new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false),
     );
     this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
     this.properties.add(new FloatProperty(PROP_LEVEL_HI));
@@ -118,7 +118,7 @@ export class Thermometer extends Widget {
       this.majorTickStepHint,
       foregroundColor,
       this.showMinorTicks,
-      this.showScale
+      this.showScale,
     );
     linearScale.scaleFormat = this.scaleFormat;
 
@@ -159,7 +159,7 @@ export class Thermometer extends Widget {
       x2,
       scaleArea.y,
       scaleArea.height,
-      false
+      false,
     );
     const cornerSize = Math.floor(this.pipeWidth / 2);
 
@@ -188,7 +188,7 @@ export class Thermometer extends Widget {
           cx - rx,
           cy - ry,
           cx + rx,
-          cy + ry
+          cy + ry,
         );
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, fillColor.withAlpha(0).toString());
@@ -215,7 +215,7 @@ export class Thermometer extends Widget {
       if (this.effect3d) {
         // On pipe, gradient does not consider outline, so do same
         const gx1 = Math.round(
-          pipeArea.x + pipeArea.width / 2 - this.pipeWidth / 2
+          pipeArea.x + pipeArea.width / 2 - this.pipeWidth / 2,
         );
         const gx2 = gx1 + this.pipeWidth;
         const gradient = g.createLinearGradient(gx1, joint.y, gx2, joint.y);

@@ -52,7 +52,7 @@ export class ImageWidget extends Widget {
         this.x,
         this.y,
         this.width,
-        this.height
+        this.height,
       );
     } else if (this.imageLoaded) {
       if (this.noAnimation) {
@@ -61,7 +61,7 @@ export class ImageWidget extends Widget {
           this.x,
           this.y,
           this.width,
-          this.height
+          this.height,
         );
       } else {
         // Note that GIF animation through canvas does not seem to work in Chrome.
@@ -71,7 +71,7 @@ export class ImageWidget extends Widget {
           this.x,
           this.y,
           this.width,
-          this.height
+          this.height,
         );
       }
     }

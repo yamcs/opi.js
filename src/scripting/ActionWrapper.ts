@@ -6,7 +6,10 @@ import { Widget } from "../Widget";
  * Exposes the API for actions as used in display scripts.
  */
 export class ActionWrapper {
-  constructor(private action: Action, private widget: Widget) {}
+  constructor(
+    private action: Action,
+    private widget: Widget,
+  ) {}
 
   getPropertyValue(propertyName: string) {
     const property = this.action.properties.getProperty(propertyName);

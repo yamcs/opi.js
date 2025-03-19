@@ -8,7 +8,7 @@ export { DefaultPathResolver, PathResolver } from "./PathResolver";
 export { Dimension, NullablePoint, Point } from "./positioning";
 export {
   CompiledFormula,
-  DataSourceStatus
+  DataSourceStatus,
 } from "./pv/formulas/CompiledFormula";
 export { FormulaCompiler } from "./pv/formulas/FormulaCompiler";
 export { HistoricalDataProvider } from "./pv/HistoricalDataProvider";
@@ -17,4 +17,3 @@ export { PVProvider } from "./pv/PVProvider";
 export { Sample } from "./pv/Sample";
 export { TypeHint } from "./pv/TypeHint";
 export { Widget } from "./Widget";
-

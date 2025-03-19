@@ -11,7 +11,10 @@ export class CompiledFormula {
 
   private pvValues = new Map<string, DataSourceStatus>();
 
-  constructor(public pvName: string, private formula: ast.Formula) {}
+  constructor(
+    public pvName: string,
+    private formula: ast.Formula,
+  ) {}
 
   updateDataSource(pvName: string, status: DataSourceStatus) {
     this.pvValues.set(pvName, status);
@@ -30,7 +33,7 @@ export class CompiledFormula {
 
   private getExpressionParameters(
     expression: ast.Expression,
-    pvNames: string[]
+    pvNames: string[],
   ) {
     switch (expression.type) {
       case "ParameterLiteral":
@@ -143,7 +146,7 @@ export class CompiledFormula {
   }
 
   private executeConditionalExpression(
-    expression: ast.ConditionalExpression
+    expression: ast.ConditionalExpression,
   ): any {
     const test = this.executeExpression(expression.test);
     const consequent = this.executeExpression(expression.consequent);

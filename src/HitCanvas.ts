@@ -11,7 +11,11 @@ export class HitCanvas {
   // This avoids color collisions.
   private root?: HitCanvas;
 
-  constructor(private parent?: HitCanvas, width?: number, height?: number) {
+  constructor(
+    private parent?: HitCanvas,
+    width?: number,
+    height?: number,
+  ) {
     const canvas = document.createElement("canvas");
     canvas.width = width ?? canvas.width;
     canvas.height = height ?? canvas.height;
@@ -63,7 +67,8 @@ export class HitCanvas {
       const color = `rgb(${r},${g},${b})`;
 
       if (!this.regionsByColor.has(color) && color !== WHITE) {
-        if (IS_BRAVE) { // Work around farbling-based fingerprinting defenses
+        if (IS_BRAVE) {
+          // Work around farbling-based fingerprinting defenses
           this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b - 1})`, hitRegion);
           this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b})`, hitRegion);
           this.regionsByColor.set(`rgb(${r - 1},${g - 1},${b + 1})`, hitRegion);
@@ -99,7 +104,6 @@ export class HitCanvas {
 
         return color;
       }
-
     }
   }
 }

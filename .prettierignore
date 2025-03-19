@@ -1,0 +1,5 @@
+/demo/
+/dist/
+/node_modules/
+**/parser.js
+package-lock.json

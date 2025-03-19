@@ -18,7 +18,9 @@ export class RunCommandAction extends Action {
   execute(widget: Widget): void {
     if (this.confirmMessage) {
       const dialogHandler = widget.display.getDialogHandler();
-      if (!dialogHandler.openConfirmDialog("Confirm Dialog", this.confirmMessage)) {
+      if (
+        !dialogHandler.openConfirmDialog("Confirm Dialog", this.confirmMessage)
+      ) {
         return;
       }
     }

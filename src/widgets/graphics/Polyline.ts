@@ -102,7 +102,7 @@ export class Polyline extends Widget {
         // To or Both
         const arrowPoints = this.calculateArrowPoints(
           this.points[this.points.length - 2],
-          lastPoint
+          lastPoint,
         );
         arrowPoints[2] = lastPoint;
 
@@ -132,7 +132,7 @@ export class Polyline extends Widget {
         // From or Both
         const arrowPoints = this.calculateArrowPoints(
           this.points[1],
-          firstPoint
+          firstPoint,
         );
         arrowPoints[2] = firstPoint;
         if (this.fillArrow) {
@@ -170,7 +170,7 @@ export class Polyline extends Widget {
     // Intersection point between arrow and line.
     const ppI = new PolarPoint(
       Math.floor(this.arrowLength * Math.cos(angle)),
-      ppE.theta
+      ppE.theta,
     );
 
     const pR = translatePoint(ppR.toPoint(), endPoint.x, endPoint.y);
@@ -192,7 +192,10 @@ export class Polyline extends Widget {
     return this.properties.getValue(PROP_HORIZONTAL_FILL);
   }
   get points(): Point[] {
-    const scaled = scalePoints(this.properties.getValue(PROP_POINTS), this.scale);
+    const scaled = scalePoints(
+      this.properties.getValue(PROP_POINTS),
+      this.scale,
+    );
     return halfPixelPoints(scaled);
   }
   get arrows(): number {

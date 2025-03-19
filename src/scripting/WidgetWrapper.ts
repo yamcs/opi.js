@@ -9,7 +9,7 @@ import { PVWrapper } from "./PVWrapper";
  * Exposes the API for the variable "widget" as used in display scripts.
  */
 export class WidgetWrapper {
-  constructor(private widget: Widget) { }
+  constructor(private widget: Widget) {}
 
   executeAction(index: number) {
     this.widget.executeActionByIndex(index);

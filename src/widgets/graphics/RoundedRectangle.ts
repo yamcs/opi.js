@@ -103,7 +103,7 @@ export class RoundedRectangle extends Widget {
         });
       } else {
         console.warn(
-          `Unsupported RoundedRectangle line style ${this.lineStyle}`
+          `Unsupported RoundedRectangle line style ${this.lineStyle}`,
         );
       }
     }

@@ -178,13 +178,13 @@ export class Scrollbar extends Widget {
     const valueRange = totalRange - extent;
     const trackWidth = bounds.width - buttonWidth - buttonWidth;
     const thumbWidth = Math.floor(
-      Math.max(6 * scale, (trackWidth * extent) / totalRange)
+      Math.max(6 * scale, (trackWidth * extent) / totalRange),
     );
     this.dragRange = trackWidth - thumbWidth;
 
     const currentValue = this.getCoercedValue();
     const leftTrackWidth = Math.floor(
-      ((trackWidth - thumbWidth) * (currentValue - min)) / valueRange
+      ((trackWidth - thumbWidth) * (currentValue - min)) / valueRange,
     );
     const rightTrackWidth = trackWidth - leftTrackWidth - thumbWidth;
 
@@ -202,7 +202,7 @@ export class Scrollbar extends Widget {
       thumbBounds.x,
       thumbBounds.y,
       thumbBounds.width,
-      thumbBounds.height
+      thumbBounds.height,
     );
 
     // Page decrease
@@ -217,7 +217,7 @@ export class Scrollbar extends Widget {
       pageDecreaseBounds.x,
       pageDecreaseBounds.y,
       pageDecreaseBounds.width,
-      pageDecreaseBounds.height
+      pageDecreaseBounds.height,
     );
     if (this.pageDecreasePressed) {
       g.fillRect({ ...pageDecreaseBounds, color: Color.BLACK });
@@ -235,7 +235,7 @@ export class Scrollbar extends Widget {
       pageIncreaseBounds.x,
       pageIncreaseBounds.y,
       pageIncreaseBounds.width,
-      pageIncreaseBounds.height
+      pageIncreaseBounds.height,
     );
     if (this.pageIncreasePressed) {
       g.fillRect({ ...pageIncreaseBounds, color: Color.BLACK });
@@ -269,13 +269,13 @@ export class Scrollbar extends Widget {
     const valueRange = totalRange - extent;
     const trackHeight = bounds.height - buttonHeight - buttonHeight;
     const thumbHeight = Math.floor(
-      Math.max(6 * scale, (trackHeight * extent) / totalRange)
+      Math.max(6 * scale, (trackHeight * extent) / totalRange),
     );
     this.dragRange = trackHeight - thumbHeight;
 
     const currentValue = this.getCoercedValue();
     const northTrackHeight = Math.floor(
-      ((trackHeight - thumbHeight) * (currentValue - min)) / valueRange
+      ((trackHeight - thumbHeight) * (currentValue - min)) / valueRange,
     );
     const southTrackHeight = trackHeight - northTrackHeight - thumbHeight;
 
@@ -293,7 +293,7 @@ export class Scrollbar extends Widget {
       thumbBounds.x,
       thumbBounds.y,
       thumbBounds.width,
-      thumbBounds.height
+      thumbBounds.height,
     );
 
     // Page decrease
@@ -308,7 +308,7 @@ export class Scrollbar extends Widget {
       pageDecreaseBounds.x,
       pageDecreaseBounds.y,
       pageDecreaseBounds.width,
-      pageDecreaseBounds.height
+      pageDecreaseBounds.height,
     );
     if (this.pageDecreasePressed) {
       g.fillRect({ ...pageDecreaseBounds, color: Color.BLACK });
@@ -326,7 +326,7 @@ export class Scrollbar extends Widget {
       pageIncreaseBounds.x,
       pageIncreaseBounds.y,
       pageIncreaseBounds.width,
-      pageIncreaseBounds.height
+      pageIncreaseBounds.height,
     );
     if (this.pageIncreasePressed) {
       g.fillRect({ ...pageIncreaseBounds, color: Color.BLACK });
@@ -345,7 +345,7 @@ export class Scrollbar extends Widget {
     const triangleBounds = shrink(bounds, 3 * this.scale);
     let triangleSize = Math.min(
       triangleBounds.height / 2,
-      triangleBounds.width
+      triangleBounds.width,
     );
     triangleBounds.x += (triangleBounds.width - triangleSize) / 2;
     triangleSize = Math.max(triangleSize, 1); // No negative
@@ -375,7 +375,7 @@ export class Scrollbar extends Widget {
     const triangleBounds = shrink(bounds, 3 * this.scale);
     let triangleSize = Math.min(
       triangleBounds.height / 2,
-      triangleBounds.width
+      triangleBounds.width,
     );
     triangleBounds.x += (triangleBounds.width - triangleSize) / 2;
     triangleSize = Math.max(triangleSize, 1); // No negative
@@ -405,7 +405,7 @@ export class Scrollbar extends Widget {
     const triangleBounds = shrink(bounds, 3 * this.scale);
     let triangleSize = Math.min(
       triangleBounds.height,
-      triangleBounds.width / 2
+      triangleBounds.width / 2,
     );
     triangleBounds.y += (triangleBounds.height - triangleSize) / 2;
     triangleSize = Math.max(triangleSize, 1); // No negative
@@ -435,7 +435,7 @@ export class Scrollbar extends Widget {
     const triangleBounds = shrink(bounds, 3 * this.scale);
     let triangleSize = Math.min(
       triangleBounds.height,
-      triangleBounds.width / 2
+      triangleBounds.width / 2,
     );
     triangleBounds.y += (triangleBounds.height - triangleSize) / 2;
     triangleSize = Math.max(triangleSize, 1); // No negative
@@ -460,7 +460,7 @@ export class Scrollbar extends Widget {
       Color.BUTTON_DARKEST,
       Color.BUTTON_DARKER,
       Color.BUTTON,
-      Color.BUTTON_LIGHTEST
+      Color.BUTTON_LIGHTEST,
     );
   }
 
@@ -471,7 +471,7 @@ export class Scrollbar extends Widget {
       Color.BUTTON_LIGHTEST,
       Color.BUTTON_LIGHTEST,
       Color.BUTTON_DARKEST,
-      Color.BUTTON_DARKER
+      Color.BUTTON_DARKER,
     );
   }
 
@@ -481,7 +481,7 @@ export class Scrollbar extends Widget {
     c1: Color,
     c2: Color,
     c3: Color,
-    c4: Color
+    c4: Color,
   ) {
     const lineWidth = 1 * this.scale;
     const top = bounds.y + lineWidth / 2;
@@ -524,7 +524,7 @@ export class Scrollbar extends Widget {
     this.requestRepaint();
     this.actionTimeout = window.setTimeout(
       () => this.stepIncreaseRepeatedly(),
-      REPEAT_INTERVAL
+      REPEAT_INTERVAL,
     );
   }
 
@@ -534,7 +534,7 @@ export class Scrollbar extends Widget {
     this.requestRepaint();
     this.actionTimeout = window.setTimeout(
       () => this.stepDecreaseRepeatedly(),
-      REPEAT_INTERVAL
+      REPEAT_INTERVAL,
     );
   }
 
@@ -554,7 +554,7 @@ export class Scrollbar extends Widget {
     this.requestRepaint();
     this.actionTimeout = window.setTimeout(
       () => this.pageIncreaseRepeatedly(),
-      REPEAT_INTERVAL
+      REPEAT_INTERVAL,
     );
   }
 
@@ -564,7 +564,7 @@ export class Scrollbar extends Widget {
     this.requestRepaint();
     this.actionTimeout = window.setTimeout(
       () => this.pageDecreaseRepeatedly(),
-      REPEAT_INTERVAL
+      REPEAT_INTERVAL,
     );
   }
 
@@ -584,8 +584,8 @@ export class Scrollbar extends Widget {
         value < this.minimum
           ? this.minimum
           : value > this.maximum
-          ? this.maximum
-          : value;
+            ? this.maximum
+            : value;
       this.display.pvEngine.setValue(new Date(), this.pv.name, value);
     }
   }
@@ -595,8 +595,8 @@ export class Scrollbar extends Widget {
     return value < this.minimum
       ? this.minimum
       : value > this.maximum
-      ? this.maximum
-      : value;
+        ? this.maximum
+        : value;
   }
 
   destroy() {

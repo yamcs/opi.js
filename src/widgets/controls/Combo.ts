@@ -84,9 +84,7 @@ export class Combo extends Widget {
 
     const selectedValue = this.pv?.value ?? this.value;
     if (selectedValue) {
-      const items = this.itemsFromPV
-        ? this.pv?.labels ?? []
-        : this.items;
+      const items = this.itemsFromPV ? (this.pv?.labels ?? []) : this.items;
       for (const item of items) {
         let match = item === selectedValue;
 
@@ -152,9 +150,7 @@ export class Combo extends Widget {
   }
 
   private updateSelectOptions() {
-    const items = this.itemsFromPV
-      ? this.pv?.labels ?? []
-      : this.items;
+    const items = this.itemsFromPV ? (this.pv?.labels ?? []) : this.items;
 
     let updateDom = false;
     if (this.renderedItems === undefined) {
@@ -187,9 +183,7 @@ export class Combo extends Widget {
       emptyOptionEl.text = " -- select an option -- ";
       selectEl.add(emptyOptionEl);
 
-      const items = this.itemsFromPV
-        ? this.pv?.labels ?? []
-        : this.items;
+      const items = this.itemsFromPV ? (this.pv?.labels ?? []) : this.items;
 
       for (let i = 0; i < items.length; i++) {
         const optionEl = document.createElement("option");

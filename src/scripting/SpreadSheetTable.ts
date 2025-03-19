@@ -46,7 +46,7 @@ export class SpreadSheetTable {
       this.cells.push(
         content[i].map((text) => {
           return { text };
-        })
+        }),
       );
     }
     this.dirty = true;

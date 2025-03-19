@@ -55,7 +55,7 @@ export class Tank extends Widget {
     this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
     this.properties.add(new ColorProperty(PROP_FILL_COLOR));
     this.properties.add(
-      new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false)
+      new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false),
     );
     this.properties.add(new FloatProperty(PROP_LEVEL_HI));
     this.properties.add(new FloatProperty(PROP_LEVEL_HIHI));
@@ -100,7 +100,7 @@ export class Tank extends Widget {
       this.majorTickStepHint,
       foregroundColor,
       this.showMinorTicks,
-      this.showScale
+      this.showScale,
     );
     linearScale.scaleFormat = this.scaleFormat;
     const scaleWidth = linearScale.drawVertical(
@@ -108,7 +108,7 @@ export class Tank extends Widget {
       area.x,
       area.y,
       area.height,
-      true
+      true,
     );
 
     let markerWidth = 0;
@@ -222,7 +222,7 @@ export class Tank extends Widget {
     area: Bounds,
     scaleWidth: number,
     markerWidth: number,
-    linearScale: LinearScale
+    linearScale: LinearScale,
   ) {
     const foregroundColor = this.alarmSensitiveForegroundColor;
     const { scale, outlineWidth } = this;
@@ -270,7 +270,7 @@ export class Tank extends Widget {
         x + width - rectWidth - 2 * scale,
         y,
         x + width,
-        y
+        y,
       );
       gradient.addColorStop(0, Color.WHITE.withAlpha(0).toString());
       gradient.addColorStop(1, this.colorFillbackground.toString());
@@ -290,7 +290,7 @@ export class Tank extends Widget {
         x,
         fillY,
         x + rectWidth + 2 * scale,
-        fillY
+        fillY,
       );
       gradient.addColorStop(0, fillColor.toString());
       gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
@@ -307,7 +307,7 @@ export class Tank extends Widget {
         x + width - rectWidth - 2 * scale,
         fillY,
         x + width,
-        fillY
+        fillY,
       );
       gradient.addColorStop(0, Color.WHITE.withAlpha(0).toString());
       gradient.addColorStop(1, fillColor.toString());
@@ -349,7 +349,7 @@ export class Tank extends Widget {
         width,
         height,
       },
-      outlineWidth / 2
+      outlineWidth / 2,
     );
     g.strokeRect({
       ...outline,

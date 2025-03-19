@@ -11,7 +11,7 @@ export class ExecuteCommandAction extends Action {
     super();
     this.properties.add(new StringProperty(PROP_COMMAND, ""));
     this.properties.add(
-      new StringProperty(PROP_COMMAND_DIRECTORY, "$(user.home)")
+      new StringProperty(PROP_COMMAND_DIRECTORY, "$(user.home)"),
     );
     this.properties.add(new IntProperty(PROP_WAIT_TIME, 10));
   }

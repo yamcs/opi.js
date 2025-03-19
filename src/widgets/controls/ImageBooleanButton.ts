@@ -174,7 +174,7 @@ export class ImageBooleanButton extends Widget {
           bounds.x,
           bounds.y,
           bounds.width,
-          bounds.height
+          bounds.height,
         );
       }
     } else {
@@ -184,7 +184,7 @@ export class ImageBooleanButton extends Widget {
           bounds.x,
           bounds.y,
           bounds.width,
-          bounds.height
+          bounds.height,
         );
       }
     }

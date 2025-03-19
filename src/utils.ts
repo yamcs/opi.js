@@ -1,4 +1,4 @@
-import { TypeHint } from './pv/TypeHint';
+import { TypeHint } from "./pv/TypeHint";
 
 export function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -7,7 +7,7 @@ export function roundRect(
   w: number,
   h: number,
   rx: number,
-  ry: number
+  ry: number,
 ) {
   ctx.beginPath();
   if (!rx && !ry) {
@@ -37,7 +37,7 @@ export function normalizePath(base: string, relPath: string) {
   let sDir = "";
   const sPath = base.replace(
     /[^\/]*$/,
-    relPath.replace(/(\/|^)(?:\.?\/+)+/g, "$1")
+    relPath.replace(/(\/|^)(?:\.?\/+)+/g, "$1"),
   );
   let nStart = 0;
   for (
@@ -48,7 +48,7 @@ export function normalizePath(base: string, relPath: string) {
     nUpLn = /^\/(?:\.\.\/)*/.exec(sPath.slice(nEnd))![0].length;
     sDir = (sDir + sPath.substring(nStart, nEnd)).replace(
       new RegExp("(?:\\/+[^\\/]*){0," + (nUpLn - 1) / 3 + "}$"),
-      "/"
+      "/",
     );
   }
   return (sDir + sPath.substr(nStart)).substr(1);
@@ -82,10 +82,10 @@ export function formatValue(
 }
 
 function toHex(raw: string) {
-  let result = '';
+  let result = "";
   for (let i = 0; i < raw.length; i++) {
     const hex = raw.charCodeAt(i).toString(16);
-    result += hex.length === 2 ? hex : '0' + hex;
+    result += hex.length === 2 ? hex : "0" + hex;
   }
   return result ? `0x${result.toUpperCase()}` : result;
 }
@@ -111,7 +111,10 @@ function formatNumber(
       };
       return Intl.NumberFormat("en-US", nfOptions).format(value);
     case 2: // EXPONENTIAL
-      return value.toExponential(maximumFractionDigits).replace("e+", "E").toUpperCase();
+      return value
+        .toExponential(maximumFractionDigits)
+        .replace("e+", "E")
+        .toUpperCase();
     case 3: // HEX
       return "0x" + value.toString(16).toUpperCase();
     default:

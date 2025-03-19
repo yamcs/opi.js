@@ -1,19 +1,14 @@
-import { Formatter } from '../Formatter';
+import { Formatter } from "../Formatter";
 import { PV } from "./PV";
 import { PVProvider } from "./PVProvider";
-import {
-  ConstantGenerator,
-  SimGenerator,
-  SysTime
-} from "./sim";
+import { ConstantGenerator, SimGenerator, SysTime } from "./sim";
 
 const PV_PATTERN = /sys\:\/\/([a-zA-Z]+)/;
 
 export class SystemPVProvider implements PVProvider {
   private pvs = new Map<string, SystemPV>();
 
-  constructor(private formatter: Formatter) {
-  }
+  constructor(private formatter: Formatter) {}
 
   canProvide(pvName: string) {
     return pvName === "sys://time";
@@ -50,7 +45,10 @@ export class SystemPVProvider implements PVProvider {
 class SystemPV {
   fn: SimGenerator;
 
-  constructor(readonly pv: PV, private formatter: Formatter) {
+  constructor(
+    readonly pv: PV,
+    private formatter: Formatter,
+  ) {
     const match = pv.name.match(PV_PATTERN);
     if (match) {
       this.fn = this.createGenerator(match[1]);

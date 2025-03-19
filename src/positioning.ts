@@ -33,7 +33,7 @@ export function toBorderBox(
   y: number,
   width: number,
   height: number,
-  lineWidth: number
+  lineWidth: number,
 ): Bounds {
   return shrink({ x, y, width, height }, lineWidth / 2);
 }
@@ -43,7 +43,7 @@ export function outline(
   y: number,
   width: number,
   height: number,
-  strokeWidth: number
+  strokeWidth: number,
 ): Bounds {
   const inset = Math.max(1, strokeWidth) / 2.0;
   const inset1 = Math.floor(inset);
@@ -61,7 +61,7 @@ export function rotatePoint(
   y: number,
   cx: number,
   cy: number,
-  angle: number
+  angle: number,
 ): Point {
   // double trueAngle = Math.toRadians(angle);
   const sin = Math.sin(angle);
@@ -158,14 +158,14 @@ export function toRadians(degrees: number) {
 
 export function getDistance(p1: Point, p2: Point) {
   return Math.sqrt(
-    (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)
+    (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y),
   );
 }
 
 export function findRelativePoint(
   p0: Point,
   p1: Point,
-  distanceRatio: number
+  distanceRatio: number,
 ): Point {
   const d = getDistance(p0, p1);
   const t = distanceRatio / d;
@@ -178,7 +178,7 @@ export function findRelativePoint(
 export function convertPolarToCartesian(
   r: number,
   theta: number,
-  bounds: Bounds
+  bounds: Bounds,
 ): Point {
   const x = Math.floor(r * Math.cos(theta));
   const y = Math.floor(-r * Math.sin(theta)); // hmm
@@ -191,7 +191,7 @@ export function convertPolarToCartesian(
 export function convertPolarToCartesian2(
   rx: number,
   ry: number,
-  theta: number
+  theta: number,
 ): Point {
   const x = Math.floor(rx * Math.cos(theta));
   const y = Math.floor(ry * Math.sin(theta));
@@ -218,7 +218,10 @@ export function convertCartesianToPolar(pole: Point, point: Point) {
 }
 
 export class PolarPoint {
-  constructor(readonly r: number, readonly theta: number) { }
+  constructor(
+    readonly r: number,
+    readonly theta: number,
+  ) {}
 
   /**
    * Transform the polar point to the {@link Point} in rectangular coordinates.

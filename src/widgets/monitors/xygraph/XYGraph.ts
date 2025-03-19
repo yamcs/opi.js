@@ -8,7 +8,7 @@ import {
   intersect,
   NullablePoint,
   Point,
-  shrink
+  shrink,
 } from "../../../positioning";
 import {
   BooleanProperty,
@@ -85,7 +85,7 @@ export class XYGraph extends Widget {
             new IntProperty(`axis_${i}_time_format`),
             new FontProperty(`axis_${i}_title_font`),
             new BooleanProperty(`axis_${i}_visible`),
-          ]
+          ],
         );
         if (i > 1) {
           // 0 is primary X, 1 is primary Y
@@ -93,7 +93,7 @@ export class XYGraph extends Widget {
             ...[
               new BooleanProperty(`axis_${i}_left_bottom_side`),
               new BooleanProperty(`axis_${i}_y_axis`),
-            ]
+            ],
           );
         }
       }
@@ -123,7 +123,7 @@ export class XYGraph extends Widget {
             new IntProperty(`trace_${i}_y_axis_index`),
             new StringProperty(`trace_${i}_y_pv`),
             new PVValueProperty(`trace_${i}_y_pv_value`, `trace_${i}_y_pv`),
-          ]
+          ],
         );
       }
 
@@ -178,7 +178,7 @@ export class XYGraph extends Widget {
         50 * scale,
         axis.axisColor,
         true,
-        axis.visible
+        axis.visible,
       );
       axis.linearScale.scaleFormat = axis.scaleFormat;
       axis.linearScale.timeFormat = axis.timeFormat;
@@ -192,7 +192,7 @@ export class XYGraph extends Widget {
       area.x,
       area.y,
       area.width,
-      area.height
+      area.height,
     );
 
     const plotArea = this.drawAxes(g, area);
@@ -270,7 +270,7 @@ export class XYGraph extends Widget {
           g.ctx.save();
           g.ctx.translate(
             plotArea.x + gap + titleHeight / 2,
-            area.y + height / 2
+            area.y + height / 2,
           );
           g.ctx.rotate(-Math.PI / 2);
           g.fillText({
@@ -294,7 +294,7 @@ export class XYGraph extends Widget {
             area.y,
             height,
             true,
-            false
+            false,
           );
         plotArea.x += scaleWidth;
         plotArea.width -= scaleWidth;
@@ -310,7 +310,7 @@ export class XYGraph extends Widget {
         g.strokePath({
           path: new Path(verticalLineX, verticalLineY).lineTo(
             verticalLineX,
-            verticalLineY + height - 2 * yScaleMargin
+            verticalLineY + height - 2 * yScaleMargin,
           ),
           color: axis.axisColor,
           opacity: 100 / 255,
@@ -355,7 +355,7 @@ export class XYGraph extends Widget {
             g,
             area.x + xOffset,
             plotArea.y + plotArea.height - titleHeight,
-            area.width - xOffset
+            area.width - xOffset,
           );
         plotArea.height -= scaleHeight;
 
@@ -371,7 +371,7 @@ export class XYGraph extends Widget {
         g.strokePath({
           path: new Path(horizontalLineX, horizontalLineY).lineTo(
             horizontalLineX + plotArea.width - xScaleMargin,
-            horizontalLineY
+            horizontalLineY,
           ),
           color: axis.axisColor,
           opacity: 100 / 255,
@@ -504,7 +504,7 @@ export class XYGraph extends Widget {
     const font = Font.ARIAL_10.scale(scale);
     for (const axis of this.getYAxes()) {
       const traces = this.traces.filter(
-        (t) => t.visible && t.yAxisIndex === axis.index
+        (t) => t.visible && t.yAxisIndex === axis.index,
       );
       const lines: Trace[][] = [];
 
@@ -571,7 +571,7 @@ export class XYGraph extends Widget {
               g.strokePath({
                 path: new Path(barX, topY + maxSize).lineTo(
                   barX,
-                  topY + iconSize
+                  topY + iconSize,
                 ),
                 lineWidth: trace.lineWidth,
                 color: trace.traceColor,
@@ -669,7 +669,7 @@ export class XYGraph extends Widget {
         return {
           start: Math.min(start, fallback.start),
           stop: Math.max(stop, fallback.stop),
-        }
+        };
       } else {
         return { start, stop };
       }

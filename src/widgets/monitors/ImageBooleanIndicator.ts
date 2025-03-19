@@ -94,7 +94,7 @@ export class ImageBooleanIndicator extends Widget {
           this.x,
           this.y,
           this.width,
-          this.height
+          this.height,
         );
       }
     } else {
@@ -104,7 +104,7 @@ export class ImageBooleanIndicator extends Widget {
           this.x,
           this.y,
           this.width,
-          this.height
+          this.height,
         );
       }
     }

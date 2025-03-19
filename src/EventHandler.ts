@@ -13,7 +13,7 @@ const clickBlocker = (e: MouseEvent) => {
   document.removeEventListener(
     "click",
     clickBlocker,
-    true /* Must be same as when created */
+    true /* Must be same as when created */,
   );
 
   e.preventDefault();
@@ -39,7 +39,7 @@ function measureDistance(x1: number, y1: number, x2: number, y2: number) {
 // on each draw, whereas the "id" could be something more long-term.
 function regionMatches(
   region1?: HitRegionSpecification,
-  region2?: HitRegionSpecification
+  region2?: HitRegionSpecification,
 ) {
   return region1 && region2 && region1.id === region2.id;
 }
@@ -72,20 +72,20 @@ export class EventHandler {
   constructor(
     private display: Display,
     private canvas: HTMLCanvasElement,
-    private hitCanvas: HitCanvas
+    private hitCanvas: HitCanvas,
   ) {
     canvas.addEventListener("click", (e) => this.onCanvasClick(e), false);
     canvas.addEventListener(
       "mousedown",
       (e) => this.onCanvasMouseDown(e),
-      false
+      false,
     );
     canvas.addEventListener("mouseup", (e) => this.onCanvasMouseUp(e), false);
     canvas.addEventListener("mouseout", (e) => this.onCanvasMouseOut(e), false);
     canvas.addEventListener(
       "mousemove",
       (e) => this.onCanvasMouseMove(e),
-      false
+      false,
     );
   }
 
@@ -119,7 +119,7 @@ export class EventHandler {
     document.removeEventListener(
       "click",
       clickBlocker,
-      true /* Must be same as when created */
+      true /* Must be same as when created */,
     );
 
     if (isLeftPressed(event)) {
@@ -202,7 +202,7 @@ export class EventHandler {
         this.grabPoint.x,
         this.grabPoint.y,
         point.x,
-        point.y
+        point.y,
       );
       if (Math.abs(distance) > snap) {
         this.initiateGrab();

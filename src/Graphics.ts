@@ -134,7 +134,10 @@ export class Graphics {
   readonly hitCanvas: HitCanvas;
   readonly hitCtx: CanvasRenderingContext2D;
 
-  constructor(readonly canvas: HTMLCanvasElement, hitCanvas?: HitCanvas) {
+  constructor(
+    readonly canvas: HTMLCanvasElement,
+    hitCanvas?: HitCanvas,
+  ) {
     this.ctx = canvas.getContext("2d")!;
     this.hitCanvas = hitCanvas ? hitCanvas : new HitCanvas();
     this.hitCtx = this.hitCanvas.ctx;
@@ -228,7 +231,7 @@ export class Graphics {
         fill.width,
         fill.height,
         fill.rx || 0,
-        fill.ry || 0
+        fill.ry || 0,
       );
       this.ctx.fill();
     } else {
@@ -260,7 +263,7 @@ export class Graphics {
       0,
       startAngle,
       endAngle,
-      fill.anticlockwise
+      fill.anticlockwise,
     );
     if ("color" in fill) {
       this.ctx.fillStyle = fill.color.toString();
@@ -296,7 +299,7 @@ export class Graphics {
       0,
       startAngle,
       endAngle,
-      stroke.anticlockwise
+      stroke.anticlockwise,
     );
     if ("color" in stroke) {
       this.ctx.strokeStyle = stroke.color.toString();
@@ -313,8 +316,14 @@ export class Graphics {
     this.ctx.font = font.getFontString();
     const fm = this.ctx.measureText(text);
     let dim: Dimension;
-    if (fm.fontBoundingBoxAscent !== undefined && fm.fontBoundingBoxDescent !== undefined) {
-      dim = { width: fm.width, height: fm.fontBoundingBoxAscent + fm.fontBoundingBoxDescent };
+    if (
+      fm.fontBoundingBoxAscent !== undefined &&
+      fm.fontBoundingBoxDescent !== undefined
+    ) {
+      dim = {
+        width: fm.width,
+        height: fm.fontBoundingBoxAscent + fm.fontBoundingBoxDescent,
+      };
     } else {
       dim = { width: fm.width, height: font.height };
     }
@@ -346,7 +355,7 @@ export class Graphics {
           box.width,
           box.height,
           stroke.rx || 0,
-          stroke.ry || 0
+          stroke.ry || 0,
         );
         this.ctx.stroke();
       } else {
@@ -361,7 +370,7 @@ export class Graphics {
           stroke.width,
           stroke.height,
           stroke.rx || 0,
-          stroke.ry || 0
+          stroke.ry || 0,
         );
         this.ctx.stroke();
       } else {
@@ -448,10 +457,10 @@ export class Path {
   }
 
   static fromPoints(points: NullablePoint[]) {
-    const startIndex = points.findIndex(point => point.y !== null);
+    const startIndex = points.findIndex((point) => point.y !== null);
     if (startIndex === -1) {
       const path = new Path(0, 0);
-      path.segments.length = 0
+      path.segments.length = 0;
       return path;
     }
 
@@ -517,7 +526,7 @@ export class Path {
 }
 
 export class HitRegionBuilder {
-  constructor(private ctx: CanvasRenderingContext2D) { }
+  constructor(private ctx: CanvasRenderingContext2D) {}
 
   addRect(x: number, y: number, width: number, height: number) {
     this.ctx.fillRect(x, y, width, height);
@@ -532,7 +541,7 @@ export class HitRegionBuilder {
     rotation: number,
     startAngle: number,
     endAngle: number,
-    anticlockwise?: boolean
+    anticlockwise?: boolean,
   ) {
     this.ctx.beginPath();
     this.ctx.ellipse(
@@ -543,7 +552,7 @@ export class HitRegionBuilder {
       rotation,
       startAngle,
       endAngle,
-      anticlockwise
+      anticlockwise,
     );
     this.ctx.fill();
   }

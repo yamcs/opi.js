@@ -212,7 +212,7 @@ export class BooleanButton extends Widget {
           .lineTo(this.x + this.width - lineWidth, this.y + lineWidth)
           .lineTo(
             this.x + this.width - lineWidth,
-            this.y + this.height - lineWidth
+            this.y + this.height - lineWidth,
           )
           .lineTo(this.x + lineWidth, this.y + this.height - lineWidth)
           .closePath(),
@@ -316,7 +316,7 @@ export class BooleanButton extends Widget {
           ledArea.x,
           ledArea.y,
           ledArea.x + ledArea.width,
-          ledArea.y + ledArea.height
+          ledArea.y + ledArea.height,
         );
         gradient.addColorStop(0, "white");
         gradient.addColorStop(1, ledColor.withAlpha(0).toString());
@@ -362,7 +362,7 @@ export class BooleanButton extends Widget {
           ledArea.x,
           ledArea.y,
           ledArea.x + ledArea.width,
-          ledArea.y + ledArea.height
+          ledArea.y + ledArea.height,
         );
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, ledColor.withAlpha(0).toString());

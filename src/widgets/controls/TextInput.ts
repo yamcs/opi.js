@@ -89,7 +89,7 @@ export class TextInput extends Widget {
     };
 
     this.inputEl = document.createElement(
-      this.multilineInput ? "textarea" : "input"
+      this.multilineInput ? "textarea" : "input",
     );
     this.inputEl!.style.display = "none";
     this.inputEl!.addEventListener("keyup", (evt: any) => {
@@ -114,7 +114,8 @@ export class TextInput extends Widget {
       }
     });
     this.inputEl.addEventListener("blur", (evt) => {
-      if (this.pv) { // Explicit "enter" required
+      if (this.pv) {
+        // Explicit "enter" required
         this.cancelInput();
       } else {
         this.value = this.inputEl?.value || "";
@@ -190,13 +191,17 @@ export class TextInput extends Widget {
 
     let text = this.text;
     if (this.pv && this.pv.value !== undefined) {
-      let precision = this.precisionFromPV
-        ? this.pv.precision
-        : this.precision;
-      if (precision === -1) { // Use PV precision if available
+      let precision = this.precisionFromPV ? this.pv.precision : this.precision;
+      if (precision === -1) {
+        // Use PV precision if available
         precision = this.pv.precision ?? -1;
       }
-      text = formatValue(this.pv.value, this.formatType, precision, this.pv.typeHint);
+      text = formatValue(
+        this.pv.value,
+        this.formatType,
+        precision,
+        this.pv.typeHint,
+      );
       if (this.showUnits && this.pv?.units) {
         text += " " + this.pv.units;
       }

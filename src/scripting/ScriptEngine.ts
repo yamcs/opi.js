@@ -36,7 +36,7 @@ export class ScriptEngine {
   constructor(
     readonly widget: Widget,
     readonly scriptText: string,
-    pvs: PV[] = []
+    pvs: PV[] = [],
   ) {
     if (!iframe) {
       createIframe();

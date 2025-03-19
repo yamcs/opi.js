@@ -29,7 +29,7 @@ export class PVEngine {
 
   private listeners = new Map<string, PVListener[]>();
 
-  constructor(private display: Display) { }
+  constructor(private display: Display) {}
 
   /**
    * To be called following display parse.
@@ -177,7 +177,7 @@ export class PVEngine {
       if (localPV.type && type && localPV.type !== type) {
         console.warn(
           `PV ${pvName} is defined with different ` +
-          `types: ${localPV.type} !== ${type}`
+            `types: ${localPV.type} !== ${type}`,
         );
       }
       if (
@@ -187,7 +187,7 @@ export class PVEngine {
       ) {
         console.warn(
           `PV ${pvName} is defined with different ` +
-          `initializers: ${localPV.initializer} !== ${initializer}`
+            `initializers: ${localPV.initializer} !== ${initializer}`,
         );
       } else if (
         localPV.initializer === undefined &&
@@ -307,15 +307,13 @@ export class PVEngine {
             }
             script.scriptEngine.run(triggerPV);
           },
-          false
+          false,
         );
       }
     }
 
     return script;
   }
-
-
 
   createRule(widget: Widget, model: Rule) {
     const pvs = [];
@@ -383,7 +381,7 @@ class ScriptInstance {
     readonly widget: Widget,
     readonly script: Script,
     readonly text: string,
-    readonly pvs: PV[]
+    readonly pvs: PV[],
   ) {
     this.scriptEngine = new ScriptEngine(widget, text, pvs);
   }
@@ -392,12 +390,16 @@ class ScriptInstance {
 class RuleInstance {
   scriptEngine: ScriptEngine;
 
-  constructor(readonly widget: Widget, readonly rule: Rule, pvs: PV[]) {
+  constructor(
+    readonly widget: Widget,
+    readonly rule: Rule,
+    pvs: PV[],
+  ) {
     let scriptText = "";
     const property = widget.properties.getProperty(rule.propertyName);
     if (!property) {
       throw new Error(
-        `Cannot create rule for unsupported property ${rule.propertyName}`
+        `Cannot create rule for unsupported property ${rule.propertyName}`,
       );
     }
     if (rule.expressions.length) {

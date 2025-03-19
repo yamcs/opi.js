@@ -131,7 +131,7 @@ export class Gauge extends Widget {
         this.x,
         this.y,
         this.x + this.width,
-        this.y + this.height
+        this.y + this.height,
       );
       gradient.addColorStop(0, BORDER_COLOR.toString());
       gradient.addColorStop(1, Color.WHITE.toString());
@@ -162,7 +162,7 @@ export class Gauge extends Widget {
       const DOWN_ANGLE = toRadians(35);
       let box: Bounds = {
         x: Math.floor(
-          this.x + width / 2 - R * LR_FILL_PART * Math.cos(UP_ANGLE)
+          this.x + width / 2 - R * LR_FILL_PART * Math.cos(UP_ANGLE),
         ),
         y: Math.floor(this.y + height / 2 - R * UD_FILL_PART),
         width: Math.floor(2 * R * LR_FILL_PART * Math.cos(UP_ANGLE)),
@@ -172,7 +172,7 @@ export class Gauge extends Widget {
         box.x,
         box.y,
         box.x,
-        box.y + box.height
+        box.y + box.height,
       );
       gradient.addColorStop(0, Color.WHITE.withAlpha(90 / 255).toString());
       gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
@@ -187,7 +187,7 @@ export class Gauge extends Widget {
 
       box = {
         x: Math.floor(
-          this.x + width / 2 - R * LR_FILL_PART * Math.sin(DOWN_ANGLE)
+          this.x + width / 2 - R * LR_FILL_PART * Math.sin(DOWN_ANGLE),
         ),
         y: Math.floor(Math.ceil(this.y + height / 2 + R * UP_DOWN_RATIO)),
         width: Math.floor(2 * R * LR_FILL_PART * Math.sin(DOWN_ANGLE)),
@@ -197,7 +197,7 @@ export class Gauge extends Widget {
         box.x,
         box.y,
         box.x,
-        box.y + box.height
+        box.y + box.height,
       );
       gradient.addColorStop(0, Color.WHITE.withAlpha(0).toString());
       gradient.addColorStop(1, Color.WHITE.withAlpha(40 / 255).toString());
@@ -215,12 +215,12 @@ export class Gauge extends Widget {
     g: Graphics,
     width: number,
     height: number,
-    limits: DisplayLimits
+    limits: DisplayLimits,
   ) {
     const area = shrink(
       { x: this.x, y: this.y, width, height },
       width / 4,
-      height / 4
+      height / 4,
     );
     const rampArea = { ...area };
     rampArea.width = Math.min(area.width, area.height);
@@ -265,7 +265,7 @@ export class Gauge extends Widget {
     g: Graphics,
     width: number,
     height: number,
-    limits: DisplayLimits
+    limits: DisplayLimits,
   ) {
     const cx = this.x + width / 2;
     const cy = this.y + height / 2;
@@ -299,21 +299,21 @@ export class Gauge extends Widget {
       cy - needleDiameter / 2 + 3 * scale,
       cx,
       cy,
-      angle
+      angle,
     );
     const p2 = rotatePoint(
       cx + width / 2 - majorTickLength - gapBetweenNeedleScale,
       cy,
       cx,
       cy,
-      angle
+      angle,
     );
     const p3 = rotatePoint(
       cx,
       cy + needleDiameter / 2 - 3 * scale,
       cx,
       cy,
-      angle
+      angle,
     );
     g.fillPath({
       color: this.needleColor,
@@ -335,7 +335,7 @@ export class Gauge extends Widget {
         cx - rx,
         cy - ry,
         cx + rx,
-        cy + ry
+        cy + ry,
       );
       gradient.addColorStop(0, Color.WHITE.toString());
       gradient.addColorStop(1, BORDER_COLOR.toString());

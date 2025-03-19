@@ -1,7 +1,7 @@
 import { PV } from "../pv/PV";
 
 export class PVWrapper {
-  constructor(readonly _pv: PV) { }
+  constructor(readonly _pv: PV) {}
 
   getName() {
     return this._pv.name;

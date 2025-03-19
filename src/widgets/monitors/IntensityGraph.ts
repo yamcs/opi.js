@@ -101,7 +101,7 @@ export class IntensityGraph extends Widget {
     if (this.xAxisVisible) {
       xTitleHeight = g.measureText(
         this.xAxisAxisTitle,
-        this.xAxisTitleFont
+        this.xAxisTitleFont,
       ).height;
     }
 
@@ -109,7 +109,7 @@ export class IntensityGraph extends Widget {
     if (this.yAxisVisible) {
       yTitleWidth = g.measureText(
         this.yAxisAxisTitle,
-        this.yAxisTitleFont
+        this.yAxisTitleFont,
       ).height;
     }
 
@@ -123,7 +123,7 @@ export class IntensityGraph extends Widget {
       this.xAxisMajorTickStepHint,
       this.xAxisAxisColor,
       this.xAxisShowMinorTicks,
-      this.xAxisVisible
+      this.xAxisVisible,
     );
     const xScaleMargin = xScale.calculateMargin(g, true);
     const yScale = new LinearScale(
@@ -136,7 +136,7 @@ export class IntensityGraph extends Widget {
       this.yAxisMajorTickStepHint,
       this.yAxisAxisColor,
       this.yAxisShowMinorTicks,
-      this.yAxisVisible
+      this.yAxisVisible,
     );
     const yScaleMargin = yScale.calculateMargin(g, false);
 
@@ -147,7 +147,7 @@ export class IntensityGraph extends Widget {
       area.x + yTitleWidth,
       area.y,
       yScaleHeight,
-      true
+      true,
     );
     const xScaleWidth = graphAreaWidth + 2 * xScaleMargin;
 
@@ -162,7 +162,7 @@ export class IntensityGraph extends Widget {
     g.strokePath({
       path: new Path(verticalLineX, verticalLineY).lineTo(
         verticalLineX,
-        verticalLineY + graphAreaHeight
+        verticalLineY + graphAreaHeight,
       ),
       color: this.yAxisAxisColor,
       opacity: 100 / 255,
@@ -173,7 +173,7 @@ export class IntensityGraph extends Widget {
     g.strokePath({
       path: new Path(horizontalLineX, horizontalLineY).lineTo(
         horizontalLineX + graphAreaWidth,
-        horizontalLineY
+        horizontalLineY,
       ),
       color: this.xAxisAxisColor,
       opacity: 100 / 255,
@@ -221,7 +221,7 @@ export class IntensityGraph extends Widget {
         50 * scale,
         this.alarmSensitiveForegroundColor,
         false,
-        true
+        true,
       );
       const rampY = area.y + yScale.margin;
       const rampFullHeight = graphAreaHeight;
@@ -231,7 +231,7 @@ export class IntensityGraph extends Widget {
         rampY,
         rampFullHeight,
         false,
-        true
+        true,
       );
       const rampX =
         area.x + yTitleWidth + yScaleWidth + graphAreaWidth + this.gap;

@@ -36,7 +36,7 @@ export class LocalPV extends PV {
     name: string,
     pvEngine: PVEngine,
     public type?: LocalPVType,
-    readonly initializer?: any
+    readonly initializer?: any,
   ) {
     super(name, pvEngine);
     this.writable = true;

@@ -16,7 +16,10 @@ export class ZoomCommand implements Command {
   private afterXRanges: Range[] = [];
   private afterYRanges: Range[] = [];
 
-  constructor(private xAxis: Axis[], private yAxis: Axis[]) {
+  constructor(
+    private xAxis: Axis[],
+    private yAxis: Axis[],
+  ) {
     for (const axis of xAxis) {
       this.beforeXRanges.push({
         min: axis.effectiveMinimum,

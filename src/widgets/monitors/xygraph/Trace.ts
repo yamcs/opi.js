@@ -49,7 +49,10 @@ export class Trace {
     }
   };
 
-  constructor(private widget: XYGraph, private i: number) { }
+  constructor(
+    private widget: XYGraph,
+    private i: number,
+  ) {}
 
   init() {
     const { bufferSize, plotMode, updateMode, concatenateData, widget } = this;
@@ -58,7 +61,8 @@ export class Trace {
 
     this.historicalDataProvider = undefined;
     if (chronological && this.yPV) {
-      this.historicalDataProvider = pvEngine.createHistoricalDataProvider(this.yPV, widget) || undefined;
+      this.historicalDataProvider =
+        pvEngine.createHistoricalDataProvider(this.yPV, widget) || undefined;
     }
 
     this.traceData = new TraceBuffer(

@@ -103,7 +103,7 @@ export class Connection extends Widget {
     const points = [from, ...this.points, to];
     const path = Path.fromPoints(points).translate(
       0.5 * this.scale,
-      0.5 * this.scale
+      0.5 * this.scale,
     );
 
     g.strokePath({
@@ -136,7 +136,7 @@ export class Connection extends Widget {
     this.drawStartArrow(
       g,
       points[points.length - 2],
-      points[points.length - 1]
+      points[points.length - 1],
     );
     this.drawStopArrow(g, points[1], points[0]);
   }
@@ -486,7 +486,7 @@ export class Connection extends Widget {
     // Intersection point between arrow and line.
     const ppI = new PolarPoint(
       Math.floor(this.arrowLength * Math.cos(angle)),
-      ppE.theta
+      ppE.theta,
     );
 
     const pR = translatePoint(ppR.toPoint(), endPoint.x, endPoint.y);

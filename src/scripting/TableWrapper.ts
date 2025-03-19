@@ -12,7 +12,7 @@ export class TableWrapper extends WidgetWrapper {
     this.table = widget;
     this.spreadSheetTable = new SpreadSheetTableWrapper(
       this.table.spreadsheet,
-      scriptEngine
+      scriptEngine,
     );
   }
 

@@ -40,7 +40,7 @@ export class Ramp {
   constructor(
     private rampWidth: number,
     private startAngle: number,
-    private endAngle: number
+    private endAngle: number,
   ) {}
 
   draw(g: Graphics, scaleArea: Bounds, rampArea: Bounds) {
@@ -112,27 +112,27 @@ export class Ramp {
 
       if (this.effect3d && this.gradient && this.showLoLo) {
         const gradientLeftAngle = toRadians(
-          this.getValuePosition(loLeft, true) - RAMP_OVERLAP
+          this.getValuePosition(loLeft, true) - RAMP_OVERLAP,
         );
         const gradientLeft = convertPolarToCartesian(
           area.width / 2,
           gradientLeftAngle,
-          area
+          area,
         );
 
         const gradientRightAngle = toRadians(
-          this.getValuePosition(this.lo, true) + RAMP_OVERLAP
+          this.getValuePosition(this.lo, true) + RAMP_OVERLAP,
         );
         const gradientRight = convertPolarToCartesian(
           area.width / 2,
           gradientRightAngle,
-          area
+          area,
         );
         const gradient = g.createLinearGradient(
           gradientLeft.x,
           gradientLeft.y,
           gradientRight.x,
-          gradientRight.y
+          gradientRight.y,
         );
         gradient.addColorStop(0, this.loloColor.toString());
         gradient.addColorStop(1, this.loColor.toString());
@@ -181,31 +181,31 @@ export class Ramp {
     let endAngle = 360 - this.getValuePosition(midNormal, true);
     if (this.effect3d && this.gradient && (this.showLoLo || this.showLo)) {
       const gradientLeftAngle = toRadians(
-        this.getValuePosition(midLeft, true) - RAMP_OVERLAP
+        this.getValuePosition(midLeft, true) - RAMP_OVERLAP,
       );
       const gradientLeft = convertPolarToCartesian(
         area.width / 2,
         gradientLeftAngle,
-        area
+        area,
       );
 
       const gradientRightAngle = toRadians(
-        this.getValuePosition(midNormal, true) + RAMP_OVERLAP
+        this.getValuePosition(midNormal, true) + RAMP_OVERLAP,
       );
       const gradientRight = convertPolarToCartesian(
         area.width / 2,
         gradientRightAngle,
-        area
+        area,
       );
       const gradient = g.createLinearGradient(
         gradientLeft.x,
         gradientLeft.y,
         gradientRight.x,
-        gradientRight.y
+        gradientRight.y,
       );
       gradient.addColorStop(
         0,
-        (this.showLo ? this.loColor : this.loloColor).toString()
+        (this.showLo ? this.loColor : this.loloColor).toString(),
       );
       gradient.addColorStop(1, Color.GREEN.toString());
       g.strokeEllipse({
@@ -236,32 +236,32 @@ export class Ramp {
     endAngle = 360 - this.getValuePosition(midRight, true);
     if (this.effect3d && this.gradient && (this.showHi || this.showHiHi)) {
       const gradientLeftAngle = toRadians(
-        this.getValuePosition(midNormal, true) - RAMP_OVERLAP
+        this.getValuePosition(midNormal, true) - RAMP_OVERLAP,
       );
       const gradientLeft = convertPolarToCartesian(
         area.width / 2,
         gradientLeftAngle,
-        area
+        area,
       );
 
       const gradientRightAngle = toRadians(
-        this.getValuePosition(midRight, true) + RAMP_OVERLAP
+        this.getValuePosition(midRight, true) + RAMP_OVERLAP,
       );
       const gradientRight = convertPolarToCartesian(
         area.width / 2,
         gradientRightAngle,
-        area
+        area,
       );
       const gradient = g.createLinearGradient(
         gradientLeft.x,
         gradientLeft.y,
         gradientRight.x,
-        gradientRight.y
+        gradientRight.y,
       );
       gradient.addColorStop(0, Color.GREEN.toString());
       gradient.addColorStop(
         1,
-        (this.showHi ? this.hiColor : this.hihiColor).toString()
+        (this.showHi ? this.hiColor : this.hihiColor).toString(),
       );
       const overlap = endAngle !== rightMostAngle ? RAMP_OVERLAP / 2 : 0;
       g.strokeEllipse({
@@ -300,27 +300,27 @@ export class Ramp {
 
       if (this.effect3d && this.gradient && this.showHiHi) {
         const gradientLeftAngle = toRadians(
-          this.getValuePosition(this.hi, true) - RAMP_OVERLAP
+          this.getValuePosition(this.hi, true) - RAMP_OVERLAP,
         );
         const gradientLeft = convertPolarToCartesian(
           area.width / 2,
           gradientLeftAngle,
-          area
+          area,
         );
 
         const gradientRightAngle = toRadians(
-          this.getValuePosition(hiRight, true) + RAMP_OVERLAP
+          this.getValuePosition(hiRight, true) + RAMP_OVERLAP,
         );
         const gradientRight = convertPolarToCartesian(
           area.width / 2,
           gradientRightAngle,
-          area
+          area,
         );
         const gradient = g.createLinearGradient(
           gradientLeft.x,
           gradientLeft.y,
           gradientRight.x,
-          gradientRight.y
+          gradientRight.y,
         );
         gradient.addColorStop(0, this.hiColor.toString());
         gradient.addColorStop(1, this.hihiColor.toString());

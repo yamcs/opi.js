@@ -3,7 +3,10 @@ import { ScriptEngine } from "./ScriptEngine";
 import { wrapWidget } from "./utils";
 
 export class DisplayWrapper {
-  constructor(private display: Display, private scriptEngine: ScriptEngine) {}
+  constructor(
+    private display: Display,
+    private scriptEngine: ScriptEngine,
+  ) {}
 
   isActive() {
     return true;

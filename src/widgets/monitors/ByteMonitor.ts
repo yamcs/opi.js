@@ -33,7 +33,7 @@ export class ByteMonitor extends Widget {
     // Old displays don't have these properties
     this.properties.add(new IntProperty(PROP_LED_BORDER, 3));
     this.properties.add(
-      new ColorProperty(PROP_LED_BORDER_COLOR, Color.DARK_GRAY)
+      new ColorProperty(PROP_LED_BORDER_COLOR, Color.DARK_GRAY),
     );
     this.properties.add(new BooleanProperty(PROP_LED_PACKED, false));
   }
@@ -80,7 +80,7 @@ export class ByteMonitor extends Widget {
     let ledSpacing;
     if (this.ledPacked) {
       ledWidth = Math.floor(
-        (bounds.width - this.ledBorder) / this.numBits + this.ledBorder
+        (bounds.width - this.ledBorder) / this.numBits + this.ledBorder,
       );
       ledSpacing = ledWidth - this.ledBorder;
     } else {
@@ -130,7 +130,7 @@ export class ByteMonitor extends Widget {
     let ledSpacing;
     if (this.ledPacked) {
       ledHeight = Math.floor(
-        (bounds.height - this.ledBorder) / this.numBits + this.ledBorder
+        (bounds.height - this.ledBorder) / this.numBits + this.ledBorder,
       );
       ledSpacing = ledHeight - this.ledBorder;
     } else {
@@ -207,7 +207,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, this.ledBorderColor.toString());
     gradient.addColorStop(1, this.ledBorderColor.withAlpha(0).toString());
@@ -223,7 +223,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, Color.WHITE.toString());
     gradient.addColorStop(1, this.ledBorderColor.withAlpha(0).toString());
@@ -236,7 +236,7 @@ export class ByteMonitor extends Widget {
       area.y,
       area.width,
       area.height,
-      this.ledBorder
+      this.ledBorder,
     );
     g.fillRect({
       ...box,
@@ -260,7 +260,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y
+      area.y,
     );
     gradient.addColorStop(0, "rgba(0,0,0,0.078)");
     gradient.addColorStop(1, "rgba(0,0,0,0.39)");
@@ -277,7 +277,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, "rgba(0,0,0,0.078)");
     gradient.addColorStop(1, "rgba(0,0,0,0.39)");
@@ -294,7 +294,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y
+      area.y,
     );
     gradient.addColorStop(0, "rgba(255,255,255,0.078)");
     gradient.addColorStop(1, "rgba(255,255,255,0.39)");
@@ -304,7 +304,7 @@ export class ByteMonitor extends Widget {
         .lineTo(area.x + area.width - this.ledBorder, area.y + this.ledBorder)
         .lineTo(
           area.x + area.width - this.ledBorder,
-          area.y + area.height - this.ledBorder
+          area.y + area.height - this.ledBorder,
         )
         .lineTo(area.x + area.width, area.y + area.height),
     });
@@ -314,7 +314,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, "rgba(255,255,255,0.078)");
     gradient.addColorStop(1, "rgba(255,255,255,0.39)");
@@ -324,7 +324,7 @@ export class ByteMonitor extends Widget {
         .lineTo(area.x + this.ledBorder, area.y + area.height - this.ledBorder)
         .lineTo(
           area.x + area.width - this.ledBorder,
-          area.y + area.height - this.ledBorder
+          area.y + area.height - this.ledBorder,
         )
         .lineTo(area.x + area.width, area.y + area.height),
     });
@@ -343,7 +343,7 @@ export class ByteMonitor extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, "rgba(255,255,255,0.784)");
     gradient.addColorStop(1, ledColor.withAlpha(0).toString());

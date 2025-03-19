@@ -3,7 +3,7 @@ import { ConsoleHandler, DefaultConsoleHandler } from "./ConsoleHandler";
 import { DefaultDialogHandler, DialogHandler } from "./DialogHandler";
 import { EventHandler } from "./EventHandler";
 import { FontResolver } from "./FontResolver";
-import { Formatter } from './Formatter';
+import { Formatter } from "./Formatter";
 import { Graphics } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
 import { DefaultPathResolver, PathResolver } from "./PathResolver";
@@ -22,7 +22,7 @@ import { PVEngine } from "./pv/PVEngine";
 import { PVProvider } from "./pv/PVProvider";
 import { Sample } from "./pv/Sample";
 import { SimulatedPVProvider } from "./pv/SimulatedPVProvider";
-import { SystemPVProvider } from './pv/SystemPVProvider';
+import { SystemPVProvider } from "./pv/SystemPVProvider";
 import { ActionButton } from "./widgets/controls/ActionButton";
 import { BooleanButton } from "./widgets/controls/BooleanButton";
 import { BooleanSwitch } from "./widgets/controls/BooleanSwitch";
@@ -299,7 +299,7 @@ export class Display {
         25,
         25,
         this.ctx.canvas.width - 50,
-        this.ctx.canvas.height - 50
+        this.ctx.canvas.height - 50,
       );
     }
 
@@ -354,7 +354,7 @@ export class Display {
         -0.5,
         -0.5,
         this.instance.holderWidth + 1,
-        this.instance.holderHeight + 1
+        this.instance.holderHeight + 1,
       );
       this.ctx.setLineDash([]);
     }
@@ -557,7 +557,7 @@ export class Display {
 
   addEventListener<K extends keyof OPIEventMap>(
     type: K,
-    listener: (ev: OPIEventMap[K]) => void
+    listener: (ev: OPIEventMap[K]) => void,
   ): void;
   addEventListener(type: string, listener: (ev: OPIEvent) => void): void {
     if (!(type in this.eventListeners)) {
@@ -568,14 +568,14 @@ export class Display {
 
   removeEventListener<K extends keyof OPIEventMap>(
     type: K,
-    listener: (ev: OPIEventMap[K]) => void
+    listener: (ev: OPIEventMap[K]) => void,
   ): void;
   removeEventListener(type: string, listener: (ev: OPIEvent) => void): void {
     if (!(type in this.eventListeners)) {
       throw new Error(`Unknown event '${type}'`);
     }
     this.eventListeners[type] = this.eventListeners[type].filter(
-      (el: any) => el !== listener
+      (el: any) => el !== listener,
     );
   }
 
@@ -744,7 +744,7 @@ export class Display {
         0,
         0,
         area.width,
-        area.height
+        area.height,
       );
     return copy;
   }

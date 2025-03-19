@@ -1,7 +1,7 @@
 import { PVEngine } from "./PVEngine";
 import { PVProvider } from "./PVProvider";
 import { Sample } from "./Sample";
-import { TypeHint } from './TypeHint';
+import { TypeHint } from "./TypeHint";
 
 export class PV {
   private _writable = false;
@@ -29,7 +29,10 @@ export class PV {
 
   provider?: PVProvider;
 
-  constructor(readonly name: string, readonly pvEngine: PVEngine) { }
+  constructor(
+    readonly name: string,
+    readonly pvEngine: PVEngine,
+  ) {}
 
   get navigable(): boolean {
     return this.provider?.isNavigable() || false;

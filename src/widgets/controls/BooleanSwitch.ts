@@ -276,7 +276,7 @@ export class BooleanSwitch extends Widget {
         this.x + bounds.x,
         this.y + bounds.y,
         this.x + bounds.x + bounds.width,
-        this.y + bounds.y + bounds.height
+        this.y + bounds.y + bounds.height,
       );
 
       if (toggled) {
@@ -295,7 +295,7 @@ export class BooleanSwitch extends Widget {
     g: Graphics,
     sm: Bounds,
     lg: Bounds,
-    booleanValue: boolean
+    booleanValue: boolean,
   ) {
     let stopOpacity1 = (booleanValue ? 0 : 10) / 255;
     let stopOpacity2 = (booleanValue ? 150 : 220) / 255;
@@ -304,7 +304,7 @@ export class BooleanSwitch extends Widget {
       this.x + lg.x,
       this.y + lg.y,
       this.x + lg.x,
-      this.y + lg.y + lg.height
+      this.y + lg.y + lg.height,
     );
     gradient.addColorStop(0, `rgba(0,0,0,${stopOpacity1})`);
     gradient.addColorStop(1, `rgba(0,0,0,${stopOpacity2})`);
@@ -357,7 +357,7 @@ export class BooleanSwitch extends Widget {
         .lineTo(points[2], points[3])
         .lineTo(points[4], points[5])
         .lineTo(points[6], points[7])
-        .closePath()
+        .closePath(),
     );
 
     g.ctx.fillStyle = booleanValue
@@ -405,18 +405,18 @@ export class BooleanSwitch extends Widget {
     g: Graphics,
     sm: Bounds,
     lg: Bounds,
-    booleanValue: boolean
+    booleanValue: boolean,
   ) {
     const gradient = g.createLinearGradient(
       this.x + lg.x,
       this.y + lg.y,
       this.x + lg.x + lg.width,
-      this.y + lg.y
+      this.y + lg.y,
     );
     gradient.addColorStop(0, `rgba(0,0,0,${10 / 255})`);
     gradient.addColorStop(
       1,
-      `rgba(0,0,0,${booleanValue ? 210 / 255 : 160 / 255})`
+      `rgba(0,0,0,${booleanValue ? 210 / 255 : 160 / 255})`,
     );
 
     const shaftRegion = g.addHitRegion(this.shaftRegion!);
@@ -436,7 +436,7 @@ export class BooleanSwitch extends Widget {
       sm.height / 2,
       0,
       0,
-      2 * Math.PI
+      2 * Math.PI,
     );
 
     g.ctx.fillStyle = booleanValue
@@ -473,7 +473,7 @@ export class BooleanSwitch extends Widget {
         .lineTo(points[2], points[3])
         .lineTo(points[4], points[5])
         .lineTo(points[6], points[7])
-        .closePath()
+        .closePath(),
     );
 
     g.ctx.fillStyle = booleanValue
@@ -506,12 +506,12 @@ export class BooleanSwitch extends Widget {
         this.x + lg.x,
         this.y + lg.y,
         this.x + lg.width,
-        this.y + lg.height
+        this.y + lg.height,
       );
       gradient.addColorStop(0, `rgba(0,0,0,${(booleanValue ? 5 : 10) / 255})`);
       gradient.addColorStop(
         1,
-        `rgba(0,0,0,${(booleanValue ? 180 : 160) / 255})`
+        `rgba(0,0,0,${(booleanValue ? 180 : 160) / 255})`,
       );
       g.ctx.fillStyle = gradient;
       g.ctx.fill();

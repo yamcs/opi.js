@@ -84,7 +84,7 @@ export class LinkingContainer extends AbstractContainerWidget {
       if (this.resizeBehavior === 0) {
         // FIT_OPI_TO_CONTAINER
         const contentBounds = this.linkedDisplay.measureContentBounds(
-          false /* unscaled */
+          false /* unscaled */,
         );
         let { width: sw, height: sh } = contentBounds;
 
@@ -115,16 +115,16 @@ export class LinkingContainer extends AbstractContainerWidget {
         // FIT_CONTAINER_TO_OPI
         console.warn(
           "Unsupported resize behavior of LinkingContainer",
-          this.resizeBehavior
+          this.resizeBehavior,
         );
       } else if (this.resizeBehavior === 2) {
         // CROP OPI
         const contentBounds = this.linkedDisplay.measureContentBounds(
-          true /* scaled */
+          true /* scaled */,
         );
         const offscreen = g.createChild(
           contentBounds.width,
-          contentBounds.height
+          contentBounds.height,
         );
         offscreen.translate(contentBounds.x, contentBounds.y);
 
@@ -134,7 +134,7 @@ export class LinkingContainer extends AbstractContainerWidget {
         // SCROLL OPI
         console.warn(
           "Unsupported resize behavior of LinkingContainer",
-          this.resizeBehavior
+          this.resizeBehavior,
         );
       }
     }

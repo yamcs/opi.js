@@ -45,8 +45,8 @@ export class LinearScale {
     private majorTickStepHint: number,
     private foregroundColor: Color,
     private showMinorTicks: boolean,
-    private showScale: boolean
-  ) { }
+    private showScale: boolean,
+  ) {}
 
   get scaleLength() {
     return this.length - 2 * this.margin;
@@ -96,7 +96,7 @@ export class LinearScale {
         pixelsToStart =
           ((Math.log10(value) - Math.log10(min)) /
             (Math.log10(max) - Math.log10(min))) *
-          l +
+            l +
           this.margin;
       }
     } else {
@@ -140,8 +140,8 @@ export class LinearScale {
       value = Math.pow(
         10,
         ((pixelsToStart - this.margin) * (Math.log10(max) - Math.log10(min))) /
-        l +
-        Math.log10(min)
+          l +
+          Math.log10(min),
       );
     } else {
       const f = Math.max(Math.abs(min), Math.abs(max));
@@ -270,7 +270,7 @@ export class LinearScale {
     y: number,
     height: number,
     leftCoordinate: boolean,
-    ticksLeft = false
+    ticksLeft = false,
   ) {
     const { scale } = this;
     this.length = height;
@@ -376,7 +376,7 @@ export class LinearScale {
           g.strokePath({
             path: new Path(startX, pathY).lineTo(
               startX + this.majorTickLength,
-              pathY
+              pathY,
             ),
             color: this.foregroundColor,
             lineWidth: scale * 1,
@@ -444,7 +444,7 @@ export class LinearScale {
             x0 +
             labelPositions[i - 1] +
             ((labelPositions[i] - labelPositions[i - 1]) * j) /
-            minorTicksNumber;
+              minorTicksNumber;
           tickX = Math.round(tickX) - scale * 0.5;
           g.strokePath({
             path: new Path(tickX, y).lineTo(tickX, y + minorTickLength),
@@ -483,7 +483,7 @@ export class LinearScale {
           g.strokePath({
             path: new Path(x + majorTickLength - minorTickLength, pathY).lineTo(
               x + majorTickLength,
-              pathY
+              pathY,
             ),
             color: this.foregroundColor,
             lineWidth: scale * 1,
@@ -501,7 +501,7 @@ export class LinearScale {
           g.strokePath({
             path: new Path(x + majorTickLength - minorTickLength, pathY).lineTo(
               x + majorTickLength,
-              pathY
+              pathY,
             ),
             color: this.foregroundColor,
             lineWidth: scale * 1,
@@ -515,12 +515,12 @@ export class LinearScale {
             scaleY2 -
             labelPositions[i - 1] -
             ((labelPositions[i] - labelPositions[i - 1]) * j) /
-            minorTicksNumber;
+              minorTicksNumber;
           y = Math.round(y) - scale * 0.5;
           g.strokePath({
             path: new Path(x + majorTickLength - minorTickLength, y).lineTo(
               x + majorTickLength,
-              y
+              y,
             ),
             color: this.foregroundColor,
             lineWidth: scale * 1,
@@ -547,7 +547,7 @@ export class LinearScale {
           this.minimum,
           this.maximum,
           length,
-          gridStep
+          gridStep,
         );
       }
     }
@@ -557,7 +557,7 @@ export class LinearScale {
   private getGridStep(
     lengthInPixels: number,
     minimum: number,
-    maximum: number
+    maximum: number,
   ): number {
     if (lengthInPixels <= 0) {
       lengthInPixels = 1;
@@ -703,7 +703,7 @@ export class LinearScale {
     this.labels.push(this.format(d));
     const labelPosition =
       Math.floor(
-        ((Math.log10(d) - logMin) / (Math.log10(max) - logMin)) * length
+        ((Math.log10(d) - logMin) / (Math.log10(max) - logMin)) * length,
       ) + this.margin;
     this.labelPositions.push(labelPosition);
     this.labelValues.push(d);
@@ -713,7 +713,7 @@ export class LinearScale {
     min: number,
     max: number,
     length: number,
-    tickStep: number
+    tickStep: number,
   ) {
     const minBigger = max < min;
     let firstPosition;
@@ -781,7 +781,7 @@ export class LinearScale {
           previousPosition,
           currentPosition,
           previousLabel || "",
-          currentLabel
+          currentLabel,
         );
       }
 
@@ -813,18 +813,18 @@ export class LinearScale {
     previousPosition: number,
     tickLabelPosition: number,
     previousTickLabel: string,
-    tickLabel: string
+    tickLabel: string,
   ) {
     const tickLabelSize = g.measureText(tickLabel, this.scaleFont);
     const previousTickLabelSize = g.measureText(
       previousTickLabel,
-      this.scaleFont
+      this.scaleFont,
     );
     let interval = tickLabelPosition - previousPosition;
     let textLength = Math.floor(
       this.horizontal
         ? tickLabelSize.width / 2.0 + previousTickLabelSize.width / 2.0
-        : tickLabelSize.height
+        : tickLabelSize.height,
     );
     let noLapOnPrevious = true;
     let noLapOnEnd = true;
@@ -835,14 +835,14 @@ export class LinearScale {
       noLapOnPrevious = interval > textLength + this.tickLabelGap;
       const endTickLabelSize = g.measureText(
         this.labels[this.labels.length - 1],
-        this.scaleFont
+        this.scaleFont,
       );
       interval =
         this.labelPositions[this.labelPositions.length - 1] - tickLabelPosition;
       textLength = Math.floor(
         this.horizontal
           ? tickLabelSize.width / 2.0 + endTickLabelSize.width / 2.0
-          : tickLabelSize.height
+          : tickLabelSize.height,
       );
       noLapOnEnd = interval > textLength + this.tickLabelGap;
     }
@@ -934,7 +934,7 @@ export class LinearScale {
       case 7: // MMMMM d
         const utc = this.formatter.utc;
         const mmmmm = months[utc ? dt.getUTCMonth() : dt.getMonth()];
-        const d = (utc ? dt.getUTCDate() : dt.getDate());
+        const d = utc ? dt.getUTCDate() : dt.getDate();
         return `${mmmmm} ${d}`;
       case 8: // Auto
         const length = Math.abs(this.maximum - this.minimum);

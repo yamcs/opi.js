@@ -130,7 +130,7 @@ export class Meter extends Widget {
     const rampBounds = shrink(
       scaleBounds,
       scaleBounds.width / 4 - rampWidth,
-      scaleBounds.height / 4 - rampWidth
+      scaleBounds.height / 4 - rampWidth,
     );
     rampBounds.width = Math.min(rampBounds.width, rampBounds.height);
     rampBounds.height = rampBounds.width;
@@ -209,21 +209,21 @@ export class Meter extends Widget {
       cy - needleWidth / 2 + 3 * scale,
       cx,
       cy,
-      angle
+      angle,
     );
     const p2 = rotatePoint(
       cx + ramp.getRadius() - gapBetweenNeedleScale,
       cy,
       cx,
       cy,
-      angle
+      angle,
     );
     const p3 = rotatePoint(
       cx + area.width / 4,
       cy + needleWidth / 2 - 3 * scale,
       cx,
       cy,
-      angle
+      angle,
     );
     g.fillPath({
       color: this.needleColor,

@@ -13,7 +13,10 @@ export class PlotAreaRegion implements HitRegionSpecification {
   private prevGrabEvent?: OpiGrabEvent;
   private grabZoomCommand?: ZoomCommand;
 
-  constructor(id: string, private widget: XYGraph) {
+  constructor(
+    id: string,
+    private widget: XYGraph,
+  ) {
     this.id = id;
   }
 
@@ -32,7 +35,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
       case "panning":
         this.grabZoomCommand = new ZoomCommand(
           widget.getXAxes(),
-          widget.getYAxes()
+          widget.getYAxes(),
         );
         break;
     }
@@ -67,7 +70,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
         if (selection) {
           const rubberbandZoomCommand = new ZoomCommand(
             widget.getXAxes(),
-            widget.getYAxes()
+            widget.getYAxes(),
           );
           this.rangeZoomXAxes(selection);
           this.rangeZoomYAxes(selection);
@@ -79,7 +82,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
         if (selection) {
           const horizontalZoomCommand = new ZoomCommand(
             widget.getXAxes(),
-            widget.getYAxes()
+            widget.getYAxes(),
           );
           this.rangeZoomXAxes(selection);
           horizontalZoomCommand.saveState();
@@ -90,7 +93,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
         if (selection) {
           const verticalZoomCommand = new ZoomCommand(
             widget.getXAxes(),
-            widget.getYAxes()
+            widget.getYAxes(),
           );
           this.rangeZoomYAxes(selection);
           verticalZoomCommand.saveState();
@@ -116,7 +119,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
       case "zoom-in":
         const zoomInCommand = new ZoomCommand(
           widget.getXAxes(),
-          widget.getYAxes()
+          widget.getYAxes(),
         );
         for (const axis of widget.getAxes()) {
           const pos = axis.isHorizontal() ? evt.point.x : evt.point.y;
@@ -129,7 +132,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
       case "zoom-out":
         const zoomOutCommand = new ZoomCommand(
           widget.getXAxes(),
-          widget.getYAxes()
+          widget.getYAxes(),
         );
         for (const axis of widget.getAxes()) {
           const pos = axis.isHorizontal() ? evt.point.x : evt.point.y;
@@ -146,7 +149,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
     for (const axis of this.widget.getXAxes()) {
       let v1 = axis.linearScale!.getPositionValue(selection.x);
       let v2 = axis.linearScale!.getPositionValue(
-        selection.x + selection.width
+        selection.x + selection.width,
       );
       if (v1 > v2) {
         const swap = v1;
@@ -166,7 +169,7 @@ export class PlotAreaRegion implements HitRegionSpecification {
     for (const axis of this.widget.getYAxes()) {
       let v1 = axis.linearScale!.getPositionValue(selection.y);
       let v2 = axis.linearScale!.getPositionValue(
-        selection.y + selection.height
+        selection.y + selection.height,
       );
       if (v1 > v2) {
         const swap = v1;

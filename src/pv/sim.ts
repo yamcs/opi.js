@@ -1,12 +1,22 @@
-import { Formatter } from '../Formatter';
+import { Formatter } from "../Formatter";
 import { AlarmSeverity, PV } from "./PV";
 
 export abstract class SimGenerator {
   private timer?: number;
 
-  constructor(readonly pv: PV, private interval: number, initialValue?: any) {
+  constructor(
+    readonly pv: PV,
+    private interval: number,
+    initialValue?: any,
+  ) {
     if (initialValue !== undefined) {
-      pv.pvEngine.setValue(new Date(), pv.name, initialValue, AlarmSeverity.NONE, pv.units);
+      pv.pvEngine.setValue(
+        new Date(),
+        pv.name,
+        initialValue,
+        AlarmSeverity.NONE,
+        pv.units,
+      );
     }
     if (this.interval > 0) {
       this.timer = window.setInterval(() => {
@@ -38,7 +48,13 @@ export abstract class SimGenerator {
     ) {
       severity = AlarmSeverity.MINOR;
     }
-    this.pv.pvEngine.setValue(time, this.pv.name, value, severity, this.pv.units);
+    this.pv.pvEngine.setValue(
+      time,
+      this.pv.name,
+      value,
+      severity,
+      this.pv.units,
+    );
   }
 
   stop() {
@@ -53,29 +69,31 @@ export class ConstantGenerator extends SimGenerator {
     super(pv, -1, initialValue);
   }
 
-  generateSample() { }
+  generateSample() {}
 }
 
 export class SysTime extends SimGenerator {
-
-  constructor(pv: PV, private formatter: Formatter) {
+  constructor(
+    pv: PV,
+    private formatter: Formatter,
+  ) {
     super(pv, 1000);
   }
 
   generateSample(time: Date) {
-    const timeString = (
+    const timeString =
       this.formatter.formatDate(time, {
         year: true,
         month: true,
         day: true,
-      }) + " " +
+      }) +
+      " " +
       this.formatter.formatTime(time, {
         hours: true,
         minutes: true,
         seconds: true,
         milliseconds: true,
-      })
-    );
+      });
     this.emit(time, timeString);
   }
 }
@@ -104,7 +122,7 @@ export class Noise extends SimGenerator {
     pv: PV,
     private min: number,
     private max: number,
-    interval: number
+    interval: number,
   ) {
     super(pv, interval);
     const range = this.max - this.min;
@@ -131,7 +149,7 @@ export class GaussianNoise extends SimGenerator {
     pv: PV,
     private avg: number,
     private stddev: number,
-    interval: number
+    interval: number,
   ) {
     super(pv, interval);
     pv.units = "x";
@@ -170,7 +188,7 @@ export class Sine extends SimGenerator {
     private min: number,
     private max: number,
     private samplesPerCycle: number,
-    interval: number
+    interval: number,
   ) {
     super(pv, interval);
     const range = this.max - this.min;
@@ -188,7 +206,7 @@ export class Sine extends SimGenerator {
     const value =
       (Math.sin((this.currentValue * 2 * Math.PI) / this.samplesPerCycle) *
         range) /
-      2 +
+        2 +
       this.min +
       range / 2;
     this.currentValue++;
@@ -204,7 +222,7 @@ export class Ramp extends SimGenerator {
     private min: number,
     private max: number,
     private inc: number,
-    interval: number
+    interval: number,
   ) {
     super(pv, interval);
     if (inc >= 0) {

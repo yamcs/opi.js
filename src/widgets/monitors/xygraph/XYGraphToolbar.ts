@@ -24,7 +24,7 @@ class Button {
     private imageFile: string,
     private disabledImageFile: string,
     tooltip: string,
-    private action: () => void
+    private action: () => void,
   ) {
     this.loadPromise = new Promise<void>((resolve, reject) => {
       this.imageElement.onload = () => resolve();
@@ -105,7 +105,7 @@ export class XYGraphToolbar {
       "Show Legend",
       () => {
         xyGraph.properties.setValue("show_legend", this.showLegend.pushed);
-      }
+      },
     );
 
     // Initial state
@@ -123,12 +123,12 @@ export class XYGraphToolbar {
       () => {
         const autoScaleCommand = new ZoomCommand(
           xyGraph.getXAxes(),
-          xyGraph.getYAxes()
+          xyGraph.getYAxes(),
         );
         xyGraph.performAutoScale();
         autoScaleCommand.saveState();
         this.addCommand(autoScaleCommand);
-      }
+      },
     );
     this.rubberbandZoom = this.createToolButton(
       "RubberbandZoom.png",
@@ -143,7 +143,7 @@ export class XYGraphToolbar {
           xyGraph.setCursor(undefined);
           xyGraph.autoScaleAllowed = true;
         }
-      }
+      },
     );
     this.horizontalZoom = this.createToolButton(
       "HorizontalZoom.png",
@@ -158,7 +158,7 @@ export class XYGraphToolbar {
           xyGraph.setCursor(undefined);
           xyGraph.autoScaleAllowed = true;
         }
-      }
+      },
     );
     this.verticalZoom = this.createToolButton(
       "VerticalZoom.png",
@@ -173,7 +173,7 @@ export class XYGraphToolbar {
           xyGraph.setCursor(undefined);
           xyGraph.autoScaleAllowed = true;
         }
-      }
+      },
     );
     this.zoomIn = this.createToolButton("ZoomIn.png", "Zoom In", () => {
       if (this.zoomIn.pushed) {
@@ -237,7 +237,7 @@ export class XYGraphToolbar {
         } finally {
           document.body.removeChild(a);
         }
-      }
+      },
     );
 
     this.toggleTool(this.mouseArrow);
@@ -286,7 +286,7 @@ export class XYGraphToolbar {
   private createToolButton(
     imageFile: string,
     tooltip: string,
-    action: () => void
+    action: () => void,
   ) {
     const button = this.createToggleButton(imageFile, tooltip, action);
     button.toolButton = true;
@@ -296,7 +296,7 @@ export class XYGraphToolbar {
   private createToggleButton(
     imageFile: string,
     tooltip: string,
-    action: () => void
+    action: () => void,
   ) {
     const button = this.createButton(imageFile, imageFile, tooltip, action);
     button.toggleButton = true;
@@ -307,14 +307,14 @@ export class XYGraphToolbar {
     imageFile: string,
     disabledImageFile: string,
     tooltip: string,
-    action: () => void
+    action: () => void,
   ) {
     const button = new Button(
       this,
       imageFile,
       disabledImageFile,
       tooltip,
-      action
+      action,
     );
     this.buttons.push(button);
     return button;

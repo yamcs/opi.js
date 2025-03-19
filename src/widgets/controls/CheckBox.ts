@@ -38,7 +38,7 @@ export class CheckBox extends Widget {
     this.properties.add(new FontProperty(PROP_FONT));
     this.properties.add(new StringProperty(PROP_LABEL));
     this.properties.add(
-      new ColorProperty(PROP_SELECTED_COLOR, new Color(64, 64, 64))
+      new ColorProperty(PROP_SELECTED_COLOR, new Color(64, 64, 64)),
     );
   }
 
@@ -122,7 +122,7 @@ export class CheckBox extends Widget {
       box.x,
       box.y + 1 * scale,
       box.x,
-      box.y + box.height
+      box.y + box.height,
     );
     gradient.addColorStop(0, Color.WHITE.toString());
     gradient.addColorStop(1, backgroundColor.toString());
@@ -149,7 +149,7 @@ export class CheckBox extends Widget {
         path: new Path(box.x + 3 * scale, box.y + Math.floor(boxSize * 0.45))
           .lineTo(
             box.x + Math.floor(boxSize * 0.45),
-            box.y + (boxSize * 3) / 4 - 1 * scale
+            box.y + (boxSize * 3) / 4 - 1 * scale,
           )
           .lineTo(box.x + boxSize - 2 * scale, box.y + 3 * scale),
       });

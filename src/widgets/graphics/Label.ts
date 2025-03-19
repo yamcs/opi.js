@@ -1,7 +1,7 @@
 import { Display } from "../../Display";
 import { Font } from "../../Font";
 import { Graphics } from "../../Graphics";
-import { Bounds } from '../../positioning';
+import { Bounds } from "../../positioning";
 import { BooleanProperty, FontProperty, IntProperty } from "../../properties";
 import { Widget } from "../../Widget";
 import { AbstractContainerWidget } from "../others/AbstractContainerWidget";
@@ -40,7 +40,7 @@ export class Label extends Widget {
 
   private drawText(g: Graphics) {
     const ctx = g.ctx;
-    const textArea = { ... this.area };
+    const textArea = { ...this.area };
     const textSize = g.measureText(this.text, this.font, true);
     ctx.font = this.font.getFontString();
 
@@ -61,20 +61,26 @@ export class Label extends Widget {
       y: textArea.y,
       width: textSize.width,
       height: textSize.height,
-    }
-    if (this.horizAlignment === 0) { // LEFT
+    };
+    if (this.horizAlignment === 0) {
+      // LEFT
       // NOP
-    } else if (this.horizAlignment === 1) { // CENTER
+    } else if (this.horizAlignment === 1) {
+      // CENTER
       textBounds.x += (textArea.width - textSize.width) / 2;
-    } else if (this.horizAlignment === 2) { // RIGHT
+    } else if (this.horizAlignment === 2) {
+      // RIGHT
       textBounds.x += textArea.width - textSize.width;
     }
 
-    if (this.vertAlignment === 0 || (textArea.height <= textSize.height)) { // TOP
+    if (this.vertAlignment === 0 || textArea.height <= textSize.height) {
+      // TOP
       // NOP
-    } else if (this.vertAlignment === 1) { // MIDDLE
-      textBounds.y += (textArea.height / 2) - (textSize.height / 2);
-    } else if (this.vertAlignment === 2) { // BOTTOM
+    } else if (this.vertAlignment === 1) {
+      // MIDDLE
+      textBounds.y += textArea.height / 2 - textSize.height / 2;
+    } else if (this.vertAlignment === 2) {
+      // BOTTOM
       textBounds.y += textArea.height - textSize.height;
     }
 
@@ -84,7 +90,7 @@ export class Label extends Widget {
     // Yamcs Studio takes the middle of an uppercase letter (middle of cap-height).
     ctx.textAlign = "start";
     ctx.textBaseline = "top";
-    textBounds.y += (textBounds.height / 2) - (capHeight / 2);
+    textBounds.y += textBounds.height / 2 - capHeight / 2;
 
     ctx.save(); // Clip text in box
     ctx.beginPath();
@@ -179,7 +185,7 @@ export class Label extends Widget {
       lines.push(result.substr(0, j || result.length));
       width = Math.max(
         width,
-        g.measureText(lines[lines.length - 1], this.font).width
+        g.measureText(lines[lines.length - 1], this.font).width,
       );
       text = text.substr(lines[lines.length - 1].length, text.length);
     }

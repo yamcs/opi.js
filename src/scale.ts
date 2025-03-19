@@ -15,7 +15,7 @@ export class AutoScaleWidgets {
      */
     readonly autoScaleWidgets: boolean,
     readonly minWidth: number,
-    readonly minHeight: number
+    readonly minHeight: number,
   ) {}
 }
 
@@ -23,6 +23,6 @@ export class ScaleOptions {
   constructor(
     readonly widthScalable: boolean,
     readonly heightScalable: boolean,
-    readonly keepWidthHeightRatio: boolean
+    readonly keepWidthHeightRatio: boolean,
   ) {}
 }

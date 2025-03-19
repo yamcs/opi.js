@@ -72,15 +72,24 @@ export class TextUpdate extends Widget {
 
     let text = this.text;
     if (this.pv?.value !== undefined) {
-      let precision = this.precisionFromPV
-        ? this.pv.precision
-        : this.precision;
-      if (precision === -1) { // Use PV precision if available
+      let precision = this.precisionFromPV ? this.pv.precision : this.precision;
+      if (precision === -1) {
+        // Use PV precision if available
         precision = this.pv.precision ?? -1;
       }
-      text = formatValue(this.pv.value, this.formatType, precision, this.pv.typeHint);
+      text = formatValue(
+        this.pv.value,
+        this.formatType,
+        precision,
+        this.pv.typeHint,
+      );
     } else if (this.value !== undefined) {
-      text = formatValue(this.value, this.formatType, this.precision, undefined);
+      text = formatValue(
+        this.value,
+        this.formatType,
+        this.precision,
+        undefined,
+      );
     }
     if (this.showUnits && this.pv?.units) {
       text += " " + this.pv.units;
@@ -88,7 +97,10 @@ export class TextUpdate extends Widget {
     if (this.showLohi) {
       if (this.pv?.alarmName === "LOLO" || this.pv?.alarmName === "LOW") {
         text += " ↓";
-      } else if (this.pv?.alarmName === "HIHI" || this.pv?.alarmName === "HIGH") {
+      } else if (
+        this.pv?.alarmName === "HIHI" ||
+        this.pv?.alarmName === "HIGH"
+      ) {
         text += " ↑";
       }
     }
@@ -106,7 +118,6 @@ export class TextUpdate extends Widget {
     const fm = ctx.measureText(text);
     const capHeight = fm.fontBoundingBoxAscent;
 
-
     // Canvas font heights don't match very well with Yamcs Studio.
     // Strategy: position a box surrounding text, then always
     // center text within that box.
@@ -115,20 +126,26 @@ export class TextUpdate extends Widget {
       y: textArea.y,
       width: textSize.width,
       height: textSize.height,
-    }
-    if (this.horizAlignment === 0) { // LEFT
+    };
+    if (this.horizAlignment === 0) {
+      // LEFT
       // NOP
-    } else if (this.horizAlignment === 1) { // CENTER
+    } else if (this.horizAlignment === 1) {
+      // CENTER
       textBounds.x += (textArea.width - textSize.width) / 2;
-    } else if (this.horizAlignment === 2) { // RIGHT
+    } else if (this.horizAlignment === 2) {
+      // RIGHT
       textBounds.x += textArea.width - textSize.width;
     }
 
-    if (this.vertAlignment === 0 || (textArea.height <= textSize.height)) { // TOP
+    if (this.vertAlignment === 0 || textArea.height <= textSize.height) {
+      // TOP
       // NOP
-    } else if (this.vertAlignment === 1) { // MIDDLE
-      textBounds.y += (textArea.height / 2) - (textSize.height / 2);
-    } else if (this.vertAlignment === 2) { // BOTTOM
+    } else if (this.vertAlignment === 1) {
+      // MIDDLE
+      textBounds.y += textArea.height / 2 - textSize.height / 2;
+    } else if (this.vertAlignment === 2) {
+      // BOTTOM
       textBounds.y += textArea.height - textSize.height;
     }
 
@@ -138,7 +155,7 @@ export class TextUpdate extends Widget {
     // Yamcs Studio takes the middle of an uppercase letter (middle of cap-height).
     ctx.textAlign = "start";
     ctx.textBaseline = "top";
-    textBounds.y += (textBounds.height / 2) - (capHeight / 2);
+    textBounds.y += textBounds.height / 2 - capHeight / 2;
 
     ctx.save(); // Clip text in box
     ctx.beginPath();

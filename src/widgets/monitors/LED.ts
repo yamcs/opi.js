@@ -54,10 +54,10 @@ export class LED extends Widget {
     this.properties.add(new IntProperty(PROP_STATE_COUNT, 2));
     this.properties.add(new ColorProperty(PROP_OFF_COLOR));
     this.properties.add(new StringProperty(PROP_OFF_LABEL));
-    this.properties.add(new StringProperty(PROP_OFF_STATE))
+    this.properties.add(new StringProperty(PROP_OFF_STATE));
     this.properties.add(new ColorProperty(PROP_ON_COLOR));
     this.properties.add(new StringProperty(PROP_ON_LABEL));
-    this.properties.add(new StringProperty(PROP_ON_STATE))
+    this.properties.add(new StringProperty(PROP_ON_STATE));
     this.properties.add(new FontProperty(PROP_FONT));
     this.properties.add(new BooleanProperty(PROP_SHOW_BOOLEAN_LABEL));
     this.properties.add(new ColorProperty(PROP_STATE_COLOR_FALLBACK));
@@ -66,7 +66,7 @@ export class LED extends Widget {
     // Old displays don't have these properties
     this.properties.add(new IntProperty(PROP_BULB_BORDER, 3));
     this.properties.add(
-      new ColorProperty(PROP_BULB_BORDER_COLOR, Color.DARK_GRAY)
+      new ColorProperty(PROP_BULB_BORDER_COLOR, Color.DARK_GRAY),
     );
   }
 
@@ -171,7 +171,7 @@ export class LED extends Widget {
 
     if (this.showBooleanLabel) {
       let color = this.bulbColor;
-      if ((color.red * 299) + (color.green * 587) + (color.blue * 114) > 105000) {
+      if (color.red * 299 + color.green * 587 + color.blue * 114 > 105000) {
         color = Color.BLACK;
       } else {
         color = Color.WHITE;
@@ -226,7 +226,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, this.bulbBorderColor.toString());
     gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
@@ -242,7 +242,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, Color.WHITE.toString());
     gradient.addColorStop(1, this.bulbBorderColor.withAlpha(0).toString());
@@ -260,7 +260,7 @@ export class LED extends Widget {
       area.y,
       area.width,
       area.height,
-      this.bulbBorder
+      this.bulbBorder,
     );
     g.fillRect({
       ...box,
@@ -294,7 +294,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y
+      area.y,
     );
     gradient.addColorStop(0, "rgba(0,0,0,0.078)");
     gradient.addColorStop(1, "rgba(0,0,0,0.39)");
@@ -304,7 +304,7 @@ export class LED extends Widget {
         .lineTo(area.x + this.bulbBorder, area.y + this.bulbBorder)
         .lineTo(
           area.x + this.bulbBorder,
-          area.y + area.height - this.bulbBorder
+          area.y + area.height - this.bulbBorder,
         )
         .lineTo(area.x, area.y + area.height),
     });
@@ -314,7 +314,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, "rgba(0,0,0,0.078)");
     gradient.addColorStop(1, "rgba(0,0,0,0.39)");
@@ -331,7 +331,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y
+      area.y,
     );
     gradient.addColorStop(0, "rgba(255,255,255,0.078)");
     gradient.addColorStop(1, "rgba(255,255,255,0.39)");
@@ -341,7 +341,7 @@ export class LED extends Widget {
         .lineTo(area.x + area.width - this.bulbBorder, area.y + this.bulbBorder)
         .lineTo(
           area.x + area.width - this.bulbBorder,
-          area.y + area.height - this.bulbBorder
+          area.y + area.height - this.bulbBorder,
         )
         .lineTo(area.x + area.width, area.y + area.height),
     });
@@ -351,7 +351,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, "rgba(255,255,255,0.078)");
     gradient.addColorStop(1, "rgba(255,255,255,0.39)");
@@ -360,11 +360,11 @@ export class LED extends Widget {
       path: new Path(area.x, area.y + area.height)
         .lineTo(
           area.x + this.bulbBorder,
-          area.y + area.height - this.bulbBorder
+          area.y + area.height - this.bulbBorder,
         )
         .lineTo(
           area.x + area.width - this.bulbBorder,
-          area.y + area.height - this.bulbBorder
+          area.y + area.height - this.bulbBorder,
         )
         .lineTo(area.x + area.width, area.y + area.height),
     });
@@ -382,7 +382,7 @@ export class LED extends Widget {
       area.x,
       area.y,
       area.x + area.width,
-      area.y + area.height
+      area.y + area.height,
     );
     gradient.addColorStop(0, "rgba(255,255,255,0.784)");
     gradient.addColorStop(1, this.bulbColor.withAlpha(0).toString());

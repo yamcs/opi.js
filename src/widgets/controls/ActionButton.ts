@@ -69,7 +69,7 @@ export class ActionButton extends Widget {
       click: () => {
         if (this.enabled) {
           this.executeActionByIndex(
-            this.pushed ? this.releaseActionIndex! : this.pushActionIndex
+            this.pushed ? this.releaseActionIndex! : this.pushActionIndex,
           );
           if (this.toggleButton) {
             this.pushed = !this.pushed;
@@ -168,7 +168,7 @@ export class ActionButton extends Widget {
           imageX,
           imageY,
           naturalWidth,
-          naturalHeight
+          naturalHeight,
         );
       } else {
         // Text under icon
@@ -184,7 +184,7 @@ export class ActionButton extends Widget {
           imageX,
           imageY,
           naturalWidth,
-          naturalHeight
+          naturalHeight,
         );
       }
 

@@ -22,7 +22,10 @@ const PROP_TAB_COUNT = "tab_count";
 class Tab {
   headerRegion: HitRegionSpecification;
 
-  constructor(private widget: TabbedContainer, private i: number) {
+  constructor(
+    private widget: TabbedContainer,
+    private i: number,
+  ) {
     this.headerRegion = {
       id: `${widget.wuid}-header-${i}`,
       click: () => {
@@ -82,7 +85,7 @@ export class TabbedContainer extends AbstractContainerWidget {
             new ColorProperty(`tab_${i}_foreground_color`),
             new BooleanProperty(`tab_${i}_enabled`),
             new FontProperty(`tab_${i}_font`),
-          ]
+          ],
         );
       }
       return moreProperties;
@@ -189,7 +192,7 @@ export class TabbedContainer extends AbstractContainerWidget {
         rectX,
         rectY,
         rectX,
-        rectY + rectHeight
+        rectY + rectHeight,
       );
       gradient.addColorStop(0, Color.WHITE.toString());
       gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());
@@ -251,7 +254,7 @@ export class TabbedContainer extends AbstractContainerWidget {
       const fm = g.measureText(tab.title, tab.font);
       const labelHeight = Math.max(
         fm.height + lineWidth + lineWidth,
-        this.minimumTabHeight
+        this.minimumTabHeight,
       );
       let rectX;
       let rectY;
@@ -286,7 +289,7 @@ export class TabbedContainer extends AbstractContainerWidget {
         rectX,
         rectY,
         rectX + rectWidth,
-        rectY
+        rectY,
       );
       gradient.addColorStop(0, Color.WHITE.toString());
       gradient.addColorStop(1, Color.WHITE.withAlpha(0).toString());

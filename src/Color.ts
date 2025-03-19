@@ -1,14 +1,16 @@
 export function colorFromCssColor(cssColor: string): Color {
-  const ctx = document.createElement('canvas').getContext('2d')!;
+  const ctx = document.createElement("canvas").getContext("2d")!;
   ctx.fillStyle = cssColor;
   const hex = String(ctx.fillStyle);
 
   const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return match ? new Color(
-    parseInt(match[1], 16),
-    parseInt(match[2], 16),
-    parseInt(match[3], 16)
-  ) : Color.BLACK;
+  return match
+    ? new Color(
+        parseInt(match[1], 16),
+        parseInt(match[2], 16),
+        parseInt(match[3], 16),
+      )
+    : Color.BLACK;
 }
 
 export class Color {
@@ -37,8 +39,8 @@ export class Color {
     public red: number,
     public green: number,
     public blue: number,
-    public alpha = 255
-  ) { }
+    public alpha = 255,
+  ) {}
 
   withAlpha(alpha: number) {
     return new Color(this.red, this.green, this.blue, alpha);
@@ -71,7 +73,7 @@ export class Color {
     return new Color(
       Math.min(Math.floor(this.red / 0.7), 255),
       Math.min(Math.floor(this.green / 0.7), 255),
-      Math.min(Math.floor(this.blue / 0.7), 255)
+      Math.min(Math.floor(this.blue / 0.7), 255),
     );
   }
 
@@ -79,7 +81,7 @@ export class Color {
     return new Color(
       Math.max(Math.floor(this.red * 0.7), 0),
       Math.max(Math.floor(this.green * 0.7), 0),
-      Math.max(Math.floor(this.blue * 0.7), 0)
+      Math.max(Math.floor(this.blue * 0.7), 0),
     );
   }
 

@@ -12,10 +12,13 @@ let DID_SEQUENCE = 0;
 const PROP_AUTO_SCALE_WIDGETS = "auto_scale_widgets";
 
 export class DisplayWidget extends AbstractContainerWidget {
-
   private displayArgs: { [key: string]: any };
 
-  constructor(display: Display, parent?: AbstractContainerWidget, args?: { [key: string]: string }) {
+  constructor(
+    display: Display,
+    parent?: AbstractContainerWidget,
+    args?: { [key: string]: string },
+  ) {
     super(display, parent);
     this.displayArgs = args ?? {};
     this.properties.add(new AutoScaleWidgetsProperty(PROP_AUTO_SCALE_WIDGETS));

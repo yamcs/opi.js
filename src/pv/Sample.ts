@@ -1,5 +1,5 @@
 import { AlarmSeverity } from "./PV";
-import { TypeHint } from './TypeHint';
+import { TypeHint } from "./TypeHint";
 
 export interface Sample {
   time: Date;

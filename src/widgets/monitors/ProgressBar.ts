@@ -61,7 +61,7 @@ export class ProgressBar extends Widget {
     this.properties.add(new BooleanProperty(PROP_EFFECT_3D));
     this.properties.add(new ColorProperty(PROP_FILL_COLOR));
     this.properties.add(
-      new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false)
+      new BooleanProperty(PROP_FILLCOLOR_ALARM_SENSITIVE, false),
     );
     this.properties.add(new FontProperty(PROP_FONT));
     this.properties.add(new BooleanProperty(PROP_HORIZONTAL));
@@ -121,7 +121,7 @@ export class ProgressBar extends Widget {
       this.majorTickStepHint,
       foregroundColor,
       this.showMinorTicks,
-      this.showScale
+      this.showScale,
     );
     linearScale.scaleFormat = this.scaleFormat;
     const scaleWidth = linearScale.drawVertical(
@@ -129,7 +129,7 @@ export class ProgressBar extends Widget {
       area.x,
       area.y,
       area.height,
-      true
+      true,
     );
 
     let markerWidth = 0;
@@ -148,7 +148,7 @@ export class ProgressBar extends Widget {
   private drawVerticalMarkers(
     g: Graphics,
     linearScale: LinearScale,
-    area: Bounds
+    area: Bounds,
   ) {
     const { lolo, lo, hi, hihi } = this;
     const font = Font.ARIAL_9.scale(this.scale);
@@ -255,12 +255,12 @@ export class ProgressBar extends Widget {
         area.x,
         0,
         area.x + area.width,
-        0
+        0,
       );
       gradient.addColorStop(0, Color.WHITE.toString());
       gradient.addColorStop(
         1,
-        this.colorFillbackground.withAlpha(0).toString()
+        this.colorFillbackground.withAlpha(0).toString(),
       );
       g.fillRect({ ...area, gradient });
       const outline = shrink(area, outlineWidth / 2);
@@ -274,7 +274,7 @@ export class ProgressBar extends Widget {
     const fillColor = this.alarmSensitiveFillColor;
     if (this.indicatorMode) {
       const position = Math.round(
-        linearScale.getValuePosition(this.getFillValue())
+        linearScale.getValuePosition(this.getFillValue()),
       );
       const h = area.width;
       const b = this.thumbBreadth;
@@ -286,7 +286,7 @@ export class ProgressBar extends Widget {
           { x: h / 2, y: b },
         ],
         area.x,
-        position - b / 2
+        position - b / 2,
       );
       const path = Path.fromPoints(points);
       if (this.effect3d) {
@@ -316,7 +316,7 @@ export class ProgressBar extends Widget {
           y: y1,
           height: y2 - y1,
         },
-        outlineWidth
+        outlineWidth,
       );
 
       g.fillRect({ ...fillArea, color: fillColor });
@@ -325,7 +325,7 @@ export class ProgressBar extends Widget {
           fillArea.x,
           0,
           fillArea.x + fillArea.width,
-          0
+          0,
         );
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, fillColor.withAlpha(0).toString());
@@ -360,14 +360,14 @@ export class ProgressBar extends Widget {
       this.majorTickStepHint,
       foregroundColor,
       this.showMinorTicks,
-      this.showScale
+      this.showScale,
     );
     linearScale.scaleFormat = this.scaleFormat;
     const scaleHeight = linearScale.drawHorizontal(
       g,
       area.x,
       area.y + area.height,
-      area.width
+      area.width,
     );
 
     let markerHeight = 0;
@@ -386,7 +386,7 @@ export class ProgressBar extends Widget {
   private drawHorizontalMarkers(
     g: Graphics,
     linearScale: LinearScale,
-    area: Bounds
+    area: Bounds,
   ) {
     const { lolo, lo, hi, hihi } = this;
     const font = Font.ARIAL_9.scale(this.scale);
@@ -488,7 +488,7 @@ export class ProgressBar extends Widget {
   private drawHorizontalBar(
     g: Graphics,
     linearScale: LinearScale,
-    area: Bounds
+    area: Bounds,
   ) {
     const { outlineWidth } = this;
     g.fillRect({ ...area, color: this.colorFillbackground });
@@ -497,12 +497,12 @@ export class ProgressBar extends Widget {
         0,
         area.y,
         0,
-        area.y + area.height
+        area.y + area.height,
       );
       gradient.addColorStop(0, Color.WHITE.toString());
       gradient.addColorStop(
         1,
-        this.colorFillbackground.withAlpha(0).toString()
+        this.colorFillbackground.withAlpha(0).toString(),
       );
       g.fillRect({ ...area, gradient });
       const outline = shrink(area, outlineWidth / 2);
@@ -516,7 +516,7 @@ export class ProgressBar extends Widget {
     const fillColor = this.alarmSensitiveFillColor;
     if (this.indicatorMode) {
       const position = Math.round(
-        linearScale.getValuePosition(this.getFillValue())
+        linearScale.getValuePosition(this.getFillValue()),
       );
       const h = area.height;
       const b = this.thumbBreadth;
@@ -528,7 +528,7 @@ export class ProgressBar extends Widget {
           { x: 0, y: h / 2 },
         ],
         position - b / 2,
-        area.y
+        area.y,
       );
       const path = Path.fromPoints(points);
       if (this.effect3d) {
@@ -558,7 +558,7 @@ export class ProgressBar extends Widget {
           x: x1,
           width: x2 - x1,
         },
-        outlineWidth
+        outlineWidth,
       );
       g.fillRect({ ...fillArea, color: fillColor });
       if (this.effect3d) {
@@ -566,7 +566,7 @@ export class ProgressBar extends Widget {
           0,
           fillArea.y,
           0,
-          fillArea.y + fillArea.height
+          fillArea.y + fillArea.height,
         );
         gradient.addColorStop(0, Color.WHITE.toString());
         gradient.addColorStop(1, fillColor.withAlpha(0).toString());

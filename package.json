@@ -16,7 +16,9 @@
     "prepublishOnly": "npm run build",
     "watch": "esbuild src/index.ts --outfile=dist/opi.js --sourcemap --bundle --platform=browser --format=esm --minify --watch",
     "peggy": "cd src/pv/formulas && peggy --format es -o parser.js formula-grammar.peggy",
-    "start": "node ./demo/server.js"
+    "start": "node ./demo/server.js",
+    "prettier:check": "prettier --check '**/*.ts'",
+    "prettier:write": "prettier --check --write '**/*.ts'"
   },
   "module": "dist/opi.js",
   "types": "dist/types/index.d.ts",
@@ -31,6 +33,7 @@
     "morgan": "^1.10.0",
     "nunjucks": "^3.2.2",
     "peggy": "4.2.0",
+    "prettier": "^3.5.3",
     "tslib": "^2.6.3",
     "typescript": "^5.4.5"
   }
