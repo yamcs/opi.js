@@ -1,3 +1,5 @@
+import { TypeHint } from './pv/TypeHint';
+
 export function roundRect(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -56,11 +58,16 @@ export function formatValue(
   value: any,
   formatType: number,
   precision: number,
+  typeHint: TypeHint | undefined,
 ) {
   if (value === null) {
     return "";
   } else if (typeof value === "string") {
-    return value;
+    if (typeHint === "BINARY_STRING") {
+      return toHex(value);
+    } else {
+      return value;
+    }
   } else if (typeof value === "number") {
     if (precision === -1) {
       return formatNumber(formatType, value, undefined, 3);
@@ -72,6 +79,15 @@ export function formatValue(
   } else {
     return String(value);
   }
+}
+
+function toHex(raw: string) {
+  let result = '';
+  for (let i = 0; i < raw.length; i++) {
+    const hex = raw.charCodeAt(i).toString(16);
+    result += hex.length === 2 ? hex : '0' + hex;
+  }
+  return result ? `0x${result.toUpperCase()}` : result;
 }
 
 function formatNumber(

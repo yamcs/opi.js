@@ -78,9 +78,9 @@ export class TextUpdate extends Widget {
       if (precision === -1) { // Use PV precision if available
         precision = this.pv.precision ?? -1;
       }
-      text = formatValue(this.pv.value, this.formatType, precision);
+      text = formatValue(this.pv.value, this.formatType, precision, this.pv.typeHint);
     } else if (this.value !== undefined) {
-      text = formatValue(this.value, this.formatType, this.precision);
+      text = formatValue(this.value, this.formatType, this.precision, undefined);
     }
     if (this.showUnits && this.pv?.units) {
       text += " " + this.pv.units;

@@ -196,7 +196,7 @@ export class TextInput extends Widget {
       if (precision === -1) { // Use PV precision if available
         precision = this.pv.precision ?? -1;
       }
-      text = formatValue(this.pv.value, this.formatType, precision);
+      text = formatValue(this.pv.value, this.formatType, precision, this.pv.typeHint);
       if (this.showUnits && this.pv?.units) {
         text += " " + this.pv.units;
       }

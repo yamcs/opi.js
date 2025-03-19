@@ -1,11 +1,13 @@
 import { PVEngine } from "./PVEngine";
 import { PVProvider } from "./PVProvider";
 import { Sample } from "./Sample";
+import { TypeHint } from './TypeHint';
 
 export class PV {
   private _writable = false;
   private _units?: string;
   private _labels?: string[];
+  private _typeHint?: TypeHint;
 
   private _lowerDisplayLimit?: number;
   private _lowerAlarmLimit?: number;
@@ -134,6 +136,10 @@ export class PV {
     return this._severity;
   }
 
+  get typeHint(): TypeHint | undefined {
+    return this._typeHint;
+  }
+
   get alarmName(): string {
     const numericValue = this.toNumber();
     if (numericValue === null || numericValue === undefined) {
@@ -170,6 +176,7 @@ export class PV {
     this._indexValue = sample.valueIndex;
     this._severity = sample.severity;
     this._units = sample.units;
+    this._typeHint = sample.typeHint;
     this.pvEngine.requestRepaint();
   }
 

@@ -60,7 +60,7 @@ export class PVUtil {
 
   getString(pv: PVWrapper) {
     this.checkPVValue(pv);
-    return formatValue(pv._pv.value, 0, -1)
+    return formatValue(pv._pv.value, 0, -1, pv._pv.typeHint)
   }
 
   getStringArray(pv: PVWrapper) {

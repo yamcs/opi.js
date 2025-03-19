@@ -15,5 +15,6 @@ export { HistoricalDataProvider } from "./pv/HistoricalDataProvider";
 export { AlarmSeverity, PV } from "./pv/PV";
 export { PVProvider } from "./pv/PVProvider";
 export { Sample } from "./pv/Sample";
+export { TypeHint } from "./pv/TypeHint";
 export { Widget } from "./Widget";
 
