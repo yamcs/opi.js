@@ -505,9 +505,10 @@ export class Display {
     this.reset();
     this.instance = new DisplayWidget(this, undefined, args);
     const displayNode = XMLNode.parseFromXML(source);
-    this.instance.parseNode(displayNode);
-    this.pvEngine.init();
-    this.requestRepaint();
+    this.instance.parseNode(displayNode).then(() => {
+      this.pvEngine.init();
+      this.requestRepaint();
+    });
   }
 
   getRefreshCycle() {

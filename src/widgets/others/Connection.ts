@@ -67,7 +67,7 @@ export class Connection extends Widget {
     this.properties.add(new StringProperty(PROP_WUID));
   }
 
-  parseNode(node: XMLNode) {
+  async parseNode(node: XMLNode) {
     this.properties.loadXMLValues(node);
 
     this.sourceWidget = this.display.findWidget(this.sourceWuid);

@@ -3,14 +3,14 @@ import { XMLNode } from "../../XMLNode";
 import { AbstractContainerWidget } from "./AbstractContainerWidget";
 
 export class GroupingContainer extends AbstractContainerWidget {
-  parseNode(node: XMLNode) {
-    super.parseNode(node);
+  async parseNode(node: XMLNode) {
+    await super.parseNode(node);
 
     for (const widgetNode of node.getNodes("widget")) {
       const kind = widgetNode.getString("widget_type");
       const widget = this.display.createWidget(kind, this);
       if (widget) {
-        widget.parseNode(widgetNode);
+        await widget.parseNode(widgetNode);
         this.widgets.push(widget);
       }
     }

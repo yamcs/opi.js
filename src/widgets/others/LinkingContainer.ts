@@ -22,30 +22,29 @@ export class LinkingContainer extends AbstractContainerWidget {
     this.properties.add(new IntProperty(PROP_RESIZE_BEHAVIOR, 0));
   }
 
-  parseNode(node: XMLNode) {
-    super.parseNode(node);
+  async parseNode(node: XMLNode) {
+    await super.parseNode(node);
 
     const linkingContainerId = LCID_SEQUENCE++;
     this.macros.set("LCID", `LCID_${linkingContainerId}`);
   }
 
-  init() {
+  async init() {
     if (this.opiFile) {
       this.resolvedOpiFile = this.display.resolvePath(this.opiFile);
-      fetch(this.resolvedOpiFile, {
+      const response = await fetch(this.resolvedOpiFile, {
         // Send cookies too.
         // Old versions of Firefox do not do this automatically.
         credentials: "same-origin",
-      }).then((response) => {
-        if (response.ok) {
-          response.text().then((source) => {
-            this.linkedDisplay = new DisplayWidget(this.display, this);
-            const displayNode = XMLNode.parseFromXML(source);
-            this.linkedDisplay.parseNode(displayNode);
-            this.requestRepaint();
-          });
-        }
       });
+
+      if (response.ok) {
+        const source = await response.text();
+        this.linkedDisplay = new DisplayWidget(this.display, this);
+        const displayNode = XMLNode.parseFromXML(source);
+        await this.linkedDisplay.parseNode(displayNode);
+        this.requestRepaint();
+      }
     }
   }
 

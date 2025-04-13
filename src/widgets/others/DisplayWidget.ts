@@ -24,8 +24,8 @@ export class DisplayWidget extends AbstractContainerWidget {
     this.properties.add(new AutoScaleWidgetsProperty(PROP_AUTO_SCALE_WIDGETS));
   }
 
-  parseNode(node: XMLNode) {
-    super.parseNode(node);
+  async parseNode(node: XMLNode) {
+    await super.parseNode(node);
 
     const displayId = DID_SEQUENCE++;
     this.macros.set("DID", `DID_${displayId}`);
@@ -40,7 +40,7 @@ export class DisplayWidget extends AbstractContainerWidget {
       const kind = widgetNode.getString("widget_type");
       const widget = this.display.createWidget(kind, this);
       if (widget) {
-        widget.parseNode(widgetNode);
+        await widget.parseNode(widgetNode);
         this.widgets.push(widget);
       }
     }

@@ -113,7 +113,7 @@ export abstract class Widget {
     ]);
   }
 
-  parseNode(node: XMLNode) {
+  async parseNode(node: XMLNode) {
     this.properties.loadXMLValues(node);
 
     for (const property of this.properties.all()) {
@@ -192,8 +192,7 @@ export abstract class Widget {
         this.holderRegion!.cursor = "pointer";
       }
     }
-
-    this.init();
+    await this.init();
   }
 
   getHookedActions() {
