@@ -20,6 +20,7 @@ const PROP_VERTICAL_ALIGNMENT = "vertical_alignment";
 
 export class TextUpdate extends Widget {
   private areaRegion?: HitRegionSpecification;
+  private tooltipRegion?: HitRegionSpecification;
 
   constructor(display: Display, parent: AbstractContainerWidget) {
     super(display, parent);
@@ -43,6 +44,12 @@ export class TextUpdate extends Widget {
       tooltip: () => this.tooltip,
       cursor: "pointer",
     };
+
+    // Tooltip-only, for when there is no click-event
+    this.tooltipRegion = {
+      id: `${this.wuid}-tooltip`,
+      tooltip: () => this.tooltip,
+    };
   }
 
   draw(g: Graphics) {
@@ -61,6 +68,9 @@ export class TextUpdate extends Widget {
 
     if (this.pv && this.pv.navigable && !this.pv.disconnected) {
       const area = g.addHitRegion(this.areaRegion!);
+      area.addRect(this.x, this.y, this.width, this.height);
+    } else if (this.tooltip) {
+      const area = g.addHitRegion(this.tooltipRegion!);
       area.addRect(this.x, this.y, this.width, this.height);
     }
 
