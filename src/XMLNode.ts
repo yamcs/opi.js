@@ -387,7 +387,7 @@ export class XMLNode {
             expression: expNode.getStringAttribute("bool_exp"),
             outputValue: expNode.getColor("value"),
           });
-        } else {
+        } else if (valueNode.hasAttribute("bool_exp")) {
           expressions.push({
             type: "string",
             expression: expNode.getStringAttribute("bool_exp"),
