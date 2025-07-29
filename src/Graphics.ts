@@ -511,8 +511,10 @@ export class Path {
   }
 
   closePath() {
-    const orig = this.segments[0];
-    this.segments.push({ x: orig.x, y: orig.y, line: true });
+    if (this.segments.length) {
+      const orig = this.segments[0];
+      this.segments.push({ x: orig.x, y: orig.y, line: true });
+    }
     return this;
   }
 
