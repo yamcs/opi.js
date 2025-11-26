@@ -142,17 +142,11 @@ export abstract class Widget {
       if (script.embedded) {
         this.display.pvEngine.createScript(this, script, script.text!, pvs);
       } else {
-        fetch(this.display.resolvePath(script.path!), {
-          // Send cookies too.
-          // Old versions of Firefox do not do this automatically.
-          credentials: "same-origin",
-        }).then((response) => {
-          if (response.ok) {
-            response.text().then((text) => {
-              this.display.pvEngine.createScript(this, script, text, pvs);
-            });
-          }
-        });
+        const scriptLoader = this.display.getScriptLoader();
+        const text = await scriptLoader.load(script.path!);
+        if (text) {
+          this.display.pvEngine.createScript(this, script, text, pvs);
+        }
       }
     }
 

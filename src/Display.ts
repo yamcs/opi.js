@@ -7,6 +7,7 @@ import { Formatter } from "./Formatter";
 import { Graphics } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
 import { DefaultPathResolver, PathResolver } from "./PathResolver";
+import { DefaultScriptLoader, ScriptLoader } from "./ScriptLoader";
 import { Widget } from "./Widget";
 import { XMLNode } from "./XMLNode";
 import {
@@ -107,6 +108,7 @@ export class Display {
   pvEngine: PVEngine;
   private pathResolver: PathResolver;
   private fontResolver?: FontResolver;
+  private scriptLoader: ScriptLoader;
   private consoleHandler: ConsoleHandler;
   private dialogHandler: DialogHandler;
   formatter: Formatter;
@@ -190,6 +192,7 @@ export class Display {
     };
 
     this.pathResolver = new DefaultPathResolver(this);
+    this.scriptLoader = new DefaultScriptLoader(this);
     this.consoleHandler = new DefaultConsoleHandler();
     this.dialogHandler = new DefaultDialogHandler();
 
@@ -212,6 +215,14 @@ export class Display {
 
   getPathResolver() {
     return this.pathResolver;
+  }
+
+  setScriptLoader(scriptLoader: ScriptLoader) {
+    this.scriptLoader = scriptLoader;
+  }
+
+  getScriptLoader() {
+    return this.scriptLoader;
   }
 
   setConsoleHandler(consoleHandler: ConsoleHandler) {

@@ -20,16 +20,11 @@ export class ExecuteJavaScriptAction extends Action {
       const engine = new ScriptEngine(widget, this.scriptText);
       engine.run();
     } else {
-      fetch(widget.display.resolvePath(this.path), {
-        // Send cookies too.
-        // Old versions of Firefox do not do this automatically.
-        credentials: "same-origin",
-      }).then((response) => {
-        if (response.ok) {
-          response.text().then((text) => {
-            const engine = new ScriptEngine(widget.display.instance!, text);
-            engine.run();
-          });
+      const scriptLoader = widget.display.getScriptLoader();
+      scriptLoader.load(this.path).then((text) => {
+        if (text) {
+          const engine = new ScriptEngine(widget.display.instance!, text);
+          engine.run();
         }
       });
     }
