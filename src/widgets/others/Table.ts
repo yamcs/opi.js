@@ -92,14 +92,23 @@ export class Table extends Widget {
         const cell = rowEl.insertCell();
         cell.style.color = "#aaa";
         cell.style.textAlign = "left";
-        cell.style.width = Number(header[1]) * this.scale + "px";
+
+        // Sometimes, no headers are specified.
+        // Other times only some fields for each header may be specified.
+        if (header?.length >= 2 && header[1] !== "") {
+          cell.style.width = Number(header[1]) * this.scale + "px";
+        }
         cell.style.overflow = "hidden";
         cell.style.padding = `${4 * this.scale}px`;
         cell.style.borderBottom = "1px solid rgba(0, 0, 0, 0.1)";
         if (i !== 0) {
           cell.style.borderLeft = "1px solid rgba(0, 0, 0, 0.1)";
         }
-        const newText = document.createTextNode(header[0]);
+        let headerText = "";
+        if (header?.length >= 1) {
+          headerText = header[0];
+        }
+        const newText = document.createTextNode(headerText);
         cell.appendChild(newText);
       }
 
