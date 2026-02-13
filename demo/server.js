@@ -34,8 +34,10 @@ app.get("/", async (req, res) => {
   });
 });
 
-app.get("/folders/:folder(*)?", async (req, res) => {
-  const folderPath = path.join(displayRoot, req.params.folder);
+app.get("/folders{/*folder}", async (req, res) => {
+  const folderSegments = req.params.folder || [];  // string[] or []
+  const folderPath = path.join(displayRoot, ...folderSegments);
+
   res.render("folder", {
     parentUrl: getParentUrl(folderPath),
     tree: await listDisplays(folderPath),
@@ -50,13 +52,16 @@ function getParentUrl(item) {
   return "/folders/" + rel;
 }
 
-app.get("/displays/:display(*)?", async (req, res) => {
-  const displayPath = path.join(displayRoot, req.params.display);
+app.get("/displays{/*display}", async (req, res) => {
+  const displaySegments = req.params.display || [];
+
+  const displayPath = path.join(displayRoot, ...displaySegments);
   const folderPath = path.dirname(displayPath);
+
   res.render("display", {
     parentUrl: getParentUrl(folderPath),
     tree: await listDisplays(folderPath),
-    displayHref: `/raw/${req.params.display}`,
+    displayHref: `/raw/${displaySegments.join('/')}`,
   });
 });
 
