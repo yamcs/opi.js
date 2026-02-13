@@ -10,6 +10,17 @@ const WEB_SAFE = [
 ];
 
 export class Font {
+  /**
+   * If true, use legacy font-sizing when converting points to pixels.
+   * This is less compatible with Yamcs Studio, but is preserved for
+   * older displays that may have been designed for how to look on web
+   * rather than on studio.
+   *
+   * Set this static property to true prior to creating a Display
+   * instance.
+   */
+  public static LEGACY_FONT_SIZING = false;
+
   static ARIAL_9 = new Font("Arial", 9, 0, false);
   static ARIAL_10 = new Font("Arial", 10, 0, false);
   static ARIAL_11 = new Font("Arial", 11, 0, false);
@@ -26,7 +37,11 @@ export class Font {
     if (pixels) {
       this.height = height;
     } else {
-      this.height = Math.ceil((height * 4) / 3);
+      if (Font.LEGACY_FONT_SIZING) {
+        this.height = Math.round((height * 16) / 15);
+      } else {
+        this.height = Math.ceil((height * 4) / 3);
+      }
     }
   }
 
