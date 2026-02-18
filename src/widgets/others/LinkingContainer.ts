@@ -46,6 +46,18 @@ export class LinkingContainer extends AbstractContainerWidget {
         this.requestRepaint();
       }
     }
+
+    // Early-on, before any drawHolder execution
+    if (this.linkedDisplay && this.resizeBehavior === 1) {
+      // FIT CONTAINER TO OPI
+      const contentBounds = this.linkedDisplay.measureContentBounds(
+        true /* scaled */,
+      );
+      this.customSize = {
+        width: contentBounds.width,
+        height: contentBounds.height,
+      };
+    }
   }
 
   draw(g: Graphics) {
@@ -112,10 +124,17 @@ export class LinkingContainer extends AbstractContainerWidget {
         g.copy(offscreen, this.x, this.y);
       } else if (this.resizeBehavior === 1) {
         // FIT_CONTAINER_TO_OPI
-        console.warn(
-          "Unsupported resize behavior of LinkingContainer",
-          this.resizeBehavior,
+        const contentBounds = this.linkedDisplay.measureContentBounds(
+          true /* scaled */,
         );
+        const offscreen = g.createChild(
+          contentBounds.width,
+          contentBounds.height,
+        );
+        offscreen.translate(-contentBounds.x, -contentBounds.y);
+
+        this.linkedDisplay.draw(offscreen);
+        g.copy(offscreen, this.x, this.y);
       } else if (this.resizeBehavior === 2) {
         // CROP OPI
         const contentBounds = this.linkedDisplay.measureContentBounds(

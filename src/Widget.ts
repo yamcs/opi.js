@@ -5,7 +5,7 @@ import { Display } from "./Display";
 import { Font } from "./Font";
 import { Graphics, Path } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
-import { Bounds, shrink, toBorderBox } from "./positioning";
+import { Bounds, Dimension, shrink, toBorderBox } from "./positioning";
 import {
   ActionsProperty,
   BooleanProperty,
@@ -69,6 +69,13 @@ export abstract class Widget {
   // Some widgets ignore the fill of this border (only the stroke).
   // (Rectangle, RoundedRectangle)
   protected fillRoundRectangleBackgroundBorder = true;
+
+  // Can be set by a subclass to indicate the expected
+  // size of the widget, ignoring insets
+  protected customSize?: Dimension;
+  // Calculated from customSize, but while adding any insets
+  private customHolderWidth?: number;
+  private customHolderHeight?: number;
 
   private holderRegion?: HitRegionSpecification;
 
@@ -268,6 +275,23 @@ export abstract class Widget {
           insets = [i, i, i, i];
           break;
       }
+    }
+
+    // Some widgets are capable of determining their size differently
+    // than what is defined (LinkingContainer) on the widget.
+    //
+    // The properties customHolderWidth/customHolderHeight respect this size,
+    // however add some additional room for the insets (for example a raised
+    // border)
+    //
+    // This must all be done prior to reading this.holderWidth or
+    // this.holderHeight
+    if (this.customSize) {
+      this.customHolderWidth = this.customSize.width + insets[1] + insets[3];
+      this.customHolderHeight = this.customSize.height + insets[0] + insets[2];
+    } else {
+      this.customHolderWidth = undefined;
+      this.customHolderHeight = undefined;
     }
 
     // Shrink the available widget area
@@ -1018,54 +1042,79 @@ export abstract class Widget {
   get wuid(): string {
     return this.properties.getValue(PROP_WUID);
   }
+
   get name(): string {
     return this.properties.getValue(PROP_NAME);
   }
+
   get holderX(): number {
     return this.scale * this.properties.getValue(PROP_X);
   }
+
   get holderY(): number {
     return this.scale * this.properties.getValue(PROP_Y);
   }
+
   get holderWidth(): number {
-    return this.scale * this.properties.getValue(PROP_WIDTH);
+    if (this.customHolderWidth !== undefined) {
+      return this.scale * this.customHolderWidth;
+    } else {
+      return this.scale * this.properties.getValue(PROP_WIDTH);
+    }
   }
+
   get holderHeight(): number {
-    return this.scale * this.properties.getValue(PROP_HEIGHT);
+    if (this.customHolderHeight !== undefined) {
+      return this.scale * this.customHolderHeight;
+    } else {
+      return this.scale * this.properties.getValue(PROP_HEIGHT);
+    }
   }
+
   get borderAlarmSensitive(): boolean {
     return this.properties.getValue(PROP_BORDER_ALARM_SENSITIVE);
   }
+
   get backgroundAlarmSensitive(): boolean {
     return this.properties.getValue(PROP_BACKGROUND_ALARM_SENSITIVE);
   }
+
   get foregroundAlarmSensitive(): boolean {
     return this.properties.getValue(PROP_FOREGROUND_ALARM_SENSITIVE);
   }
+
   get pvName(): string | undefined {
     return this.properties.getValue(PROP_PV_NAME, true);
   }
+
   get pvValue(): any {
     return this.properties.getValue(PROP_PV_VALUE, true);
   }
+
   get borderColor(): Color {
     return this.properties.getValue(PROP_BORDER_COLOR);
   }
+
   get borderStyle(): number {
     return this.properties.getValue(PROP_BORDER_STYLE);
   }
+
   get borderWidth(): number {
     return this.scale * this.properties.getValue(PROP_BORDER_WIDTH);
   }
+
   get backgroundColor(): Color {
     return this.properties.getValue(PROP_BACKGROUND_COLOR);
   }
+
   get enabled(): boolean {
     return this.properties.getValue(PROP_ENABLED);
   }
+
   get foregroundColor(): Color {
     return this.properties.getValue(PROP_FOREGROUND_COLOR);
   }
+
   get tooltip(): string | undefined {
     const property = this.properties.getProperty(
       PROP_TOOLTIP,
@@ -1074,24 +1123,31 @@ export abstract class Widget {
       return this.expandMacro(property.rawValue);
     }
   }
+
   get transparent(): boolean {
     return this.properties.getValue(PROP_TRANSPARENT);
   }
+
   get visible(): boolean {
     return this.properties.getValue(PROP_VISIBLE);
   }
+
   get actions(): ActionSet {
     return this.properties.getValue(PROP_ACTIONS);
   }
+
   get scripts(): ScriptSet {
     return this.properties.getValue(PROP_SCRIPTS);
   }
+
   get rules(): RuleSet {
     return this.properties.getValue(PROP_RULES);
   }
+
   get scaleOptions(): ScaleOptions {
     return this.properties.getValue(PROP_SCALE_OPTIONS);
   }
+
   get widgetType(): string | undefined {
     return this.properties.getValue(PROP_WIDGET_TYPE, true);
   }

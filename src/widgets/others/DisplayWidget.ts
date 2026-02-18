@@ -66,11 +66,15 @@ export class DisplayWidget extends AbstractContainerWidget {
   }
 
   measureContentBounds(scaled: boolean): Bounds {
-    let x1 = 0;
-    let y1 = 0;
-    let x2 = 0;
-    let y2 = 0;
-    for (const widget of this.widgets.filter((w) => w.visible)) {
+    const visible = this.widgets.filter((w) => w.visible);
+    if (visible.length === 0) {
+      return { x: 0, y: 0, width: 0, height: 0 };
+    }
+    let x1 = Infinity;
+    let y1 = Infinity;
+    let x2 = -Infinity;
+    let y2 = -Infinity;
+    for (const widget of visible) {
       const bounds = scaled ? widget.bounds : widget.unscaledBounds;
       x1 = Math.min(x1, bounds.x);
       y1 = Math.min(y1, bounds.y);
