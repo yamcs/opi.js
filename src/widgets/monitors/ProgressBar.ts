@@ -3,6 +3,7 @@ import { DecimalFormat } from "../../DecimalFormat";
 import { Display } from "../../Display";
 import { Font } from "../../Font";
 import { Graphics, Path } from "../../Graphics";
+import { HitRegionSpecification } from "../../HitRegionSpecification";
 import { Bounds, shrink, translatePoints } from "../../positioning";
 import {
   BooleanProperty,
@@ -51,6 +52,8 @@ const PROP_TRANSPARENT_BACKGROUND = "transparent_background";
 const PROP_VALUE_LABEL_FORMAT = "value_label_format";
 
 export class ProgressBar extends Widget {
+  private tooltipRegion?: HitRegionSpecification;
+
   constructor(display: Display, parent: AbstractContainerWidget) {
     super(display, parent);
     this.properties.add(new ColorProperty(PROP_COLOR_HI));
@@ -91,6 +94,13 @@ export class ProgressBar extends Widget {
     this.properties.add(new StringProperty(PROP_VALUE_LABEL_FORMAT));
   }
 
+  init(): void {
+    this.tooltipRegion = {
+      id: `${this.wuid}-tooltip`,
+      tooltip: () => this.tooltip,
+    };
+  }
+
   draw(g: Graphics) {
     let area = this.area;
     if (this.borderAlarmSensitive) {
@@ -99,6 +109,11 @@ export class ProgressBar extends Widget {
     const backgroundColor = this.alarmSensitiveBackgroundColor;
     if (!this.transparentBackground) {
       g.fillRect({ ...area, color: backgroundColor });
+    }
+
+    if (this.tooltip) {
+      const hitRegion = g.addHitRegion(this.tooltipRegion!);
+      hitRegion.addRect(this.x, this.y, this.width, this.height);
     }
 
     if (this.horizontal) {

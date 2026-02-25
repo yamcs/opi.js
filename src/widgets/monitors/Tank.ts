@@ -2,6 +2,7 @@ import { Color } from "../../Color";
 import { Display } from "../../Display";
 import { Font } from "../../Font";
 import { Graphics, Path } from "../../Graphics";
+import { HitRegionSpecification } from "../../HitRegionSpecification";
 import { Bounds, shrink } from "../../positioning";
 import {
   BooleanProperty,
@@ -45,6 +46,8 @@ const PROP_TRANSPARENT_BACKGROUND = "transparent_background";
 const OUTLINE_COLOR_3D = new Color(160, 160, 160);
 
 export class Tank extends Widget {
+  private tooltipRegion?: HitRegionSpecification;
+
   constructor(display: Display, parent: AbstractContainerWidget) {
     super(display, parent);
     this.properties.add(new ColorProperty(PROP_COLOR_HI));
@@ -78,6 +81,13 @@ export class Tank extends Widget {
     this.properties.add(new BooleanProperty(PROP_TRANSPARENT_BACKGROUND));
   }
 
+  init(): void {
+    this.tooltipRegion = {
+      id: `${this.wuid}-tooltip`,
+      tooltip: () => this.tooltip,
+    };
+  }
+
   draw(g: Graphics) {
     const { scale, min, max } = this;
     let area = this.area;
@@ -87,6 +97,11 @@ export class Tank extends Widget {
     const backgroundColor = this.alarmSensitiveBackgroundColor;
     if (!this.transparentBackground) {
       g.fillRect({ ...area, color: backgroundColor });
+    }
+
+    if (this.tooltip) {
+      const hitRegion = g.addHitRegion(this.tooltipRegion!);
+      hitRegion.addRect(this.x, this.y, this.width, this.height);
     }
 
     const foregroundColor = this.alarmSensitiveForegroundColor;

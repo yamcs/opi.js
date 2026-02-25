@@ -3,6 +3,7 @@ import { DecimalFormat } from "../../DecimalFormat";
 import { Display } from "../../Display";
 import { Font } from "../../Font";
 import { Graphics, Path } from "../../Graphics";
+import { HitRegionSpecification } from "../../HitRegionSpecification";
 import { Bounds, shrink } from "../../positioning";
 import {
   BooleanProperty,
@@ -51,6 +52,8 @@ const PROP_VALUE_LABEL_FORMAT = "value_label_format";
 const OUTLINE_COLOR_3D = new Color(160, 160, 160);
 
 export class Thermometer extends Widget {
+  private tooltipRegion?: HitRegionSpecification;
+
   constructor(display: Display, parent: AbstractContainerWidget) {
     super(display, parent);
     this.properties.add(new ColorProperty(PROP_COLOR_HI));
@@ -88,6 +91,13 @@ export class Thermometer extends Widget {
     this.properties.add(new StringProperty(PROP_VALUE_LABEL_FORMAT));
   }
 
+  init(): void {
+    this.tooltipRegion = {
+      id: `${this.wuid}-tooltip`,
+      tooltip: () => this.tooltip,
+    };
+  }
+
   draw(g: Graphics) {
     const { scale, min, max } = this;
     let area = this.area;
@@ -99,6 +109,11 @@ export class Thermometer extends Widget {
     const fillColor = this.alarmSensitiveFillColor;
     if (!this.transparentBackground) {
       g.fillRect({ ...area, color: backgroundColor });
+    }
+
+    if (this.tooltip) {
+      const hitRegion = g.addHitRegion(this.tooltipRegion!);
+      hitRegion.addRect(this.x, this.y, this.width, this.height);
     }
 
     let pipeHeight = area.height;
