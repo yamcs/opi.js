@@ -46,6 +46,16 @@ export class PVUtil {
     return parseFloat(numberValue ?? pv.getValue());
   }
 
+  getDoubleArray(pv: PVWrapper) {
+    this.checkPVValue(pv);
+    const value = pv.getValue();
+    if (Array.isArray(value)) {
+      return value.map((item) => parseFloat(item));
+    } else {
+      return [parseFloat(value)];
+    }
+  }
+
   getLong(pv: PVWrapper) {
     this.checkPVValue(pv);
     // Note: for enumerations this should return the index
@@ -55,6 +65,24 @@ export class PVUtil {
     }
     // It probably already is an int, but parseInt again to emit error if it's not
     return parseInt(numberValue ?? pv.getValue(), 10);
+  }
+
+  getLongArray(pv: PVWrapper) {
+    this.checkPVValue(pv);
+    let value = pv.getValue();
+    if (Array.isArray(value)) {
+      return value.map((item) => {
+        if (typeof item === "number") {
+          item = Math.floor(item);
+        }
+        return parseInt(item, 10);
+      });
+    } else {
+      if (typeof value === "number") {
+        value = Math.floor(value);
+      }
+      return [parseInt(value, 10)];
+    }
   }
 
   getString(pv: PVWrapper) {
