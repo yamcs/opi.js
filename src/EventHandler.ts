@@ -125,6 +125,20 @@ export class EventHandler {
     if (isLeftPressed(event)) {
       const point = this.toPoint(event);
 
+      // event.preventDefault() below suppresses the browser's natural focus
+      // change, which would otherwise fire blur on any focused input and commit
+      // the TextInput value. Do it explicitly here so the value is committed
+      // before the click handler runs.
+      const active = document.activeElement;
+      if (
+        this.display.rootPanel.contains(active) &&
+        (active instanceof HTMLInputElement ||
+          active instanceof HTMLTextAreaElement ||
+          active instanceof HTMLSelectElement)
+      ) {
+        active.blur();
+      }
+
       const region = this.hitCanvas.getActiveRegion(point.x, point.y);
       if (region && region.mouseDown) {
         region.mouseDown({
