@@ -58,9 +58,11 @@ export class BooleanButton extends Widget {
   }
 
   init() {
+    const self = this;
     this.areaRegion = {
       id: `${this.wuid}-area`,
       mouseDown: () => {
+        if (!this.enabled) return;
         if (this.toggleButton) {
           this.booleanValue ? this.toggleOff() : this.toggleOn();
         } else {
@@ -73,20 +75,23 @@ export class BooleanButton extends Widget {
         this.requestRepaint();
       },
       mouseUp: () => {
+        if (!this.enabled) return;
         if (this.booleanValue && !this.toggleButton) {
           this.toggleOff();
           this.requestRepaint();
         }
       },
       mouseOut: () => {
-        if (this.booleanValue && !this.toggleButton) {
+        if (this.enabled && this.booleanValue && !this.toggleButton) {
           this.toggleOff();
         }
         this.hovered = false;
         this.requestRepaint();
       },
       tooltip: () => this.tooltip,
-      cursor: "pointer",
+      get cursor() {
+        return self.enabled ? "pointer" : "default";
+      },
     };
   }
 
@@ -165,15 +170,37 @@ export class BooleanButton extends Widget {
     }
 
     if (this.showBooleanLabel) {
-      g.fillText({
-        x: this.x + this.width / 2,
-        y: this.y + this.height / 2,
-        font: this.font,
-        color: this.foregroundColor,
-        align: "center",
-        baseline: "middle",
-        text: toggled ? this.onLabel : this.offLabel,
-      });
+      const label = toggled ? this.onLabel : this.offLabel;
+      if (this.enabled) {
+        g.fillText({
+          x: this.x + this.width / 2,
+          y: this.y + this.height / 2,
+          font: this.font,
+          color: this.foregroundColor,
+          align: "center",
+          baseline: "middle",
+          text: label,
+        });
+      } else {
+        g.fillText({
+          x: this.x + this.width / 2 + this.scale,
+          y: this.y + this.height / 2 + this.scale,
+          font: this.font,
+          color: Color.BUTTON_LIGHTEST,
+          align: "center",
+          baseline: "middle",
+          text: label,
+        });
+        g.fillText({
+          x: this.x + this.width / 2,
+          y: this.y + this.height / 2,
+          font: this.font,
+          color: Color.BUTTON_DARKER,
+          align: "center",
+          baseline: "middle",
+          text: label,
+        });
+      }
     }
   }
 
@@ -220,7 +247,7 @@ export class BooleanButton extends Widget {
     }
 
     let color = this.backgroundColor;
-    if (this.hovered) {
+    if (this.hovered && this.enabled) {
       color = this.backgroundColor.mixWith(Color.WHITE, 0.5);
     }
     g.fillRect({
@@ -269,7 +296,7 @@ export class BooleanButton extends Widget {
     const area = g.addHitRegion(this.areaRegion!);
     area.addEllipse(x, y, rx, ry, 0, 0, 2 * Math.PI);
 
-    if (this.hovered) {
+    if (this.hovered && this.enabled) {
       g.ctx.fillStyle = this.backgroundColor
         .mixWith(Color.WHITE, 0.5)
         .toString();
