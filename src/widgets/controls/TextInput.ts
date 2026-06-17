@@ -29,6 +29,8 @@ export class TextInput extends Widget {
 
   private inputEl?: HTMLInputElement | HTMLTextAreaElement;
   private editing = false;
+  private scratchCanvas?: HTMLCanvasElement;
+  private scratchCtx?: CanvasRenderingContext2D;
 
   constructor(display: Display, parent: AbstractContainerWidget) {
     super(display, parent);
@@ -123,6 +125,9 @@ export class TextInput extends Widget {
       }
     });
     this.display.rootPanel.appendChild(this.inputEl);
+
+    this.scratchCanvas = document.createElement("canvas");
+    this.scratchCtx = this.scratchCanvas.getContext("2d")!;
   }
 
   private cancelInput() {
@@ -153,10 +158,9 @@ export class TextInput extends Widget {
     }
 
     // Draw text first to a temporary canvas, for clip reasons
-    const tmpCanvas = document.createElement("canvas");
-    tmpCanvas.width = this.area.width;
-    tmpCanvas.height = this.area.height;
-    const offscreenCtx = tmpCanvas.getContext("2d")!;
+    this.scratchCanvas!.width = this.area.width;
+    this.scratchCanvas!.height = this.area.height;
+    const offscreenCtx = this.scratchCtx!;
 
     offscreenCtx.fillStyle = this.alarmSensitiveForegroundColor.toString();
     offscreenCtx.font = this.font.getFontString();
@@ -208,7 +212,7 @@ export class TextInput extends Widget {
     }
 
     offscreenCtx.fillText(text, x - this.area.x, y - this.area.y);
-    ctx.drawImage(tmpCanvas, this.area.x, this.area.y);
+    ctx.drawImage(this.scratchCanvas!, this.area.x, this.area.y);
   }
 
   hide() {
@@ -223,6 +227,8 @@ export class TextInput extends Widget {
       this.display.rootPanel.removeChild(this.inputEl);
       this.inputEl = undefined;
     }
+    this.scratchCanvas = undefined;
+    this.scratchCtx = undefined;
   }
 
   get value() {
