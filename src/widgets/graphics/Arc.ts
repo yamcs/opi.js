@@ -67,8 +67,8 @@ export class Arc extends Widget {
       g.strokeEllipse({
         cx,
         cy,
-        rx,
-        ry,
+        rx: rx - this.lineWidth / 2,
+        ry: ry - this.lineWidth / 2,
         startAngle,
         endAngle,
         lineWidth: this.lineWidth,

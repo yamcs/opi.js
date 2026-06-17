@@ -1,7 +1,12 @@
 import { Color } from "../../Color";
 import { Display } from "../../Display";
 import { Graphics, Path } from "../../Graphics";
-import { Point, scalePoints, translatePoints } from "../../positioning";
+import {
+  halfPixelPoints,
+  Point,
+  scalePoints,
+  translatePoints,
+} from "../../positioning";
 import {
   BooleanProperty,
   ColorProperty,
@@ -52,7 +57,7 @@ export class Polygon extends Widget {
     const { scale } = this;
     g.ctx.globalAlpha = this.alpha / 255;
 
-    const path = Path.fromPoints(this.points).closePath();
+    const path = Path.fromPoints(halfPixelPoints(this.points)).closePath();
     if (!this.transparent) {
       const backgroundColor = this.alarmSensitiveBackgroundColor;
       g.fillPath({ path, color: backgroundColor });

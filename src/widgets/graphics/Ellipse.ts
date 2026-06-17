@@ -67,12 +67,14 @@ export class Ellipse extends Widget {
     }
 
     if (this.lineWidth) {
+      const strokeRx = rx - this.lineWidth / 2;
+      const strokeRy = ry - this.lineWidth / 2;
       if (this.lineStyle === 0) {
         g.strokeEllipse({
           cx,
           cy,
-          rx,
-          ry,
+          rx: strokeRx,
+          ry: strokeRy,
           color: this.lineColor,
           lineWidth: this.lineWidth,
         });
@@ -80,8 +82,8 @@ export class Ellipse extends Widget {
         g.strokeEllipse({
           cx,
           cy,
-          rx,
-          ry,
+          rx: strokeRx,
+          ry: strokeRy,
           color: this.lineColor,
           lineWidth: this.lineWidth,
           dash: [6 * this.scale, 2 * this.scale],
