@@ -82,7 +82,13 @@ export class ImageWidget extends Widget {
     this.imageLoaded = false;
     if (this.imageElement && this.imageFile) {
       this.currentImageFile = this.imageFile;
-      this.imageElement.src = this.resolvePath(this.imageFile);
+      const el = this.imageElement;
+      this.display
+        .getImageLoader()
+        .load(this.resolvePath(this.imageFile))
+        .then((src) => {
+          el.src = src;
+        });
     }
   }
 

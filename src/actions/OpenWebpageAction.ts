@@ -12,7 +12,10 @@ export class OpenWebpageAction extends Action {
 
   execute(widget: Widget) {
     if (this.hyperlink) {
-      window.location.href = this.hyperlink;
+      window.parent.postMessage(
+        { type: "openwebpage", url: this.hyperlink },
+        "*",
+      );
     }
   }
 

@@ -5,6 +5,7 @@ export interface OPIEvent {
 export interface OPIEventMap {
   [index: string]: OPIEvent;
   closedisplay: CloseDisplayEvent;
+  displayloaded: DisplayLoadedEvent;
   opendisplay: OpenDisplayEvent;
   openpv: OpenPVEvent;
   runcommand: RunCommandEvent;
@@ -60,6 +61,13 @@ export interface RunStackEvent extends OPIEvent {
 export interface RunProcedureEvent extends OPIEvent {
   procedure: string;
   args: { [key: string]: string };
+}
+
+/**
+ * The display has finished loading and is ready to paint.
+ */
+export interface DisplayLoadedEvent extends OPIEvent {
+  backgroundColor: string;
 }
 
 /**

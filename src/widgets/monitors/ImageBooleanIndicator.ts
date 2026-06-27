@@ -51,10 +51,22 @@ export class ImageBooleanIndicator extends Widget {
     };
 
     if (this.onImage) {
-      this.onImageElement.src = this.resolvePath(this.onImage);
+      const el = this.onImageElement;
+      this.display
+        .getImageLoader()
+        .load(this.resolvePath(this.onImage))
+        .then((src) => {
+          el.src = src;
+        });
     }
     if (this.offImage) {
-      this.offImageElement.src = this.resolvePath(this.offImage);
+      const el = this.offImageElement;
+      this.display
+        .getImageLoader()
+        .load(this.resolvePath(this.offImage))
+        .then((src) => {
+          el.src = src;
+        });
     }
   }
 

@@ -25,3 +25,13 @@ await build({
     }),
   ],
 });
+
+await build({
+  entryPoints: ["./src/opi.standalone.ts"],
+  outfile: "./dist/opi.standalone.js",
+  sourcemap: false,
+  bundle: true,
+  platform: "browser",
+  format: "iife",
+  minify: true,
+});

@@ -32,14 +32,8 @@ export class LinkingContainer extends AbstractContainerWidget {
   async init() {
     if (this.opiFile) {
       this.resolvedOpiFile = this.display.resolvePath(this.opiFile);
-      const response = await fetch(this.resolvedOpiFile, {
-        // Send cookies too.
-        // Old versions of Firefox do not do this automatically.
-        credentials: "same-origin",
-      });
-
-      if (response.ok) {
-        const source = await response.text();
+      const source = await this.display.loadContent(this.resolvedOpiFile);
+      if (source !== null) {
         this.linkedDisplay = new DisplayWidget(this.display, this);
         const displayNode = XMLNode.parseFromXML(source);
         await this.linkedDisplay.parseNode(displayNode);

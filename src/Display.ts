@@ -6,11 +6,13 @@ import { FontResolver } from "./FontResolver";
 import { Formatter } from "./Formatter";
 import { Graphics } from "./Graphics";
 import { HitRegionSpecification } from "./HitRegionSpecification";
+import { DefaultImageLoader, ImageLoader } from "./ImageLoader";
 import { DefaultPathResolver, PathResolver } from "./PathResolver";
 import { DefaultScriptLoader, ScriptLoader } from "./ScriptLoader";
 import { Widget } from "./Widget";
 import { XMLNode } from "./XMLNode";
 import {
+  DisplayLoadedEvent,
   OPIEvent,
   OPIEventHandlers,
   OPIEventMap,
@@ -109,6 +111,7 @@ export class Display {
   private pathResolver: PathResolver;
   private fontResolver?: FontResolver;
   private scriptLoader: ScriptLoader;
+  private imageLoader: ImageLoader;
   private consoleHandler: ConsoleHandler;
   private dialogHandler: DialogHandler;
   formatter: Formatter;
@@ -144,6 +147,7 @@ export class Display {
 
   private eventListeners: OPIEventHandlers = {
     closedisplay: [],
+    displayloaded: [],
     opendisplay: [],
     openpv: [],
     runcommand: [],
@@ -195,6 +199,7 @@ export class Display {
     this.scriptLoader = new DefaultScriptLoader(this);
     this.consoleHandler = new DefaultConsoleHandler();
     this.dialogHandler = new DefaultDialogHandler();
+    this.imageLoader = new DefaultImageLoader();
 
     window.setTimeout(() => this.step());
 
@@ -223,6 +228,18 @@ export class Display {
 
   getScriptLoader() {
     return this.scriptLoader;
+  }
+
+  loadContent(url: string): Promise<string | null> {
+    return this.scriptLoader.load(url);
+  }
+
+  setImageLoader(imageLoader: ImageLoader) {
+    this.imageLoader = imageLoader;
+  }
+
+  getImageLoader() {
+    return this.imageLoader;
   }
 
   setConsoleHandler(consoleHandler: ConsoleHandler) {
@@ -512,13 +529,17 @@ export class Display {
     });
   }
 
-  private setSourceString(source: string, args?: { [key: string]: string }) {
+  setSourceString(source: string, args?: { [key: string]: string }) {
     this.reset();
     this.instance = new DisplayWidget(this, undefined, args);
     const displayNode = XMLNode.parseFromXML(source);
     this.instance.parseNode(displayNode).then(() => {
       this.pvEngine.init();
       this.requestRepaint();
+      const displayLoadedEvent: DisplayLoadedEvent = {
+        backgroundColor: this.instance!.backgroundColor.toString(),
+      };
+      this.fireEvent("displayloaded", displayLoadedEvent);
     });
   }
 

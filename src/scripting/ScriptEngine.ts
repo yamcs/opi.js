@@ -7,29 +7,6 @@ interface Context {
   [key: string]: any;
 }
 
-let iframe: HTMLIFrameElement;
-let contentWindow: any;
-let wEval: any;
-function createIframe() {
-  iframe = document.createElement("iframe");
-  iframe.id = "script-e";
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
-
-  contentWindow = iframe.contentWindow as any;
-  wEval = contentWindow.eval;
-  if (!wEval && contentWindow.execScript) {
-    // IE
-    contentWindow.execScript.call(contentWindow, "null");
-    wEval = contentWindow.eval;
-  }
-}
-
-export function getIframeContentWindow() {
-  const el = document.getElementById("script-e") as HTMLIFrameElement;
-  return el.contentWindow;
-}
-
 export class ScriptEngine {
   private context: Context;
 
@@ -38,9 +15,6 @@ export class ScriptEngine {
     readonly scriptText: string,
     pvs: PV[] = [],
   ) {
-    if (!iframe) {
-      createIframe();
-    }
     this.scriptText = scriptText
       .replace(/importClass\([^\)]*\)\s*\;?/gi, "")
       .replace(/importPackage\([^\)]*\)\s*\;?/gi, "")
@@ -66,52 +40,47 @@ export class ScriptEngine {
       }
 
       this.runWithContext(() => {
-        wEval.call(contentWindow, this.scriptText);
+        // Indirect eval: runs in global scope, not this module's lexical scope.
+        (0, eval)(this.scriptText);
       });
     });
   }
 
-  // Run a specific callback async, but
-  // while preserving current state of context.
-  //
-  // This is used for faking setTimeout without losing
-  // the iframe state.
+  // Run a specific callback while preserving the current context state.
+  // Must only be called from a setTimeout to avoid nested script execution.
   schedule(runnable: () => void, ms?: number) {
     window.setTimeout(() => this.runWithContext(runnable), ms);
   }
 
-  // This should be called only from a setTimeout call,
-  // so that there's no nesting of scripts triggering
-  // other scripts.
   private runWithContext(runnable: () => void) {
-    // Mark current globals
-    const originalGlobals = [];
-    for (const k in iframe.contentWindow) {
+    // Snapshot existing globals so we can restore them after the run.
+    const originalGlobals: string[] = [];
+    for (const k in window) {
       originalGlobals.push(k);
     }
 
     try {
-      // Add context to iframe globals
+      // Expose context as globals so scripts can reference pvs, triggerPV, etc.
       for (const k in this.context) {
         if (this.context.hasOwnProperty(k)) {
-          contentWindow[k] = this.context[k];
+          (window as any)[k] = this.context[k];
         }
       }
       runnable();
 
-      // Extract updated context
+      // Capture any new or modified globals as updated context for the next run.
       const updatedContext: Context = {};
-      for (const k in contentWindow) {
+      for (const k in window) {
         if (originalGlobals.indexOf(k) === -1) {
-          updatedContext[k] = contentWindow[k];
+          updatedContext[k] = (window as any)[k];
         }
       }
       this.context = updatedContext;
     } finally {
-      // Reset iframe
-      for (const k in contentWindow) {
+      // Remove everything added during this run.
+      for (const k in window) {
         if (originalGlobals.indexOf(k) === -1) {
-          delete contentWindow[k];
+          delete (window as any)[k];
         }
       }
     }
