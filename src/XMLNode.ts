@@ -387,12 +387,18 @@ export class XMLNode {
             expression: expNode.getStringAttribute("bool_exp"),
             outputValue: expNode.getColor("value"),
           });
-        } else if (valueNode.hasAttribute("bool_exp")) {
-          expressions.push({
-            type: "string",
-            expression: expNode.getStringAttribute("bool_exp"),
-            outputValue: expNode.getString("value"),
-          });
+        } else {
+          // Handles <value bool_exp="false">literal</value> (constant) and
+          // <value>expression</value> (JS expression when out_exp="true").
+          // Blank rows from Yamcs Studio produce <value></value>; skip those.
+          const outputValue = expNode.getString("value");
+          if (outputValue.trim() !== "") {
+            expressions.push({
+              type: "string",
+              expression: expNode.getStringAttribute("bool_exp"),
+              outputValue,
+            });
+          }
         }
       }
       rules.rules.push({
