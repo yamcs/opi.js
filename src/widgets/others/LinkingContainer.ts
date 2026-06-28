@@ -32,7 +32,7 @@ export class LinkingContainer extends AbstractContainerWidget {
   async init() {
     if (this.opiFile) {
       this.resolvedOpiFile = this.display.resolvePath(this.opiFile);
-      const source = await this.display.loadContent(this.resolvedOpiFile);
+      const source = await this.display.loadContent(this.opiFile);
       if (source !== null) {
         this.linkedDisplay = new DisplayWidget(this.display, this);
         const displayNode = XMLNode.parseFromXML(source);
