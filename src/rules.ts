@@ -13,8 +13,7 @@ export interface Rule {
 }
 
 export type BooleanExpression =
-  | StringOutputBooleanExpression
-  | ColorOutputBooleanExpression;
+  StringOutputBooleanExpression | ColorOutputBooleanExpression;
 
 export interface StringOutputBooleanExpression {
   type: "string";

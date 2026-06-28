@@ -26,10 +26,7 @@ function convertToString(value: any) {
 }
 
 export type LocalPVType =
-  | "VDouble"
-  | "VDoubleArray"
-  | "VString"
-  | "VStringArray";
+  "VDouble" | "VDoubleArray" | "VString" | "VStringArray";
 
 export class LocalPV extends PV {
   constructor(
